@@ -6,6 +6,7 @@ import com.sbstudy.basic_lock2.global.jpa.rsdata.RespData;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,9 +54,13 @@ public class PostService {
         return post;
     }
 
+    @SneakyThrows
     @Transactional
     public Post modifyWithOptimistic(long id, String title) {
         Post post = postRepository.findById(id).get();
+
+        Thread.sleep(10_000L);
+
         post.setTitle(title);
 
         return post;
