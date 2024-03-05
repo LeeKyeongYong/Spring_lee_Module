@@ -4,6 +4,7 @@ import com.sbstudy.basic_lock2.domain.post.entity.Post;
 import com.sbstudy.basic_lock2.domain.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -60,7 +61,7 @@ public class ApiV1PostController {
     }
 
     @GetMapping("/{id}/putWithOptimistic")
-    @Transactional
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public Post modifyWithOptimistic(
             @PathVariable long id,
             String title

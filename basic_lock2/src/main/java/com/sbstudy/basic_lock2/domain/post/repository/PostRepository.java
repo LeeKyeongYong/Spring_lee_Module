@@ -8,9 +8,12 @@ import org.springframework.data.jpa.repository.Lock;
 import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post,Long> {
+    
+    //비관적인 락
     @Lock(LockModeType.PESSIMISTIC_READ)
     Optional<Post> findWithShareLockById(long id);
 
+    //쓰기락
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Post> findWithWriteLockById(long id);
 }
