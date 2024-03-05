@@ -44,4 +44,20 @@ public class PostService {
     public Optional<Post> findWithWriteLockById(long id) {
         return postRepository.findWithWriteLockById(id);
     }
+
+    @Transactional
+    public Post modifyWithPessimistic(long id, String title) {
+        Post post = postRepository.findWithWriteLockById(id).get();
+        post.setTitle(title);
+
+        return post;
+    }
+
+    @Transactional
+    public Post modifyWithOptimistic(long id, String title) {
+        Post post = postRepository.findById(id).get();
+        post.setTitle(title);
+
+        return post;
+    }
 }
