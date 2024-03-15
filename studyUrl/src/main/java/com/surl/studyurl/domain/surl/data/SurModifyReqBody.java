@@ -4,8 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class SurCreateReqBody {
+public class SurModifyReqBody {
     @NotBlank
-    public String url;
     public String title;
 }
