@@ -1,4 +1,4 @@
-package com.surl.studyurl.domain.home;
+package com.surl.studyurl.domain.home.controller;
 
 import org.springframework.ai.image.Image;
 import org.springframework.ai.image.ImageClient;
@@ -7,7 +7,6 @@ import org.springframework.ai.image.ImageResponse;
 import org.springframework.ai.openai.OpenAiImageOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
