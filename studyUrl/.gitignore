@@ -6,7 +6,7 @@
 
 ### Custom ###
 src/main/resources/application-secret.yml
-db.mv.db
+db_dev.mv.db
 db.trace.db
 application.yml
 
