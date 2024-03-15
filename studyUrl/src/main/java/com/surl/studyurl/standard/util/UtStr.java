@@ -1,7 +1,7 @@
 package com.surl.studyurl.standard.util;
 
 import lombok.SneakyThrows;
-import com.surl.studyurl.global.app.AppConfig;
+
 import java.util.Base64;
 
 public class UtStr {
@@ -9,12 +9,14 @@ public class UtStr {
 
         @SneakyThrows
         public static String toString(Object obj) {
-            return AppConfig.getObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+            return null;
+            //return AppConfig.getObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(obj);
         }
 
         @SneakyThrows
         public static <T> T toObj(String str, Class<T> cls) {
-            return AppConfig.getObjectMapper().readValue(str, cls);
+            return null;
+            //return AppConfig.getObjectMapper().readValue(str, cls);
         }
     }
 
