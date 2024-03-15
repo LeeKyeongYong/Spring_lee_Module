@@ -1,5 +1,7 @@
 package com.surl.studyurl.domain.surl.controller;
 
+import com.surl.studyurl.domain.member.entity.Member;
+import com.surl.studyurl.domain.member.service.MemberService;
 import com.surl.studyurl.domain.surl.data.SurCreateReqBody;
 import com.surl.studyurl.domain.surl.data.SurModifyReqBody;
 import com.surl.studyurl.domain.surl.service.SurService;
@@ -13,10 +15,14 @@ import org.springframework.web.bind.annotation.*;
 public class ApiV1SurlController {
 
     private final SurService surService;
+    private final MemberService memberService;
 
     @PostMapping("")
     public void create(@Valid @RequestBody SurCreateReqBody reqBody){
-        surService.create(reqBody.url,reqBody.title);
+
+        //surService.create(reqBody.url,reqBody.title);
+        Member author =memberService.findByUserNo(4L).get();
+        surService.create(author,reqBody.url,reqBody.title);
     }
 
     @PutMapping("/{id}")

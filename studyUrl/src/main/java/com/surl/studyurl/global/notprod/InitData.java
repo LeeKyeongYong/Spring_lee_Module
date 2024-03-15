@@ -1,5 +1,6 @@
 package com.surl.studyurl.global.notprod;
 
+import com.surl.studyurl.domain.member.entity.Member;
 import com.surl.studyurl.domain.member.service.MemberService;
 import com.surl.studyurl.domain.surl.service.SurService;
 import lombok.RequiredArgsConstructor;
@@ -33,19 +34,23 @@ public class InitData {
     @Transactional
     public void work1(){
 
-        memberService.create("system","1234","system");
-        memberService.create("admin","1234","admin");
-        memberService.create("garage","1234","garage");
+        Member memberSystem =  memberService.create("system","1234","system");
+        Member memberAdmin = memberService.create("admin","1234","admin");
+        Member memberGrage = memberService.create("garage","1234","garage");
+        Member memberUser1 = memberService.create("user1","1234","user1");
+        Member memberUser2 = memberService.create("user2","1234","user2");
+        Member memberUser3 = memberService.create("user3","1234","user3");
+        Member memberUser4 = memberService.create("user4","1234","user4");
 
 
-        surService.create("https://59.32.25.14:8080/byeHomeStay","홈스테이");
-        surService.create("https://59.32.25.14:8080/AppleMarket/main.do","AppleMarket");
-        surService.create("https://59.32.25.14:8080/vueSurvey/index.do","설문조사");
-        surService.create("https://59.32.25.14:8080/orgDepts/org.do","조직도프로그램");
-        surService.create("https://59.32.25.14:8080/metadata/metaMovie.do","MetaData");
-        surService.create("https://59.32.25.14:8080/usrMyInfo/myInfo.do","개발중1");
-        surService.create("https://59.32.25.14:8080/skyAir/Plane.do","Plane");
-        surService.create("https://59.32.25.14:8080/DangMae/emarket.do","당매");
+        surService.create(memberSystem,"https://59.32.25.14:8080/byeHomeStay","홈스테이");
+        surService.create(memberAdmin,"https://59.32.25.14:8080/AppleMarket/main.do","AppleMarket");
+        surService.create(memberGrage,"https://59.32.25.14:8080/vueSurvey/index.do","설문조사");
+        surService.create(memberUser1,"https://59.32.25.14:8080/orgDepts/org.do","조직도프로그램");
+        surService.create(memberUser2,"https://59.32.25.14:8080/metadata/metaMovie.do","MetaData");
+        surService.create(memberUser3,"https://59.32.25.14:8080/usrMyInfo/myInfo.do","개발중1");
+        surService.create(memberUser4,"https://59.32.25.14:8080/skyAir/Plane.do","Plane");
+        surService.create(memberAdmin,"https://59.32.25.14:8080/DangMae/emarket.do","당매");
 
     }
 }
