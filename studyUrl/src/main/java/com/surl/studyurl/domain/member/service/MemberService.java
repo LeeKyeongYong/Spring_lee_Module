@@ -30,4 +30,8 @@ public class MemberService {
     public Optional<Member> findByUserNo(long id){
         return memberRepository.findById(id);
     }
+
+    public Member getRefenceByNo(long id){
+        return memberRepository.getReferenceById(id);
+    }
 }

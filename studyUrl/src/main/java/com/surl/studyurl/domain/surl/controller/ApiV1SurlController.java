@@ -1,16 +1,14 @@
 package com.surl.studyurl.domain.surl.controller;
 
-import com.surl.studyurl.domain.member.entity.Member;
-import com.surl.studyurl.domain.member.service.MemberService;
 import com.surl.studyurl.domain.surl.data.SurCreateReqBody;
 import com.surl.studyurl.domain.surl.data.SurModifyReqBody;
 import com.surl.studyurl.domain.surl.service.SurService;
-import com.surl.studyurl.global.security.SecurityUser;
+import com.surl.studyurl.global.httpsdata.ReqData;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,22 +18,25 @@ import org.springframework.web.bind.annotation.*;
 public class ApiV1SurlController {
 
     private final SurService surService;
-    private final MemberService memberService;
+    private final ReqData reqData;
 
     @PostMapping("")
     @PreAuthorize("isAuthenticated()")
-    public void create(@Valid @RequestBody SurCreateReqBody reqBody
-           ,@AuthenticationPrincipal SecurityUser user) {
-           //, Principal principal){
-
+    @Transactional
+    public void create(
+            //@Valid @RequestBody SurCreateReqBody reqBody
+           //,@AuthenticationPrincipal SecurityUser user
+       @Valid @RequestBody SurCreateReqBody reqBody) {
+        surService.create(reqData.getMember(),reqBody.url,reqBody.title);
+        //, Principal principal){
         //surService.create(reqBody.url,reqBody.title);
         //log.debug("principal: {}",principal);
         //SecurityUser user = Principal == null ? null:(SecurityUser)((Authentication)principal).getPrincipal();
-        Member authMember = memberService.findByUserNo(user.getId()).get();
-        log.debug("user: {}",user);
-        Member author = authMember;
+        //Member authMember = memberService.findByUserNo(user.getId()).get();
+        //log.debug("user: {}",user);
+        //Member author = authMember;
         //Member author =memberService.findByUserNo(4L).get();
-        surService.create(author,reqBody.url,reqBody.title);
+        //surService.create(author,reqBody.url,reqBody.title);
     }
 
     @PutMapping("/{id}")
