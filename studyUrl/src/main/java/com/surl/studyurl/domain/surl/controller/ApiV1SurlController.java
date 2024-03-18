@@ -9,10 +9,9 @@ import com.surl.studyurl.global.security.SecurityUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/v1/surls")
@@ -24,13 +23,18 @@ public class ApiV1SurlController {
     private final MemberService memberService;
 
     @PostMapping("")
-    public void create(@Valid @RequestBody SurCreateReqBody reqBody, Principal principal){
+    @PreAuthorize("isAuthenticated()")
+    public void create(@Valid @RequestBody SurCreateReqBody reqBody
+           ,@AuthenticationPrincipal SecurityUser user) {
+           //, Principal principal){
 
         //surService.create(reqBody.url,reqBody.title);
         //log.debug("principal: {}",principal);
-        SecurityUser user = Principal == null ? null:(SecurityUser)((Authentication)principal).getPrincipal();
+        //SecurityUser user = Principal == null ? null:(SecurityUser)((Authentication)principal).getPrincipal();
+        Member authMember = memberService.findByUserNo(user.getId()).get();
         log.debug("user: {}",user);
-        Member author =memberService.findByUserNo(4L).get();
+        Member author = authMember;
+        //Member author =memberService.findByUserNo(4L).get();
         surService.create(author,reqBody.url,reqBody.title);
     }
 
