@@ -23,20 +23,8 @@ public class ApiV1SurlController {
     @PostMapping("")
     @PreAuthorize("isAuthenticated()")
     @Transactional
-    public void create(
-            //@Valid @RequestBody SurCreateReqBody reqBody
-           //,@AuthenticationPrincipal SecurityUser user
-       @Valid @RequestBody SurCreateReqBody reqBody) {
+    public void create(@Valid @RequestBody SurCreateReqBody reqBody) {
         surService.create(reqData.getMember(),reqBody.url,reqBody.title);
-        //, Principal principal){
-        //surService.create(reqBody.url,reqBody.title);
-        //log.debug("principal: {}",principal);
-        //SecurityUser user = Principal == null ? null:(SecurityUser)((Authentication)principal).getPrincipal();
-        //Member authMember = memberService.findByUserNo(user.getId()).get();
-        //log.debug("user: {}",user);
-        //Member author = authMember;
-        //Member author =memberService.findByUserNo(4L).get();
-        //surService.create(author,reqBody.url,reqBody.title);
     }
 
     @PutMapping("/{id}")

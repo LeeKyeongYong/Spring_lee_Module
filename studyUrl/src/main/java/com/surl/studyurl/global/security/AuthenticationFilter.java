@@ -29,8 +29,12 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
         String authorization = request.getHeader("Authorization");
         authorization = authorization.substring("Bearer ".length());
+        //System.out.println("authorization "+authorization);//json이 되었는가? Base64인코딩 된 인증정보
         String jsonStr = UtStr.base64Decode(authorization);
+        //System.out.println("jsonStr "+jsonStr); //문자열로 디코딩이되었는가? 사용된 인증정보
+
         Map map = UtStr.json.toObj(jsonStr, Map.class);
+        //System.out.println("map: "+map);//HTTP 요청 헤더의 Authorization 값으로 추가된 인증정보
 
         long securityUserId = (long) ((int) map.get("id"));
         String securityUserUsername = (String) map.get("username");
@@ -39,6 +43,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         SecurityUser securityUser = new SecurityUser(
                 securityUserId,
                 securityUserUsername,
+                "",
                 securityUserAuthorities
                         .stream()
                         .map(authority -> new SimpleGrantedAuthority(authority))
