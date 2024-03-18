@@ -7,20 +7,25 @@ import com.surl.studyurl.domain.surl.data.SurModifyReqBody;
 import com.surl.studyurl.domain.surl.service.SurService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/v1/surls")
 @RequiredArgsConstructor
+@Slf4j
 public class ApiV1SurlController {
 
     private final SurService surService;
     private final MemberService memberService;
 
     @PostMapping("")
-    public void create(@Valid @RequestBody SurCreateReqBody reqBody){
+    public void create(@Valid @RequestBody SurCreateReqBody reqBody, Principal principal){
 
         //surService.create(reqBody.url,reqBody.title);
+        log.debug("principal: {}",principal);
         Member author =memberService.findByUserNo(4L).get();
         surService.create(author,reqBody.url,reqBody.title);
     }
