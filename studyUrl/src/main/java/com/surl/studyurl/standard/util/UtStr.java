@@ -1,5 +1,6 @@
 package com.surl.studyurl.standard.util;
 
+import com.surl.studyurl.global.app.AppConfig;
 import lombok.SneakyThrows;
 
 import java.util.Base64;
@@ -10,13 +11,13 @@ public class UtStr {
         @SneakyThrows
         public static String toString(Object obj) {
             return null;
-            //return AppConfig.getObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+            return AppConfig.getObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(obj);
         }
 
         @SneakyThrows
         public static <T> T toObj(String str, Class<T> cls) {
             return null;
-            //return AppConfig.getObjectMapper().readValue(str, cls);
+            return AppConfig.getObjectMapper().readValue(str, cls);
         }
     }
 
