@@ -1,20 +1,25 @@
 package com.surl.studyurl.global.security;
 
-import com.surl.studyurl.standard.util.UtStr;
+import com.surl.studyurl.domain.member.service.MemberService;
+import com.surl.studyurl.global.httpsdata.ReqData;
+import com.surl.studyurl.global.httpsdata.RespData;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 @Component
+@RequiredArgsConstructor
 public class AuthenticationFilter extends OncePerRequestFilter {
+    private final MemberService memberService;
+    private final ReqData reqData;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         if (!request.getRequestURI().startsWith("/api/")) {
@@ -27,30 +32,50 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String authorization = request.getHeader("Authorization");
-        authorization = authorization.substring("Bearer ".length());
-        //System.out.println("authorization "+authorization);//json이 되었는가? Base64인코딩 된 인증정보
-        String jsonStr = UtStr.base64Decode(authorization);
-        //System.out.println("jsonStr "+jsonStr); //문자열로 디코딩이되었는가? 사용된 인증정보
+        String bearerToken = reqData.getHeader("Authorization", null);
 
-        Map map = UtStr.json.toObj(jsonStr, Map.class);
-        //System.out.println("map: "+map);//HTTP 요청 헤더의 Authorization 값으로 추가된 인증정보
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            // 토큰이 헤더로 들어온 경우
+            String tokensStr = bearerToken.substring("Bearer ".length());
+            String[] tokens = tokensStr.split(" ", 2);
+            String refreshToken = tokens[0];
+            String accessToken = tokens.length == 2 ? tokens[1] : "";
 
-        long securityUserId = (long) ((int) map.get("id"));
-        String securityUserUsername = (String) map.get("username");
-        List<String> securityUserAuthorities = (List<String>) map.get("authorities");
+            // 엑세스 토큰이 존재하면
+            if (!accessToken.isBlank()) {
+                // 유효성 체크하여 만료되었으면 리프레시 토큰으로 새로운 엑세스 토큰을 발급받고 응답헤더에 추가
+                if (!memberService.validateToken(accessToken)) {
+                    RespData<String> rs = memberService.refreshAccessToken(refreshToken);
+                    accessToken = rs.getData();
+                    reqData.setHeader("Authorization", "Bearer " + refreshToken + " " + accessToken);
+                }
 
-        SecurityUser securityUser = new SecurityUser(
-                securityUserId,
-                securityUserUsername,
-                "",
-                securityUserAuthorities
-                        .stream()
-                        .map(authority -> new SimpleGrantedAuthority(authority))
-                        .toList()
-        );
+                SecurityUser securityUser = memberService.getUserFromAccessToken(accessToken);
+                // 세션에 로그인하는 것이 아닌 1회성(이번 요청/응답 생명주기에서만 인정됨)으로 로그인 처리
+                // API 요청은, 로그인이 필요하다면 이렇게 매번 요청마다 로그인 처리가 되어야 하는게 맞다.
+                reqData.setLogin(securityUser);
+            }
+        } else {
+            // 토큰이 쿠키로 들어온 경우
+            String accessToken = reqData.getCookieValue("accessToken", "");
 
-        SecurityContextHolder.getContext().setAuthentication(securityUser.genAuthentication());
+            // 엑세스 토큰이 존재하면
+            if (!accessToken.isBlank()) {
+                // 유효성 체크하여 만료되었으면 리프레시 토큰으로 새로운 엑세스 토큰을 발급받고 응답쿠키에 추가
+                if (!memberService.validateToken(accessToken)) {
+                    String refreshToken = reqData.getCookieValue("refreshToken", "");
+
+                    RespData<String> rs = memberService.refreshAccessToken(refreshToken);
+                    accessToken = rs.getData();
+                    reqData.setCrossDomainCookie("accessToken", accessToken);
+                }
+
+                SecurityUser securityUser = memberService.getUserFromAccessToken(accessToken);
+                // 세션에 로그인하는 것이 아닌 1회성(이번 요청/응답 생명주기에서만 인정됨)으로 로그인 처리
+                // API 요청은, 로그인이 필요하다면 이렇게 매번 요청마다 로그인 처리가 되어야 하는게 맞다.
+                reqData.setLogin(securityUser);
+            }
+        }
 
         filterChain.doFilter(request, response);
     }

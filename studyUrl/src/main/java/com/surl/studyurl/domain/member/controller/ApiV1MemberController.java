@@ -24,8 +24,8 @@ public class ApiV1MemberController {
     @PostMapping(value = "/login")
     public RespData<LoginResponseBody> login(@Valid @RequestBody LoginRequestBody body){
         RespData<MemberService.AuthAndMakeTokensResponseBody> authAndMakeTokensRs = memberService.authAndMakeTokens(
-                body.userid,
-                body.password
+                body.userid(),
+                body.password()
         );
 
         reqData.setCrossDomainCookie("refreshToken", authAndMakeTokensRs.getData().refreshToken());

@@ -4,6 +4,7 @@ import com.surl.studyurl.domain.member.entity.Member;
 import com.surl.studyurl.domain.member.service.MemberService;
 import com.surl.studyurl.global.app.AppConfig;
 import com.surl.studyurl.global.security.SecurityUser;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -83,5 +84,53 @@ public class ReqData {
 
         return null;
     }
+    public String getHeader(String name, String defaultValue) {
+        String value = req.getHeader(name);
 
+        return value != null ? value : defaultValue;
+    }
+
+    public void setHeader(String name, String value) {
+        resp.setHeader(name, value);
+    }
+
+    public void setLogin(SecurityUser securityUser) {
+        SecurityContextHolder.getContext().setAuthentication(securityUser.genAuthentication());
+    }
+
+    public Cookie getCookie(String name) {
+        Cookie[] cookies = req.getCookies();
+
+        if (cookies == null) {
+            return null;
+        }
+
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals(name)) {
+                return cookie;
+            }
+        }
+
+        return null;
+    }
+
+    public String getCookieValue(String name, String defaultValue) {
+        Cookie cookie = getCookie(name);
+
+        if (cookie == null) {
+            return defaultValue;
+        }
+
+        return cookie.getValue();
+    }
+
+    private long getCookieAsLong(String name, int defaultValue) {
+        String value = getCookieValue(name, null);
+
+        if (value == null) {
+            return defaultValue;
+        }
+
+        return Long.parseLong(value);
+    }
 }
