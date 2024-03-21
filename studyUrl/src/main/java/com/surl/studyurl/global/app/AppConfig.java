@@ -48,4 +48,20 @@ public class AppConfig {
         return new BCryptPasswordEncoder();
     }
 
+    @Getter
+    private static String siteFrontUrl;
+
+    @Value("${custom.site.frontUrl}")
+    public void setSiteFrontUrl(String siteFrontUrl){
+        this.siteFrontUrl = siteFrontUrl;
+    }
+
+    @Getter
+    public static String genFileDirPath;
+
+    @Value("${custom.genFile.dirPath}")
+    public void setGenFileDirPath(String genFileDirPath){
+        this.genFileDirPath = genFileDirPath;
+    }
+
 }
