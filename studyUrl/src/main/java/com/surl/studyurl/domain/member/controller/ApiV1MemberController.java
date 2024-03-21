@@ -28,6 +28,9 @@ public class ApiV1MemberController {
                 body.password()
         );
 
+
+        System.out.println("body: "+body.toString());
+
         reqData.setCrossDomainCookie("refreshToken", authAndMakeTokensRs.getData().refreshToken());
         reqData.setCrossDomainCookie("accessToken", authAndMakeTokensRs.getData().accessToken());
 

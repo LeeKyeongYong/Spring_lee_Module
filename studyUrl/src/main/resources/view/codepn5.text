@@ -1,0 +1,85 @@
+html>
+<h1>로그인</h1>
+
+<div>
+  <h2>로그인 폼</h2>
+
+  <form action="" onsubmit="submitLoginForm(this); return false;">
+    <input type="text" name="username" placeholder="USERNAME">
+    <input type="password" name="password" placeholder="PASSWORD">
+    <input type="submit" value="로그인">
+  </form>
+
+  <h2>로그인 결과</h2>
+  <div id="login-rs"></div>
+</div>
+
+<h1>주소 단축</h1>
+<div>
+  <h2>주소 단축 폼</h2>
+  <form action="" onsubmit="submitShortenUrlForm(this); return false;">
+    <input type="text" name="title" placeholder="TITLE">
+    <input type="url" name="url" placeholder="URL">
+    <input type="submit" value="줄이기">
+  </form>
+
+  <hr>
+
+  <h2>주소 단축 결과</h2>
+  <div id="shorten-url-rs"></div>
+</div>
+
+javascript>
+console.clear();
+
+async function submitLoginForm(form) {
+  try {
+    const response = await fetch("http://localhost:8090/api/v1/members/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: form.username.value,
+        password: form.password.value
+      }),
+      credentials: "include"
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) throw data;
+
+    document.querySelector(
+      "#login-rs"
+    ).innerHTML = `<button>${data.data.item.name} 로그아웃</button>`;
+  } catch (error) {
+    console.error("login form submission failed:", error);
+  }
+}
+
+async function submitShortenUrlForm(form) {
+  try {
+    const response = await fetch("http://localhost:8090/api/v1/surls", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        title: form.title.value,
+        url: form.url.value
+      }),
+      credentials: "include"
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) throw data;
+
+    document.querySelector(
+      "#shorten-url-rs"
+    ).innerHTML = `<a href="${data.data.shortUrl}" target="_blank">${data.data.shortUrl}</a>`;
+  } catch (error) {
+    console.error("shorten url form submission failed:", error);
+  }
+}
