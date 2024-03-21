@@ -52,7 +52,7 @@ public class AppConfig {
     private static String siteFrontUrl;
 
     @Value("${custom.site.frontUrl}")
-    public void setSiteFrontUrl(String siteFrontUrl){
+    public void setSiteFrontUrl(String siteFrontUrl) {
         this.siteFrontUrl = siteFrontUrl;
     }
 
@@ -60,7 +60,7 @@ public class AppConfig {
     public static String genFileDirPath;
 
     @Value("${custom.genFile.dirPath}")
-    public void setGenFileDirPath(String genFileDirPath){
+    public void setGenFileDirPath(String genFileDirPath) {
         this.genFileDirPath = genFileDirPath;
     }
 
