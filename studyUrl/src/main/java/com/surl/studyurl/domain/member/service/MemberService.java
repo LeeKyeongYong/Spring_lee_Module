@@ -51,8 +51,8 @@ public class MemberService {
     }
 
     @Transactional
-    public RespData <AuthAndMakeTokensResponseBody> authAndMakeTokens(String username, String password) {
-        Member member = findByUsername(username)
+    public RespData <AuthAndMakeTokensResponseBody> authAndMakeTokens(String userid, String password) {
+        Member member = findByUsername(userid)
                 .orElseThrow(() -> new GlobalException("400-1", "해당 유저가 존재하지 않습니다."));
 
         if (!passwordMatches(member, password))
@@ -71,20 +71,20 @@ public class MemberService {
         return passwordEncoder.matches(password, member.getPassword());
     }
 
-    private Optional<Member> findByUsername(String username) {
-        return memberRepository.findByUserid(username);
+    private Optional<Member> findByUsername(String userid) {
+        return memberRepository.findByUserid(userid);
     }
 
     public SecurityUser getUserFromAccessToken(String accessToken) {
         Map<String, Object> payloadBody = authTokenService.getDataFrom(accessToken);
 
         long id = (int) payloadBody.get("id");
-        String username = (String) payloadBody.get("username");
+        String userid = (String) payloadBody.get("userid");
         List<String> authorities = (List<String>) payloadBody.get("authorities");
 
         return new SecurityUser(
                 id,
-                username,
+                userid,
                 "",
                 authorities.stream().map(SimpleGrantedAuthority::new).toList()
         );

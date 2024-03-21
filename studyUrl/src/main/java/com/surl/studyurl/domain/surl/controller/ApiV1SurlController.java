@@ -28,6 +28,7 @@ public class ApiV1SurlController {
     @Transactional
     public RespData<SurlCreateRespBody> create(@Valid @RequestBody SurCreateReqBody reqBody) {
         Surl surl = surService.create(reqData.getMember(), reqBody.url(),reqBody.title());
+        System.out.println("reqData.getMember(): "+reqData.getMember());
         return RespData.of(new SurlCreateRespBody(surl.getShortUrl()));
     }
 

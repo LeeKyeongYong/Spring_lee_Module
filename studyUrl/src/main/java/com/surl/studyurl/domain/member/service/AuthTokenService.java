@@ -20,7 +20,8 @@ public class AuthTokenService {
         Claims claims = Jwts
                 .claims()
                 .add("id", member.getId())
-                .add("username", member.getUsername())
+                .add("userid", member.getUserid())
+
                 .add("authorities", member.getAuthoritiesAsStringList())
                 .build();
 
@@ -45,10 +46,9 @@ public class AuthTokenService {
                 .build()
                 .parseClaimsJws(token)
                 .getPayload();
-
         return Map.of(
                 "id", payload.get("id", Integer.class),
-                "username", payload.get("username", String.class),
+                "userid", payload.get("userid", String.class),
                 "authorities", payload.get("authorities", List.class)
         );
     }

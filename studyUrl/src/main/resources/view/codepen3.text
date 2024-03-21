@@ -1,0 +1,33 @@
+html>
+<form action="" onsubmit="submitForm(this); return false;">
+  <input type="text" name="title" placeholder="TITLE">
+  <input type="url" name="url" placeholder="URL">
+  <input type="submit" value="줄이기">
+</form>
+
+javascript>
+console.clear();
+
+async function submitForm(form) {
+  try {
+    const response = await fetch("http://localhost:8090/api/v1/surls", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer user2 EMPTY"
+      },
+      body: JSON.stringify({
+        title: form.title.value,
+        url: form.url.value
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) throw data;
+
+    data.data.shortUrl;
+  } catch (error) {
+    console.error("form submission failed:", error);
+  }
+}
