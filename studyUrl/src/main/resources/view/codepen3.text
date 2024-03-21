@@ -4,6 +4,8 @@ html>
   <input type="url" name="url" placeholder="URL">
   <input type="submit" value="줄이기">
 </form>
+<hr>
+<div id="shorten-url-rs"></div>
 
 javascript>
 console.clear();
@@ -26,7 +28,9 @@ async function submitForm(form) {
 
     if (!response.ok) throw data;
 
-    data.data.shortUrl;
+    document.querySelector(
+      "#shorten-url-rs"
+    ).innerHTML = `<a href="${data.data.shortUrl}" target="_blank">${data.data.shortUrl}</a>`;
   } catch (error) {
     console.error("form submission failed:", error);
   }
