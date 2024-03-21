@@ -2,8 +2,11 @@ package com.surl.studyurl.domain.surl.controller;
 
 import com.surl.studyurl.domain.surl.data.SurCreateReqBody;
 import com.surl.studyurl.domain.surl.data.SurModifyReqBody;
+import com.surl.studyurl.domain.surl.data.SurlCreateRespBody;
+import com.surl.studyurl.domain.surl.entity.Surl;
 import com.surl.studyurl.domain.surl.service.SurService;
 import com.surl.studyurl.global.httpsdata.ReqData;
+import com.surl.studyurl.global.httpsdata.RespData;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,8 +26,9 @@ public class ApiV1SurlController {
     @PostMapping("")
     @PreAuthorize("isAuthenticated()")
     @Transactional
-    public void create(@Valid @RequestBody SurCreateReqBody reqBody) {
-        surService.create(reqData.getMember(),reqBody.url,reqBody.title);
+    public RespData<SurlCreateRespBody> create(@Valid @RequestBody SurCreateReqBody reqBody) {
+        Surl surl = surService.create(reqData.getMember(), reqBody.url(),reqBody.title());
+        return RespData.of(new SurlCreateRespBody(surl.getShortUrl()));
     }
 
     @PutMapping("/{id}")

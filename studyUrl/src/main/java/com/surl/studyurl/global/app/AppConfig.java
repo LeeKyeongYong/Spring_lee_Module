@@ -64,4 +64,12 @@ public class AppConfig {
         this.genFileDirPath = genFileDirPath;
     }
 
+    @Getter
+    private static String siteBackUrl;
+
+    @Value("${custom.site.backUrl}")
+    public void setSiteBackUrl(String siteBackUrl){
+        this.siteBackUrl = siteBackUrl;
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.surl.studyurl.domain.surl.entity;
 
 import com.surl.studyurl.domain.member.entity.Member;
+import com.surl.studyurl.global.app.AppConfig;
 import com.surl.studyurl.global.jpa.entity.BaseTime;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,5 +26,9 @@ public class Surl extends BaseTime {
     private Member author;
     private String url;
     private String title;
+
+    public String getShortUrl(){
+        return AppConfig.getSiteBackUrl()+"/"+id;
+    }
 
 }
