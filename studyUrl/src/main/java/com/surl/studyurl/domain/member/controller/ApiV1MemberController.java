@@ -1,8 +1,8 @@
 package com.surl.studyurl.domain.member.controller;
 
 import com.surl.studyurl.domain.member.dto.MemberDto;
-import com.surl.studyurl.domain.member.record.LoginRequestBody;
-import com.surl.studyurl.domain.member.record.LoginResponseBody;
+import com.surl.studyurl.domain.member.data.LoginRequestBody;
+import com.surl.studyurl.domain.member.data.LoginResponseBody;
 import com.surl.studyurl.domain.member.service.MemberService;
 import com.surl.studyurl.global.httpsdata.ReqData;
 import com.surl.studyurl.global.httpsdata.RespData;

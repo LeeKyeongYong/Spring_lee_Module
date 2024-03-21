@@ -11,6 +11,30 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class AppConfig {
+
+    private static String activeProfile;
+
+    @Value("${spring.profiles.active}")
+    public void setActiveProfile(String activeProfile) {
+        this.activeProfile = activeProfile;
+    }
+
+    public static boolean isProd() {
+        return activeProfile.equals("prod");
+    }
+
+    public static boolean isDev() {
+        return activeProfile.equals("dev");
+    }
+
+    public static boolean isTest() {
+        return activeProfile.equals("test");
+    }
+
+    public static boolean isNotProd() {
+        return !isProd();
+    }
+
     @Getter
     public static ObjectMapper objectMapper;
 

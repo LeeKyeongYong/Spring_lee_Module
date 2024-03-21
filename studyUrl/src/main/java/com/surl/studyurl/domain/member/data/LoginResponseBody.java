@@ -1,4 +1,4 @@
-package com.surl.studyurl.domain.member.record;
+package com.surl.studyurl.domain.member.data;
 
 import com.surl.studyurl.domain.member.dto.MemberDto;
 import lombok.NonNull;

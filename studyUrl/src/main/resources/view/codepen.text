@@ -1,0 +1,37 @@
+<html>
+
+<form action="" onsubmit="submitForm(this); return false;">
+  <input type="text" name="title" placeholder="TITLE">
+  <input type="url" name="url" placeholder="URL">
+  <input type="submit" value="줄이기">
+</form>
+
+<javascript>
+console.clear();
+
+async function submitForm(form) {
+  try {
+    // fetch 요청을 보내기 전에 headers에 Content-Type을 추가하여 JSON 형식임을 명시합니다.
+    const response = await fetch("http://localhost:8090/api/v1/surls", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json" // Content-Type 헤더 추가
+      },
+      body: JSON.stringify({
+        title: form.title.value,
+        url: form.url.value
+      })
+    });
+
+    // 응답을 JSON 형태로 변환합니다.
+    const data = await response.json();
+
+    if (!response.ok) throw data;
+
+    // 성공적으로 데이터를 받아왔을 때의 처리를 추가할 수 있습니다.
+    console.log(data);
+  } catch (error) {
+    // 네트워크 오류나 response.json() 호출에서 발생하는 오류를 처리합니다.
+    console.error("form submission failed:", error);
+  }
+}

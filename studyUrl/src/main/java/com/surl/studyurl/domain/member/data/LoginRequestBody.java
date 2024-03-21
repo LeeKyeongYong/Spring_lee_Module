@@ -1,4 +1,4 @@
-package com.surl.studyurl.domain.member.record;
+package com.surl.studyurl.domain.member.data;
 
 import jakarta.validation.constraints.NotBlank;
 

@@ -35,12 +35,19 @@ public class InitData {
     public void work1(){
 
         Member memberSystem =  memberService.create("system","1234","system");
+        memberSystem.setRefreshToken("system");
         Member memberAdmin = memberService.create("admin","1234","admin");
+        memberAdmin.setRefreshToken("admin");
         Member memberGrage = memberService.create("garage","1234","garage");
+        memberGrage.setRefreshToken("garage");
         Member memberUser1 = memberService.create("user1","1234","user1");
+        memberUser1.setRefreshToken("user1");
         Member memberUser2 = memberService.create("user2","1234","user2");
+        memberUser2.setRefreshToken("user2");
         Member memberUser3 = memberService.create("user3","1234","user3");
+        memberUser3.setRefreshToken("user3");
         Member memberUser4 = memberService.create("user4","1234","user4");
+        memberUser4.setRefreshToken("user4");
 
 
         surService.create(memberSystem,"https://59.32.25.14:8080/byeHomeStay","홈스테이");
