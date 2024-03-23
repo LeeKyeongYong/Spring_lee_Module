@@ -1,2 +1,4 @@
-package com.rabbit.rabbit_mq.global.jpa;public class BaseEntity {
+package com.rabbit.rabbit_mq.global.jpa;
+
+public class BaseEntity {
 }

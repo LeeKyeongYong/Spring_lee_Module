@@ -1,2 +1,4 @@
-package com.rabbit.rabbit_mq.domain.chat.repository;public class ChatMessageRepository {
+package com.rabbit.rabbit_mq.domain.chat.repository;
+
+public class ChatMessageRepository {
 }

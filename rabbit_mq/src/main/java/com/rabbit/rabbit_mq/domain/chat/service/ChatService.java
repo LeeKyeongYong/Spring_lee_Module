@@ -1,2 +1,4 @@
-package com.rabbit.rabbit_mq.domain.chat.service;public class ChatService {
+package com.rabbit.rabbit_mq.domain.chat.service;
+
+public class ChatService {
 }
