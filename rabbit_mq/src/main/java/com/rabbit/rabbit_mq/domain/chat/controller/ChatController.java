@@ -3,11 +3,14 @@ package com.rabbit.rabbit_mq.domain.chat.controller;
 import com.rabbit.rabbit_mq.domain.chat.entity.ChatMessage;
 import com.rabbit.rabbit_mq.domain.chat.entity.ChatRoom;
 import com.rabbit.rabbit_mq.domain.chat.service.ChatService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/chat")
@@ -23,7 +26,7 @@ public class ChatController {
         ChatRoom chatRoom = chatService.findRoomById(roomId).get();
         model.addAttribute("chatRoom", chatRoom);
 
-        return "domain/chat/chat/room";
+        return "domain/chat/room";
     }
 
     @GetMapping("/{roomId}/messages")
