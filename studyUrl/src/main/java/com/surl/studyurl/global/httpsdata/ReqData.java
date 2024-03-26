@@ -20,9 +20,9 @@ import java.util.Optional;
 @RequestScope
 @RequiredArgsConstructor
 public class ReqData {
-    private final MemberService memberService;
     private final HttpServletRequest req;
     private final HttpServletResponse resp;
+    private final MemberService memberService;
 
     //캐시데이터
     private SecurityUser securityUser;

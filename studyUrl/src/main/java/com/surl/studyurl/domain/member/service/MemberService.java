@@ -61,6 +61,9 @@ public class MemberService {
         String refreshToken = member.getRefreshToken();
         String accessToken = authTokenService.genAccessToken(member);
 
+        System.out.println("refreshToken2: "+refreshToken);
+        System.out.println("accessToken2: "+accessToken);
+
         return RespData.of(
                 "%s님 안녕하세요.".formatted(member.getUsername()),
                 new AuthAndMakeTokensResponseBody(member, accessToken, refreshToken)
@@ -74,6 +77,7 @@ public class MemberService {
     private Optional<Member> findByUsername(String userid) {
         return memberRepository.findByUserid(userid);
     }
+
 
     public SecurityUser getUserFromAccessToken(String accessToken) {
         Map<String, Object> payloadBody = authTokenService.getDataFrom(accessToken);
@@ -89,6 +93,7 @@ public class MemberService {
                 authorities.stream().map(SimpleGrantedAuthority::new).toList()
         );
     }
+
 
     public boolean validateToken(String token) {
         return authTokenService.validateToken(token);
