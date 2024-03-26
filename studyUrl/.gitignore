@@ -11,6 +11,7 @@ db.trace.db
 application.yml
 src/main/generated
 dockerProjects
+keystore.p12
 
 build/
 gradle/
