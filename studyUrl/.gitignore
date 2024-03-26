@@ -9,6 +9,8 @@ src/main/resources/application-secret.yml
 db_dev.mv.db
 db.trace.db
 application.yml
+src/main/generated
+dockerProjects
 
 build/
 gradle/

@@ -14,7 +14,7 @@ public class SecurityUser extends User {
     private long id;
     private String oauth_id;  // oauth_id 필드 추가
 
-    public SecurityUser(long id,long oauth_id, String userid, String password, Collection<? extends GrantedAuthority> authorities) {
+    public SecurityUser(long id,String userid, String password, Collection<? extends GrantedAuthority> authorities) {
         super(userid,password,authorities);
         this.id=id;
 
