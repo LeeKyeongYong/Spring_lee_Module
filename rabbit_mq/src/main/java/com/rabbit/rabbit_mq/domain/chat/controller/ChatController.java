@@ -1,9 +1,12 @@
 package com.rabbit.rabbit_mq.domain.chat.controller;
 
+import com.rabbit.rabbit_mq.domain.chat.data.CreateMessageReqBody;
 import com.rabbit.rabbit_mq.domain.chat.entity.ChatMessage;
 import com.rabbit.rabbit_mq.domain.chat.entity.ChatRoom;
 import com.rabbit.rabbit_mq.domain.chat.service.ChatService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,5 +42,11 @@ public class ChatController {
         List<ChatMessage> messages = chatService.findMessageByRoomId(roomId);
 
         return messages;
+    }
+
+    @MessageMapping("/chat/{roomId}/messages/create")
+    public void createMessage(CreateMessageReqBody createMessageReqBody, @DestinationVariable long roomId){
+        ChatRoom chatRoom = chatService.findRoomById(roomId).get();
+        ChatMessage chatMessage = chatService.writeMessage(chatRoom,createMessageReqBody.writerName(), createMessageReqBody.body());
     }
 }
