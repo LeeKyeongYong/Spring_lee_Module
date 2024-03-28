@@ -1,0 +1,88 @@
+<style>
+    .chat-message {
+        display: flex;
+        gap: 10px;
+    }
+</style>
+
+<script th:inline="javascript">
+    const chatRoomId = /*[[${chatRoom.id}]]*/ 0;
+
+    async function loadChatMessages() {
+        try {
+            const response = await fetch(
+                '/chat/' + chatRoomId + '/messages',
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data);
+            }
+
+            drawChatMessages(data);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    function drawChatMessages(messages) {
+        messages.forEach(message => {
+            drawChatMessage(message);
+        });
+    }
+
+    function drawChatMessage(message) {
+        const chatMessages = document.getElementById('chat-messages');
+
+        const chatMessage = document.createElement('div');
+        chatMessage.classList.add('chat-message');
+
+        const chatMessageId = document.createElement('div');
+        chatMessageId.classList.add('chat-message__id');
+        chatMessageId.innerText = message.id;
+
+        const chatMessageWriterName = document.createElement('div');
+        chatMessageWriterName.classList.add('chat-message-writer__name');
+        chatMessageWriterName.innerText = message.writerName;
+
+        const chatMessageBody = document.createElement('div');
+        chatMessageBody.classList.add('chat-message__body');
+        chatMessageBody.innerText = message.body;
+
+        chatMessage.appendChild(chatMessageId);
+        chatMessage.appendChild(chatMessageWriterName);
+        chatMessage.appendChild(chatMessageBody);
+
+        chatMessages.insertBefore(chatMessage, chatMessages.firstChild);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        loadChatMessages();
+    });
+
+    function submitSendForm(form) {
+        const writerName = form.writerName.value.trim();
+        const body = form.body.value.trim();
+
+        alert(writerName + ' ' + body);
+    }
+</script>
+
+<form onsubmit="submitSendForm(this); return false;">
+    <input type="text" name="writerName" placeholder="작성자">
+    <input type="text" name="body" placeholder="내용">
+    <button type="submit">Send</button>
+</form>
+
+<h1 th:text="${chatRoom.name}"></h1>
+
+<div id="chat-messages">
+
+</div>

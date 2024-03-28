@@ -5,6 +5,7 @@ import com.rabbit.rabbit_mq.domain.chat.entity.ChatRoom;
 import com.rabbit.rabbit_mq.domain.chat.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,7 +36,7 @@ public class ChatController {
             @PathVariable long roomId,
             Model model
     ) {
-        List<ChatMessage> messages = chatService.findMessagesByRoomId(roomId);
+        List<ChatMessage> messages = chatService.findMessageByRoomId(roomId);
 
         return messages;
     }
