@@ -1,7 +1,8 @@
 package com.rabbit.rabbit_mq.global.stomp;
 
-import ch.qos.logback.classic.pattern.MessageConverter;
+
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -28,7 +29,7 @@ public class StompRabbitMqBrokerConfig implements WebSocketMessageBrokerConfigur
                 .setClientLogin("admin")
                 .setClientPasscode("admin")
                 .setSystemLogin("admin")
-                .setSystemPasscode("admin")
+                .setSystemPasscode("admin");
     }
 
     @Bean
