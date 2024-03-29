@@ -46,6 +46,6 @@ public class ChatService {
     }
 
     public List<ChatMessage> findMessageByRoomId(long roomId){
-        return chatMessageRepository.findByChangeRoomId(roomId);
+        return chatMessageRepository.findByChatRoomId(roomId);
     }
 }
