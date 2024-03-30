@@ -1,15 +1,12 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-
 <style>
     .chat-message {
         display: flex;
         gap: 10px;
     }
 </style>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 <script th:inline="javascript">
-    const chatRoomId = /*[[${chatRoom.id}]]*/ 0;
 
     const socket = new SockJS('/ws');
     const stompClient = Stomp.over(socket);
@@ -88,6 +85,7 @@
         const writerName = form.writerName.value.trim();
         const body = form.body.value.trim();
 
+        //alert(writerName + ' ' + body);
         stompClient.send(
             `/app/chat/${chatRoomId}/messages/create`,
             {},
@@ -96,7 +94,7 @@
     }
 </script>
 
-<form onsubmit="submitSendForm(this); return false;">
+<form onSubmit="submitSendForm(this); return false;">
     <input type="text" name="writerName" placeholder="작성자">
     <input type="text" name="body" placeholder="내용">
     <button type="submit">Send</button>

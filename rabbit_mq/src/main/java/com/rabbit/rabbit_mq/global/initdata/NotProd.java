@@ -30,6 +30,9 @@ public class NotProd {
 
     @Transactional
     public void work1() {
+
+        if (chatService.count() > 0) return;
+
         ChatRoom room1 = chatService.createRoom("room1");
         ChatRoom room2 = chatService.createRoom("room2");
         ChatRoom room3 = chatService.createRoom("room3");

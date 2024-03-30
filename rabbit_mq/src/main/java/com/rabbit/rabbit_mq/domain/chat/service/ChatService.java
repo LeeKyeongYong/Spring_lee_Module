@@ -48,4 +48,7 @@ public class ChatService {
     public List<ChatMessage> findMessageByRoomId(long roomId){
         return chatMessageRepository.findByChatRoomId(roomId);
     }
+    public int count() {
+        return (int) chatRoomRepository.count();
+    }
 }

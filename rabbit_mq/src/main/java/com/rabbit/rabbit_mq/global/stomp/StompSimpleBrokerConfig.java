@@ -7,7 +7,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
-@Profile("disable")
+@Profile("!prod")
 @Configuration
 @EnableWebSocketMessageBroker
 public class StompSimpleBrokerConfig implements WebSocketMessageBrokerConfigurer {
