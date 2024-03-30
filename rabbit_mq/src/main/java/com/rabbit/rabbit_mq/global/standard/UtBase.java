@@ -1,5 +1,6 @@
 package com.rabbit.rabbit_mq.global.standard;
 
+import com.rabbit.rabbit_mq.global.app.AppConfig;
 import lombok.SneakyThrows;
 import org.apache.tika.Tika;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;

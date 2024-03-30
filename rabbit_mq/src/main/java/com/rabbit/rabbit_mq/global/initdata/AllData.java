@@ -4,6 +4,7 @@ import com.rabbit.rabbit_mq.domain.chat.entity.ChatRoom;
 import com.rabbit.rabbit_mq.domain.chat.service.ChatService;
 import com.rabbit.rabbit_mq.domain.member.entity.Member;
 import com.rabbit.rabbit_mq.domain.member.service.MemberService;
+import com.rabbit.rabbit_mq.global.app.AppConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,16 +51,16 @@ public class AllData {
         memberGarage.setRefreshToken("garage");
 
         Member memberUser1 = memberService.join("user1", "1234").getData();
-        memberGarage.setRefreshToken("user1");
+        memberUser1.setRefreshToken("user1");
 
         Member memberUser2 = memberService.join("user2", "1234").getData();
-        memberGarage.setRefreshToken("user2");
+        memberUser2.setRefreshToken("user2");
 
         Member memberUser3 = memberService.join("user3", "1234").getData();
-        memberGarage.setRefreshToken("user3");
+        memberUser3.setRefreshToken("user3");
 
         Member memberUser4 = memberService.join("user4", "1234").getData();
-        memberGarage.setRefreshToken("user4");
+        memberUser4.setRefreshToken("user4");
 
         ChatRoom room1 = chatService.createRoom(memberUser1, "room1");
         ChatRoom room2 = chatService.createRoom(memberUser2, "room2");

@@ -1,10 +1,16 @@
 package com.rabbit.rabbit_mq.global.security;
 
+import com.rabbit.rabbit_mq.global.https.RespData;
+import com.rabbit.rabbit_mq.global.standard.UtBase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 @Configuration
 @RequiredArgsConstructor
 public class ApiSecurityConfig {
@@ -41,8 +47,8 @@ public class ApiSecurityConfig {
                                             response.setContentType("application/json;charset=UTF-8");
                                             response.setStatus(403);
                                             response.getWriter().write(
-                                                    Ut.json.toString(
-                                                            RsData.of("403-1", request.getRequestURI() + ", " + authException.getLocalizedMessage())
+                                                    UtBase.json.toString(
+                                                            RespData.of("403-1", request.getRequestURI() + ", " + authException.getLocalizedMessage())
                                                     )
                                             );
                                         }

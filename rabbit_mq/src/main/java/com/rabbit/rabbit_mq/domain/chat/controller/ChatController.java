@@ -11,6 +11,7 @@ import com.rabbit.rabbit_mq.global.stomp.StompMessageTemplate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -29,7 +30,7 @@ public class ChatController {
     private final ChatService chatService;
     private final StompMessageTemplate template;
     private final MemberService memberService;
-
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{roomId}")
     public String showRoom(
             @PathVariable long roomId,

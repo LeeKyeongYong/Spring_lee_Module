@@ -3,12 +3,16 @@ package com.rabbit.rabbit_mq.global.security;
 import com.rabbit.rabbit_mq.domain.member.service.MemberService;
 import com.rabbit.rabbit_mq.global.https.ReqData;
 import com.rabbit.rabbit_mq.global.https.RespData;
+import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -18,10 +22,10 @@ public class AuthenticationFilter  extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (!request.getRequestURI().startsWith("/api/")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+       // if (!request.getRequestURI().startsWith("/api/")) {
+       //     filterChain.doFilter(request, response);
+       //     return;
+       // }
 
         if (List.of("/api/v1/members/login", "/api/v1/members/join", "/api/v1/members/logout").contains(request.getRequestURI())) {
             filterChain.doFilter(request, response);
@@ -76,5 +80,3 @@ public class AuthenticationFilter  extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
- 56 changes: 56 additions & 0 deletions56
-         src/main/java/com/example/demo/global/security/SecurityConfig.java
