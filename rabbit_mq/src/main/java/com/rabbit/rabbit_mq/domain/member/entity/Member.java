@@ -19,6 +19,7 @@ import static lombok.AccessLevel.PROTECTED;
 @Builder
 @Getter
 @Setter
+@ToString
 public class Member extends BaseTime {
     @Column(unique = true)
     private String username;

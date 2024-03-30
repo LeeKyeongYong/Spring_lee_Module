@@ -15,6 +15,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfig {
 
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final CustomLogoutSuccessHandler logoutSuccessHandler;
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -61,6 +62,7 @@ public class SecurityConfig {
                                         .logoutRequestMatcher(
                                                 new AntPathRequestMatcher("/member/logout")
                                         )
+                                        .logoutSuccessHandler(logoutSuccessHandler)
                 );
 
         return http.build();

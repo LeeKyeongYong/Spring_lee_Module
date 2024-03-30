@@ -7,6 +7,7 @@ import com.rabbit.rabbit_mq.domain.chat.entity.ChatRoom;
 import com.rabbit.rabbit_mq.domain.chat.service.ChatService;
 import com.rabbit.rabbit_mq.domain.member.entity.Member;
 import com.rabbit.rabbit_mq.domain.member.service.MemberService;
+import com.rabbit.rabbit_mq.global.https.ReqData;
 import com.rabbit.rabbit_mq.global.stomp.StompMessageTemplate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -30,12 +31,19 @@ public class ChatController {
     private final ChatService chatService;
     private final StompMessageTemplate template;
     private final MemberService memberService;
+    private final ReqData rq;
+
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{roomId}")
     public String showRoom(
             @PathVariable long roomId,
             Model model
     ) {
+        Member member = rq.getMember(); // TODO : 임시코드
+        System.out.println("member = " + member); // TODO : 임시코드
+
+
+
         ChatRoom chatRoom = chatService.findRoomById(roomId).get();
         model.addAttribute("chatRoom", chatRoom);
 
@@ -59,7 +67,12 @@ public class ChatController {
     @MessageMapping("/chat/{roomId}/messages/create")
     @Transactional
     public void createMessage(CreateMessageReqBody createMessageReqBody, @DestinationVariable long roomId){
-        Member member = memberService.findByUsername("user1").get();
+
+        Member member = rq.getMember(); // TODO : 임시코드
+        System.out.println("member = " + member); // TODO : 임시코드
+
+        member = memberService.findByUsername("user1").get();// TODO : 임시코드
+
         ChatRoom chatRoom = chatService.findRoomById(roomId).get();
         ChatMessage chatMessage = chatService.writeMessage(chatRoom,member, createMessageReqBody.body());
         ChatMessageDto chatMessageDto = new ChatMessageDto(chatMessage.getId(),chatMessage.getChatRoom().getId(),chatMessage.getWriter().getName(),chatMessage.getBody());
