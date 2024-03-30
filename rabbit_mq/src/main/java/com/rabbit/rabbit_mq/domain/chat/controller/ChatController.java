@@ -50,9 +50,8 @@ public class ChatController {
 
     @GetMapping("/{roomId}/messages")
     @ResponseBody
-    public List<ChatMessageDto> showRoomMessages(
-            @PathVariable long roomId,
-            Model model
+    public List<ChatMessageDto> getRoomMessages(
+            @PathVariable long roomId
     ) {
         List<ChatMessage> messages = chatService.findMessageByRoomId(roomId);
 

@@ -95,5 +95,20 @@ public class AllData {
         ChatRoom room13 = chatService.createRoom(memberUser1, "room13");
         ChatRoom room14 = chatService.createRoom(memberUser2, "room14");
         ChatRoom room15 = chatService.createRoom(memberUser3, "room15");
+
+        chatService.writeMessage(room13, memberUser1, "message10");
+        chatService.writeMessage(room13, memberUser1, "message11");
+        chatService.writeMessage(room13, memberUser1, "message12");
+
+        chatService.writeMessage(room13, memberUser2, "message13");
+        chatService.writeMessage(room13, memberUser2, "message14");
+
+        chatService.writeMessage(room13, memberUser3, "message15");
+
+        chatService.writeMessage(room14, memberUser1, "message16");
+        chatService.writeMessage(room14, memberUser2, "message17");
+
+        chatService.writeMessage(room15, memberUser1, "message18");
+
     }
 }
