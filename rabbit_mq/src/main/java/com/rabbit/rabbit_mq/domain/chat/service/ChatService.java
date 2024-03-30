@@ -33,6 +33,7 @@ public class ChatService {
                 .builder()
                 .owner(owner)
                 .name(name)
+                .published(true)
                 .build();
 
         return chatRoomRepository.save(chatRoom);

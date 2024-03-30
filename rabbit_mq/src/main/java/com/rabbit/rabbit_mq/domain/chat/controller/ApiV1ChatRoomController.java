@@ -1,5 +1,6 @@
 package com.rabbit.rabbit_mq.domain.chat.controller;
 
+import com.rabbit.rabbit_mq.domain.chat.data.GetChatRoomResponseBody;
 import com.rabbit.rabbit_mq.domain.chat.data.GetChatRoomsResponseBody;
 import com.rabbit.rabbit_mq.domain.chat.dto.ChatRoomDto;
 import com.rabbit.rabbit_mq.domain.chat.entity.ChatRoom;
@@ -14,10 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +42,18 @@ public class ApiV1ChatRoomController {
         return RespData.of(
                 new GetChatRoomsResponseBody(
                         new PageDto<>(_itemPage)
+                )
+        );
+    }
+    @GetMapping("/{id}")
+    public RespData<GetChatRoomResponseBody> getChatRoom(
+            @PathVariable long id
+    ) {
+        ChatRoom chatRoom = chatService.findRoomById(id).get();
+
+        return RespData.of(
+                new GetChatRoomResponseBody(
+                        new ChatRoomDto(chatRoom)
                 )
         );
     }
