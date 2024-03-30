@@ -14,18 +14,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Profile("prod")
 @Configuration
 @RequiredArgsConstructor
-public class Prod {
+public class ProdData {
 
     @Autowired
     @Lazy
-    private Prod self;
+    private ProdData self;
     private final ChatService chatService;
 
     @Bean
     public ApplicationRunner initNotProd(){
         return args -> {
             self.work1();
-        }
+        };
     }
 
     @Transactional

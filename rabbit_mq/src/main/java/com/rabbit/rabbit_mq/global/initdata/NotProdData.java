@@ -15,10 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Profile("!prod")
 @Configuration
 @RequiredArgsConstructor
-public class NotProd {
+public class NotProdData {
     @Autowired
     @Lazy
-    private NotProd self;
+    private NotProdData self;
     private final ChatService chatService;
 
     @Bean

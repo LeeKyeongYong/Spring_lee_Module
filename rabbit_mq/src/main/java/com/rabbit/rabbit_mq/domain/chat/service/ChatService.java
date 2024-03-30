@@ -5,6 +5,7 @@ import com.rabbit.rabbit_mq.domain.chat.entity.ChatMessage;
 import com.rabbit.rabbit_mq.domain.chat.entity.ChatRoom;
 import com.rabbit.rabbit_mq.domain.chat.repository.ChatMessageRepository;
 import com.rabbit.rabbit_mq.domain.chat.repository.ChatRoomRepository;
+import com.rabbit.rabbit_mq.domain.member.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,9 +25,10 @@ public class ChatService {
     }
 
     @Transactional
-    public ChatRoom createRoom(String name){
+    public ChatRoom createRoom(Member owner, String name){
         ChatRoom chatRoom = ChatRoom
                 .builder()
+                .owner(owner)
                 .name(name)
                 .build();
 
@@ -34,11 +36,11 @@ public class ChatService {
     }
 
     @Transactional
-    public ChatMessage writeMessage(ChatRoom room,String writerName,String body){
+    public ChatMessage writeMessage(ChatRoom room, Member writer,String body){
         ChatMessage chatMessage = ChatMessage
                 .builder()
                 .chatRoom(room)
-                .writerName(writerName)
+                .writer(writer)
                 .body(body)
                 .build();
 

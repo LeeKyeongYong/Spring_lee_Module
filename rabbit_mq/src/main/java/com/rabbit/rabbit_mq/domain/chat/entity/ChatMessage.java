@@ -1,7 +1,7 @@
 package com.rabbit.rabbit_mq.domain.chat.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.rabbit.rabbit_mq.domain.member.entity.Member;
 import com.rabbit.rabbit_mq.global.jpa.BaseTime;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
@@ -17,8 +17,8 @@ import static lombok.AccessLevel.PROTECTED;
 @Getter
 public class ChatMessage extends BaseTime {
     @ManyToOne
-    @JsonIgnore
     private ChatRoom chatRoom;
-    private String writerName;
+    @ManyToOne
+    private Member writer;
     private String body;
 }

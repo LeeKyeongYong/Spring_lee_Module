@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-impor
+
 
 @Profile("prod")
 @Component
