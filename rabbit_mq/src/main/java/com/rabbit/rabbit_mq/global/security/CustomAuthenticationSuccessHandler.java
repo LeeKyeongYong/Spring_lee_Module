@@ -28,7 +28,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
         String redirectUrlAfterSocialLogin = rq.getCookieValue("redirectUrlAfterSocialLogin", "");
 
         if (rq.isFrontUrl(redirectUrlAfterSocialLogin)) {
-            rq.destroySession();
+            rq.destroySecurityContextSession(); // 세션방식이 아닌 쿠키+JWT 방식으로 인증하기 때문에, 세션에 저장된 인증정보 삭제
             rq.setCrossDomainCookie("accessToken", accessToken);
             rq.setCrossDomainCookie("refreshToken", refreshToken);
             rq.removeCookie("redirectUrlAfterSocialLogin");
@@ -36,7 +36,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
             response.sendRedirect(redirectUrlAfterSocialLogin);
             return;
         } else {
-            rq.destroySession();
+            rq.destroySecurityContextSession(); // 세션방식이 아닌 쿠키+JWT 방식으로 인증하기 때문에, 세션에 저장된 인증정보 삭제
             rq.setCrossDomainCookie("accessToken", accessToken);
             rq.setCrossDomainCookie("refreshToken", refreshToken);
         }

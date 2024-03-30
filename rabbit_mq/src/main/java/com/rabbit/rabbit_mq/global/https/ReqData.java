@@ -183,8 +183,8 @@ public class ReqData {
         return url.startsWith(AppConfig.getSiteFrontUrl());
     }
 
-    public void destroySession() {
-        req.getSession().invalidate();
+    public void destroySecurityContextSession() {
+        req.getSession().removeAttribute("SPRING_SECURITY_CONTEXT");
     }
 
     public Map<String, Object> getSessionAttrs() {
