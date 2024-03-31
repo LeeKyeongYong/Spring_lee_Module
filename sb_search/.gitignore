@@ -12,8 +12,7 @@ application.yml
 src/main/generated
 dockerProjects
 keystore.p12
-
-build/
+build.gradle
 gradle/
 gradlew
 gradlew.bat
