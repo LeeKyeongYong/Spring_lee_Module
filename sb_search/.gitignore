@@ -3,7 +3,7 @@
 # User-specific configurations
 ### Gradle ###
 
-
+meili_data
 ### Custom ###
 src/main/resources/application-secret.yml
 db_dev.mv.db
