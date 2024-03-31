@@ -5,8 +5,12 @@ import com.example.sb_search.global.app.AppConfig;
 import com.example.sb_search.global.meilisearch.MeilisearchConfig;
 import com.example.sb_search.global.standard.UtBase;
 import com.meilisearch.sdk.Index;
+import com.meilisearch.sdk.model.Results;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -36,5 +40,13 @@ public class PostDocumentRepository {
         if (AppConfig.isTest()) indexName += "Test";
 
         return indexName;
+    }
+
+    public List<PostDocument> findByOrderByIdDesc() {
+        Results<PostDocument> documents = getIndex()
+                .getDocuments(PostDocument.class);
+
+        return Arrays.stream(documents.getResults())
+                .toList();
     }
 }

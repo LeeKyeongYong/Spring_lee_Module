@@ -1,12 +1,18 @@
 package com.example.sb_search.domain.post.postDocument.document;
 
 import com.example.sb_search.domain.post.dto.PostDto;
-import lombok.Getter;
-import lombok.NonNull;
+import com.meilisearch.sdk.model.Results;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 @Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class PostDocument {
     @NonNull
     private long id;
@@ -26,4 +32,5 @@ public class PostDocument {
         this.subject = postDto.getSubject();
         this.body = postDto.getBody();
     }
+
 }
