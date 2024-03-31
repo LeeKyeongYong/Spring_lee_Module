@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping("/post")
@@ -40,21 +41,26 @@ public class PostController {
         movies.add(new Movie("6", "Philadelphia", new String[]{"Drama"}));
         movies.add(new Movie("7", "Movie 7", new String[]{"Drama"}));
 
-        try {
+
             // List를 JSON 문자열로 변환
             String documents = objectMapper.writeValueAsString(movies);
 
             // Meilisearch 클라이언트 설정
-            Client client = new Client(new Config("http://localhost:7700", "masterKey"));
             Index index = client.index("movies");
 
             // 문서 추가
             index.addDocuments(documents); // => { "taskUid": 0 }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "실패";
-        }
+        // 문서 추가
+        index.addDocuments(documents); // => { "taskUid": 0 }
 
         return "성공";
+    }
+    @GetMapping("/search")
+    @ResponseBody
+    public SearchResult search(String kw) {
+        Index index = client.index("movies");
+        SearchResult results = index.search(kw);
+
+        return results;
     }
 }
