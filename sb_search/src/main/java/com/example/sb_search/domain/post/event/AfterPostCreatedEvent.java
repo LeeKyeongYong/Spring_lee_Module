@@ -10,6 +10,6 @@ public class AfterPostCreatedEvent extends ApplicationEvent {
 
     public AfterPostCreatedEvent(Object source, PostDto postDto) {
         super(source);
-        this.postDto = postDto
+        this.postDto = postDto;
     }
 }

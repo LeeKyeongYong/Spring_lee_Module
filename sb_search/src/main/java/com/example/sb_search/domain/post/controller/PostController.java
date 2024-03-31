@@ -2,17 +2,18 @@ package com.example.sb_search.domain.post.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.meilisearch.sdk.Client;
+import com.meilisearch.sdk.Index;
 import com.meilisearch.sdk.SearchRequest;
+import com.meilisearch.sdk.model.SearchResult;
 import com.meilisearch.sdk.model.Searchable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import com.meilisearch.sdk.Index;
-import com.meilisearch.sdk.model.SearchResult;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,7 @@ public class PostController {
         private String[] genres;
     }
 
+    @SneakyThrows
     @GetMapping("/makeSearchData")
     @ResponseBody
     public String makeSearchData() {
@@ -47,15 +49,12 @@ public class PostController {
         movies.add(new Movie("6", "Philadelphia", new String[]{"Drama"}));
         movies.add(new Movie("7", "Movie 7", new String[]{"Drama"}));
 
+        // List를 JSON 문자열로 변환
+        String documents = objectMapper.writeValueAsString(movies);
 
-            // List를 JSON 문자열로 변환
-            String documents = objectMapper.writeValueAsString(movies);
-
-            // Meilisearch 클라이언트 설정
+        // Meilisearch 클라이언트 설정
         Index index = meilisearchClient.index("movies");
 
-            // 문서 추가
-            index.addDocuments(documents); // => { "taskUid": 0 }
         // 문서 추가
         index.addDocuments(documents); // => { "taskUid": 0 }
 
