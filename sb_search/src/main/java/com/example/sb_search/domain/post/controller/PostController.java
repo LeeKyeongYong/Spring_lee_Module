@@ -1,6 +1,8 @@
 package com.example.sb_search.domain.post.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.meilisearch.sdk.SearchRequest;
+import com.meilisearch.sdk.model.Searchable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
+import com.meilisearch.sdk.Index;
+import com.meilisearch.sdk.model.SearchResult;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,4 +66,19 @@ public class PostController {
 
         return results;
     }
+
+    @GetMapping("/customSearch")
+    @ResponseBody
+    public Searchable customSearch(String kw) {
+        Index index = client.index("movies");
+
+        SearchResult search = (SearchResult)index.search(
+                new SearchRequest(kw)
+                        .setShowMatchesPosition(true)
+                        .setAttributesToHighlight(new String[]{"title"})
+        );
+
+        return search;
+    }
+
 }
