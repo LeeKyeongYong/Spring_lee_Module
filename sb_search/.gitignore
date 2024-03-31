@@ -2,7 +2,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=eclipse,intellij
 # User-specific configurations
 ### Gradle ###
-
+gradlew.bat
 HELP.md
 ### Custom ###
 src/main/resources/application-secret.yml
@@ -11,7 +11,7 @@ db_dev.mv.db
 db.trace.db
 application.yml
 src/main/generated
-
+build.gradle
 build/
 gradle/
 gradlew
