@@ -2,28 +2,28 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=eclipse,intellij
 # User-specific configurations
 ### Gradle ###
-build/
-build.gradle
-gradlew.bat
-HELP.md
+
+
 ### Custom ###
 src/main/resources/application-secret.yml
-dockerProjects
 db_dev.mv.db
 db.trace.db
 application.yml
 src/main/generated
-/build.gradle
+dockerProjects
+keystore.p12
+
 build/
 gradle/
 gradlew
+gradlew.bat
 .gradle/
 gradle/
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-**/build/
+
 # Ignore Gradle GUI config
 gradle-app.setting
 
