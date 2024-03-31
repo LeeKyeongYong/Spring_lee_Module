@@ -9,6 +9,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -31,5 +33,9 @@ public class PostService {
 
     public long count() {
         return postRepository.count();
+    }
+
+    public List<Post> findAll() {
+        return postRepository.findByOrderByIdDesc();
     }
 }
