@@ -1,5 +1,6 @@
 package com.example.sb_search.global.meilisearch;
 
+import com.meilisearch.sdk.Client;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

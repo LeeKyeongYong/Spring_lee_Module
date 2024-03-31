@@ -1,11 +1,13 @@
 package com.example.sb_search.domain.post.service;
 
+import com.example.sb_search.domain.post.dto.PostDto;
 import com.example.sb_search.domain.post.entity.Post;
 import com.example.sb_search.domain.post.event.AfterPostCreatedEvent;
 import com.example.sb_search.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +24,7 @@ public class PostService {
                         .body(body)
                         .build());
 
-        publisher.publishEvent(new AfterPostCreatedEvent(this, post));
+        publisher.publishEvent(new AfterPostCreatedEvent(this, new PostDto(post)));
 
         return post;
     }
