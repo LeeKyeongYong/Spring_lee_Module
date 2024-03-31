@@ -25,7 +25,7 @@ public class ApiV1ChatMessageController {
             @PathVariable long roomId
     ) {
         ChatRoom chatRoom = chatService.findRoomById(roomId).get();
-        List<ChatMessageDto> items = chatService.findMessagesByRoomId(roomId)
+        List<ChatMessageDto> items = chatService.findMessageByRoomId(roomId)
                 .stream()
                 .map(ChatMessageDto::new)
                 .toList();
