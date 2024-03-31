@@ -1,8 +1,9 @@
-package com.rabbit.rabbit_mq.global.security;
+package com.rabbit.rabbit_mq.global.security.filter;
 
 import com.rabbit.rabbit_mq.domain.member.service.MemberService;
 import com.rabbit.rabbit_mq.global.https.ReqData;
 import com.rabbit.rabbit_mq.global.https.RespData;
+import com.rabbit.rabbit_mq.global.security.entity.SecurityUser;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

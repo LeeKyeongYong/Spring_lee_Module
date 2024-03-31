@@ -1,4 +1,4 @@
-package com.rabbit.rabbit_mq.global.security;
+package com.rabbit.rabbit_mq.global.security.handle;
 
 import com.rabbit.rabbit_mq.global.https.ReqData;
 import jakarta.servlet.ServletException;

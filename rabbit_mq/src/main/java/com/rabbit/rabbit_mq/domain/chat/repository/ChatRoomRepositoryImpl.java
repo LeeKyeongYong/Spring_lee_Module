@@ -8,7 +8,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.rabbit.rabbit_mq.domain.chat.entity.ChatRoom;
 import com.rabbit.rabbit_mq.domain.member.entity.Member;
-import com.rabbit.rabbit_mq.global.standard.KwTypeV2;
+import com.rabbit.rabbit_mq.global.standard.enums.KwTypeV2;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

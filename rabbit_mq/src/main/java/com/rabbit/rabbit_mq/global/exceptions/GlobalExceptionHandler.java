@@ -2,7 +2,7 @@ package com.rabbit.rabbit_mq.global.exceptions;
 
 import com.rabbit.rabbit_mq.global.https.ReqData;
 import com.rabbit.rabbit_mq.global.https.RespData;
-import com.rabbit.rabbit_mq.global.standard.EmptyClass;
+import com.rabbit.rabbit_mq.global.standard.base.EmptyClass;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;

@@ -4,7 +4,7 @@ import com.rabbit.rabbit_mq.domain.member.entity.Member;
 import com.rabbit.rabbit_mq.domain.member.repository.MemberRepository;
 import com.rabbit.rabbit_mq.global.exceptions.GlobalException;
 import com.rabbit.rabbit_mq.global.https.RespData;
-import com.rabbit.rabbit_mq.global.security.SecurityUser;
+import com.rabbit.rabbit_mq.global.security.entity.SecurityUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

@@ -1,6 +1,8 @@
-package com.rabbit.rabbit_mq.global.security;
+package com.rabbit.rabbit_mq.global.security.config;
 
 import com.rabbit.rabbit_mq.global.app.AppConfig;
+import com.rabbit.rabbit_mq.global.security.handle.CustomAuthenticationSuccessHandler;
+import com.rabbit.rabbit_mq.global.security.handle.CustomLogoutSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

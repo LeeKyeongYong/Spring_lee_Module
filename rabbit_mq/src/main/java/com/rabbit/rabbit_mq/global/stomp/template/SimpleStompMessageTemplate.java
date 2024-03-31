@@ -1,4 +1,4 @@
-package com.rabbit.rabbit_mq.global.stomp;
+package com.rabbit.rabbit_mq.global.stomp.template;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;

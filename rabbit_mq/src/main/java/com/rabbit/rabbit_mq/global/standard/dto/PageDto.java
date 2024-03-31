@@ -1,4 +1,4 @@
-package com.rabbit.rabbit_mq.global.standard;
+package com.rabbit.rabbit_mq.global.standard.dto;
 
 import lombok.Getter;
 import lombok.NonNull;

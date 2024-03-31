@@ -1,7 +1,7 @@
 package com.rabbit.rabbit_mq.global.https;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.rabbit.rabbit_mq.global.standard.EmptyClass;
+import com.rabbit.rabbit_mq.global.standard.base.EmptyClass;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

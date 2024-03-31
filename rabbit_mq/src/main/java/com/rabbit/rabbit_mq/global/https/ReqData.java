@@ -3,7 +3,7 @@ package com.rabbit.rabbit_mq.global.https;
 import com.rabbit.rabbit_mq.domain.member.entity.Member;
 import com.rabbit.rabbit_mq.domain.member.service.MemberService;
 import com.rabbit.rabbit_mq.global.app.AppConfig;
-import com.rabbit.rabbit_mq.global.security.SecurityUser;
+import com.rabbit.rabbit_mq.global.security.entity.SecurityUser;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

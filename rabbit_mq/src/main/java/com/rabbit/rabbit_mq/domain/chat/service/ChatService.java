@@ -6,7 +6,7 @@ import com.rabbit.rabbit_mq.domain.chat.entity.ChatRoom;
 import com.rabbit.rabbit_mq.domain.chat.repository.ChatMessageRepository;
 import com.rabbit.rabbit_mq.domain.chat.repository.ChatRoomRepository;
 import com.rabbit.rabbit_mq.domain.member.entity.Member;
-import com.rabbit.rabbit_mq.global.standard.KwTypeV2;
+import com.rabbit.rabbit_mq.global.standard.enums.KwTypeV2;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

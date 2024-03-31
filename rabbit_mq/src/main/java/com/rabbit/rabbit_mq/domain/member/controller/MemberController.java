@@ -1,7 +1,8 @@
 package com.rabbit.rabbit_mq.domain.member.controller;
 
+import com.rabbit.rabbit_mq.domain.member.dto.MemberEventDto;
 import com.rabbit.rabbit_mq.global.https.ReqData;
-import com.rabbit.rabbit_mq.global.stomp.StompMessageTemplate;
+import com.rabbit.rabbit_mq.global.stomp.template.StompMessageTemplate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;

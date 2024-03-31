@@ -1,4 +1,4 @@
-package com.rabbit.rabbit_mq.global.security;
+package com.rabbit.rabbit_mq.global.security.handle;
 
 import com.rabbit.rabbit_mq.domain.member.service.AuthTokenService;
 import com.rabbit.rabbit_mq.global.https.ReqData;

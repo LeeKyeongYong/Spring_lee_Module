@@ -1,7 +1,8 @@
-package com.rabbit.rabbit_mq.global.security;
+package com.rabbit.rabbit_mq.global.security.config;
 
 import com.rabbit.rabbit_mq.global.https.RespData;
-import com.rabbit.rabbit_mq.global.standard.UtBase;
+import com.rabbit.rabbit_mq.global.security.filter.AuthenticationFilter;
+import com.rabbit.rabbit_mq.global.standard.base.UtBase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

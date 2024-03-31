@@ -1,4 +1,4 @@
-package com.rabbit.rabbit_mq.global.security;
+package com.rabbit.rabbit_mq.global.security.entity;
 
 import lombok.Getter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

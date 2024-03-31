@@ -1,4 +1,4 @@
-package com.rabbit.rabbit_mq.global.stomp;
+package com.rabbit.rabbit_mq.global.stomp.config;
 
 
 import com.rabbit.rabbit_mq.global.app.AppConfig;

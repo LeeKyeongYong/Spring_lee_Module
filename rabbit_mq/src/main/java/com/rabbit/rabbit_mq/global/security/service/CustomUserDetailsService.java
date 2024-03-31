@@ -1,7 +1,8 @@
-package com.rabbit.rabbit_mq.global.security;
+package com.rabbit.rabbit_mq.global.security.service;
 
 import com.rabbit.rabbit_mq.domain.member.entity.Member;
 import com.rabbit.rabbit_mq.domain.member.repository.MemberRepository;
+import com.rabbit.rabbit_mq.global.security.entity.SecurityUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
