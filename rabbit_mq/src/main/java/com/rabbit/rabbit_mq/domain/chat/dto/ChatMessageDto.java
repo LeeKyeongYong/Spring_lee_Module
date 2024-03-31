@@ -13,11 +13,13 @@ public class ChatMessageDto {
     private long chatRoomId;
     private String writerName;
     private String body;
+    private long writerId;
 
     public ChatMessageDto(ChatMessage message) {
         this.id = message.getId();
         this.chatRoomId = message.getChatRoom().getId();
         this.writerName = message.getWriter().getName();
         this.body = message.getBody();
+        this.writerId = message.getWriter().getId();
     }
 }

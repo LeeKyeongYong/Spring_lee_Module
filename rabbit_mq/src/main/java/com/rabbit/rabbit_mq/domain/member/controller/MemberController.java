@@ -1,10 +1,12 @@
 package com.rabbit.rabbit_mq.domain.member.controller;
 
 import com.rabbit.rabbit_mq.global.https.ReqData;
+import com.rabbit.rabbit_mq.global.stomp.StompMessageTemplate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -16,6 +18,7 @@ import java.util.Map;
 @Transactional(readOnly = true)
 public class MemberController {
     private final ReqData rq;
+    private final StompMessageTemplate template;
 
     @GetMapping("/dump")
     @ResponseBody
@@ -41,5 +44,15 @@ public class MemberController {
                     </div>
                 </form>
                 """;
+    }
+    @GetMapping("/fireEvent/{id}")
+    @ResponseBody
+    public String fireEvent(
+            @PathVariable long id,
+            String msg
+    ) {
+        template.convertAndSend("topic", "member" + id + "EventCreated", new MemberEventDto(msg));
+
+        return "member" + id + "EventCreated";
     }
 }
