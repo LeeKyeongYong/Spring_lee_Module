@@ -36,13 +36,6 @@ public class PostDocumentServiceTest {
         assertPost(posts.get(posts.size() - 1), 1L, "subject1", "body1");
     }
 
-    // 포스트 객체의 속성을 검증하는 헬퍼 메소드
-    private void assertPost(PostDocument post, Long expectedId, String expectedSubject, String expectedBody) {
-        assertThat(post.getId()).isEqualTo(expectedId);
-        assertThat(post.getSubject()).isEqualTo(expectedSubject);
-        assertThat(post.getBody()).isEqualTo(expectedBody);
-    }
-
     @Test
     @DisplayName("findById")
     void t2() {
@@ -61,8 +54,11 @@ public class PostDocumentServiceTest {
         Pageable pageable = PageRequest.of(page - 1, 1, sort);
         Page<PostDocument> postPage = postDocumentService.findByKw("카페", pageable);
 
+        assertThat(postPage.getNumberOfElements()).isEqualTo(1);
+        assertThat(postPage.getTotalPages()).isEqualTo(2);
         assertThat(postPage.getTotalElements()).isEqualTo(2);
     }
+
     @Test
     @DisplayName("findByKw, '주말 카페 추천' 라고 검색하면 제목이나 내용에 '주말' or '카페' or '추천' 키워드가 1개 이상 존재")
     void t4() {
@@ -112,6 +108,7 @@ public class PostDocumentServiceTest {
 
         assertThat(postPage.getTotalElements()).isEqualTo(3);
     }
+
     @Test
     @DisplayName("findByKw 로 검색했을 때 검색결과와 매칭되는 부분이 표시됨(em 태그로 감싸짐)")
     void t7() {
@@ -120,10 +117,16 @@ public class PostDocumentServiceTest {
         Pageable pageable = PageRequest.of(page - 1, 1, sort);
         Page<PostDocument> postPage = postDocumentService.findByKw("카페", pageable);
 
-        PostDocument first = postPage.getContent().getFirst();
+        PostDocument first = postPage.getContent().get(0);
 
         assertThat(first.getSubject()).contains("<em>카페</em>");
         assertThat(first.getBody()).contains("<em>카페</em>");
     }
 
+    // 포스트 객체의 속성을 검증하는 헬퍼 메소드
+    private void assertPost(PostDocument post, Long expectedId, String expectedSubject, String expectedBody) {
+        assertThat(post.getId()).isEqualTo(expectedId);
+        assertThat(post.getSubject()).isEqualTo(expectedSubject);
+        assertThat(post.getBody()).isEqualTo(expectedBody);
+    }
 }

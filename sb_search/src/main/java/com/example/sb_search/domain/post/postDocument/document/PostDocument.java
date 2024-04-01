@@ -18,9 +18,9 @@ public class PostDocument {
     @NonNull
     private long id;
     @NonNull
-    private long createTimeStamp;
-    @NonNull
     private LocalDateTime createDate;
+    @NonNull
+    private long createTimeStamp;
     @NonNull
     private LocalDateTime modifyDate;
     @NonNull
@@ -33,11 +33,10 @@ public class PostDocument {
     public PostDocument(PostDto postDto) {
         this.id = postDto.getId();
         this.createDate = postDto.getCreateDate();
+        this.createTimeStamp = UtBase.time.toTimeStamp(postDto.getCreateDate());
         this.modifyDate = postDto.getModifyDate();
+        this.modifyTimeStamp = UtBase.time.toTimeStamp(postDto.getModifyDate());
         this.subject = postDto.getSubject();
         this.body = postDto.getBody();
-        this.createTimeStamp = UtBase.time.toTimeStamp(postDto.getCreateDate());
-        this.modifyTimeStamp = UtBase.time.toTimeStamp(postDto.getModifyDate());
     }
-
 }

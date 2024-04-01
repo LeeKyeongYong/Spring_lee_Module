@@ -1,6 +1,7 @@
 package com.example.sb_search.domain.post.dto;
 
 import com.example.sb_search.domain.post.entity.Post;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
