@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Room List</title>
+</head>
+<body>
+<h1>Chat Room List</h1>
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Owner Name</th>
+        <th>Name</th>
+        <th>Created Time</th>
+        <th>Link</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="chatRoom : ${chatRooms}">
+        <td th:text="${chatRoom.id}"></td>
+        <td th:text="${chatRoom.ownerName}"></td>
+        <td th:text="${chatRoom.name}"></td>
+        <td th:text="${#temporals.format(chatRoom.createDate, 'yyyy-MM-dd')}"></td>
+        <td><a th:href="@{'/chat/' + ${chatRoom.id}}"><span th:text="${chatRoom.name + ' 이동하기'}"></span></a></td>
+
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

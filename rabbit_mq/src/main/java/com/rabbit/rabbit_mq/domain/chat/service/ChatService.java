@@ -1,6 +1,7 @@
 package com.rabbit.rabbit_mq.domain.chat.service;
 
 
+import com.rabbit.rabbit_mq.domain.chat.dto.ChatRoomDto;
 import com.rabbit.rabbit_mq.domain.chat.entity.ChatMessage;
 import com.rabbit.rabbit_mq.domain.chat.entity.ChatRoom;
 import com.rabbit.rabbit_mq.domain.chat.repository.ChatMessageRepository;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -60,5 +62,12 @@ public class ChatService {
 
     public Page<ChatRoom> findRoomByKw(KwTypeV2 kwType, String kw, Member owner, Boolean published, Pageable pageable) {
         return chatRoomRepository.findByKw(kwType, kw, owner, published, pageable);
+    }
+
+    public List<ChatRoomDto> getAllChatRooms() {
+        List<ChatRoom> chatRooms = chatRoomRepository.findAll();
+        return chatRooms.stream()
+                .map(ChatRoomDto::new)
+                .collect(Collectors.toList());
     }
 }

@@ -83,6 +83,13 @@ public class ReqData {
         resp.addHeader("Set-Cookie", cookie.toString());
     }
 
+    public void setCookieValue(String name, String value, int maxAge, String path) {
+        Cookie cookie = new Cookie(name, value);//쿠키의 이름과 값 저장..
+        cookie.setMaxAge(maxAge); // 쿠키의 유효 기간 설정
+        cookie.setPath(path); // 쿠키의 적용 경로 설정
+    }
+
+
     private String getSiteCookieDomain() {
         String cookieDomain = AppConfig.getSiteCookieDomain();
 

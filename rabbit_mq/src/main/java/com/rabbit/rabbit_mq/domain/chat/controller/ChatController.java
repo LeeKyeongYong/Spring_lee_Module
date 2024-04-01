@@ -2,6 +2,7 @@ package com.rabbit.rabbit_mq.domain.chat.controller;
 
 import com.rabbit.rabbit_mq.domain.chat.data.CreateMessageReqBody;
 import com.rabbit.rabbit_mq.domain.chat.dto.ChatMessageDto;
+import com.rabbit.rabbit_mq.domain.chat.dto.ChatRoomDto;
 import com.rabbit.rabbit_mq.domain.chat.entity.ChatMessage;
 import com.rabbit.rabbit_mq.domain.chat.entity.ChatRoom;
 import com.rabbit.rabbit_mq.domain.chat.service.ChatService;
@@ -34,6 +35,15 @@ public class ChatController {
     private final StompMessageTemplate template;
     private final MemberService memberService;
     private final ReqData rq;
+
+    //getAllChatRooms
+    @GetMapping("/RoomList")
+    public String showChatRooms(Model model) {
+        List<ChatRoomDto> chatRooms = chatService.getAllChatRooms();
+        System.out.println("chatRooms: "+chatRooms);
+        model.addAttribute("chatRooms", chatRooms);
+        return "domain/chat/chatRoomList"; // chatRoomList.html 템플릿을 반환
+    }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{roomId}")

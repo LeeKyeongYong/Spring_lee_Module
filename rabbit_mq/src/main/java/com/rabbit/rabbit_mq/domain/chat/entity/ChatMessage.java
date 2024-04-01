@@ -19,6 +19,6 @@ public class ChatMessage extends BaseTime {
     @ManyToOne
     private ChatRoom chatRoom;
     @ManyToOne
-    private Meclearmber writer;
+    private Member writer;
     private String body;
 }

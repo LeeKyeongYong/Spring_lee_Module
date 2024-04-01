@@ -26,19 +26,20 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
         String refreshToken = rq.getMember().getRefreshToken();
 
         String redirectUrlAfterSocialLogin = rq.getCookieValue("redirectUrlAfterSocialLogin", "");
-
+        System.out.println("rq.isFrontUrl(redirectUrlAfterSocialLogin) :"+rq.isFrontUrl(redirectUrlAfterSocialLogin));
+        System.out.println("rq. : "+redirectUrlAfterSocialLogin);
         if (rq.isFrontUrl(redirectUrlAfterSocialLogin)) {
             rq.destroySecurityContextSession(); // 세션방식이 아닌 쿠키+JWT 방식으로 인증하기 때문에, 세션에 저장된 인증정보 삭제
             rq.setCrossDomainCookie("accessToken", accessToken);
             rq.setCrossDomainCookie("refreshToken", refreshToken);
             rq.removeCookie("redirectUrlAfterSocialLogin");
-
             response.sendRedirect(redirectUrlAfterSocialLogin);
             return;
         } else {
             rq.destroySecurityContextSession(); // 세션방식이 아닌 쿠키+JWT 방식으로 인증하기 때문에, 세션에 저장된 인증정보 삭제
             rq.setCrossDomainCookie("accessToken", accessToken);
             rq.setCrossDomainCookie("refreshToken", refreshToken);
+            response.sendRedirect("/chat/RoomList");
         }
 
         super.onAuthenticationSuccess(request, response, authentication);
