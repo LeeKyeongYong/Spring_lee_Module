@@ -2,6 +2,7 @@ package com.example.sb_search.domain.post.eventListener;
 
 import com.example.sb_search.domain.post.dto.PostDto;
 import com.example.sb_search.domain.post.event.AfterPostCreatedEvent;
+import com.example.sb_search.domain.post.event.AfterPostModifiedEvent;
 import com.example.sb_search.domain.post.postDocument.service.PostDocumentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -21,5 +22,12 @@ public class PostDocumentEventListener {
         PostDto postDto = event.getPostDto();
 
         postDocumentService.add(postDto);
+    }
+    @EventListener
+    @Async
+    public void listen(AfterPostModifiedEvent event) {
+        PostDto postDto = event.getPostDto();
+
+        postDocumentService.modify(postDto);
     }
 }

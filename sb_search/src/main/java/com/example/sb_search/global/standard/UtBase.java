@@ -3,12 +3,13 @@ package com.example.sb_search.global.standard;
 import com.example.sb_search.global.app.AppConfig;
 import lombok.SneakyThrows;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 public class UtBase {
 
     public static class time {
-        public static long toTimeStamp(java.time.LocalDateTime localDateTime) {
+        public static long toTimeStamp(LocalDateTime localDateTime) {
             return localDateTime.toEpochSecond(java.time.ZoneOffset.ofHours(9));
         }
     }

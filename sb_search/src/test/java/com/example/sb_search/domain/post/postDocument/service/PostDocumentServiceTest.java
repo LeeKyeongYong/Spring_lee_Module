@@ -97,8 +97,8 @@ public class PostDocumentServiceTest {
         // 2020년 01월 01일 00시:00분:00초.00000
         LocalDateTime startDate = LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0);
 
-        // 2020년 12월 12일 23시:59분:59초.99999 (실제로는 999,999,999 나노초를 사용)
-        LocalDateTime endDate = LocalDateTime.of(2020, 12, 12, 23, 59, 59, 999999999);
+        // 2020년 12월 31일 23시:59분:59초.99999 (실제로는 999,999,999 나노초를 사용)
+        LocalDateTime endDate = LocalDateTime.of(2020, 12, 31, 23, 59, 59, 999999999);
 
         int page = 1;
         Sort sort = Sort.by(Sort.Order.desc("rating"));

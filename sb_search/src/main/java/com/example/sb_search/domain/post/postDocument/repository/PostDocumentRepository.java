@@ -92,6 +92,18 @@ public class PostDocumentRepository {
                         .setLimit(pageable.getPageSize())
                         .setOffset((int) pageable.getOffset());
 
+        if (startDate != null && endDate != null) {
+            searchRequest
+                    .setFilter(new String[]{
+                            "createTimeStamp >= %d AND createTimeStamp <= %d"
+                                    .formatted(
+                                    UtBase.time.toTimeStamp(startDate),
+                                    UtBase.time.toTimeStamp(endDate)
+                            )
+                    });
+        }
+
+
         SearchResult searchResult = (SearchResult)getIndex().search(searchRequest);
 
         List<PostDocument> postDocuments = searchResult

@@ -3,6 +3,8 @@ package com.example.sb_search.domain.post.service;
 import com.example.sb_search.domain.post.dto.PostDto;
 import com.example.sb_search.domain.post.entity.Post;
 import com.example.sb_search.domain.post.event.AfterPostCreatedEvent;
+import com.example.sb_search.domain.post.event.AfterPostModifiedEvent;
+import com.example.sb_search.domain.post.postDocument.document.PostDocument;
 import com.example.sb_search.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -42,5 +44,9 @@ public class PostService {
 
     public Optional<Post> findById(long id) {
         return postRepository.findById(id);
+    }
+
+    public void modified(Post post) {
+        publisher.publishEvent(new AfterPostModifiedEvent(this, new PostDto(post)));
     }
 }
