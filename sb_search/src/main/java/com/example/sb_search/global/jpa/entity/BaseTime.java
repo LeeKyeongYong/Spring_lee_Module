@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 @MappedSuperclass
 @Getter
-@Setter(AccessLevel.PROTECTED)
+@Setter
 @EntityListeners(AuditingEntityListener.class)
 @ToString(callSuper = true)
 public abstract class BaseTime extends BaseEntity {
