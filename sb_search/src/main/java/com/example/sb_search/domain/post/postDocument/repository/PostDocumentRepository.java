@@ -10,11 +10,16 @@ import com.meilisearch.sdk.exceptions.MeilisearchException;
 import com.meilisearch.sdk.model.Results;
 import com.meilisearch.sdk.model.Searchable;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Repository;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import com.meilisearch.sdk.model.SearchResult;
 
 @Repository
 @RequiredArgsConstructor
@@ -55,10 +60,10 @@ public class PostDocumentRepository {
                         .setSort(new String[]{"id:desc"});
 
         // 문서 검색
-        Searchable search = getIndex().search(searchRequest);
+        Searchable searchable  = getIndex().search(searchRequest);
 
         return
-                search
+                searchable
                         .getHits()
                         .stream()
                         .map(
@@ -77,4 +82,25 @@ public class PostDocumentRepository {
 
         return Optional.empty();
     }
+
+    public Page<PostDocument> findByKw(String kw, Pageable pageable) {
+        SearchRequest searchRequest =
+                new SearchRequest(kw)
+                        .setAttributesToRetrieve(new String[]{"subject", "body"})
+                        .setLimit(pageable.getPageSize())
+                        .setOffset((int) pageable.getOffset());
+
+        SearchResult searchResult = (SearchResult)getIndex().search(searchRequest);
+
+        List<PostDocument> postDocuments = searchResult
+                .getHits()
+                .stream()
+                .map(
+                        hit -> UtBase.json.toObject(hit, PostDocument.class)
+                )
+                .toList();
+
+        return new PageImpl<>(postDocuments, pageable, searchResult.getEstimatedTotalHits());
+    }
+
 }
