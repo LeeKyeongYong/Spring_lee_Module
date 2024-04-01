@@ -6,6 +6,14 @@ import lombok.SneakyThrows;
 import java.util.Map;
 
 public class UtBase {
+
+    public static class time {
+        public static long toTimeStamp(java.time.LocalDateTime localDateTime) {
+            return localDateTime.toEpochSecond(java.time.ZoneOffset.ofHours(9));
+        }
+    }
+
+
     public static class json {
         @SneakyThrows
         public static String toString(Object obj) {

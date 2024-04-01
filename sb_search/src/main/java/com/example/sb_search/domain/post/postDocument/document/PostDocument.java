@@ -1,6 +1,7 @@
 package com.example.sb_search.domain.post.postDocument.document;
 
 import com.example.sb_search.domain.post.dto.PostDto;
+import com.example.sb_search.global.standard.UtBase;
 import com.meilisearch.sdk.model.Results;
 import lombok.*;
 
@@ -17,9 +18,13 @@ public class PostDocument {
     @NonNull
     private long id;
     @NonNull
+    private long createTimeStamp;
+    @NonNull
     private LocalDateTime createDate;
     @NonNull
     private LocalDateTime modifyDate;
+    @NonNull
+    private long modifyTimeStamp;
     @NonNull
     private String subject;
     @NonNull
@@ -31,6 +36,8 @@ public class PostDocument {
         this.modifyDate = postDto.getModifyDate();
         this.subject = postDto.getSubject();
         this.body = postDto.getBody();
+        this.createTimeStamp = UtBase.time.toTimeStamp(postDto.getCreateDate());
+        this.modifyTimeStamp = UtBase.time.toTimeStamp(postDto.getModifyDate());
     }
 
 }
