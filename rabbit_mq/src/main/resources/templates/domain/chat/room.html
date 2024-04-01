@@ -7,7 +7,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 <script th:inline="javascript">
-
     const socket = new SockJS('/ws');
     const stompClient = Stomp.over(socket);
 
@@ -66,6 +65,9 @@
         chatMessageWriterName.classList.add('chat-message-writer__name');
         chatMessageWriterName.innerText = message.writerName;
 
+
+
+
         const chatMessageBody = document.createElement('div');
         chatMessageBody.classList.add('chat-message__body');
         chatMessageBody.innerText = message.body;
@@ -84,7 +86,6 @@
     function submitSendForm(form) {
         const body = form.body.value.trim();
 
-        //alert(writerName + ' ' + body);
         stompClient.send(
             `/app/chat/${chatRoomId}/messages/create`,
             {},
@@ -94,9 +95,11 @@
 </script>
 
 <form onSubmit="submitSendForm(this); return false;">
+    <!--<input type="hidden" name="name" value="user1">-->
     <input type="text" name="body" placeholder="내용">
     <button type="submit">Send</button>
 </form>
+
 
 <h1 th:text="${chatRoom.name}"></h1>
 

@@ -70,10 +70,9 @@ public class ChatController {
 
         SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
         Member member = memberService.getReferenceById(securityUser.getId());
-
         ChatRoom chatRoom = chatService.findRoomById(roomId).get();
         ChatMessage chatMessage = chatService.writeMessage(chatRoom,member, createMessageReqBody.body());
         ChatMessageDto chatMessageDto = new ChatMessageDto(chatMessage);
-        template.convertAndSend("topic", "chat" + roomId + "MessageCreated", chatMessage);
+        template.convertAndSend("topic", "chat" + roomId + "MessageCreated", chatMessageDto);
     }
 }
