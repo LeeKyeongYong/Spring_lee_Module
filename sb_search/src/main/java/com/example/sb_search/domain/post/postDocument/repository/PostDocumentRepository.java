@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import com.meilisearch.sdk.model.SearchResult;
 
@@ -90,7 +91,9 @@ public class PostDocumentRepository {
                 new SearchRequest(kw)
                         .setAttributesToRetrieve(new String[]{"subject", "body"})
                         .setLimit(pageable.getPageSize())
-                        .setOffset((int) pageable.getOffset());
+                        .setOffset((int) pageable.getOffset())
+                        .setShowMatchesPosition(true)
+                        .setAttributesToHighlight(new String[]{"subject", "body"});
 
         if (startDate != null && endDate != null) {
             searchRequest
@@ -110,7 +113,10 @@ public class PostDocumentRepository {
                 .getHits()
                 .stream()
                 .map(
-                        hit -> UtBase.json.toObject(hit, PostDocument.class)
+                        hit -> {
+                            Map<String, Object> formatted = (Map<String, Object>) hit.get("_formatted");
+                            return UtBase.json.toObject(formatted, PostDocument.class);
+                        }
                 )
                 .toList();
 

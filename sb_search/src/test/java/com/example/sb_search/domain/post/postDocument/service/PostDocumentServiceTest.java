@@ -112,6 +112,18 @@ public class PostDocumentServiceTest {
 
         assertThat(postPage.getTotalElements()).isEqualTo(3);
     }
+    @Test
+    @DisplayName("findByKw 로 검색했을 때 검색결과와 매칭되는 부분이 표시됨(em 태그로 감싸짐)")
+    void t7() {
+        int page = 1;
+        Sort sort = Sort.by(Sort.Order.desc("rating"));
+        Pageable pageable = PageRequest.of(page - 1, 1, sort);
+        Page<PostDocument> postPage = postDocumentService.findByKw("카페", pageable);
 
+        PostDocument first = postPage.getContent().getFirst();
+
+        assertThat(first.getSubject()).contains("<em>카페</em>");
+        assertThat(first.getBody()).contains("<em>카페</em>");
+    }
 
 }
