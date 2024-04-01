@@ -35,4 +35,15 @@ public class PostDocumentServiceTest {
         assertThat(post.getSubject()).isEqualTo(expectedSubject);
         assertThat(post.getBody()).isEqualTo(expectedBody);
     }
+
+    @Test
+    @DisplayName("findById")
+    void t2() {
+        PostDocument post = postDocumentService.findById(1).get();
+        assertThat(post).isNotNull();
+
+        // 순서대로 각 포스트 검증
+        assertPost(post, 1L, "subject1", "body1");
+    }
+
 }

@@ -6,6 +6,7 @@ import com.example.sb_search.global.meilisearch.MeilisearchConfig;
 import com.example.sb_search.global.standard.UtBase;
 import com.meilisearch.sdk.Index;
 import com.meilisearch.sdk.SearchRequest;
+import com.meilisearch.sdk.exceptions.MeilisearchException;
 import com.meilisearch.sdk.model.Results;
 import com.meilisearch.sdk.model.Searchable;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -63,5 +65,16 @@ public class PostDocumentRepository {
                                 hit -> UtBase.json.toObject(hit, PostDocument.class)
                         )
                         .toList();
+    }
+
+    public Optional<PostDocument> findById(long id) {
+        try {
+            PostDocument document = getIndex().getDocument(String.valueOf(id), PostDocument.class);
+            return Optional.ofNullable(document);
+        } catch (MeilisearchException ignored) {
+            System.out.println("ignored: "+ignored.toString());
+        }
+
+        return Optional.empty();
     }
 }
