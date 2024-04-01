@@ -16,6 +16,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -83,7 +85,7 @@ public class PostDocumentRepository {
         return Optional.empty();
     }
 
-    public Page<PostDocument> findByKw(String kw, Pageable pageable) {
+    public Page<PostDocument> findByKw(String kw, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
         SearchRequest searchRequest =
                 new SearchRequest(kw)
                         .setAttributesToRetrieve(new String[]{"subject", "body"})

@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @SpringBootTest
@@ -88,5 +90,28 @@ public class PostDocumentServiceTest {
                 .forEach(
                         post -> assertThat(post.getSubject() + post.getBody()).contains("주말", "카페", "추천"));
     }
+
+    @Test
+    @DisplayName("findByKw, 2020 년에 생성된 데이터만 검색")
+    void t6() {
+        // 2020년 01월 01일 00시:00분:00초.00000
+        LocalDateTime startDate = LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0);
+
+        // 2020년 12월 12일 23시:59분:59초.99999 (실제로는 999,999,999 나노초를 사용)
+        LocalDateTime endDate = LocalDateTime.of(2020, 12, 12, 23, 59, 59, 999999999);
+
+        int page = 1;
+        Sort sort = Sort.by(Sort.Order.desc("rating"));
+        Pageable pageable = PageRequest.of(page - 1, AppConfig.getBasePageSize(), sort);
+        Page<PostDocument> postPage = postDocumentService.findByKw(
+                "",
+                startDate,
+                endDate,
+                pageable
+        );
+
+        assertThat(postPage.getTotalElements()).isEqualTo(3);
+    }
+
 
 }
