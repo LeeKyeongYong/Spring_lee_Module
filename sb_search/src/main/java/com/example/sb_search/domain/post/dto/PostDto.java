@@ -1,11 +1,15 @@
 package com.example.sb_search.domain.post.dto;
 
 import com.example.sb_search.domain.post.entity.Post;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
 import java.time.LocalDateTime;
 
-@Getter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PostDto {
     @NonNull
     private long id;

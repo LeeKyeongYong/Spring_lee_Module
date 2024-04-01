@@ -13,7 +13,13 @@ public class UtBase {
             return localDateTime.toEpochSecond(java.time.ZoneOffset.ofHours(9));
         }
     }
+    public static class thread {
 
+        @SneakyThrows
+        public static void sleep(long millis) {
+            Thread.sleep(millis);
+        }
+    }
 
     public static class json {
         @SneakyThrows
