@@ -5,7 +5,9 @@ import com.example.sb_search.global.app.AppConfig;
 import com.example.sb_search.global.meilisearch.MeilisearchConfig;
 import com.example.sb_search.global.standard.UtBase;
 import com.meilisearch.sdk.Index;
+import com.meilisearch.sdk.SearchRequest;
 import com.meilisearch.sdk.model.Results;
+import com.meilisearch.sdk.model.Searchable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -32,6 +34,8 @@ public class PostDocumentRepository {
 
     public void clear() {
         getIndex().deleteAllDocuments();
+        getIndex().resetSortableAttributesSettings();
+        getIndex().updateSortableAttributesSettings(new String[]{"id"});
     }
 
     private String getIndexName() {
@@ -43,10 +47,21 @@ public class PostDocumentRepository {
     }
 
     public List<PostDocument> findByOrderByIdDesc() {
-        Results<PostDocument> documents = getIndex()
-                .getDocuments(PostDocument.class);
+        // 검색 파라미터 설정
+        SearchRequest searchRequest =
+                new SearchRequest("")
+                        .setSort(new String[]{"id:desc"});
 
-        return Arrays.stream(documents.getResults())
-                .toList();
+        // 문서 검색
+        Searchable search = getIndex().search(searchRequest);
+
+        return
+                search
+                        .getHits()
+                        .stream()
+                        .map(
+                                hit -> UtBase.json.toObject(hit, PostDocument.class)
+                        )
+                        .toList();
     }
 }
