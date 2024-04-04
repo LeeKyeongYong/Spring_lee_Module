@@ -1,0 +1,17 @@
+css>>
+.page{
+  display:none;
+}
+
+.page.active{
+  display:block;
+}
+
+#chatRoomListPaginaction{
+  display:flex;
+  gap:10px;
+}
+
+.page-link.active{
+  color:red;
+}

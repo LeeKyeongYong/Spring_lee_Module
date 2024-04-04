@@ -1,0 +1,168 @@
+css>>
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+
+
+html>>
+<nav>
+  <ul>
+    <li>
+      <a href="">로그인</a>
+      <a href="">채팅방 목록</a>
+    </li>
+  </ul>
+</nav>
+<section id="loginPage" class="page">
+  <h1>로그인</h1>
+
+  <div>
+    <h2>로그인 폼</h2>
+    <form action="" onsubmit="submitLoginForm(this); return false;">
+      <input type="text" name="username" placeholder="아이디를 입력하세요">
+      <input type="password" name="password" placeholder="패스워드를 입력하세요">
+      <input type="submit" value="로그인">
+    </from>
+
+    <h2>로그인 결과</h2>
+    <div id="login-rs"></div>
+  </div>
+</section>
+
+<section id="chatRoomListPage" class="page">
+  <h1>채팅방 리스트</h1>
+
+ <ul id="chatRoomList"></ul>
+ <div id="chatRoomListPagination"></div>
+</section>
+
+
+javascript>>
+
+console.clear();
+
+//유틸 시작
+function ucfirst(str){
+  if(str&&str.length>0){
+    return str.charAt(0).toUpperCase()+str.slice(1);
+  } else {
+    return str;
+  }
+}
+//유틸 끝
+//전체 코드 시작
+function showPage(pageName){
+ document.querySelectorAll(".page").forEach((element)=>element.classList.remove("active"));
+ document.querySelector("#"+pageName+"Page").classList.add("active");
+ const onPageStartedFuncName = "on"+ucfirst(pageName)+"PageStarted";
+  if(window[onPageStartedFuncName]){
+    window[onPageStartedFuncName]();
+  }
+}
+//전체 코드 종료
+
+//로그인 페이지 관련 시작
+function onLoginPageStarted(){}
+
+async function submitLoginForm(form){
+  form.username.value = form.username.value.trim();
+  if(form.username.value.length == 0){
+    form.username.focus();
+    alert("아이디를 입력해주세요.");
+    return;
+  }
+
+  const username = form.username.value;
+  if(form.password.value.length==0){
+    form.password.focus();
+    alert("비밀번호를 입력해주세요.");
+    return;
+  }
+
+  const password = form.password.value.trim();
+
+  try{
+    const response = await fetch("http://localhost:8090/api/v1/members/login",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body: JSON.stringify({
+        username,
+        password
+      }),
+      credentials: "include"
+    });
+
+    const data = await response.json();
+
+    if(!response.ok) throw data;
+
+    document.querySelector("#login-rs").innerHTML = `<button>${data.data.item.name} 로그아웃</button>`;
+
+
+  }catch(error){
+    console.error("login form submission failed: ",error);
+  }
+}
+
+//로그인 페이지 관련 끝
+//채팅방 목록 페이지 관련시작
+ async function onChatRoomListPageStarted(){
+   let data = null;
+   try{
+     const response = await fetch("http://localhost:8090/api/v1/chatRooms",{
+       method:"GET",
+       headers:{
+         "Content-Type":"applicaiton/json"
+       },
+       credentials:"include"
+     });
+
+     const responseData = await response.json();
+     if(!response.ok) throw responseData;
+     data = responseData;
+
+   }catch(error){
+     console.error("Get chatRooms failed: ",error);
+   }
+   drawChatRoomList(data.data.itemPage);
+ }
+
+function drawChatRoomList(itemPage){
+  const chatRoomListEl = document.querySelector("#chatRoomList");
+  const El = document.querySelector("#chatRoomListPagination");
+
+  chatRoomListEl.innerHTML="";
+  chatRoomListPaginationEl.innerHTML="";
+
+  if(itemPage.content.length === 0){
+    chatRoomListEl.innerHTML ="<li>채팅방이 없습니다.!</li>";
+    return;
+  }
+
+  itemPage.content.forEach((chatRoom)=>{
+    const li = document.createElement("li");
+    li.textcontent = chatRoom.name;
+    chatRoomListEl.appendChild(li);
+  });
+
+  if(itemPage.totalPagesCount >= 1){
+    for(let i=1; i<= itemPage.totalPagesCount;  i++){
+      const pageLink = document.createElement("a");
+      pageLink.href = "#";
+      pageLink.textContent = i;
+      pageLink.classList.add("page-link");
+
+      if(i === itemPage.number) pageLink.classList.add("active"); //현재페이지 표시한다.
+
+      chatRoomListPaginationEl.appendChild(pageLink);
+    }
+  }
+}
+//채팅방 목록 관련 페이지 끝
+showPage("login");
