@@ -1,0 +1,62 @@
+html>>
+<h1>로그인</h1>
+
+<div>
+  <h2>로그인 폼</h2>
+
+  <form action="" onsubmit="submitLoginForm(this); return false;">
+    <input type="text" name="username" placeholder="USERNAME">
+    <input type="password" name="password" placeholder="PASSWORD">
+    <input type="submit" value="로그인">
+  </form>
+
+  <h2>로그인 결과</h2>
+  <div id="login-rs"></div>
+</div>
+
+javascript>>
+console.clear();
+
+async function submitLoginForm(form) {
+  form.username.value = form.username.value.trim();
+  if (form.username.value.length == 0) {
+    form.username.focus();
+    alert("username을 입력해주세요.");
+    return;
+  }
+
+  const username = form.username.value;
+
+  form.password.value = form.password.value.trim();
+  if (form.password.value.length == 0) {
+    form.password.focus();
+    alert("password를 입력해주세요.");
+    return;
+  }
+
+  const password = form.password.value.trim();
+
+  try {
+    const response = await fetch("http://localhost:8090/api/v1/members/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username,
+        password
+      }),
+      credentials: "include"
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) throw data;
+
+    document.querySelector(
+      "#login-rs"
+    ).innerHTML = `<button>${data.data.item.name} 로그아웃</button>`;
+  } catch (error) {
+    console.error("login form submission failed:", error);
+  }
+}

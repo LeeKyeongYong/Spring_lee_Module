@@ -40,7 +40,6 @@ public class ChatController {
     @GetMapping("/RoomList")
     public String showChatRooms(Model model) {
         List<ChatRoomDto> chatRooms = chatService.getAllChatRooms();
-        System.out.println("chatRooms: "+chatRooms);
         model.addAttribute("chatRooms", chatRooms);
         return "domain/chat/chatRoomList"; // chatRoomList.html 템플릿을 반환
     }
