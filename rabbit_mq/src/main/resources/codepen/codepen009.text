@@ -1,0 +1,471 @@
+html>>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+<nav>
+  <ul>
+    <li>
+      <a href="#/member/login">로그인</a>
+      <a href="#/chat/roomList">채팅방 목록</a>
+    </li>
+  </ul>
+</nav>
+
+<section id="memberLoginPage" class="page">
+  <h1>로그인</h1>
+
+  <div>
+    <h2>로그인 폼</h2>
+
+    <form action="" onsubmit="submitLoginForm(this); return false;">
+      <input type="text" name="username" placeholder="USERNAME">
+      <input type="password" name="password" placeholder="PASSWORD">
+      <input type="submit" value="로그인">
+    </form>
+
+    <h2>로그인 결과</h2>
+    <div id="login-rs"></div>
+  </div>
+</section>
+
+<section id="chatRoomListPage" class="page">
+  <h1>채팅방 리스트</h1>
+
+  <ul id="chatRoomList"></ul>
+  <div id="chatRoomListPagination"></div>
+
+</section>
+
+<section id="chatRoomPage" class="page">
+  <h1>채팅방 : <span id="chatRoomPage__name"></span></h1>
+
+  <h2>채팅메세지</h2>
+  <form onsubmit="submitSendForm(this); return false;">
+    <input type="text" name="body" placeholder="내용">
+    <button type="submit">Send</button>
+  </form>
+  <div id="chat-messages"></div>
+
+</section>
+
+css>>
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+
+#chatRoomListPagination {
+  display: flex;
+  gap: 10px;
+}
+
+.page-link.active {
+  color: red;
+}
+
+.chat-message {
+  display: flex;
+  gap: 10px;
+}
+
+js>>
+console.clear();
+
+const socket = new SockJS("https://localhost:8090/ws");
+const stompClient = Stomp.over(socket);
+
+stompClient.connect({}, function (frame) {
+  console.log("Connected: " + frame);
+});
+
+class Rq {
+  constructor(hash) {
+    this.url = hash.substring(1);
+
+    const [path, queryString] = this.url.split("?", 2);
+
+    this.path = path;
+    this.queryString = queryString !== undefined ? queryString : "";
+    this.queryParams = {};
+
+    const queryStringBits = this.queryString.split("&");
+
+    for (const queryStringBit of queryStringBits) {
+      const [paramName, paramValue] = queryStringBit.split("=", 2);
+      this.queryParams[paramName] = paramValue;
+    }
+  }
+
+  getParam(name, defaultValue) {
+    return this.queryParams[name] ?? defaultValue;
+  }
+
+  getParamAsNumber(name, defaultValue) {
+    return parseInt(this.queryParams[name]) ?? defaultValue;
+  }
+}
+
+let rq = null;
+let lastRq = null;
+
+// 유틸 시작
+function ucfirst(str) {
+  // 문자열이 비어있지 않은 경우에만 처리
+  if (str && str.length > 0) {
+    // 첫 글자를 대문자로 변환하고 나머지 문자열과 결합
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  } else {
+    // 비어있는 문자열의 경우, 그대로 반환
+    return str;
+  }
+}
+// 유틸 끝
+
+// 전체 코드 시작
+// 해시 변경 이벤트 리스너를 설정하는 함수
+function hashChanged() {
+  // 현재 URL에서 해시값을 가져옴
+  const hash = window.location.hash;
+
+  if (rq != null) {
+    lastRq = rq;
+  }
+
+  rq = new Rq(hash);
+
+  // 해시값에 따라 다른 함수를 실행
+  switch (rq.path) {
+    case "/member/login":
+      showPage("memberLogin");
+      break;
+    case "/chat/roomList":
+      showPage("chatRoomList");
+      break;
+    case "/chat/room":
+      showPage("chatRoom");
+      break;
+    default:
+      alert(rq.path + " (은)는 존재하지 않는 페이지 입니다."); // TODO : 주석해제
+      break;
+  }
+}
+
+function setupHashRouting() {
+  window.addEventListener("hashchange", hashChanged);
+}
+
+// 페이지 로드 시 해시 라우팅 설정
+document.addEventListener("DOMContentLoaded", setupHashRouting);
+
+function movePage(pageUrl) {
+  location.hash = pageUrl;
+}
+
+let lastPageName = null;
+
+function showPage(pageName) {
+  if (lastPageName != null) {
+    const onPageEndedFuncName = "on" + ucfirst(lastPageName) + "PageEnded";
+
+    if (window[onPageEndedFuncName]) {
+      window[onPageEndedFuncName]();
+    }
+  }
+
+  lastPageName = pageName;
+
+  document
+    .querySelectorAll(".page")
+    .forEach((element) => element.classList.remove("active"));
+  document.querySelector("#" + pageName + "Page").classList.add("active");
+
+  const onPageStartedFuncName = "on" + ucfirst(pageName) + "PageStarted";
+
+  if (window[onPageStartedFuncName]) {
+    window[onPageStartedFuncName]();
+  }
+}
+// 전체 코드 끝
+
+// 로그인 페이지 관련 시작
+function onMemberLoginPageStarted() {}
+
+function onMemberLoginPageEnded() {}
+
+async function submitLoginForm(form) {
+  form.username.value = form.username.value.trim();
+  if (form.username.value.length == 0) {
+    form.username.focus();
+    alert("username을 입력해주세요.");
+    return;
+  }
+
+  const username = form.username.value;
+
+  form.password.value = form.password.value.trim();
+  if (form.password.value.length == 0) {
+    form.password.focus();
+    alert("password를 입력해주세요.");
+    return;
+  }
+
+  const password = form.password.value.trim();
+
+  try {
+    const response = await fetch(
+      "https://localhost:8090/api/v1/members/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          username,
+          password
+        }),
+        credentials: "include"
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) throw data;
+
+    document.querySelector(
+      "#login-rs"
+    ).innerHTML = `<button>${data.data.item.name} 로그아웃</button>`;
+  } catch (error) {
+    console.error("login form submission failed:", error);
+  }
+}
+// 로그인 페이지 관련 끝
+
+// 채팅방 목록 페이지 관련 시작
+async function onChatRoomListPageStarted() {
+  let data = null;
+
+  const page = rq.getParam("page", 1);
+
+  try {
+    const response = await fetch(
+      `https://localhost:8090/api/v1/chatRooms?page=${page}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "include"
+      }
+    );
+
+    const responsData = await response.json();
+
+    if (!response.ok) throw responsData;
+
+    data = responsData;
+  } catch (error) {
+    console.error("GET chatRooms failed:", error);
+  }
+
+  drawChatRoomList(data.data.itemPage);
+}
+
+async function onChatRoomListPageEnded() {}
+
+function drawChatRoomList(itemPage) {
+  const chatRoomListEl = document.querySelector("#chatRoomList");
+  const chatRoomListPaginationEl = document.querySelector(
+    "#chatRoomListPagination"
+  );
+
+  // 채팅방 목록 초기화
+  chatRoomListEl.innerHTML = "";
+  chatRoomListPaginationEl.innerHTML = "";
+
+  // 채팅방 목록이 비어있는 경우 처리
+  if (itemPage.content.length === 0) {
+    chatRoomListEl.innerHTML = "<li>채팅방이 없습니다.</li>";
+    return;
+  }
+
+  // 채팅방 목록을 순회하면서 각 채팅방을 리스트 아이템으로 추가
+  itemPage.content.forEach((chatRoom) => {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+
+    li.appendChild(a);
+    a.setAttribute("href", "#/chat/room?id=" + chatRoom.id);
+    a.textContent = chatRoom.name;
+
+    chatRoomListEl.appendChild(li);
+  });
+
+  // 페이지네이션 생성
+  if (itemPage.totalPagesCount >= 1) {
+    for (let i = 1; i <= itemPage.totalPagesCount; i++) {
+      const pageLink = document.createElement("a");
+      pageLink.href = "#";
+      pageLink.textContent = i;
+      pageLink.classList.add("page-link");
+
+      if (i === itemPage.number) pageLink.classList.add("active"); // 현재 페이지 표시
+
+      pageLink.setAttribute("href", "#/chat/roomList?page=" + i);
+
+      chatRoomListPaginationEl.appendChild(pageLink);
+    }
+  }
+}
+// 채팅방 목록 페이지 관련 끝
+
+// 채팅방 페이지 관련 시작
+let chatRoomStompSubscription = null;
+
+async function onChatRoomPageStarted() {
+  let data = null;
+
+  const id = rq.getParamAsNumber("id", 0);
+
+  loadAndDrawChatRoom(id);
+
+  alert(`${id}번 채팅방에 입장`);
+
+  chatRoomStompSubscription = stompClient.subscribe(
+    `/topic/chat${id}MessageCreated`,
+    function (data) {
+      const jsonData = JSON.parse(data.body);
+      drawChatMessage(jsonData);
+    }
+  );
+}
+
+async function onChatRoomPageEnded() {
+  const id = lastRq.getParamAsNumber("id", 0);
+  alert(`${id}번 채팅방에서 퇴장`);
+
+  chatRoomStompSubscription.unsubscribe();
+}
+
+async function loadAndDrawChatRoom(id) {
+  loadAndDrawChatRoomDetail(id);
+  loadAndDrawChatMessages(id);
+}
+
+async function loadAndDrawChatRoomDetail(id) {
+  try {
+    const response = await fetch(
+      `https://localhost:8090/api/v1/chatRooms/${id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "include"
+      }
+    );
+
+    const responsData = await response.json();
+
+    if (!response.ok) throw responsData;
+
+    data = responsData;
+  } catch (error) {
+    console.error("GET chatRoom failed:", error);
+  }
+
+  drawChatRoomDetail(data.data.item);
+}
+
+function drawChatRoomDetail(item) {
+  const chatRoomPage__nameEl = document.querySelector("#chatRoomPage__name");
+
+  chatRoomPage__nameEl.innerHTML = item.name;
+}
+
+async function loadAndDrawChatMessages(id) {
+  try {
+    const response = await fetch(
+      `https://localhost:8090/api/v1/chatMessages/${id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "include"
+      }
+    );
+
+    const responsData = await response.json();
+
+    if (!response.ok) throw responsData;
+
+    data = responsData;
+  } catch (error) {
+    console.error("GET chatRoom failed:", error);
+  }
+
+  drawChatMessages(data.data.items);
+}
+
+function drawChatMessages(messages) {
+  const chatMessages = document.getElementById("chat-messages");
+  chatMessages.innerHTML = "";
+
+  messages.forEach((message) => {
+    drawChatMessage(message);
+  });
+}
+
+function drawChatMessage(message) {
+  const chatMessages = document.getElementById("chat-messages");
+
+  const chatMessage = document.createElement("div");
+  chatMessage.classList.add("chat-message");
+
+  const chatMessageId = document.createElement("div");
+  chatMessageId.classList.add("chat-message__id");
+  chatMessageId.innerText = message.id;
+
+  const chatMessageWriterName = document.createElement("div");
+  chatMessageWriterName.classList.add("chat-message-writer__name");
+  chatMessageWriterName.innerText = message.writerName;
+
+  const chatMessageBody = document.createElement("div");
+  chatMessageBody.classList.add("chat-message__body");
+  chatMessageBody.innerText = message.body;
+
+  chatMessage.appendChild(chatMessageId);
+  chatMessage.appendChild(chatMessageWriterName);
+  chatMessage.appendChild(chatMessageBody);
+
+  chatMessages.insertBefore(chatMessage, chatMessages.firstChild);
+}
+
+function submitSendForm(form) {
+  const body = form.body.value.trim();
+
+  const chatRoomId = rq.getParamAsNumber("id", 0);
+
+  stompClient.send(
+    `/app/chat/${chatRoomId}/messages/create`,
+    {},
+    JSON.stringify({ body })
+  );
+
+  form.body.value = "";
+  form.body.focus();
+}
+// 채팅방 페이지 관련 끝
+
+// 페이지 로드 시 로그인 페이지로 이동하도록 설정
+document.addEventListener("DOMContentLoaded", () => {
+  if (location.hash) {
+    hashChanged();
+  } else {
+    movePage("/member/login");
+  }
+});
+
