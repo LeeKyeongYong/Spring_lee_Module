@@ -18,28 +18,22 @@ public class NotProd {
     @Bean
     public ApplicationRunner initNotProd() {
         return args -> {
-            System.out.println("NotProd.initNotProd1");
-            System.out.println("NotProd.initNotProd2");
-            System.out.println("NotProd.initNotProd3");
+            if (articleRepository.count() > 0) return;
 
-            Article articleFirst = Article.builder()
-                    .title("제목")
-                    .body("내용")
+            Article article1 = Article.builder()
+                    .title("제목 1")
+                    .body("내용 2")
                     .build();
 
-            Article articleSecond = Article.builder()
-                    .title("제목")
-                    .body("내용")
+            Article article2 = Article.builder()
+                    .title("제목 1")
+                    .body("내용 2")
                     .build();
 
-            System.out.println("articleFirst.id : " + articleFirst.getId());
-            System.out.println("articleSecond.id : " + articleSecond.getId());
+            articleRepository.save(article1);
+            articleRepository.save(article2);
 
-            articleRepository.save(articleFirst);
-            articleRepository.save(articleSecond);
-
-            System.out.println("articleFirst.id : " + articleFirst.getId());
-            System.out.println("articleSecond.id : " + articleSecond.getId());
+            articleRepository.delete(article1);
         };
     }
 }
