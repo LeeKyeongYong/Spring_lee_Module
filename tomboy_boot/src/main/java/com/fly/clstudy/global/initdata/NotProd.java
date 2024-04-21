@@ -3,10 +3,12 @@ package com.fly.clstudy.global.initdata;
 import com.fly.clstudy.article.entity.Article;
 import com.fly.clstudy.article.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.transaction.annotation.Transactional;
 
 // !prod == dev or test
 @Profile("!prod")
@@ -17,8 +19,11 @@ public class NotProd {
 
     @Bean
     public ApplicationRunner initNotProd() {
-        return args -> {
-            if (articleRepository.count() > 0) return;
+        return new ApplicationRunner() {
+            @Override
+            @Transactional
+            public void run(ApplicationArguments args) throws Exception {
+                if (articleRepository.count() > 0) return;
 
             Article article1 = Article.builder()
                     .title("제목 1")
