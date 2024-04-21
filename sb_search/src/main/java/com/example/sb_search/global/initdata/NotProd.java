@@ -35,7 +35,15 @@ public class NotProd {
 
     @Transactional
     public void work1() {
+
         postDocumentService.clear();
+
+        postService.write("subject1", "body1");
+        postService.write("subject2", "body2");
+        postService.write("subject3", "body3");
+
+
+        /*postDocumentService.clear();
 
         Post post1 = postService.write("subject1", "body1");
         post1.setCreateDate(
@@ -57,6 +65,7 @@ public class NotProd {
                         .withYear(2020)
         );
         postService.modified(post3);
+
 
         Post post4 = postService.write("오늘의 운동 루틴 공유해요", "오늘은 유산소 위주로 30분 걷기와 함께 가벼운 스트레칭을 했어요. 여러분은 어떤 운동을 좋아하나요?");
         post4.setCreateDate(
@@ -107,6 +116,8 @@ public class NotProd {
         );
         postService.modified(post10);
 
+
+         */
         Post post11 = postService.write("아침 일찍 일어나는 비결이 있나요?", "최근에 아침형 인간으로 바꾸려고 하는데, 매일 아침 일찍 일어나는 것이 쉽지 않네요. 아침에 쉽게 일어날 수 있는 비결이 있다면 공유해주세요!");
         Post post12 = postService.write("홈 카페 레시피 공유해요", "주말에 집에서 특별한 커피를 만들어 보고 싶어요. 집에서 쉽게 만들 수 있는 홈 카페 레시피가 있으면 추천해주세요!");
         Post post13 = postService.write("요가 시작하는 팁?", "최근에 건강을 위해 요가를 시작하려고 해요. 요가 초보자에게 유용한 팁이나 추천하는 요가 동작이 있나요?");

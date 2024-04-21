@@ -15,7 +15,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class PostDocumentService {
-    private final PostDocumentRepository postDocumentRepository;
+   private final PostDocumentRepository postDocumentRepository;
 
     public void add(PostDto postDto) {
         PostDocument postDocument = new PostDocument(postDto);
@@ -26,6 +26,7 @@ public class PostDocumentService {
     public void clear() {
         postDocumentRepository.clear();
     }
+
 
     public List<PostDocument> findAll() {
         return postDocumentRepository.findByOrderByIdDesc();
@@ -42,10 +43,10 @@ public class PostDocumentService {
     public Page<PostDocument> findByKw(String kw, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
         return postDocumentRepository.findByKw(kw, startDate, endDate, pageable);
     }
-
+ /*
     public void modify(PostDto postDto) {
         PostDocument postDocument = new PostDocument(postDto);
 
         postDocumentRepository.save(postDocument);
-    }
+    }*/
 }

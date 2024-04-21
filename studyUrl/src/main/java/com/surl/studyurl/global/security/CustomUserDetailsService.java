@@ -1,2 +1,4 @@
-package com.surl.studyurl.global.security;public class CustomUserDetailsService {
+package com.surl.studyurl.global.security;
+
+public class CustomUserDetailsService {
 }

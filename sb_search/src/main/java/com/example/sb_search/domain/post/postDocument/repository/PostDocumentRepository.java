@@ -27,12 +27,13 @@ import com.meilisearch.sdk.model.SearchResult;
 @Repository
 @RequiredArgsConstructor
 public class PostDocumentRepository {
+
     private final MeilisearchConfig meilisearchConfig;
     private Index postIndex;
 
     private Index getIndex() {
         if (postIndex == null) postIndex = meilisearchConfig.meilisearchClient().index(getIndexName());
-
+        //if (postIndex == null) postIndex = meilisearchConfig.meilisearchClient().index("post");
         return postIndex;
     }
 
@@ -55,6 +56,7 @@ public class PostDocumentRepository {
 
         return indexName;
     }
+
 
     public List<PostDocument> findByOrderByIdDesc() {
         // 검색 파라미터 설정

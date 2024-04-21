@@ -2,11 +2,9 @@ package com.example.sb_search.domain.post.eventListener;
 
 import com.example.sb_search.domain.post.dto.PostDto;
 import com.example.sb_search.domain.post.event.AfterPostCreatedEvent;
-import com.example.sb_search.domain.post.event.AfterPostModifiedEvent;
 import com.example.sb_search.domain.post.postDocument.service.PostDocumentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -17,20 +15,21 @@ public class PostDocumentEventListener {
     private final PostDocumentService postDocumentService;
 
 
-    /*@EventListener
+    @EventListener
     @Async
     public void listen(AfterPostCreatedEvent event) {
+        //System.out.println("event = " + event.getPost());
         PostDto postDto = event.getPostDto();
-
         postDocumentService.add(postDto);
     }
+    /*
     @EventListener
     @Async
     public void listen(AfterPostModifiedEvent event) {
         PostDto postDto = event.getPostDto();
 
         postDocumentService.modify(postDto);
-    }*/
+    }
     @KafkaListener(topics = "AfterPostCreatedEvent", groupId = "1")
     public void consumeAfterPostCreatedEvent(PostDto postDto) {
         postDocumentService.add(postDto);
@@ -51,4 +50,6 @@ public class PostDocumentEventListener {
         String message = new String(in);
         System.out.println("failed message: " + message);
     }
+
+     */
 }

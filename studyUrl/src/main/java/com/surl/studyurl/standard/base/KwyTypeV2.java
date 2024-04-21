@@ -1,2 +1,4 @@
-package com.surl.studyurl.standard.base;public class KwyTypeV2 {
+package com.surl.studyurl.standard.base;
+
+public class KwyTypeV2 {
 }

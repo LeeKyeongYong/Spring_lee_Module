@@ -22,7 +22,7 @@ public class PostServiceTest {
         void t1() {
             // 모든 포스트를 찾은 후 결과 검증
             List<Post> posts = postService.findAll();
-            assertThat(posts).hasSize(17);
+            assertThat(posts).hasSize(10);
 
             // 순서대로 각 포스트 검증
             assertPost(posts.get(0), 3L, "subject3", "body3");

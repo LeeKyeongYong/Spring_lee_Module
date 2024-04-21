@@ -7,16 +7,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+
 @Configuration
 @RequiredArgsConstructor
 public class MeilisearchConfig {
     private final ObjectMapper objectMapper;
+
     @Bean
     public Client meilisearchClient() {
         return new Client(
                 new Config(
                         "http://localhost:7700",
-                        "masterKey",
+                        "WCUS0XL8RarcoqoVHh4-J9ywmsKNmUM-zWwGDlXcHz0",
+                        //"masterKey",
                         new JacksonJsonHandler(objectMapper)
                 )
         );
