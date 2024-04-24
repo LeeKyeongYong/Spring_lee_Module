@@ -6,18 +6,20 @@ import com.fly.clstudy.global.jpa.dto.UtStr;
 import com.fly.clstudy.member.entity.Member;
 import com.fly.clstudy.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("/join")
     @ResponseBody
-    public RespData join(
+    public RespData<Member> join(
             String username, String password, String nickname
     ) {
         if (UtStr.str.isBlank(username)) {
@@ -32,9 +34,13 @@ public class MemberController {
             throw new GlobalException("400-3", "닉네임을 입력해주세요.");
         }
 
-        RespData<Member> joinRs = memberService.join(username, password, nickname);
+        return memberService.join(username, password, nickname);
+    }
 
-        return joinRs;
+    @GetMapping("/testThrowIllegalArgumentException")
+    @ResponseBody
+    public RespData<Member> testThrowIllegalArgumentException() {
+        throw new IllegalArgumentException("IllegalArgumentException");
     }
 
 }
