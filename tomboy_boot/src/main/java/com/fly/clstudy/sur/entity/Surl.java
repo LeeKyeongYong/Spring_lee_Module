@@ -1,16 +1,21 @@
 package com.fly.clstudy.sur.entity;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import com.fly.clstudy.global.jpa.entity.BaseTime;
+import jakarta.persistence.Entity;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
+import static lombok.AccessLevel.PROTECTED;
+
+@Entity
+@NoArgsConstructor(access = PROTECTED)
+@AllArgsConstructor(access = PROTECTED)
+@Builder
 @Getter
 @Setter
 @Builder
-public class Surl {
+public class Surl extends BaseTime {
     private long id;
     @Builder.Default
     private LocalDateTime createDate = LocalDateTime.now();
