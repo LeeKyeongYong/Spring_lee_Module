@@ -1,10 +1,8 @@
 package com.fly.clstudy.article.entity;
 
 import com.fly.clstudy.global.jpa.entity.BaseTime;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import com.fly.clstudy.member.entity.Member;
+import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -34,4 +32,6 @@ public class Article extends BaseTime {
     private LocalDateTime modifyDate;
     private String title;
     private String body;
+    @ManyToOne
+    private Member author;
 }
