@@ -2,6 +2,7 @@ package com.fly.clstudy.member.controller;
 
 import com.fly.clstudy.global.exceptions.GlobalException;
 import com.fly.clstudy.global.https.RespData;
+import com.fly.clstudy.global.jpa.dto.UtStr;
 import com.fly.clstudy.member.entity.Member;
 import com.fly.clstudy.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -19,15 +20,15 @@ public class MemberController {
     public RespData join(
             String username, String password, String nickname
     ) {
-        if (username == null || username.isBlank()) {
+        if (UtStr.str.isBlank(username)) {
             throw new GlobalException("400-1", "아이디를 입력해주세요.");
         }
 
-        if (password == null || password.isBlank()) {
+        if (UtStr.str.isBlank(password)) {
             throw new GlobalException("400-2", "비밀번호를 입력해주세요.");
         }
 
-        if (nickname == null || nickname.isBlank()) {
+        if (UtStr.str.isBlank(nickname)) {
             throw new GlobalException("400-3", "닉네임을 입력해주세요.");
         }
 
