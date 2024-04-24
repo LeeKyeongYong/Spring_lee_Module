@@ -1,7 +1,9 @@
 package com.fly.clstudy.sur.controller;
 
 import com.fly.clstudy.global.exceptions.GlobalException;
+import com.fly.clstudy.global.https.ReqData;
 import com.fly.clstudy.global.https.RespData;
+import com.fly.clstudy.member.entity.Member;
 import com.fly.clstudy.sur.entity.Surl;
 import com.fly.clstudy.sur.service.SurlService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +21,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SurlController {
     private List<Surl> surls = new ArrayList<>();
+    private final ReqData rq;
+
     private long surlsLastId;
     private final SurlService surlService;
 
@@ -31,7 +35,19 @@ public class SurlController {
     @GetMapping("/add")
     @ResponseBody
     public RespData<Surl> add(String body, String url) {
-        return surlService.add(body, url);
+
+        Member member = rq.getMember(); // 현재 브라우저로 로그인한 회원
+
+        System.out.println("before get id");
+        member.getId();
+        System.out.println("after get id");
+
+        System.out.println("before get username");
+        member.getUsername();
+        System.out.println("after get username");
+
+        return surlService.add(member, body, url);
+
     }
     @GetMapping("/s/{body}/**")
     @ResponseBody
@@ -39,6 +55,7 @@ public class SurlController {
             @PathVariable String body,
             HttpServletRequest req
     ) {
+        Member member = rq.getMember();
         String url = req.getRequestURI();
 
         if ( req.getQueryString() != null ) {
@@ -49,7 +66,7 @@ public class SurlController {
 
         url = urlBits[3];
 
-        return surlService.add(body, url);
+        return surlService.add(member, body, url);
     }
     @GetMapping("/g/{id}")
     public String go(

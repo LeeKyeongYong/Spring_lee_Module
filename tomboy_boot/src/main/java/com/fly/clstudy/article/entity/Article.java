@@ -17,8 +17,6 @@ import static lombok.AccessLevel.PROTECTED;
 @Getter
 @Entity
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor(access = PROTECTED)

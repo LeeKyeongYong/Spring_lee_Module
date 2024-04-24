@@ -20,10 +20,6 @@ public class MemberService {
         return memberRepository.findByUsername(username);
     }
 
-    private Optional<Member> findByUsername(String username) {
-        return memberRepository.findByUsername(username);
-    }
-
     @Transactional
     public RespData<Member> join(String username, String password, String nickname) {
 
@@ -40,6 +36,10 @@ public class MemberService {
         memberRepository.save(member);
 
         return RespData.of("회원가입이 완료되었습니다.", member);
+    }
+
+    public Member getReferenceById(long id) {
+        return memberRepository.getReferenceById(id);
     }
 
 }

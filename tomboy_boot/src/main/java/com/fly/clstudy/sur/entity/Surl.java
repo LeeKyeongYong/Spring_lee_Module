@@ -1,7 +1,10 @@
 package com.fly.clstudy.sur.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fly.clstudy.global.jpa.entity.BaseTime;
+import com.fly.clstudy.member.entity.Member;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -14,8 +17,10 @@ import static lombok.AccessLevel.PROTECTED;
 @Builder
 @Getter
 @Setter
-@Builder
 public class Surl extends BaseTime {
+    @ManyToOne
+    @JsonIgnore
+    private Member author;
     private long id;
     @Builder.Default
     private LocalDateTime createDate = LocalDateTime.now();

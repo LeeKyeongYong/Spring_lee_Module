@@ -1,6 +1,7 @@
 package com.fly.clstudy.sur.service;
 
 import com.fly.clstudy.global.https.RespData;
+import com.fly.clstudy.member.entity.Member;
 import com.fly.clstudy.sur.entity.Surl;
 import com.fly.clstudy.sur.repository.SurlRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +22,11 @@ public class SurlService {
     }
 
     @Transactional
-    public RespData<Surl> add(String body, String url) {
+    public RespData<Surl> add(Member author, String body, String url) {
         Surl surl = Surl.builder()
                 .body(body)
                 .url(url)
+                .author(author)
                 .build();
 
         surlRepository.save(surl);
