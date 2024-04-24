@@ -2,6 +2,7 @@ package com.fly.clstudy.article.service;
 
 import com.fly.clstudy.article.entity.Article;
 import com.fly.clstudy.article.repository.ArticleRepository;
+import com.fly.clstudy.global.https.RespData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,14 +21,16 @@ public class ArticleService {
     }
 
     @Transactional
-    public Article write(String title, String body) {
+    public RespData<Article> write(String title, String body) {
         Article article = Article
                 .builder()
                 .title(title)
                 .body(body)
                 .build();
 
-        return articleRepository.save(article);
+        articleRepository.save(article);
+
+        return RespData.of("%d번 게시물이 작성되었습니다.".formatted(article.getId()), article);
     }
 
     @Transactional
