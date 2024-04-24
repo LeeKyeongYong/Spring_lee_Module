@@ -8,6 +8,7 @@ import com.fly.clstudy.sur.entity.Surl;
 import com.fly.clstudy.sur.service.SurlService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +20,7 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 public class SurlController {
     private List<Surl> surls = new ArrayList<>();
     private final ReqData rq;
@@ -37,14 +39,6 @@ public class SurlController {
     public RespData<Surl> add(String body, String url) {
 
         Member member = rq.getMember(); // 현재 브라우저로 로그인한 회원
-
-        System.out.println("before get id");
-        member.getId();
-        System.out.println("after get id");
-
-        System.out.println("before get username");
-        member.getUsername();
-        System.out.println("after get username");
 
         return surlService.add(member, body, url);
 

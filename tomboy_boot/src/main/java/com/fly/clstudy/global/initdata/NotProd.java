@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -31,30 +32,24 @@ public class NotProd {
     private final ArticleService articleService;
 
     @Bean
+    @Order(4)
     public ApplicationRunner initNotProd() {
         return args -> {
             self.work1();
-            self.work2();
         };
     }
         @Transactional
         public void work1() {
             if (articleService.count() > 0) return;
 
-            Member member1 = memberService.join("user1", "1234", "유저 1").getData();
-            Member member2 = memberService.join("user2", "1234", "유저 2").getData();
+            Member memberUser1 = memberService.findByUsername("user1").get();
+            Member memberUser2 = memberService.findByUsername("user2").get();
 
-            Article article1 = articleService.write(member1, "제목 1", "내용 1").getData();
-            Article article2 = articleService.write(member1, "제목 2", "내용 2").getData();
+            Article article1 = articleService.write(memberUser1, "제목 1", "내용 1").getData();
+            Article article2 = articleService.write(memberUser1, "제목 2", "내용 2").getData();
 
+            Article article3 = articleService.write(memberUser2, "제목 3", "내용 3").getData();
+            Article article4 = articleService.write(memberUser2, "제목 4", "내용 4").getData();
 
-            Article article3 = articleService.write(member2, "제목 1", "내용 1").getData();
-            Article article4 = articleService.write(member2, "제목 2", "내용 2").getData();
-        }
-
-        @Transactional
-        public void work2() {
-            Article article = articleService.findById(2L).get();
-            List<Article> articles = articleService.findAll();
         }
 }
