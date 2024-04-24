@@ -20,6 +20,11 @@ public class MemberService {
         return memberRepository.findByUsername(username);
     }
 
+    private Optional<Member> findByUsername(String username) {
+        return memberRepository.findByUsername(username);
+    }
+
+    @Transactional
     public RespData<Member> join(String username, String password, String nickname) {
 
         findByUsername(username).ifPresent(ignored -> {

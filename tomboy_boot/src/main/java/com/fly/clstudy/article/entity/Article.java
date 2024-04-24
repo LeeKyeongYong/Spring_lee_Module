@@ -1,5 +1,6 @@
 package com.fly.clstudy.article.entity;
 
+import com.fly.clstudy.global.jpa.entity.BaseTime;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
@@ -12,6 +13,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static lombok.AccessLevel.PROTECTED;
 
 @Builder
 @Getter
@@ -20,7 +22,9 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @AllArgsConstructor
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class Article {
+@NoArgsConstructor(access = PROTECTED)
+@AllArgsConstructor(access = PROTECTED)
+public class Article extends BaseTime {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
