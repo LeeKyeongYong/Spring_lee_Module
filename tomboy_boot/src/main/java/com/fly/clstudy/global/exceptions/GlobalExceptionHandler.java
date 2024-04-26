@@ -9,15 +9,18 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.awt.geom.RectangularShape;
+
 @ControllerAdvice
 @RequiredArgsConstructor
 @Slf4j
 public class GlobalExceptionHandler {
     @ExceptionHandler(GlobalException.class)
     @ResponseBody
-    public ResponseEntity<String> handleException(GlobalException ex) {
+    public ResponseEntity<RespData<EmpClass>> handleException(GlobalException ex) {
+        log.debug("handleException started!");
         RespData<EmpClass> rsData = ex.getRsData();
 
-        return ResponseEntity.status(rsData.getStatusCode()).body(rsData.getMsg());
+        return ResponseEntity.status(rsData.getStatusCode()).body(rsData);
     }
 }
