@@ -1,10 +1,9 @@
 package com.fly.clstudy.member.controller;
 
 
-import com.fly.clstudy.data.MemberJoinReqBody;
-import com.fly.clstudy.global.exceptions.GlobalException;
+import com.fly.clstudy.member.data.MemberJoinReqBody;
 import com.fly.clstudy.global.https.RespData;
-import com.fly.clstudy.global.jpa.dto.UtStr;
+import com.fly.clstudy.member.data.MemberJoinRespBody;
 import com.fly.clstudy.member.entity.Member;
 import com.fly.clstudy.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 
 @RestController
 @RequestMapping("/api/v1/members")
@@ -25,13 +23,13 @@ public class ApiMemberController {
     private final MemberService memberService;
 
     @PostMapping("")
-    public RespData<Member> join(@RequestBody @Valid MemberJoinReqBody reqBody){
+    public RespData<MemberJoinRespBody> join(@RequestBody @Valid MemberJoinReqBody reqBody){
 
-        int a = 40;
-        int b = 0;
-        int c = a / b;
+        RespData<Member> joinRs = memberService.join(reqBody.getUsername(), reqBody.getPassword(), reqBody.getNickname());
 
-        return memberService.join(reqBody.getUsername(),reqBody.getPassword(),reqBody.getNickname());
+        return joinRs.newDataOf(
+                new MemberJoinRespBody(joinRs.getData())
+        );
     }
 
 }

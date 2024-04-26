@@ -1,4 +1,4 @@
-package com.fly.clstudy.data;
+package com.fly.clstudy.member.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
