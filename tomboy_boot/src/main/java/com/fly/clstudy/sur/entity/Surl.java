@@ -21,11 +21,6 @@ public class Surl extends BaseTime {
     @ManyToOne
     @JsonIgnore
     private Member author;
-    private long id;
-    @Builder.Default
-    private LocalDateTime createDate = LocalDateTime.now();
-    @Builder.Default
-    private LocalDateTime modifyDate = LocalDateTime.now();
     private String body;
     private String url;
     @Setter(AccessLevel.NONE)

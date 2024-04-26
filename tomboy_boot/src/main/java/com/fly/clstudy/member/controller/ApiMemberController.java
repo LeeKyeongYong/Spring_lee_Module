@@ -27,6 +27,10 @@ public class ApiMemberController {
     @PostMapping("")
     public RespData<Member> join(@RequestBody @Valid MemberJoinReqBody reqBody){
 
+        int a = 40;
+        int b = 0;
+        int c = a / b;
+
         return memberService.join(reqBody.getUsername(),reqBody.getPassword(),reqBody.getNickname());
     }
 
