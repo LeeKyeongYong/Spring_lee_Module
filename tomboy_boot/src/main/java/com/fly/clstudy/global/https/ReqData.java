@@ -15,7 +15,7 @@ public class ReqData {
     private final HttpServletRequest req;
     private final HttpServletRequest resp;
     public Member getMember() {
-        return memberService.getReferenceById(1L);
+        return memberService.getReferenceById(3L);
     }
 
     public String getCurrentUrlPath() {
