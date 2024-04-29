@@ -1,15 +1,11 @@
 package com.fly.clstudy.global.initdata;
 
-import com.fly.clstudy.article.entity.Article;
-import com.fly.clstudy.article.repository.ArticleRepository;
-import com.fly.clstudy.article.service.ArticleService;
-import com.fly.clstudy.global.exceptions.GlobalException;
-import com.fly.clstudy.global.https.RespData;
-import com.fly.clstudy.member.entity.Member;
-import com.fly.clstudy.member.service.MemberService;
+import com.fly.clstudy.domain.article.entity.Article;
+import com.fly.clstudy.domain.article.service.ArticleService;
+import com.fly.clstudy.domain.member.entity.Member;
+import com.fly.clstudy.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,8 +13,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 // !prod == dev or test
 @Profile("!prod")

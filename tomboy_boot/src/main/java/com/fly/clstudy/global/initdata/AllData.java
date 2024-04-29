@@ -1,7 +1,7 @@
 package com.fly.clstudy.global.initdata;
 
-import com.fly.clstudy.member.entity.Member;
-import com.fly.clstudy.member.service.MemberService;
+import com.fly.clstudy.domain.member.entity.Member;
+import com.fly.clstudy.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

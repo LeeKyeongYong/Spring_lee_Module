@@ -1,7 +1,7 @@
 package com.fly.clstudy.global.https;
 
-import com.fly.clstudy.member.entity.Member;
-import com.fly.clstudy.member.service.MemberService;
+import com.fly.clstudy.domain.member.entity.Member;
+import com.fly.clstudy.domain.member.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
