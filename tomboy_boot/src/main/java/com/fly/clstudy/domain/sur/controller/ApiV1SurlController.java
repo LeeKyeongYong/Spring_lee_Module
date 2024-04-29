@@ -1,5 +1,6 @@
 package com.fly.clstudy.domain.sur.controller;
 
+import com.fly.clstudy.domain.auth.service.AuthService;
 import com.fly.clstudy.domain.member.entity.Member;
 import com.fly.clstudy.domain.sur.data.*;
 import com.fly.clstudy.domain.sur.dto.SurlDto;
@@ -8,7 +9,6 @@ import com.fly.clstudy.global.exceptions.GlobalException;
 import com.fly.clstudy.global.https.ReqData;
 import com.fly.clstudy.global.https.RespData;
 import com.fly.clstudy.global.jpa.dto.EmpClass;
-import com.fly.clstudy.sur.data.*;
 import com.fly.clstudy.domain.sur.entity.Surl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +26,8 @@ import java.util.List;
 public class ApiV1SurlController {
         private final SurlService surlService;
         private final ReqData rq;
+    private final AuthService authService;
+
         @PostMapping("")
         @Transactional
     public RespData<SurlAddRespBody> add(@RequestBody@Valid SurlAddReqBody reqBody){
@@ -42,11 +44,8 @@ public class ApiV1SurlController {
     public RespData<SurlGetRespBody> get(@PathVariable long id){
             Surl surl = surlService.findById(id).orElseThrow(GlobalException.E404::new);
 
-            Member member = rq.getMember();
+            authService.checkCanGetSurl(rq.getMember(), surl);
 
-            if (!surl.getAuthor().equals(member)) {
-                throw new GlobalException("403-1", "권한이 없습니다.");
-            }
             return RespData.of(new SurlGetRespBody(
                     new SurlDto(surl)
             ));
@@ -59,11 +58,7 @@ public class ApiV1SurlController {
     ) {
         Surl surl = surlService.findById(id).orElseThrow(GlobalException.E404::new);
 
-        Member member = rq.getMember();
-
-        if (!surl.getAuthor().equals(member)) {
-            throw new GlobalException("403-1", "권한이 없습니다.");
-        }
+        authService.checkCanGetSurl(rq.getMember(), surl);
 
         surlService.delete(surl);
 
@@ -82,11 +77,7 @@ public class ApiV1SurlController {
     public RespData<SurlModifyRespBody> modify(@PathVariable long id,@RequestBody @Valid SurlModifyReqBody reqBody){
         Surl surl = surlService.findById(id).orElseThrow(GlobalException::new);
 
-        Member member = rq.getMember();
-
-        if (!surl.getAuthor().equals(member)) {
-            throw new GlobalException("403-1", "권한이 없습니다.");
-        }
+        authService.checkCanGetSurl(rq.getMember(), surl);
 
         RespData<Surl> modifyRs = surlService.modify(surl,reqBody.getBody(),reqBody.getUrl());
 
