@@ -7,15 +7,20 @@ import com.fly.clstudy.global.jpa.dto.EmpClass;
 import com.fly.clstudy.member.entity.Member;
 import com.fly.clstudy.sur.data.SurlAddReqBody;
 import com.fly.clstudy.sur.data.SurlAddRespBody;
+import com.fly.clstudy.sur.data.SurlGetItemsRespBody;
 import com.fly.clstudy.sur.data.SurlGetRespBody;
 import com.fly.clstudy.sur.dto.SurlDto;
 import com.fly.clstudy.sur.entity.Surl;
 import com.fly.clstudy.sur.service.SurlService;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/surls")
@@ -55,5 +60,12 @@ public class ApiV1SurlController {
         surlService.delete(surl);
 
         return RespData.OK;
+    }
+
+    @GetMapping("")
+    public RespData<SurlGetItemsRespBody>getItems(){
+            Member member = rq.getMember();
+        List<Surl> surls = surlService.findByAuthorOrderByIdDesc(member);
+        return RespData.of(new SurlGetItemsRespBody(surls.stream().map(SurlDto::new).toList()));
     }
 }
