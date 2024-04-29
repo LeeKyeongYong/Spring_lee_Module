@@ -9,6 +9,7 @@ import com.example.sb_search.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 //import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,11 +21,11 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class PostService {
     private final PostRepository postRepository;
-    private final ApplicationEventPublisher publisher;
-   // private final KafkaTemplate<Object, Object> template;
-
+    //private final ApplicationEventPublisher publisher;
+    private final KafkaTemplate<Object, Object> template;
+/*
     @Transactional
-    public Post write(String subject, String body) {
+    public Post write2(String subject, String body) {
         Post post = postRepository.save(
                 Post.builder()
                         .subject(subject)
@@ -35,8 +36,9 @@ public class PostService {
 
         return post;
     }
+    */
 
-    /*@Transactional
+    @Transactional
     public Post write(String subject, String body) {
         Post post = postRepository.save(
                 Post.builder()
@@ -44,11 +46,11 @@ public class PostService {
                         .body(body)
                         .build());
 
-       // template.send("AfterPostCreatedEvent", new PostDto(post));
+        template.send("AfterPostCreatedEvent", new PostDto(post));
         //publisher.publishEvent(new AfterPostCreatedEvent(this, post));
-        publisher.publishEvent(new AfterPostCreatedEvent(this, post));
+        //publisher.publishEvent(new AfterPostCreatedEvent(this, post));
         return post;
-    }*/
+    }
 
     public long count() {
         return postRepository.count();
@@ -63,10 +65,10 @@ public class PostService {
     public Optional<Post> findById(long id) {
         return postRepository.findById(id);
     }
- /*
+
     public void modified(Post post) {
-         publisher.publishEvent(new AfterPostModifiedEvent(this, new PostDto(post)));
-        //template.send("AfterPostModifiedEvent", new PostDto(post));
+         //publisher.publishEvent(new AfterPostModifiedEvent(this, new PostDto(post)));
+        template.send("AfterPostModifiedEvent", new PostDto(post));
     }
-     */
+
 }

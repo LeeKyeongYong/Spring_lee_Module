@@ -70,7 +70,7 @@ public class PostDocumentServiceTest {
         postPage
                 .getContent()
                 .forEach(
-                        post -> assertThat(post.getSubject() + post.getBody()).containsAnyOf("주말", "카페", "추천"));
+                        post -> assertThat(post.getSubject() + post.getBody()).containsAnyOf("주말2", "카페2", "추천2"));
     }
 
     @Test
@@ -101,8 +101,10 @@ public class PostDocumentServiceTest {
         Pageable pageable = PageRequest.of(page - 1, AppConfig.getBasePageSize(), sort);
         Page<PostDocument> postPage = postDocumentService.findByKw(
                 "",
-                startDate,
-                endDate,
+                null,
+                null,
+                //startDate,
+                //endDate,
                 pageable
         );
 

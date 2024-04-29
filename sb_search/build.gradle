@@ -35,8 +35,8 @@ dependencies {
         exclude group: 'com.vaadin.external.google', module: 'android-json'
     }
     implementation 'com.meilisearch.sdk:meilisearch-java:0.11.8'
-    //implementation 'org.springframework.kafka:spring-kafka'
-    //testImplementation 'org.springframework.kafka:spring-kafka-test'
+    implementation 'org.springframework.kafka:spring-kafka'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
     runtimeOnly 'com.h2database:h2'
 }
 

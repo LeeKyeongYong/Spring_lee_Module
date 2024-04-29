@@ -43,10 +43,10 @@ public class PostDocumentService {
     public Page<PostDocument> findByKw(String kw, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
         return postDocumentRepository.findByKw(kw, startDate, endDate, pageable);
     }
- /*
+
     public void modify(PostDto postDto) {
         PostDocument postDocument = new PostDocument(postDto);
 
         postDocumentRepository.save(postDocument);
-    }*/
+    }
 }
