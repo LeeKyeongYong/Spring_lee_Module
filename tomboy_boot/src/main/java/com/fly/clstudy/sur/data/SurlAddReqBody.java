@@ -6,10 +6,9 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public static class SurlAddReqBody {
+public class SurlAddReqBody {
     @NotBlank
     private String body;
     @NotBlank
     private String url;
-}
 }

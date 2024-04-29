@@ -6,6 +6,6 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class SurlAddRespBody {
+public class SurlGetRespBody {
     private Surl item;
 }
