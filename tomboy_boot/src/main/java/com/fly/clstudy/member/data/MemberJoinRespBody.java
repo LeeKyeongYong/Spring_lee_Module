@@ -1,5 +1,6 @@
 package com.fly.clstudy.member.data;
 
+import com.fly.clstudy.member.dto.MemberDto;
 import com.fly.clstudy.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,5 +8,5 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class MemberJoinRespBody {
-    Member item;
+    MemberDto item;
 }

@@ -4,6 +4,7 @@ package com.fly.clstudy.member.controller;
 import com.fly.clstudy.member.data.MemberJoinReqBody;
 import com.fly.clstudy.global.https.RespData;
 import com.fly.clstudy.member.data.MemberJoinRespBody;
+import com.fly.clstudy.member.dto.MemberDto;
 import com.fly.clstudy.member.entity.Member;
 import com.fly.clstudy.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,11 @@ public class ApiMemberController {
         RespData<Member> joinRs = memberService.join(reqBody.getUsername(), reqBody.getPassword(), reqBody.getNickname());
 
         return joinRs.newDataOf(
-                new MemberJoinRespBody(joinRs.getData())
+                new MemberJoinRespBody(
+                        new MemberDto(
+                                joinRs.getData()
+                        )
+                )
         );
     }
 

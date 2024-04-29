@@ -7,6 +7,7 @@ import com.fly.clstudy.member.entity.Member;
 import com.fly.clstudy.sur.data.SurlAddReqBody;
 import com.fly.clstudy.sur.data.SurlAddRespBody;
 import com.fly.clstudy.sur.data.SurlGetRespBody;
+import com.fly.clstudy.sur.dto.SurlDto;
 import com.fly.clstudy.sur.entity.Surl;
 import com.fly.clstudy.sur.service.SurlService;
 import jakarta.validation.Valid;
@@ -26,12 +27,16 @@ public class ApiV1SurlController {
             Member member =rq.getMember(); //현재 브라우저로 로그인한 회원
             RespData<Surl> addRs  =surlService.add(member,reqBody.getBody(),reqBody.getUrl());
 
-            return addRs.newDataOf(new SurlAddRespBody(addRs.getData()));
+            return addRs.newDataOf( new SurlAddRespBody(
+                    new SurlDto(addRs.getData())
+            ));
     }
 
     @GetMapping("/{id}")
     public RespData<SurlGetRespBody> get(@PathVariable long id){
             Surl surl = surlService.findById(id).orElseThrow(GlobalException.E404::new);
-            return RespData.of(new SurlGetRespBody(surl));
+            return RespData.of(new SurlGetRespBody(
+                    new SurlDto(surl)
+            ));
     }
 }

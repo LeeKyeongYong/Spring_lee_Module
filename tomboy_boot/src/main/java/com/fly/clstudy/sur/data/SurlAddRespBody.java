@@ -1,5 +1,6 @@
 package com.fly.clstudy.sur.data;
 
+import com.fly.clstudy.sur.dto.SurlDto;
 import com.fly.clstudy.sur.entity.Surl;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,5 +8,5 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class SurlAddRespBody {
-    private Surl item;
+    private SurlDto item;
 }
