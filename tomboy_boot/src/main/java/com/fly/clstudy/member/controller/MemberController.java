@@ -8,17 +8,20 @@ import com.fly.clstudy.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Slf4j
 public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("/join")
     @ResponseBody
+    @Transactional
     public RespData<Member> join(
             String username, String password, String nickname
     ) {
