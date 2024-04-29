@@ -31,7 +31,7 @@ public class SurlService {
 
         surlRepository.save(surl);
 
-        return RespData.of("%d번 URL이 생성되었습니다.".formatted(surl.getId()), surl);
+        return RespData.of("%d번 SURL이 생성되었습니다.".formatted(surl.getId()), surl);
     }
 
     public Optional<Surl> findById(long id) {
@@ -50,5 +50,13 @@ public class SurlService {
 
     public List<Surl> findByAuthorOrderByIdDesc(Member author){
         return surlRepository.findByAuthorOrderByIdDesc(author);
+    }
+
+    @Transactional
+    public RespData<Surl> modify(Surl surl, String body, String url) {
+        surl.setBody(body);
+        surl.setUrl(url);
+
+        return RespData.of("%d번 SURL이 수정되었습니다.".formatted(surl.getId()), surl);
     }
 }

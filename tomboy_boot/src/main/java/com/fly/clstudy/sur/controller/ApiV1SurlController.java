@@ -5,10 +5,7 @@ import com.fly.clstudy.global.https.ReqData;
 import com.fly.clstudy.global.https.RespData;
 import com.fly.clstudy.global.jpa.dto.EmpClass;
 import com.fly.clstudy.member.entity.Member;
-import com.fly.clstudy.sur.data.SurlAddReqBody;
-import com.fly.clstudy.sur.data.SurlAddRespBody;
-import com.fly.clstudy.sur.data.SurlGetItemsRespBody;
-import com.fly.clstudy.sur.data.SurlGetRespBody;
+import com.fly.clstudy.sur.data.*;
 import com.fly.clstudy.sur.dto.SurlDto;
 import com.fly.clstudy.sur.entity.Surl;
 import com.fly.clstudy.sur.service.SurlService;
@@ -68,4 +65,14 @@ public class ApiV1SurlController {
         List<Surl> surls = surlService.findByAuthorOrderByIdDesc(member);
         return RespData.of(new SurlGetItemsRespBody(surls.stream().map(SurlDto::new).toList()));
     }
+
+    @PutMapping("/{id}")
+    @Transactional
+    public RespData<SurlModifyRespBody> modify(@PathVariable long id,@RequestBody @Valid SurlModifyReqBody reqBody){
+        Surl surl = surlService.findById(id).orElseThrow(GlobalException::new);
+        RespData<Surl> modifyRs = surlService.modify(surl,reqBody.getBody(),reqBody.getUrl());
+
+        return modifyRs.newDataOf(new SurlModifyRespBody(new SurlDto(modifyRs.getData())));
+    }
+
 }
