@@ -69,10 +69,7 @@ public class ApiV1SurlController {
     }
 
     @GetMapping("")
-    public RespData<SurlGetItemsRespBody>getItems( String actorUsername){
-
-        Member loginedMember = memberService.findByUsername(actorUsername).orElseThrow(GlobalException.E404::new);
-        rq.setMember(loginedMember);
+    public RespData<SurlGetItemsRespBody> getItems() {
 
             Member member = rq.getMember();
         List<Surl> surls = surlService.findByAuthorOrderByIdDesc(member);
