@@ -2,6 +2,7 @@ package com.fly.clstudy.domain.sur.controller;
 
 import com.fly.clstudy.domain.auth.service.AuthService;
 import com.fly.clstudy.domain.member.entity.Member;
+import com.fly.clstudy.domain.member.service.MemberService;
 import com.fly.clstudy.domain.sur.data.*;
 import com.fly.clstudy.domain.sur.dto.SurlDto;
 import com.fly.clstudy.domain.sur.service.SurlService;
@@ -24,9 +25,11 @@ import java.util.List;
 @Slf4j
 @Transactional(readOnly = true)
 public class ApiV1SurlController {
+
         private final SurlService surlService;
         private final ReqData rq;
-    private final AuthService authService;
+        private final AuthService authService;
+        private final MemberService memberService;
 
         @PostMapping("")
         @Transactional
@@ -66,7 +69,11 @@ public class ApiV1SurlController {
     }
 
     @GetMapping("")
-    public RespData<SurlGetItemsRespBody>getItems(){
+    public RespData<SurlGetItemsRespBody>getItems( String actorUsername){
+
+        Member loginedMember = memberService.findByUsername(actorUsername).orElseThrow(GlobalException.E404::new);
+        rq.setMember(loginedMember);
+
             Member member = rq.getMember();
         List<Surl> surls = surlService.findByAuthorOrderByIdDesc(member);
         return RespData.of(new SurlGetItemsRespBody(surls.stream().map(SurlDto::new).toList()));

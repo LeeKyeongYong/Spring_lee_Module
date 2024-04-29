@@ -3,7 +3,9 @@ package com.fly.clstudy.global.https;
 import com.fly.clstudy.domain.member.entity.Member;
 import com.fly.clstudy.domain.member.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -14,9 +16,9 @@ public class ReqData {
     private final MemberService memberService;
     private final HttpServletRequest req;
     private final HttpServletRequest resp;
-    public Member getMember() {
-        return memberService.getReferenceById(3L);
-    }
+    @Getter
+    @Setter
+    private Member member;
 
     public String getCurrentUrlPath() {
         return req.getRequestURI();
