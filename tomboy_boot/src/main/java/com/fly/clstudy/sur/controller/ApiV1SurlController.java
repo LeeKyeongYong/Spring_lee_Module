@@ -3,6 +3,7 @@ package com.fly.clstudy.sur.controller;
 import com.fly.clstudy.global.exceptions.GlobalException;
 import com.fly.clstudy.global.https.ReqData;
 import com.fly.clstudy.global.https.RespData;
+import com.fly.clstudy.global.jpa.dto.EmpClass;
 import com.fly.clstudy.member.entity.Member;
 import com.fly.clstudy.sur.data.SurlAddReqBody;
 import com.fly.clstudy.sur.data.SurlAddRespBody;
@@ -42,5 +43,17 @@ public class ApiV1SurlController {
             return RespData.of(new SurlGetRespBody(
                     new SurlDto(surl)
             ));
+    }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public RespData<EmpClass> delete(
+            @PathVariable long id
+    ) {
+        Surl surl = surlService.findById(id).orElseThrow(GlobalException.E404::new);
+
+        surlService.delete(surl);
+
+        return RespData.OK;
     }
 }
