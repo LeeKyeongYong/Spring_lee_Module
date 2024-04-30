@@ -5,6 +5,7 @@ import com.fly.clstudy.domain.member.service.MemberService;
 import com.fly.clstudy.global.exceptions.GlobalException;
 import com.fly.clstudy.global.jpa.dto.UtStr;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -19,7 +20,7 @@ import java.util.Arrays;
 public class ReqData {
     private final MemberService memberService;
     private final HttpServletRequest req;
-    private final HttpServletRequest resp;
+    private final HttpServletResponse resp;
     private Member member;
 
     public Member getMember() {
@@ -67,6 +68,9 @@ public class ReqData {
 
     // 쿠키관련 시작
     private String getCookieValue(String cookieName, String defaultValue) {
+
+        if (req.getCookies() == null) return defaultValue;
+
         return Arrays.stream(req.getCookies())
                 .filter(cookie -> cookie.getName().equals(cookieName))
                 .findFirst()
@@ -74,5 +78,12 @@ public class ReqData {
                 .orElse(defaultValue);
     }
 
+    public void setCookie(String actorUsername, String username) {
+        Cookie cookie = new Cookie(actorUsername, username);
+        cookie.setMaxAge(60 * 60 * 24 * 365);
+        cookie.setPath("/");
+        resp.addCookie(cookie);
+    }
+    // 쿠키관련 끝
 
 }
