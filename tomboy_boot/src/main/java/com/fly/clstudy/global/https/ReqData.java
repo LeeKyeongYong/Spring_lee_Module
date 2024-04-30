@@ -18,8 +18,11 @@ public class ReqData {
     private final MemberService memberService;
     private final HttpServletRequest req;
     private final HttpServletRequest resp;
+    private Member member;
 
     public Member getMember() {
+
+        if(member!=null) return member;
 
         String actorUsername = req.getParameter("actorUsername");
         String actorPassword = req.getParameter("actorPassword");
@@ -29,6 +32,8 @@ public class ReqData {
 
         Member loginedMember = memberService.findByUsername(actorUsername).orElseThrow(() -> new GlobalException("403-3", "해당 회원이 존재하지 않습니다."));
         if (!loginedMember.getPassword().equals(actorPassword)) throw new GlobalException("403-4", "비밀번호가 일치하지 않습니다.");
+
+        member = loginedMember;
 
         return loginedMember;
     }
