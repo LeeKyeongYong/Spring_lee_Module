@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
-
+import jakarta.servlet.http.Cookie;
 import java.util.Arrays;
 
 @Component
@@ -50,6 +50,22 @@ public class ReqData {
         return loginedMember;
     }
 
+    public String getCurrentUrlPath() {
+        return req.getRequestURI();
+    }
+
+    public void setStatusCode(int statusCode) {
+        resp.setStatus(statusCode);
+    }
+
+    public void removeCookie(String cookieName) {
+        Cookie cookie = new Cookie(cookieName, null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        resp.addCookie(cookie);
+    }
+
+    // 쿠키관련 시작
     private String getCookieValue(String cookieName, String defaultValue) {
         return Arrays.stream(req.getCookies())
                 .filter(cookie -> cookie.getName().equals(cookieName))
@@ -58,7 +74,5 @@ public class ReqData {
                 .orElse(defaultValue);
     }
 
-    public String getCurrentUrlPath() {
-        return req.getRequestURI();
-    }
+
 }
