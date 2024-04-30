@@ -27,6 +27,9 @@ public class ReqData {
         String actorUsername = req.getParameter("actorUsername");
         String actorPassword = req.getParameter("actorPassword");
 
+        if ( actorUsername == null ) actorUsername = req.getHeader("actorUsername");
+        if ( actorPassword == null ) actorPassword = req.getHeader("actorPassword");
+
         if (UtStr.str.isBlank(actorUsername)) throw new GlobalException("401-1", "인증정보(아이디)를 입력해주세요.");
         if (UtStr.str.isBlank(actorPassword)) throw new GlobalException("401-2", "인증정보(비밀번호)를 입력해주세요.");
 
