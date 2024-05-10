@@ -42,7 +42,8 @@ public class ReqData {
         if (UtStr.str.isBlank(actorPassword)) throw new GlobalException("401-2", "인증정보(비밀번호)를 입력해주세요.");
 
         Member loginedMember = memberService.findByUsername(actorUsername).orElseThrow(() -> new GlobalException("403-3", "해당 회원이 존재하지 않습니다."));
-        if (!loginedMember.getPassword().equals(actorPassword)) throw new GlobalException("403-4", "비밀번호가 일치하지 않습니다.");
+
+        if (!memberService.matchPassword(actorPassword, loginedMember.getPassword()) ) throw new GlobalException("403-4", "비밀번호가 일치하지 않습니다.");
 
         member = loginedMember;
 
