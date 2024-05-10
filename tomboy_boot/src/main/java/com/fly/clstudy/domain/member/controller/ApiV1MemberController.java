@@ -53,7 +53,7 @@ public class ApiV1MemberController {
                 .findByUsername(reqBody.getUsername())
                 .orElseThrow(() -> new GlobalException("401-1", "해당 회원이 존재하지 않습니다."));
 
-        if (!member.getPassword().equals(reqBody.getPassword())) {
+        if (!memberService.matchPassword(reqBody.getPassword(),member.getPassword())) {
             throw new GlobalException("401-2", "비밀번호가 일치하지 않습니다.");
         }
 

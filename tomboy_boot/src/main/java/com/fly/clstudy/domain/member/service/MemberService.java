@@ -5,6 +5,7 @@ import com.fly.clstudy.global.https.RespData;
 import com.fly.clstudy.domain.member.entity.Member;
 import com.fly.clstudy.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,7 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public Optional<Member> findByUsername(String username) {
         return memberRepository.findByUsername(username);
@@ -29,7 +31,7 @@ public class MemberService {
 
         Member member = Member.builder()
                 .username(username)
-                .password(password)
+                .password(passwordEncoder.encode(password))
                 .nickname(nickname)
                 .build();
 
@@ -44,6 +46,10 @@ public class MemberService {
 
     public long count() {
         return memberRepository.count();
+    }
+
+    public boolean matchPassword(String password, String encodedPassword) {
+        return passwordEncoder.matches(password, encodedPassword);
     }
 
 }
