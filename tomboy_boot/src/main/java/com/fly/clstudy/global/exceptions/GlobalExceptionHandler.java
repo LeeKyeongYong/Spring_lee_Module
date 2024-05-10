@@ -2,7 +2,7 @@ package com.fly.clstudy.global.exceptions;
 
 import com.fly.clstudy.global.https.ReqData;
 import com.fly.clstudy.global.https.RespData;
-import com.fly.clstudy.global.jpa.dto.EmpClass;
+import com.fly.clstudy.global.jpa.util.EmpClass;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.awt.geom.RectangularShape;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.LinkedHashMap;

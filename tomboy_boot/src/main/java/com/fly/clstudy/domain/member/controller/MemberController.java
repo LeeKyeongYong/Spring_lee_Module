@@ -4,7 +4,7 @@ import com.fly.clstudy.domain.member.entity.Member;
 import com.fly.clstudy.domain.member.service.MemberService;
 import com.fly.clstudy.global.exceptions.GlobalException;
 import com.fly.clstudy.global.https.RespData;
-import com.fly.clstudy.global.jpa.dto.UtStr;
+import com.fly.clstudy.global.jpa.util.UtStr;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;

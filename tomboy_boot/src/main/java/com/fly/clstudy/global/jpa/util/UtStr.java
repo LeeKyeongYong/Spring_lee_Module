@@ -1,4 +1,4 @@
-package com.fly.clstudy.global.jpa.dto;
+package com.fly.clstudy.global.jpa.util;
 
 public class UtStr {
     public static class str {

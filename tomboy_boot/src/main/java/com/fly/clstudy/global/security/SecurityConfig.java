@@ -15,6 +15,10 @@ public class SecurityConfig {
         http
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
+                                .requestMatchers("/h2-console/**")
+                                .permitAll()
+                                .requestMatchers("/actuator/**")
+                                .permitAll()
                                 .anyRequest()
                                 .authenticated()
                 )

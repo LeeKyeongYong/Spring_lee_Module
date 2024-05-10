@@ -1,7 +1,7 @@
 package com.fly.clstudy.global.exceptions;
 
 import com.fly.clstudy.global.https.RespData;
-import com.fly.clstudy.global.jpa.dto.EmpClass;
+import com.fly.clstudy.global.jpa.util.EmpClass;
 import lombok.Getter;
 
 @Getter

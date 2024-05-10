@@ -11,7 +11,7 @@ import com.fly.clstudy.global.exceptions.GlobalException;
 import com.fly.clstudy.global.https.ReqData;
 import com.fly.clstudy.global.https.RespData;
 import com.fly.clstudy.domain.member.data.MemberJoinRespBody;
-import com.fly.clstudy.global.jpa.dto.EmpClass;
+import com.fly.clstudy.global.jpa.util.EmpClass;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;

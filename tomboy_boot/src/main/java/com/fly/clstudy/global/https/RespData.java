@@ -1,7 +1,7 @@
 package com.fly.clstudy.global.https;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fly.clstudy.global.jpa.dto.EmpClass;
+import com.fly.clstudy.global.jpa.util.EmpClass;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -9,7 +9,7 @@ import com.fly.clstudy.domain.sur.service.SurlService;
 import com.fly.clstudy.global.exceptions.GlobalException;
 import com.fly.clstudy.global.https.ReqData;
 import com.fly.clstudy.global.https.RespData;
-import com.fly.clstudy.global.jpa.dto.EmpClass;
+import com.fly.clstudy.global.jpa.util.EmpClass;
 import com.fly.clstudy.domain.sur.entity.Surl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
