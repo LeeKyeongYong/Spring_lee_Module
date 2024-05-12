@@ -1,5 +1,6 @@
 package com.fly.clstudy.global.security;
 
+import com.fly.clstudy.global.https.RespData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -43,6 +44,20 @@ public class SecurityConfig {
                         formLogin ->
                                 formLogin
                                         .permitAll()
+                )
+                .exceptionHandling(
+                        exceptionHandling -> exceptionHandling
+                                .authenticationEntryPoint(
+                                        (request, response, authException) -> {
+                                            response.setContentType("application/json;charset=UTF-8");
+                                            response.setStatus(403);
+                                            response.getWriter().write(
+                                                    UtrStr.json.toString(
+                                                            RespData.of("403-1", request.getRequestURI() + ", " + authException.getLocalizedMessage())
+                                                    )
+                                            );
+                                        }
+                                )
                 )
                 .addFilterBefore(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(

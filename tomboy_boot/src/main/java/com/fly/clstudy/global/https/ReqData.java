@@ -66,7 +66,7 @@ public class ReqData {
     }
 
     // 쿠키관련 시작
-    private String getCookieValue(String cookieName, String defaultValue) {
+    public String getCookieValue(String cookieName, String defaultValue) {
 
         if (req.getCookies() == null) return defaultValue;
 
