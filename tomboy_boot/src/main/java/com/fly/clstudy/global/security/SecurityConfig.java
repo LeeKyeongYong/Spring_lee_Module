@@ -1,6 +1,7 @@
 package com.fly.clstudy.global.security;
 
 import com.fly.clstudy.global.https.RespData;
+import com.fly.clstudy.global.jpa.util.UtStr;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -52,7 +53,7 @@ public class SecurityConfig {
                                             response.setContentType("application/json;charset=UTF-8");
                                             response.setStatus(403);
                                             response.getWriter().write(
-                                                    UtrStr.json.toString(
+                                                    UtStr.json.toString(
                                                             RespData.of("403-1", request.getRequestURI() + ", " + authException.getLocalizedMessage())
                                                     )
                                             );
