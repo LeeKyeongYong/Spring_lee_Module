@@ -4,14 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="77130a32-9a1f-42d2-8e2d-3b358bc31679" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/mstudy/bt_msa/BtMsaApplication.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src_backup/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/mstudy/bt_msa/BtMsaApplicationTests.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../맹_Study/testSm/src/main/java/com/daeun/testsm/TestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../맹_Study/testSm/src/main/java/com/daeun/testsm/TestController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../맹_Study/testSm/src/main/resources/templates/test.html" beforeDir="false" afterPath="$PROJECT_DIR$/../맹_Study/testSm/src/main/resources/templates/test.html" afterDir="false" />
-    </list>
+    <list default="true" id="77130a32-9a1f-42d2-8e2d-3b358bc31679" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -37,6 +30,13 @@
       <ProjectState />
     </projectState>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="ProjectViewState">
     <option name="autoscrollFromSource" value="true" />
     <option name="autoscrollToSource" value="true" />
@@ -56,11 +56,14 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
     "settings.editor.selected.configurable": "File.Encoding",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="Spring Boot.BtMsaApplication">
+  <component name="RunManager" selected="Spring Boot.ModuleAppMemberApplication">
     <configuration name="BtMsaApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="bt_msa.main" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.mstudy.bta.BtMsaApplication" />
@@ -98,11 +101,22 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1718963970300</updated>
-      <workItem from="1718963971013" duration="439000" />
+      <workItem from="1718963971013" duration="2460000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>
