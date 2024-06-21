@@ -26,9 +26,24 @@
     <projectState path="$PROJECT_DIR$/module_app_post">
       <ProjectState />
     </projectState>
+    <projectState path="$PROJECT_DIR$/module_common_base">
+      <ProjectState />
+    </projectState>
     <projectState path="$PROJECT_DIR$/module_common_util">
       <ProjectState />
     </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <projects_view>
+          <tree_state>
+            <expand />
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -60,7 +75,7 @@
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "File.Encoding",
+    "settings.editor.selected.configurable": "preferences.sourceCode.Java",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -77,9 +92,23 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="ModuleAppMemberApplication (1)" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="bt_msa.module_app_member.main" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.module_app_member.ModuleAppMemberApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="ModuleAppMemberApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="module_app_member.main" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.module_app_member.ModuleAppMemberApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ModuleAppPostApplication (1)" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="bt_msa.module_app_post.main" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.module_app_post.ModuleAppPostApplication" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -124,5 +153,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

@@ -5,7 +5,7 @@ plugins {
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 
-jrepositories {
+repositories {
 	mavenCentral()
 }
 
@@ -14,7 +14,6 @@ allprojects {
 		plugin 'java'
 	}
 }
-
 
 subprojects {
 	// 각 서브 모듈의 src/main/resources 디렉토리로 application-common.yml 파일 복사
@@ -36,21 +35,19 @@ subprojects {
 project(':module_app_member') {
 	dependencies {
 		implementation project(':module_common_util')
-		//implementation project(':module_common_base')
+		implementation project(':module_common_base')
 	}
 }
 
 project(':module_app_post') {
 	dependencies {
 		implementation project(':module_common_util')
-		//implementation project(':module_common_base')
+		implementation project(':module_common_base')
 	}
 }
 
-/*
 project(':module_common_base') {
 	dependencies {
 		implementation project(':module_common_util')
 	}
 }
-*/
