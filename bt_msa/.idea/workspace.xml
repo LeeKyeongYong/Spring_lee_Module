@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="77130a32-9a1f-42d2-8e2d-3b358bc31679" name="Changes" comment="" />
+    <list default="true" id="77130a32-9a1f-42d2-8e2d-3b358bc31679" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/module_common_base/src/main/java/com/example/module_common_base/rsData/RsData.java" beforeDir="false" afterPath="$PROJECT_DIR$/module_common_base/src/main/java/com/example/module_common_base/rsData/RsData.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -53,6 +59,10 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectId" id="2iBtIzM0fiGhvEOilM3Q01Z2avX" />
   <component name="ProjectViewState">
     <option name="autoscrollFromSource" value="true" />
     <option name="autoscrollToSource" value="true" />
@@ -65,6 +75,7 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
     "jdk.selected.JAVA_MODULE": "19",
     "last_opened_file_path": "D:/intel/Spring_lee_Module/bt_msa",
@@ -75,7 +86,7 @@
     "nodejs_package_manager_path": "npm",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.0",
+    "project.structure.side.proportion": "0.33277592",
     "settings.editor.selected.configurable": "preferences.sourceCode.Java",
     "vue.rearranger.settings.migration": "true"
   }
@@ -85,7 +96,7 @@
       <recent name="D:\intel\Spring_lee_Module\bt_msa" />
     </key>
   </component>
-  <component name="RunManager" selected="Spring Boot.ModuleAppMemberApplication">
+  <component name="RunManager" selected="Spring Boot.BtMsaApplication">
     <configuration name="BtMsaApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="bt_msa.main" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.mstudy.bta.BtMsaApplication" />
@@ -101,7 +112,7 @@
       </method>
     </configuration>
     <configuration name="ModuleAppMemberApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <module name="module_app_member.main" />
+      <module name="bt_msa.module_app_member.main" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.module_app_member.ModuleAppMemberApplication" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -115,7 +126,7 @@
       </method>
     </configuration>
     <configuration name="ModuleAppPostApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <module name="module_app_post.main" />
+      <module name="bt_msa.module_app_post.main" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.module_app_post.ModuleAppPostApplication" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -138,6 +149,7 @@
       <option name="presentableId" value="Default" />
       <updated>1718963970300</updated>
       <workItem from="1718963971013" duration="2460000" />
+      <workItem from="1718975724631" duration="695000" />
     </task>
     <servers />
   </component>

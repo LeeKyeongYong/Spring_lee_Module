@@ -1,7 +1,7 @@
 package com.example.module_common_base.rsData;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ll.module_common_base.dto.Empty;
+import com.example.module_common_base.dto.Empty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
