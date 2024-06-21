@@ -1,1 +1,5 @@
 rootProject.name = 'bt_msa'
+include 'module_common_util'
+//include 'module_common_base'
+include 'module_app_member'
+include 'module_app_post'

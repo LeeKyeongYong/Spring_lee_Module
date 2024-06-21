@@ -1,0 +1,58 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.3.1'
+	id 'io.spring.dependency-management' version '1.1.5'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+jrepositories {
+	mavenCentral()
+}
+
+allprojects {
+	apply {
+		plugin 'java'
+	}
+}
+
+
+subprojects {
+	// 각 서브 모듈의 src/main/resources 디렉토리로 application-common.yml 파일 복사
+	task copyApplicationCommonFile(type: Copy) {
+		from "${rootProject.projectDir}/src/main/resources/application-common.yml"
+		into "${project.projectDir}/src/main/resources"
+
+		rename { String fileName ->
+			fileName == 'application-common.yml' ? 'application-common-readonly.yml' : fileName
+		}
+	}
+
+	// 모든 서브 프로젝트가 copyApplicationCommonFile 작업을 실행하도록 설정
+	afterEvaluate {
+		tasks.getByName('processResources').dependsOn(copyApplicationCommonFile)
+	}
+}
+
+project(':module_app_member') {
+	dependencies {
+		implementation project(':module_common_util')
+		//implementation project(':module_common_base')
+	}
+}
+
+project(':module_app_post') {
+	dependencies {
+		implementation project(':module_common_util')
+		//implementation project(':module_common_base')
+	}
+}
+
+/*
+project(':module_common_base') {
+	dependencies {
+		implementation project(':module_common_util')
+	}
+}
+*/
