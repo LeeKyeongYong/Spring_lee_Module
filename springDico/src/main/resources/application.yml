@@ -1,0 +1,4 @@
+discord:
+  webhook:
+    alert:
+      url: ${DISCORD_WEBHOOK_ALERT_URL}
