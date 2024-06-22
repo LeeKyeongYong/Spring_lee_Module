@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="77130a32-9a1f-42d2-8e2d-3b358bc31679" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/module_common_base/src/main/java/com/example/module_common_base/rsData/RsData.java" beforeDir="false" afterPath="$PROJECT_DIR$/module_common_base/src/main/java/com/example/module_common_base/rsData/RsData.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
-    </list>
+    <list default="true" id="77130a32-9a1f-42d2-8e2d-3b358bc31679" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -149,7 +143,7 @@
       <option name="presentableId" value="Default" />
       <updated>1718963970300</updated>
       <workItem from="1718963971013" duration="2460000" />
-      <workItem from="1718975724631" duration="695000" />
+      <workItem from="1718975724631" duration="1078000" />
     </task>
     <servers />
   </component>
