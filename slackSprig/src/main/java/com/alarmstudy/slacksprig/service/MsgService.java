@@ -1,5 +1,6 @@
 package com.alarmstudy.slacksprig.service;
 
+import com.slack.api.Slack;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
