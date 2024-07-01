@@ -48,5 +48,9 @@
 11. 슬랙서버 확인용<br/>
          - NCP 배포 실시간 확인하기위해 학습용
 
-11. jooq_basic업로드<br/>
+12. jooq_basic업로드<br/>
          - jooq_basic 업로드
+
+13. 멱등성의 이해와 실전 적용: 토스페이먼츠 예제를 활용한 결제 시스템 구축<br/>
+         - https://blog.naver.com/sleekydz86/223296131758
+    
