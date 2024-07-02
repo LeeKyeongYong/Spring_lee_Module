@@ -2,3 +2,4 @@ slack:
   webhook:
     alertbot:
       url: ${SLACK_WEBHOOK_URL}
+

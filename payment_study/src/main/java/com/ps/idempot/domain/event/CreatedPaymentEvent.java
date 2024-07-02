@@ -1,4 +1,4 @@
 package com.ps.idempot.domain.event;
 
-public class CreatedPaymentEvent {
+public record CreatedPaymentEvent(String idempotency,Long orderId) {
 }
