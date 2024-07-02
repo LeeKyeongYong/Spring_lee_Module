@@ -1,0 +1,25 @@
+server:
+  port: 8080
+  tomcat:
+    threads:
+      max: 150
+  compression:
+    enabled: true
+    mime-types: application/json
+    min-response-size: 500
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/devmoney?useSSL=false&serverTimezone=UTC&useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true
+    username: dev_kylee
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
