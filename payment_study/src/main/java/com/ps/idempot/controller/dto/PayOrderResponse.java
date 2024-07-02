@@ -1,7 +1,8 @@
 package com.ps.idempot.controller.dto;
 
 import  com.ps.idempot.domain.Payment;
-public record PayOrderResponse   Long memberId,
+public record PayOrderResponse(
+        Long memberId,
         String idempotency,
         Long orderId
 ) {

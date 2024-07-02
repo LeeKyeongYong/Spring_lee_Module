@@ -17,7 +17,7 @@ public class PayMoney {
         this.password = password;
     }
 
-    public static PayMoney createWithValidateDatefinal int number, final int expirationYear, final int expirationMonth, final int password) {
+    public static PayMoney createWithValidateDate(final int number, final int expirationYear, final int expirationMonth, final int password) {
         validateExpirationDate(expirationYear, expirationMonth);
         return new PayMoney(
                 number,

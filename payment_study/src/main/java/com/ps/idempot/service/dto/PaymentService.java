@@ -69,7 +69,7 @@ public class PaymentService {
 
     // 카드 검증
     private void validateCard(final PayOrderRequest request) {
-        PayMoney card = PayMoney.createWithValidateDatefinal(
+        PayMoney card = PayMoney.createWithValidateDate(
                 request.cardNumber(),
                 request.cardExpirationYear(),
                 request.cardExpirationMonth(),
