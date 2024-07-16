@@ -39,9 +39,9 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     //DB
-    //implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    //runtimeOnly("mysql:mysql-connector-java")
-    //runtimeOnly("com.h2database:h2")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    runtimeOnly("mysql:mysql-connector-java")
+    runtimeOnly("com.h2database:h2")
 
     // LOMBOK
     compileOnly("org.projectlombok:lombok")
@@ -58,7 +58,6 @@ dependencies {
     implementation("org.modelmapper:modelmapper:3.2.0")
 
     // WEB
-    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")
 
@@ -67,9 +66,25 @@ dependencies {
     annotationProcessor("com.querydsl:querydsl-apt:${dependencyManagement.importedProperties["querydsl.version"]}:jakarta")
     annotationProcessor("jakarta.annotation:jakarta.annotation-api")
     annotationProcessor("jakarta.persistence:jakarta.persistence-api")
+    implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
 
     // SWAGGER
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
+
+
+    // 시큐리티
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
+    testImplementation("org.springframework.security:spring-security-test")
+
+    // OAUTH2
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+
+    // JWT
+    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.3")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.3")
+
 }
 
 kotlin {
