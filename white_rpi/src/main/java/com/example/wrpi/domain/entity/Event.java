@@ -1,5 +1,6 @@
-package com.example.wrpi.global.events;
+package com.example.wrpi.domain.entity;
 
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -10,12 +11,15 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
 public class Event {
-
+    @Id @GeneratedValue
     private Integer id;
     private boolean offline;
     private boolean free;
-    private EventStatus eventStatus = EventStatus.DRAFT;
+
+    @Enumerated(EnumType.STRING)
+    private EventStatus eventStatus;// = EventStatus.DRAFT;
 
     private String name; //이벤트 이름
     private String description; //이벤트 설명
