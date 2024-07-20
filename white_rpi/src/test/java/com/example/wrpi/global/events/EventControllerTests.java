@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -55,14 +56,14 @@ public class EventControllerTests {
         //Mockito.when(eventRepository.save(Mockito.any(Event.class))).thenReturn(event);
 
         mockMvc.perform(post("/api/events/")
-                .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .accept(MediaTypes.HAL_JSON)
                         .content(objectMapper.writeValueAsString(event)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").exists())
-                //.andExpect(header().exists(HttpHeaders.LOCATION)) // Location 헤더가 있는지 확인
-                //.andExpect(header().string(HttpHeaders.CONTENT_TYPE,  MediaTypes.HAL_JSON_VALUE))
+                .andExpect(header().exists(HttpHeaders.LOCATION)) // Location 헤더가 있는지 확인
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE,  MediaTypes.HAL_JSON_VALUE))
                 ;
 
     }
