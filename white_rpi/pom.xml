@@ -5,12 +5,13 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.1</version>
+        <version>3.3.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.example</groupId>
     <artifactId>wrpi</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <name>white_rpi</name>
     <description>white_rpi</description>
     <url/>
@@ -50,7 +51,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-hateoas</artifactId>
-            <version>3.3.1</version>
         </dependency>
 
         <dependency>
@@ -86,7 +86,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-           <!-- <scope>test</scope>-->
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -102,6 +102,18 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.restdocs</groupId>
+            <artifactId>spring-restdocs-mockmvc</artifactId>
+           <!-- <version>3.0.1</version>-->
+<!--            <scope>test</scope>-->
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.restdocs</groupId>
+            <artifactId>spring-restdocs-asciidoctor</artifactId>
+          <!--  <version>3.0.1</version>-->
+        </dependency>
     </dependencies>
 
     <build>
@@ -114,7 +126,7 @@
             <plugin>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctor-maven-plugin</artifactId>
-                <version>2.0.0</version> <!-- 최신 버전으로 업데이트 -->
+                <version>2.2.1</version>
                 <executions>
                     <execution>
                         <id>generate-docs</id>
@@ -128,13 +140,6 @@
                         </configuration>
                     </execution>
                 </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.springframework.restdocs</groupId>
-                        <artifactId>spring-restdocs-asciidoctor</artifactId>
-                        <version>2.0.2.RELEASE</version>
-                    </dependency>
-                </dependencies>
             </plugin>
 
             <plugin>
@@ -192,7 +197,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version> <!-- Use the latest version available -->
+                <version>3.11.0</version>
                 <configuration>
                     <source>19</source>
                     <target>19</target>
