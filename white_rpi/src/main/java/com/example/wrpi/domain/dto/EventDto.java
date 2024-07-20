@@ -1,25 +1,17 @@
-package com.example.wrpi.domain.entity;
+package com.example.wrpi.domain.dto;
 
-import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@EqualsAndHashCode(of = "id")
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-public class Event {
-    @Id @GeneratedValue
-    private Integer id;
-    private boolean offline;
-    private boolean free;
-
-    @Enumerated(EnumType.STRING)
-    private EventStatus eventStatus = EventStatus.DRAFT;
+public class EventDto {
 
     private String name; //이벤트 이름
     private String description; //이벤트 설명
