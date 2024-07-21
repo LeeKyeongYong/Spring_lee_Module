@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(JUnitParamsRunner.class)
-public class EventTest {
+public class EventTest{
 
     @Test
     public void builder(){
@@ -52,7 +52,7 @@ public class EventTest {
         event.update();
 
         //Then
-        assertThat(event.isFree()).isFalse();
+        assertThat(event.isFree()).isEqualTo(isFree);
 
     }
 
@@ -68,7 +68,7 @@ public class EventTest {
 
     @Test
     @Parameters
-    public void testofline(String location,boolean isOffline){
+    public void testOffline(String location,boolean isOffline){
         //Given
         Event event = Event.builder()
                 .location(location)
