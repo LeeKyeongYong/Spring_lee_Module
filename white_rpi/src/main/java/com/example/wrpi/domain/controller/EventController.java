@@ -3,6 +3,7 @@ package com.example.wrpi.domain.controller;
 import com.example.wrpi.domain.dto.EventDto;
 import com.example.wrpi.domain.entity.Event;
 import com.example.wrpi.domain.repository.EventRepository;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.ResponseEntity;
@@ -10,8 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.modelmapper.internal.Errors;
 import java.net.URI;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -29,8 +29,13 @@ public class EventController {
         this.modelMapper = modelMapper;
     }
 
+
     @PostMapping
-    public ResponseEntity createEvent(@RequestBody EventDto eventDto) {
+    public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors) {
+        if (errors.hasErrors()) {
+            return ResponseEntity.badRequest().build();
+        }
+
         Event event = modelMapper.map(eventDto, Event.class);
         Event newEvent = this.eventRepository.save(event);
         URI createdUri = linkTo(EventController.class).slash(newEvent.getId()).toUri();
@@ -38,3 +43,11 @@ public class EventController {
     }
 
 }
+
+    /*@PostMapping("/another")
+    public ResponseEntity createEvent2(@RequestBody EventDto eventDto) {
+        Event event = modelMapper.map(eventDto, Event.class);
+        Event newEvent = this.eventRepository.save(event);
+        URI createdUri = linkTo(EventController.class).slash(newEvent.getId()).toUri();
+        return ResponseEntity.created(createdUri).body(event);
+    }*/
