@@ -4,6 +4,7 @@ import com.example.wrpi.domain.dto.EventDto;
 import com.example.wrpi.domain.entity.Event;
 import com.example.wrpi.domain.entity.EventStatus;
 import com.example.wrpi.domain.repository.EventRepository;
+import com.example.wrpi.global.common.TestDescription;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -42,6 +43,7 @@ public class EventControllerTests {
     //EventRepository eventRepository;
 
     @Test
+    @TestDescription("정상적으로 이벤트를 생성하는 테스트")
     public void createEvent() throws Exception {
 
         EventDto event = EventDto.builder()
@@ -74,6 +76,7 @@ public class EventControllerTests {
     }
 
     @Test
+    @TestDescription("입력 받을 수 없는 값을 사용한 경우에 에러가 발생하는 테스트")
     public void createEvent_Bad_Request() throws Exception {
 
         Event event = Event.builder()
@@ -118,6 +121,7 @@ public class EventControllerTests {
     }
 
     @Test
+    @TestDescription("입력 값이 잘못된 경우에 에러가 발생하는 테스트")
     public void createEvent_Bad_Request_Wrong_Input() throws Exception {
         EventDto eventDto = EventDto.builder()
                 .name("Spring")
