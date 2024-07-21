@@ -1,9 +1,9 @@
-package com.example.wrpi.domain.controller;
+package com.example.wrpi.domain.Events.controller;
 
-import com.example.wrpi.domain.dto.EventDto;
-import com.example.wrpi.domain.entity.Event;
-import com.example.wrpi.domain.repository.EventRepository;
-import com.example.wrpi.domain.validation.EventValidator;
+import com.example.wrpi.domain.Events.dto.EventDto;
+import com.example.wrpi.domain.Events.entity.Event;
+import com.example.wrpi.domain.Events.repository.EventRepository;
+import com.example.wrpi.domain.Events.validation.EventValidator;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.MediaTypes;
@@ -36,13 +36,15 @@ public class EventController {
     public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors) {
 
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().build();
+            //return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(errors);
         }
 
         eventValidator.validate(eventDto, errors);
 
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().build();
+            //return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(errors);
         }
 
         Event event = modelMapper.map(eventDto, Event.class);

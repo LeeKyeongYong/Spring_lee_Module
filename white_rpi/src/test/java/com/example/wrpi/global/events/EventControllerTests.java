@@ -1,21 +1,17 @@
 package com.example.wrpi.global.events;
 
-import com.example.wrpi.domain.dto.EventDto;
-import com.example.wrpi.domain.entity.Event;
-import com.example.wrpi.domain.entity.EventStatus;
-import com.example.wrpi.domain.repository.EventRepository;
+import com.example.wrpi.domain.Events.dto.EventDto;
+import com.example.wrpi.domain.Events.entity.Event;
+import com.example.wrpi.domain.Events.entity.EventStatus;
 import com.example.wrpi.global.common.TestDescription;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -139,7 +135,11 @@ public class EventControllerTests {
         this.mockMvc.perform(post("/api/events/")
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(this.objectMapper.writeValueAsString(eventDto)))
-                .andExpect(status().isBadRequest());
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].objectName").exists())
+                .andExpect(jsonPath("$[0].defaultMessage").exists())
+                .andExpect(jsonPath("$[0].code").exists());
     }
 
 }

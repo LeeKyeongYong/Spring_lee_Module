@@ -1,6 +1,6 @@
-package com.example.wrpi.domain.validation;
+package com.example.wrpi.domain.Events.validation;
 
-import com.example.wrpi.domain.dto.EventDto;
+import com.example.wrpi.domain.Events.dto.EventDto;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 
@@ -10,8 +10,9 @@ import java.time.LocalDateTime;
 public class EventValidator {
     public void validate(EventDto eventDto, Errors errors) {
         if (eventDto.getBasePrice() > eventDto.getMaxPrice() && eventDto.getMaxPrice() > 0) {
-            errors.rejectValue("basePrice", "wrongValue", "BasePrice is wrong.");
-            errors.rejectValue("maxPrice", "wrongValue", "MaxPrice is wrong.");
+            //rrors.rejectValue("basePrice", "wrongValue", "BasePrice is wrong.");
+            //errors.rejectValue("maxPrice", "wrongValue", "MaxPrice is wrong.");
+            errors.reject("wrongPrices","Values fo prices are wrong");
         }
 
         LocalDateTime endEventDateTime = eventDto.getEndEventDateTime();

@@ -1,6 +1,6 @@
 package com.example.wrpi.global.events;
 
-import com.example.wrpi.domain.entity.Event;
+import com.example.wrpi.domain.Events.entity.Event;
 import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
