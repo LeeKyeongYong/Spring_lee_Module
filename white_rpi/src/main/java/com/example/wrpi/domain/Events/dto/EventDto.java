@@ -1,5 +1,6 @@
 package com.example.wrpi.domain.Events.dto;
 
+import com.example.wrpi.domain.Events.entity.EventStatus;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
@@ -32,5 +33,9 @@ public class EventDto {
     private int maxPrice; // (optional) 참가비 최대 (*) maxprice가 0이고 basePrice가 값이 존재하면 무한 경매가 됨
     @Min(0)
     private int limitOfEnrollment; //등록제한
+
+    private boolean free;
+    private boolean offline;
+    private EventStatus eventStatus;
 
 }
