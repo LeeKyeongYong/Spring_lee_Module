@@ -1,5 +1,6 @@
 package com.example.wrpi.domain.Events.entity;
 
+import com.example.wrpi.domain.accounts.entity.Account;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,6 +32,9 @@ public class Event {
     private int basePrice; // (optional) 참가비 기본
     private int maxPrice; // (optional) 참가비 최대 (*) maxprice가 0이고 basePrice가 값이 존재하면 무한 경매가 됨
     private int limitOfEnrollment; //등록제한
+
+    @ManyToOne
+    private Account manager;
 
     public void update(){
         //update free
