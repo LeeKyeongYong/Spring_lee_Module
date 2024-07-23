@@ -5,6 +5,7 @@ import com.example.wrpi.domain.Events.entity.Event;
 import com.example.wrpi.domain.Events.entity.EventStatus;
 import com.example.wrpi.domain.Events.repository.EventRepository;
 import com.example.wrpi.global.common.TestDescription;
+import com.example.wrpi.global.events.common.BaseControllerTest;
 import com.example.wrpi.global.events.common.RestDocsConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
@@ -33,12 +34,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+/*
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(RestDocsConfiguration.class)
 @ActiveProfiles("test")
-public class EventControllerTests {
+*/
+public class EventControllerTests extends BaseControllerTest {
 
     @Autowired
     MockMvc mockMvc;
@@ -49,8 +52,8 @@ public class EventControllerTests {
     @Autowired
     EventRepository eventRepository;
 
-    @Autowired
-    ModelMapper modelMapper;
+   /* @Autowired
+    ModelMapper modelMapper;*/
 
     @Test
     @TestDescription("정상적으로 이벤트를 생성하는 테스트")
@@ -315,7 +318,7 @@ public class EventControllerTests {
                 .andExpect(status().isNotFound());
     }
 
-    private void generateEvent(int index) {
+    private Event  generateEvent(int index) {
         Event event = Event.builder()
                 .name("event " + index)
                 .description("test event")

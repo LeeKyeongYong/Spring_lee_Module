@@ -1,5 +1,6 @@
 package com.example.wrpi.global.home;
 
+import com.example.wrpi.global.events.common.BaseControllerTest;
 import com.example.wrpi.global.events.common.RestDocsConfiguration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,13 +17,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/*
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
 @Import(RestDocsConfiguration.class)
 @ActiveProfiles("test")
-public class IndexControllerTest {
+*/
+public class IndexControllerTest extends BaseControllerTest {
     @Autowired
     MockMvc mockMvc;
 
