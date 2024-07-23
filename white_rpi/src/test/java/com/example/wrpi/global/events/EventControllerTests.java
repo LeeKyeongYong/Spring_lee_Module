@@ -5,27 +5,18 @@ import com.example.wrpi.domain.Events.entity.Event;
 import com.example.wrpi.domain.Events.entity.EventStatus;
 import com.example.wrpi.domain.Events.repository.EventRepository;
 import com.example.wrpi.global.common.TestDescription;
-import com.example.wrpi.global.events.common.BaseControllerTest;
-import com.example.wrpi.global.events.common.RestDocsConfiguration;
+import com.example.wrpi.global.events.common.BaseTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.runner.RunWith;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.stream.IntStream;
-
-import org.springframework.context.annotation.Import;
 
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -41,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(RestDocsConfiguration.class)
 @ActiveProfiles("test")
 */
-public class EventControllerTests extends BaseControllerTest {
+public class EventControllerTests extends BaseTest  {
 
     @Autowired
     MockMvc mockMvc;
