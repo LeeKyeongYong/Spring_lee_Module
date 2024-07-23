@@ -148,8 +148,6 @@ public class EventControllerTests {
 
     }
 
-
-
     //createEvent2
     @Test
     @DisplayName("입력 값이 비어있는 경우에 에러가 발생하는 테스트")
@@ -183,9 +181,13 @@ public class EventControllerTests {
                         .content(this.objectMapper.writeValueAsString(eventDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$[0].objectName").exists())
-                .andExpect(jsonPath("$[0].defaultMessage").exists())
-                .andExpect(jsonPath("$[0].code").exists());
+                //.andExpect(jsonPath("$[0].objectName").exists())
+                //.andExpect(jsonPath("$[0].defaultMessage").exists())
+                //.andExpect(jsonPath("$[0].code").exists());
+                .andExpect(jsonPath("content[0].objectName").exists())
+                .andExpect(jsonPath("content[0].defaultMessage").exists())
+                .andExpect(jsonPath("content[0].code").exists())
+                .andExpect(jsonPath("_links.index").exists());
     }
 
 }
