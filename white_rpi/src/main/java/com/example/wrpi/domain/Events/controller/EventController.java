@@ -2,10 +2,13 @@ package com.example.wrpi.domain.Events.controller;
 
 import com.example.wrpi.domain.Events.dto.EventDto;
 import com.example.wrpi.domain.Events.entity.Event;
+import com.example.wrpi.domain.Events.entity.EventResource;
 import com.example.wrpi.domain.Events.repository.EventRepository;
 import com.example.wrpi.domain.Events.validation.EventValidator;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
@@ -82,7 +85,15 @@ public class EventController {
     }
 
     private ResponseEntity badRequest(Errors errors) {
-        return ResponseEntity.badRequest().body(new ErrorsResource(errors));
+        return ResponseEntity.badRequest().body(new ErrosResource(errors));
+    }
+
+    @GetMapping
+    public ResponseEntity queryEvents(Pageable pageable, PagedResourcesAssembler<Event> assembler) {
+        Page<Event> page = this.eventRepository.findAll(pageable);
+        var pagedResources = assembler.toResource(page, e -> new EventResource(e));
+        pagedResources.add(new Link("/docs/index.html#resources-events-list").withRel("profile"));
+        return ResponseEntity.ok(pagedResources);
     }
 
 
