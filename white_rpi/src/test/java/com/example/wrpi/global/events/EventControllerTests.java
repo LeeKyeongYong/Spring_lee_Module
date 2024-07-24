@@ -198,7 +198,7 @@ public class EventControllerTests extends BaseTest  {
         IntStream.range(0, 30).forEach(this::generateEvent);
 
         // When & Then
-        this.mockMvc.perform(get("/api/events")
+        this.mockMvc.perform(get("/api/events/")
                         .param("page", "1")
                         .param("size", "10")
                         .param("sort", "name,DESC")
