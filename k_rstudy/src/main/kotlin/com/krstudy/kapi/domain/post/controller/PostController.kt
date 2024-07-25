@@ -28,7 +28,7 @@ class PostController(
         val post = postService.findById(id).orElseThrow { GlobalException("404-1", "해당 글이 존재하지 않습니다.") }
         postService.increaseHit(post)
         rq.setAttribute("post", post)
-        return "domain/post/post/detail"
+        return "domain/post/detail"
     }
 
     @GetMapping("/list")
@@ -41,7 +41,7 @@ class PostController(
         val postPage: Page<Post> = postService.search(kw, pageable)
         rq.setAttribute("postPage", postPage)
         rq.setAttribute("page", page)
-        return "domain/post/post/list"
+        return "domain/post/list"
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -56,7 +56,7 @@ class PostController(
         val postPage: Page<Post> = postService.search(member, null, kw, pageable)
         rq.setAttribute("postPage", postPage)
         rq.setAttribute("page", page)
-        return "domain/post/post/myList"
+        return "domain/post/myList"
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -85,7 +85,7 @@ class PostController(
         val member = rq.member ?: throw GlobalException("401-1", "로그인이 필요합니다.")
         if (!postService.canModify(member, post)) throw GlobalException("403-1", "권한이 없습니다.")
         model.addAttribute("post", post)
-        return "domain/post/post/modify"
+        return "domain/post/modify"
     }
 
     data class ModifyForm(
