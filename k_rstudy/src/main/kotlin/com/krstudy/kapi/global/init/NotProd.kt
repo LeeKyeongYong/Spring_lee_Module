@@ -1,5 +1,6 @@
 package com.krstudy.kapi.com.krstudy.kapi.global.init
 
+import com.krstudy.kapi.com.krstudy.kapi.domain.member.service.MemberService
 import org.slf4j.LoggerFactory
 import org.springframework.boot.ApplicationRunner
 import org.springframework.context.annotation.Bean
@@ -23,7 +24,10 @@ class NotProd(
     @Order(3)
     fun initNotProd(): ApplicationRunner {
         return ApplicationRunner { args ->
-            if (memberService.findByUsername("user1").isPresent) return@ApplicationRunner
+           // if (memberService.findByUsername("user1").isPresent) return@ApplicationRunner
+
+            // findByUsername이 Member?를 반환한다고 가정
+            if (memberService.findByUsername("user1") != null) return@ApplicationRunner
 
             work1()
         }

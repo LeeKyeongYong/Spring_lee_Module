@@ -7,5 +7,5 @@ class GlobalException(
     msg: String
 ) : RuntimeException("$resultCode $msg") {
 
-    val rsData: RespData<*> = RespData.of(resultCode, msg)
+    val rsData: RespData<Unit> = RespData.of(resultCode, msg)
 }

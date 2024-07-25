@@ -1,31 +1,39 @@
 package com.krstudy.kapi.com.krstudy.kapi.standard.base
 
-
-object Ut {
-    object Url {
+class Ut {
+    companion object {
         fun modifyQueryParam(url: String, paramName: String, paramValue: String): String {
-            var modifiedUrl = deleteQueryParam(url, paramName)
-            modifiedUrl = addQueryParam(modifiedUrl, paramName, paramValue)
-            return modifiedUrl
+            var updatedUrl = deleteQueryParam(url, paramName)
+            updatedUrl = addQueryParam(updatedUrl, paramName, paramValue)
+            return updatedUrl
         }
 
         fun addQueryParam(url: String, paramName: String, paramValue: String): String {
-            val separator = if (url.contains("?")) "&" else "?"
-            return "$url$separator$paramName=$paramValue"
+            var updatedUrl = url
+
+            if (!updatedUrl.contains("?")) {
+                updatedUrl += "?"
+            }
+
+            if (!updatedUrl.endsWith("?") && !updatedUrl.endsWith("&")) {
+                updatedUrl += "&"
+            }
+
+            updatedUrl += "$paramName=$paramValue"
+            return updatedUrl
         }
 
         fun deleteQueryParam(url: String, paramName: String): String {
-            val paramPrefix = "$paramName="
-            val startPoint = url.indexOf(paramPrefix)
+            val paramWithEqualSign = "$paramName="
+            val startPoint = url.indexOf(paramWithEqualSign)
             if (startPoint == -1) return url
 
-            val endPoint = url.indexOf('&', startPoint)
+            val endPoint = url.indexOf("&", startPoint)
             return if (endPoint == -1) {
-                url.removeRange(startPoint - 1, url.length)
+                url.substring(0, startPoint - 1).takeIf { it.isNotEmpty() } ?: url
             } else {
-                url.removeRange(startPoint, endPoint) + url.substring(endPoint + 1)
+                url.substring(0, startPoint) + url.substring(endPoint + 1)
             }
         }
     }
 }
-
