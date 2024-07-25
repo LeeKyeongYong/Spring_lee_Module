@@ -87,6 +87,11 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.3")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.3")
 
+    // crawling lib
+    implementation("org.jsoup:jsoup:1.17.2")
+    // excel lib
+    implementation("org.apache.poi:poi-ooxml:5.2.5")
+
 }
 
 kotlin {
