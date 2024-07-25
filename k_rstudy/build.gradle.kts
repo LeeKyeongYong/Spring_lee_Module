@@ -2,7 +2,7 @@ plugins {
     id("org.springframework.boot") version "3.3.1"
     id("io.spring.dependency-management") version "1.1.5"
     id("org.jetbrains.kotlin.jvm") version "1.9.24"
-    id("org.jetbrains.kotlin.kapt") version "1.9.24" // kapt 플러그인
+    kotlin("kapt") version "1.9.24"
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.24"
 }
 
@@ -17,32 +17,34 @@ java {
 
 repositories {
     mavenCentral()
+    mavenCentral()
     jcenter() // Optional, if needed
 }
 
 dependencies {
-    // 코틀린 관련 의존성
+
+    //코틀린 관련 의존성
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    // 스프링 부트 및 관련 의존성
+    //스프링 부트 및 관련 의존성
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-web")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-    // DB
+    //DB
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    runtimeOnly("mysql:mysql-connector-java")
+    runtimeOnly( "com.mysql:mysql-connector-j")
     runtimeOnly("com.h2database:h2")
 
     // LOMBOK
     compileOnly("org.projectlombok:lombok")
-    kapt("org.projectlombok:lombok") // kapt 사용
+    annotationProcessor("org.projectlombok:lombok")
 
     // LOMBOK FOR TEST
     testCompileOnly("org.projectlombok:lombok")
@@ -59,14 +61,18 @@ dependencies {
     implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")
 
     // JPA QueryDSL
-    implementation("com.querydsl:querydsl-jpa:5.0.0")
-    kapt("com.querydsl:querydsl-apt:5.0.0:jpa") // kapt 사용
+    implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
+    annotationProcessor("com.querydsl:querydsl-apt:5.0.0:jakarta")
+    //annotationProcessor("com.querydsl:querydsl-apt:${dependencyManagement.importedProperties["querydsl.version"]}:jakarta")
+    annotationProcessor("jakarta.annotation:jakarta.annotation-api")
+    annotationProcessor("jakarta.persistence:jakarta.persistence-api")
     implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
-    kapt("jakarta.annotation:jakarta.annotation-api:2.1.1")
-    kapt("com.querydsl:querydsl-core:5.0.0")
+    kapt("com.querydsl:querydsl-apt:5.0.0:jakarta")
+    kapt("org.springframework.boot:spring-boot-configuration-processor")
 
     // SWAGGER
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
+
 
     // 시큐리티
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -80,6 +86,7 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-api:0.12.3")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.3")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.3")
+
 }
 
 kotlin {
@@ -88,6 +95,7 @@ kotlin {
     }
     compilerOptions {
         freeCompilerArgs.add("-Xjsr305=strict")
+
     }
 }
 

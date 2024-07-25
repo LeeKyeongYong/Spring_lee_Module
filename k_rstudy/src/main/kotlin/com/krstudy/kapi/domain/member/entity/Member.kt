@@ -4,14 +4,12 @@ import com.krstudy.kapi.com.krstudy.kapi.domain.member.datas.M_Role
 import com.krstudy.kapi.com.krstudy.kapi.global.jpa.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Transient
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 
 @Entity
 class Member : BaseEntity() {
-
 
     @Column(nullable = false)
     var username: String = ""
@@ -20,7 +18,7 @@ class Member : BaseEntity() {
     var password: String = ""
 
     @Column(nullable = true)
-    private var roleType: String? = null
+    var roleType: String? = null
 
     @get:Transient
     val authorities: Collection<GrantedAuthority>

@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.ApplicationRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Lazy
 import org.springframework.context.annotation.Profile
 import org.springframework.core.annotation.Order
 import org.springframework.transaction.annotation.Transactional
@@ -25,10 +24,9 @@ class NotProd(
     @Order(3)
     fun initNotProd(): ApplicationRunner {
         return ApplicationRunner { args ->
-           // if (memberService.findByUsername("user1").isPresent) return@ApplicationRunner
-
             // findByUsername이 Member?를 반환한다고 가정
-            if (memberService.findByUsername("user1") != null) return@ApplicationRunner
+            val memberUser1 = memberService.findByUsername("user1")
+            if (memberUser1 != null) return@ApplicationRunner
 
             work1()
         }
@@ -40,6 +38,10 @@ class NotProd(
         val memberUser2 = memberService.join("user2", "1234").data
         val memberUser3 = memberService.join("user3", "1234").data
         val memberUser4 = memberService.join("user4", "1234").data
+
+        if (memberUser1 == null || memberUser2 == null || memberUser3 == null || memberUser4 == null) {
+            return
+        }
 
         val post1 = postService.write(memberUser1, "제목 1", "내용 1", true)
         val post2 = postService.write(memberUser1, "제목 2", "내용 2", true)

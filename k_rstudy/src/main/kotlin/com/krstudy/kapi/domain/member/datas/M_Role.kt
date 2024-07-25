@@ -17,5 +17,9 @@ enum class M_Role(val authority: String) {
                 else -> MEMBER
             }
         }
+
+        fun getRoleType(role: M_Role): String {
+            return role.name.toLowerCase()
+        }
     }
 }

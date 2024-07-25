@@ -1,5 +1,6 @@
 package com.krstudy.kapi.com.krstudy.kapi.domain.member.service
 
+import com.krstudy.kapi.com.krstudy.kapi.domain.member.datas.M_Role
 import com.krstudy.kapi.com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.com.krstudy.kapi.domain.member.repository.MemberRepository
 import com.krstudy.kapi.com.krstudy.kapi.global.https.RespData
@@ -24,6 +25,7 @@ class MemberService(
         val member = Member().apply {
             this.username = username
             this.password = passwordEncoder.encode(password)
+            this.roleType = M_Role.MEMBER.name.toLowerCase()  // 기본 역할을 MEMBER로 설정
         }
         memberRepository.save(member)
 
