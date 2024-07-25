@@ -1,24 +1,28 @@
-package com.krstudy.kapi.com.krstudy.kapi.domain.post.repository
+package com.krstudy.kapi.domain.post.repository
 
 import com.krstudy.kapi.com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.com.krstudy.kapi.domain.post.entity.Post
+import com.krstudy.kapi.com.krstudy.kapi.domain.post.repository.PostRepositoryCustom
+import com.krstudy.kapi.domain.post.entity.QPost
+import com.querydsl.core.types.Order
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.core.types.dsl.PathBuilder
-import com.querydsl.core.types.Order;
+import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
-import lombok.RequiredArgsConstructor
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.support.PageableExecutionUtils
-import com.ll.medium.domain.post.post.entity.QPost.post
+import org.springframework.stereotype.Repository
 
-@RequiredArgsConstructor
-class PostRepositoryImpl(private val jpaQueryFactory: JPAQueryFactory) : PostRepositoryCustom {
+@Repository
+class PostRepositoryImpl(
+    private val jpaQueryFactory: JPAQueryFactory
+) : PostRepositoryCustom {
+
+    private val post = QPost.post
 
     override fun search(isPublished: Boolean, kw: String?, pageable: Pageable): Page<Post> {
-
-        // 조건 생성
         var condition: BooleanExpression = post.isPublished.eq(isPublished)
 
         if (!kw.isNullOrBlank()) {
@@ -32,16 +36,20 @@ class PostRepositoryImpl(private val jpaQueryFactory: JPAQueryFactory) : PostRep
             .selectFrom(post)
             .where(condition)
 
-        for (o in pageable.sort) {
-            val pathBuilder = PathBuilder(post.type, post.metadata)
-            postsQuery.orderBy(OrderSpecifier(if (o.isAscending) Order.ASC else Order.DESC, pathBuilder.get(o.property)))
+        pageable.sort.forEach { sortOrder ->
+            val pathBuilder = PathBuilder(Post::class.java, post.metadata)
+            postsQuery.orderBy(
+                OrderSpecifier(
+                    if (sortOrder.isAscending) Order.ASC else Order.DESC,
+                    pathBuilder.get(sortOrder.property)
+                )
+            )
         }
 
         postsQuery
             .offset(pageable.offset)
             .limit(pageable.pageSize.toLong())
 
-        // 전체 개수를 가져오기 위한 쿼리
         val totalQuery = jpaQueryFactory
             .select(post.count())
             .from(post)
@@ -51,11 +59,10 @@ class PostRepositoryImpl(private val jpaQueryFactory: JPAQueryFactory) : PostRep
     }
 
     override fun search(author: Member, isPublished: Boolean?, kw: String?, pageable: Pageable): Page<Post> {
-        // 조건 생성
         var condition: BooleanExpression = post.author.eq(author)
 
-        isPublished?.let {
-            condition = condition.and(post.isPublished.eq(it))
+        if (isPublished != null) {
+            condition = condition.and(post.isPublished.eq(isPublished))
         }
 
         if (!kw.isNullOrBlank()) {
@@ -69,16 +76,20 @@ class PostRepositoryImpl(private val jpaQueryFactory: JPAQueryFactory) : PostRep
             .selectFrom(post)
             .where(condition)
 
-        for (o in pageable.sort) {
-            val pathBuilder = PathBuilder(post.type, post.metadata)
-            postsQuery.orderBy(OrderSpecifier(if (o.isAscending) Order.ASC else Order.DESC, pathBuilder.get(o.property)))
+        pageable.sort.forEach { sortOrder ->
+            val pathBuilder = PathBuilder(Post::class.java, post.metadata)
+            postsQuery.orderBy(
+                OrderSpecifier(
+                    if (sortOrder.isAscending) Order.ASC else Order.DESC,
+                    pathBuilder.get(sortOrder.property)
+                )
+            )
         }
 
         postsQuery
             .offset(pageable.offset)
             .limit(pageable.pageSize.toLong())
 
-        // 전체 개수를 가져오기 위한 쿼리
         val totalQuery = jpaQueryFactory
             .select(post.count())
             .from(post)

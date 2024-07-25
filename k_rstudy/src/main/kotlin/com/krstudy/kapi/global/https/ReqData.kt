@@ -20,7 +20,7 @@ class ReqData(
     private val response: HttpServletResponse,
     private val entityManager: EntityManager
 ) {
-    private var member: Member? = null
+    public var member: Member? = null
 
     fun redirect(url: String, msg: String): String {
         val urlBits = url.split("#", limit = 2)

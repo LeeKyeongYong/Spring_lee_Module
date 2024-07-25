@@ -5,11 +5,11 @@ import com.krstudy.kapi.com.krstudy.kapi.domain.comment.repository.PostCommentRe
 import com.krstudy.kapi.com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.com.krstudy.kapi.domain.post.entity.Post
 import com.krstudy.kapi.com.krstudy.kapi.domain.post.repository.PostRepository
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.data.domain.Page;
-import java.util.*
+import java.util.Optional
 
 @Service
 @Transactional(readOnly = true)
@@ -20,12 +20,12 @@ class PostService(
 
     @Transactional
     fun write(author: Member, title: String, body: String, isPublished: Boolean): Post {
-        val post = Post.builder()
-            .author(author)
-            .title(title)
-            .body(body)
-            .isPublished(isPublished)
-            .build()
+        val post = Post(
+            author = author,
+            title = title,
+            body = body,
+            isPublished = isPublished
+        )
 
         return postRepository.save(post)
     }
@@ -43,33 +43,30 @@ class PostService(
     }
 
     fun search(author: Member?, isPublished: Boolean?, kw: String, pageable: Pageable): Page<Post> {
-        return postRepository.search(author, isPublished, kw, pageable)
+        //return postRepository.search(author, isPublished, kw, pageable)
+
+        // author가 null인 경우, 필요한 기본값으로 대체하거나 null을 허용하도록 메서드를 수정
+        val nonNullAuthor = author ?: return postRepository.search(null, isPublished, kw, pageable)
+
+        // author가 null이 아닌 경우
+        return postRepository.search(nonNullAuthor, isPublished, kw, pageable)
+
     }
 
     fun canLike(actor: Member?, post: Post): Boolean {
-        if (actor == null) return false
-
-        return !post.hasLike(actor)
+        return actor != null && !post.hasLike(actor)
     }
 
     fun canCancelLike(actor: Member?, post: Post): Boolean {
-        if (actor == null) return false
-
-        return post.hasLike(actor)
+        return actor != null && post.hasLike(actor)
     }
 
     fun canModify(actor: Member?, post: Post): Boolean {
-        if (actor == null) return false
-
-        return actor == post.author
+        return actor != null && actor == post.author
     }
 
     fun canDelete(actor: Member?, post: Post): Boolean {
-        if (actor == null) return false
-
-        if (actor.isAdmin) return true
-
-        return actor == post.author
+        return actor != null && (actor.isAdmin || actor == post.author)
     }
 
     @Transactional
@@ -105,17 +102,11 @@ class PostService(
     }
 
     fun canModifyComment(actor: Member?, comment: PostComment): Boolean {
-        if (actor == null) return false
-
-        return actor == comment.author
+        return actor != null && actor == comment.author
     }
 
     fun canDeleteComment(actor: Member?, comment: PostComment): Boolean {
-        if (actor == null) return false
-
-        if (actor.isAdmin) return true
-
-        return actor == comment.author
+        return actor != null && (actor.isAdmin || actor == comment.author)
     }
 
     fun findCommentById(id: Long): Optional<PostComment> {
