@@ -12,7 +12,6 @@ import org.springframework.web.context.annotation.RequestScope
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
-
 @Component
 @RequestScope
 class ReqData(
@@ -80,7 +79,7 @@ class ReqData(
         return Ut.deleteQueryParam(queryString, paramName)
     }
 
-    fun getMember(): Member? {
+    fun fetchMember(): Member? {
         return if (isLogout()) null
         else member ?: entityManager.getReference(Member::class.java, getUser()?.id)?.also { member = it }
     }

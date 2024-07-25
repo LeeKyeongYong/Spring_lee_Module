@@ -44,8 +44,8 @@ class PostRepositoryImpl(
             .where(condition)
 
         pageable.sort.forEach { sortOrder ->
-            val pathBuilder = PathBuilder(Post::class.java, QPost.post.metadata)
-            val path = pathBuilder.get<Comparable<*>>(sortOrder.property) // Ensure proper type handling
+            val pathBuilder = PathBuilder(Post::class.java, "post")
+            val path = pathBuilder.getString(sortOrder.property)
 
             postsQuery.orderBy(
                 OrderSpecifier(

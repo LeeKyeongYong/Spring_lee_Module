@@ -8,7 +8,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
 class CustomWebMvcConfig : WebMvcConfigurer {
-
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/api/**")
             .allowedOrigins("https://cdpn.io", "http://localhost:5173")
@@ -18,7 +17,10 @@ class CustomWebMvcConfig : WebMvcConfigurer {
     }
 
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
+        val genFileDirPath = AppConfig.genFileDirPath
+            ?: throw IllegalStateException("genFileDirPath is not initialized")
+
         registry.addResourceHandler("/gen/**")
-            .addResourceLocations("file:///${AppConfig.getGenFileDirPath()}/")
+            .addResourceLocations("file:///$genFileDirPath/")
     }
 }

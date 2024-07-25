@@ -4,10 +4,8 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.ClassPathResource
 import java.io.IOException
-
 @Configuration
 class AppConfig {
-
     companion object {
         private var resourcesStaticDirPath: String? = null
 
@@ -44,10 +42,10 @@ class AppConfig {
             return resourcesStaticDirPath!!
         }
 
-        @JvmStatic
-        fun getGenFileDirPath(): String {
-            // Ensure that genFileDirPath is initialized
-            return genFileDirPath ?: throw IllegalStateException("genFileDirPath is not initialized")
-        }
+        // Remove this method as it's redundant with the property getter
+        // @JvmStatic
+        // fun getGenFileDirPath(): String {
+        //     return genFileDirPath ?: throw IllegalStateException("genFileDirPath is not initialized")
+        // }
     }
 }
