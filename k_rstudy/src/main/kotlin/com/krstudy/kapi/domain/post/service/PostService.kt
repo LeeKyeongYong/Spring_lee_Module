@@ -5,6 +5,8 @@ import com.krstudy.kapi.com.krstudy.kapi.domain.comment.repository.PostCommentRe
 import com.krstudy.kapi.com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.com.krstudy.kapi.domain.post.entity.Post
 import com.krstudy.kapi.com.krstudy.kapi.domain.post.repository.PostRepository
+import com.krstudy.kapi.com.krstudy.kapi.domain.post.repository.PostlikeRepository
+import com.krstudy.kapi.domain.post.entity.PostLike
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -15,7 +17,8 @@ import java.util.Optional
 @Transactional(readOnly = true)
 class PostService(
     private val postRepository: PostRepository,
-    private val postCommentRepository: PostCommentRepository
+    private val postCommentRepository: PostCommentRepository,
+    private val postlikeRepository: PostlikeRepository
 ) {
 
     @Transactional
@@ -83,7 +86,12 @@ class PostService(
 
     @Transactional
     fun like(actor: Member, post: Post) {
-        post.addLike(actor)
+        val postLike = PostLike.builder()
+            .post(post)
+            .member(actor)
+            .build()
+
+        postlikeRepository.save(postLike) // Corrected the method call
     }
 
     @Transactional
@@ -93,7 +101,12 @@ class PostService(
 
     @Transactional
     fun writeComment(actor: Member, post: Post, body: String): PostComment {
-        return post.writeComment(actor, body)
+        val postComment = PostComment.builder()
+            .author(actor)
+            .post(post)
+            .body(body)
+            .build()
+        return postCommentRepository.save(postComment)
     }
 
     fun canModifyComment(actor: Member?, comment: PostComment): Boolean {

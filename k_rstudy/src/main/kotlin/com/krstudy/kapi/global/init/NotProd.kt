@@ -12,10 +12,11 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.stream.IntStream
 
 @Configuration
-@Profile("!prod")
+@Profile("prod")
 class NotProd(
     private val memberService: MemberService,
     private val postService: PostService
+    //private val postcommentService: PostcommentService
 ) {
 
     private val log = LoggerFactory.getLogger(NotProd::class.java)
@@ -51,17 +52,23 @@ class NotProd(
         val post5 = postService.write(memberUser2, "제목 5", "내용 5", true)
         val post6 = postService.write(memberUser2, "제목 6", "내용 6", false)
 
-        IntStream.rangeClosed(7, 50).forEach { i ->
-            postService.write(memberUser3, "제목 $i", "내용 $i", true)
+        IntStream.rangeClosed(7, 100).forEach { i ->
+                postService.write(memberUser3, "제목 $i", "내용 $i", true)
+                postService.writeComment(memberUser1, post1, "안녕하세요! $i 댓글입니다. 잘부탁드립니다.")
+                postService.writeComment(memberUser2, post2, "안녕하세요! $i 댓글입니다. 잘부탁드립니다.")
+                postService.writeComment(memberUser3, post3, "안녕하세요! $i 댓글입니다. 잘부탁드립니다.")
+                postService.writeComment(memberUser4, post4, "안녕하세요! $i 댓글입니다. 잘부탁드립니다.")
+                postService.writeComment(memberUser1, post5, "안녕하세요! $i 댓글입니다. 잘부탁드립니다.")
+        }
+            IntStream.rangeClosed(1, 100).forEach { i ->
+            postService.like(memberUser2, post1)
+            postService.like(memberUser3, post1)
+            postService.like(memberUser4, post1)
+            postService.like(memberUser2, post2)
+            postService.like(memberUser3, post2)
+            postService.like(memberUser2, post3)
+
         }
 
-        postService.like(memberUser2, post1)
-        postService.like(memberUser3, post1)
-        postService.like(memberUser4, post1)
-
-        postService.like(memberUser2, post2)
-        postService.like(memberUser3, post2)
-
-        postService.like(memberUser2, post3)
     }
 }

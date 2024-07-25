@@ -16,7 +16,7 @@ class AllInit(private val memberService: MemberService) {
     @Order(2)
     fun initAll(): ApplicationRunner {
         return ApplicationRunner { args ->
-            //if (memberService.findByUsername("system").isPresent) return@ApplicationRunner
+           // if (memberService.findByUsername("system").isPresent) return@ApplicationRunner
 
             // findByUsername이 Member?를 반환한다고 가정
             if (memberService.findByUsername("system") != null) return@ApplicationRunner
