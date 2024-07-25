@@ -1,9 +1,9 @@
 package com.krstudy.kapi.domain.post.controller
 
 import com.krstudy.kapi.com.krstudy.kapi.domain.post.entity.Post
-import com.krstudy.kapi.com.krstudy.kapi.domain.post.service.PostService
 import com.krstudy.kapi.com.krstudy.kapi.global.exception.GlobalException
 import com.krstudy.kapi.com.krstudy.kapi.global.https.ReqData
+import com.krstudy.kapi.domain.post.service.PostService
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import org.springframework.data.domain.Page

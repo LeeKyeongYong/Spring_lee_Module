@@ -6,6 +6,5 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface PostRepositoryCustom {
-    fun search(isPublished: Boolean, kw: String?, pageable: Pageable): Page<Post>
     fun search(author: Member?, isPublished: Boolean?, kw: String, pageable: Pageable): Page<Post>
 }

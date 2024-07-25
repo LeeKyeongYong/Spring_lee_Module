@@ -1,4 +1,4 @@
-package com.krstudy.kapi.com.krstudy.kapi.domain.post.service
+package com.krstudy.kapi.domain.post.service
 
 import com.krstudy.kapi.com.krstudy.kapi.domain.comment.entity.PostComment
 import com.krstudy.kapi.com.krstudy.kapi.domain.comment.repository.PostCommentRepository
@@ -39,18 +39,13 @@ class PostService(
     }
 
     fun search(kw: String, pageable: Pageable): Page<Post> {
-        return postRepository.search(true, kw, pageable)
+        // Ensure 'true' is being used for 'isPublished' if it is a required value
+        return postRepository.search(null, true, kw, pageable)
     }
 
     fun search(author: Member?, isPublished: Boolean?, kw: String, pageable: Pageable): Page<Post> {
-        //return postRepository.search(author, isPublished, kw, pageable)
-
-        // author가 null인 경우, 필요한 기본값으로 대체하거나 null을 허용하도록 메서드를 수정
-        val nonNullAuthor = author ?: return postRepository.search(null, isPublished, kw, pageable)
-
-        // author가 null이 아닌 경우
-        return postRepository.search(nonNullAuthor, isPublished, kw, pageable)
-
+        // Ensure to handle cases where parameters might be null
+        return postRepository.search(author, isPublished, kw, pageable)
     }
 
     fun canLike(actor: Member?, post: Post): Boolean {
