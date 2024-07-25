@@ -1,6 +1,7 @@
 package com.krstudy.kapi.com.krstudy.kapi.global.init
 
 import com.krstudy.kapi.com.krstudy.kapi.domain.member.service.MemberService
+import com.krstudy.kapi.com.krstudy.kapi.domain.post.service.PostService
 import org.slf4j.LoggerFactory
 import org.springframework.boot.ApplicationRunner
 import org.springframework.context.annotation.Bean
