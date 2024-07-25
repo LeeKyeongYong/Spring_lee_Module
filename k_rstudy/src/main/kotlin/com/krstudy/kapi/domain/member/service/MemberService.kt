@@ -22,10 +22,15 @@ class MemberService(
             return RespData.of("400-2", "이미 존재하는 회원입니다.")
         }
 
+        val roleType = when (username) {
+            "system", "admin" -> M_Role.ADMIN.authority // ADMIN 권한 설정
+            else -> M_Role.MEMBER.authority // 기본 역할을 MEMBER로 설정
+        }
+
         val member = Member().apply {
             this.username = username
             this.password = passwordEncoder.encode(password)
-            this.roleType = M_Role.MEMBER.name.toLowerCase()  // 기본 역할을 MEMBER로 설정
+            this.roleType = roleType // M_Role.authority를 사용하여 설정
         }
         memberRepository.save(member)
 
