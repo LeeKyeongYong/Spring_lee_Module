@@ -33,7 +33,7 @@ class MemberController(
     @PreAuthorize("isAnonymous()")
     @PostMapping("/join")
     fun join(@Valid joinForm: JoinForm): String {
-        val joinRs = memberService.join(joinForm.username, joinForm.password)
+        val joinRs = memberService.join(joinForm.username, joinForm.password,"")
         return rq.redirectOrBack(joinRs, "/member/login")
     }
 

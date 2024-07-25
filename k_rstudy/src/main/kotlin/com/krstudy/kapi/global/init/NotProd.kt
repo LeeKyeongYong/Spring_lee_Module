@@ -34,10 +34,10 @@ class NotProd(
 
     @Transactional
     fun work1() {
-        val memberUser1 = memberService.join("user1", "1234").data
-        val memberUser2 = memberService.join("user2", "1234").data
-        val memberUser3 = memberService.join("user3", "1234").data
-        val memberUser4 = memberService.join("user4", "1234").data
+        val memberUser1 = memberService.join("user1", "1234","").data
+        val memberUser2 = memberService.join("user2", "1234","").data
+        val memberUser3 = memberService.join("user3", "1234","").data
+        val memberUser4 = memberService.join("user4", "1234","").data
 
         if (memberUser1 == null || memberUser2 == null || memberUser3 == null || memberUser4 == null) {
             return

@@ -21,8 +21,8 @@ class AllInit(private val memberService: MemberService) {
             // findByUsername이 Member?를 반환한다고 가정
             if (memberService.findByUsername("system") != null) return@ApplicationRunner
 
-            memberService.join("system", "1234")
-            memberService.join("admin", "1234")
+            memberService.join("system", "1234","")
+            memberService.join("admin", "1234","")
         }
     }
 }

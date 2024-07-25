@@ -23,17 +23,13 @@ class Member : BaseEntity() {
     @get:Transient
     val authorities: Collection<GrantedAuthority>
         get() {
-            val role: M_Role = M_Role.fromRoleType(roleType)
+            //val role: M_Role = M_Role.fromRoleType(roleType)
+           // val authorities: MutableCollection<GrantedAuthority> = ArrayList()
             val authorities: MutableCollection<GrantedAuthority> = ArrayList()
 
             // roleType에 따라 권한 추가
-            when (role) {
-                M_Role.HEADHUNTER,
-                M_Role.MEMBER,
-                M_Role.ADMIN,
-                M_Role.MANAGER,
-                M_Role.HR -> authorities.add(SimpleGrantedAuthority(role.authority))
-            }
+            val role: M_Role = M_Role.values().find { it.authority == roleType } ?: M_Role.MEMBER
+            authorities.add(SimpleGrantedAuthority(role.authority))
 
             // username에 따라 admin 역할 추가
             if (username == "system" || username == "admin") {

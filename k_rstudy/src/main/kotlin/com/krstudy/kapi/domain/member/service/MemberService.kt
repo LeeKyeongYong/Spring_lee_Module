@@ -16,16 +16,19 @@ class MemberService(
 ) {
 
     @Transactional
-    fun join(username: String, password: String): RespData<Member> {
+    fun join(username: String, password: String, role: String): RespData<Member> {
         val existingMember = findByUsername(username)
         if (existingMember != null) {
             return RespData.of("400-2", "이미 존재하는 회원입니다.")
         }
 
         val roleType = when (username) {
+        //val roleType = when (role.toLowerCase()) {
             "system", "admin" -> M_Role.ADMIN.authority // ADMIN 권한 설정
             else -> M_Role.MEMBER.authority // 기본 역할을 MEMBER로 설정
         }
+
+
 
         val member = Member().apply {
             this.username = username
