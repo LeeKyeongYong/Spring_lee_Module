@@ -16,8 +16,15 @@ import java.time.LocalDateTime
 @ToString(callSuper = true)
 open class BaseEntity : IdEntity() {
     @CreatedDate
-    private val createDate: LocalDateTime? = null
+    private var createDate: LocalDateTime? = null
 
     @LastModifiedDate
-    private val modifyDate: LocalDateTime? = null
+    private var modifyDate: LocalDateTime? = null
+
+    // Getters and Setters
+    fun getCreateDate(): LocalDateTime? = createDate
+    fun setCreateDate(createDate: LocalDateTime?) { this.createDate = createDate }
+
+    fun getModifyDate(): LocalDateTime? = modifyDate
+    fun setModifyDate(modifyDate: LocalDateTime?) { this.modifyDate = modifyDate }
 }
