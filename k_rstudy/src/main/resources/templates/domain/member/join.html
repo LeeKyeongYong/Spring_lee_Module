@@ -1,0 +1,77 @@
+<html layout:decorate="~{global/userLayout}">
+<head>
+    <title>회원가입</title>
+</head>
+<body>
+  <div layout:fragment="content">
+      <h1>회원가입</h1>
+      <script>
+          function submitJoinForm(from){
+
+            form.username.value = form.username.value.trim();
+
+            if(form.username.value.length == 0){
+              toastWarning('사용자 ID를 입력해주세요.');
+              form.username.focus();
+              return;
+            }
+
+            form.password.value = form.password.value.trim();
+
+            if(form.password.value.length == 0){
+              toastWarning('비밀번호를 입력해주세요');
+              form.password.focus();
+              return;
+            }
+
+            form.passwordConfirm.value = form.passwordConfirm.value.trim();
+
+            if(form.passwordConfirm.value.length == 0){
+              toastWarning('비밀번호 확인을 입력해주세요');
+              form.passwordConfirm.focus();
+              return;
+            }
+
+            if(form.password.value != form.passwordConfirm.value){
+              toastWarning('비밀번호가 일치하지 않습니다.');
+              form.password.focus();
+              return;
+            }
+
+            const selectedRole = form.role.value;
+            if(!selectedRole){
+              toastWarning("권한을 선택해주세요.");
+              form.role.focus();
+              return;
+            }
+
+            form.submit();
+          }
+      </script>
+      <form th:action method="POST" onsubmit="submitJoinForm(this); return false;">
+        <div>
+          <label>사용자 ID</label>
+          <input type="text" name="username">
+        </div>
+        <div>
+            <label>비밀변호</label>
+            <input type="password" name="password">
+        </div>
+        <div>
+            <label>비밀번호 확인</label>
+            <input type="password" name="passwordConfirm">
+        </div>
+        <div>
+          <label>권한</label>
+          <select th:field="*{role}">
+            <option th:each="role : ${roles}"
+                    th:value="${role.name()}"
+                    th:text="${role.name()}">
+            </option>
+          </select>
+        </div>
+        <button type="submit">회원가입</button>
+      </form>
+  </div>
+</body>
+</html>
