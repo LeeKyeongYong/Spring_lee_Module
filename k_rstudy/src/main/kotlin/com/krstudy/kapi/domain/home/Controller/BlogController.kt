@@ -57,6 +57,6 @@ class BlogController(
 
         rq.setAttribute("post", post)
 
-        return "domain/post/post/detail"
+        return "domain/post/detail"
     }
 }
