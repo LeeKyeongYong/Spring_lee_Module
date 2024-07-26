@@ -1,10 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
+<html layout:decorate="~{global/admLayout}">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+  <title>홈</title>
 </head>
 <body>
-
+<div layout:fragment="content">
+  <h1>메인</h1>
+  <h2>최신 게시물</h2>
+  <ul>
+    <li th:each="post: ${posts}">
+      <a th:href="|/post/${post.id}|" th:text="${post.title}"></a>
+    </li>
+  </ul>
+</div>
 </body>
 </html>
