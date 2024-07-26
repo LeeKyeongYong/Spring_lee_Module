@@ -57,5 +57,5 @@
          - https://blog.naver.com/sleekydz86/223296131758
 
 14. 코틀린과 스프링부트로 간단한 Rest API 서버 만들기: 입문 가이드<br/>
-         - https://blog.naver.com/sleekydz86/???
+         - [https://blog.naver.com/sleekydz86/???](https://velog.io/@sleekydevzero86/kotlin-springboot-rest-api-guide)
     
