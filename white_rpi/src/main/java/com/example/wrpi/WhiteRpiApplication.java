@@ -12,8 +12,4 @@ public class WhiteRpiApplication {
         SpringApplication.run(WhiteRpiApplication.class, args);
     }
 
-    @Bean
-    public ModelMapper modelMapper(){
-        return new ModelMapper();
-    }
 }
