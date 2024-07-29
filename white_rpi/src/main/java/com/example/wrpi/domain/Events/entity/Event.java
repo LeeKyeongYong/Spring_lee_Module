@@ -1,7 +1,10 @@
 package com.example.wrpi.domain.Events.entity;
 
 import com.example.wrpi.domain.accounts.entity.Account;
+import com.example.wrpi.global.common.AccountSerializer;
 import lombok.*;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
@@ -35,6 +38,7 @@ public class Event {
     private EventStatus eventStatus = EventStatus.DRAFT;
 
     @ManyToOne
+    @JsonSerialize(using = AccountSerializer.class)
     private Account manager;
 
     public void update() {
