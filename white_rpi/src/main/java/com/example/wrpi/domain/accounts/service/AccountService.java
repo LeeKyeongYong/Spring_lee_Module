@@ -3,6 +3,7 @@ package com.example.wrpi.domain.accounts.service;
 import com.example.wrpi.domain.accounts.entity.Account;
 import com.example.wrpi.domain.accounts.entity.AccountRole;
 import com.example.wrpi.domain.accounts.repository.AccountRepository;
+import com.example.wrpi.global.config.AccountAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -30,9 +31,10 @@ public class AccountService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
         Account account = accountRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
-        return new User(account.getEmail(), account.getPassword(), authorities(account.getRoles()));
+       return new AccountAdapter(account);
     }
 
     private Collection<? extends GrantedAuthority> authorities(Set<AccountRole> roles) {
