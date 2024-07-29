@@ -72,7 +72,7 @@ public class EventControllerTests extends BaseTest  {
     ModelMapper modelMapper;*/
 
     @Test
-    @TestDescription("정상적으로 이벤트를 생성하는 테스트")
+    @DisplayName("정상적으로 이벤트를 생성하는 테스트")
     public void createEvent() throws Exception {
         EventDto event = EventDto.builder()
                 .name("Spring")
@@ -177,7 +177,7 @@ public class EventControllerTests extends BaseTest  {
     }
 
     @Test
-    @TestDescription("입력 받을 수 없는 값을 사용한 경우에 에러가 발생하는 테스트")
+    @DisplayName("입력 받을 수 없는 값을 사용한 경우에 에러가 발생하는 테스트")
     public void createEvent_Bad_Request() throws Exception {
 
         Event event = Event.builder()
@@ -222,7 +222,7 @@ public class EventControllerTests extends BaseTest  {
     }
 
     @Test
-    @TestDescription("입력 값이 잘못된 경우에 에러가 발생하는 테스트")
+    @DisplayName("입력 값이 잘못된 경우에 에러가 발생하는 테스트")
     public void createEvent_Bad_Request_Wrong_Input() throws Exception {
         EventDto eventDto = EventDto.builder()
                 .name("Spring")
@@ -253,7 +253,7 @@ public class EventControllerTests extends BaseTest  {
     }
 
     @Test
-    @TestDescription("30개의 이벤트를 10개씩 두번째 페이지 조회하기")
+    @DisplayName("30개의 이벤트를 10개씩 두번째 페이지 조회하기")
     public void queryEvents() throws Exception {
         // Given
         IntStream.range(0, 30).forEach(this::generateEvent);
@@ -274,7 +274,7 @@ public class EventControllerTests extends BaseTest  {
     }
 
     @Test
-    @TestDescription("기존의 이벤트를 하나 조죄하기")
+    @DisplayName("기존의 이벤트를 하나 조죄하기")
     public void getEvent() throws Exception {
         // Given
         Event event = this.generateEvent(100);
@@ -291,7 +291,7 @@ public class EventControllerTests extends BaseTest  {
     }
 
     @Test
-    @TestDescription("없는 이벤트는 조회했을 때 404 응답받기")
+    @DisplayName("없는 이벤트는 조회했을 때 404 응답받기")
     public void getEvent404() throws Exception {
 
         //given
@@ -307,7 +307,7 @@ public class EventControllerTests extends BaseTest  {
     }
 
     @Test
-    @TestDescription("이벤트를 정상적으로 수정하기")
+    @DisplayName("이벤트를 정상적으로 수정하기")
     public void updateEvent() throws Exception {
         // Given
         Event event = this.generateEvent(200);
@@ -332,7 +332,7 @@ public class EventControllerTests extends BaseTest  {
     }
 
     @Test
-    @TestDescription("입력값이 비어있는 경우에 이벤트 수정 실패")
+    @DisplayName("입력값이 비어있는 경우에 이벤트 수정 실패")
     public void updateEvent400_Empty() throws Exception {
         // Given
         Event event = this.generateEvent(200);
@@ -349,7 +349,7 @@ public class EventControllerTests extends BaseTest  {
     }
 
     @Test
-    @TestDescription("입력값이 잘못된 경우에 이벤트 수정 실패")
+    @DisplayName("입력값이 잘못된 경우에 이벤트 수정 실패")
     public void updateEvent400_Wrong() throws Exception {
         // Given
         Event event = this.generateEvent(200);
@@ -368,7 +368,7 @@ public class EventControllerTests extends BaseTest  {
     }
 
     @Test
-    @TestDescription("존재하지 않는 이벤트 수정 실패")
+    @DisplayName("존재하지 않는 이벤트 수정 실패")
     public void updateEvent404() throws Exception {
         // Given
         Event event = this.generateEvent(200);
@@ -415,7 +415,7 @@ public class EventControllerTests extends BaseTest  {
 
 
     @Test
-    @TestDescription("30개의 이벤트를 10개씩 두번째 페이지 조회하기")
+    @DisplayName("30개의 이벤트를 10개씩 두번째 페이지 조회하기")
     public void queryEventsWithAuthentication() throws Exception{
 
         //Given

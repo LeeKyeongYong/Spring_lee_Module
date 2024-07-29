@@ -4,6 +4,7 @@ import com.example.wrpi.domain.accounts.entity.Account;
 import com.example.wrpi.domain.accounts.entity.AccountRole;
 import com.example.wrpi.domain.accounts.repository.AccountRepository;
 import com.example.wrpi.domain.accounts.service.AccountService;
+import com.example.wrpi.global.events.common.BaseTest;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
@@ -17,16 +18,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@ActiveProfiles("test")
-public class AccountServiceTest {
+public class AccountServiceTest extends BaseTest {
 
     @Autowired
     AccountService accountService;
@@ -63,13 +61,9 @@ public class AccountServiceTest {
     @Test
     public void findByUsernameFail(){
 
-        //Expected
-        String username="sleekydz86@naver.com";
-        expectedException.expect(UsernameNotFoundException.class);
-        expectedException.expectMessage(Matchers.containsString(username));
 
         //when
-        accountService.loadUserByUsername(username);
+        assertThrows(UsernameNotFoundException.class, () -> accountService.loadUserByUsername("random@email.com"));
     }
 
 }
