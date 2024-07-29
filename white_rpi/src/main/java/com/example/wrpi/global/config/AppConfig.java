@@ -19,16 +19,17 @@ import java.util.Set;
 public class AppConfig {
 
     @Bean
-    public ModelMapper modelMapper(){
+    public ModelMapper modelMapper() {
         return new ModelMapper();
     }
 
-    @Bean public PasswordEncoder passwordEncoder(){
+    @Bean
+    public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Bean
-    public ApplicationRunner applicationRunner(){
+    public ApplicationRunner applicationRunner() {
         return new ApplicationRunner() {
 
             @Autowired
@@ -39,13 +40,11 @@ public class AppConfig {
 
             @Override
             public void run(ApplicationArguments args) throws Exception {
-
                 Account admin = Account.builder()
                         .email(appProperties.getAdminUsername())
                         .password(appProperties.getAdminPassword())
-                        .roles(Set.of(AccountRole.ADMIN,AccountRole.USER))
+                        .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
                         .build();
-
                 accountService.saveAccount(admin);
 
                 Account user = Account.builder()
@@ -54,7 +53,6 @@ public class AppConfig {
                         .roles(Set.of(AccountRole.USER))
                         .build();
                 accountService.saveAccount(user);
-
             }
         };
     }

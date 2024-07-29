@@ -8,8 +8,8 @@ import org.springframework.validation.Errors;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-public class ErrosResource extends EntityModel<Errors> {
-    public ErrosResource (Errors content, Link... links) {
+public class ErrorsResource extends EntityModel<Errors> {
+    public ErrorsResource(Errors content, Link... links) {
         super(content, links);
         add(linkTo(methodOn(HomeController.class).index()).withRel("index"));
     }

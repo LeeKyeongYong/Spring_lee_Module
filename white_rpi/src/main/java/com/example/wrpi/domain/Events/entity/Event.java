@@ -2,25 +2,18 @@ package com.example.wrpi.domain.Events.entity;
 
 import com.example.wrpi.domain.accounts.entity.Account;
 import com.example.wrpi.global.common.AccountSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-@EqualsAndHashCode(of = "id")
+@Builder @AllArgsConstructor @NoArgsConstructor
+@Getter @Setter @EqualsAndHashCode(of = "id")
 @Entity
 public class Event {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue
     private Integer id;
-
     private String name;
     private String description;
     private LocalDateTime beginEnrollmentDateTime;
@@ -33,10 +26,8 @@ public class Event {
     private int limitOfEnrollment;
     private boolean offline;
     private boolean free;
-
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
-
     @ManyToOne
     @JsonSerialize(using = AccountSerializer.class)
     private Account manager;

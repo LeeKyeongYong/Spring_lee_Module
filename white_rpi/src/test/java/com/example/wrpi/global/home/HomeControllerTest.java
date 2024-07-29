@@ -18,8 +18,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 */
 public class HomeControllerTest extends BaseTest {
-    @Autowired
-    MockMvc mockMvc;
 
     @Test
     public void index() throws Exception {
