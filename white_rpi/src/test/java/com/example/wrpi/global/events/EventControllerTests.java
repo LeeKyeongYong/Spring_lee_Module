@@ -88,7 +88,7 @@ public class EventControllerTests extends BaseTest  {
                 .build();
 
         mockMvc.perform(post("/api/events/")
-                        .header(HttpHeaders.AUTHORIZATION, getBearerToken())
+                        .header(HttpHeaders.AUTHORIZATION, getBearerToekn(true))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(event)))
@@ -144,19 +144,16 @@ public class EventControllerTests extends BaseTest  {
                 ));
     }
 
-    private String getBearerToekn() throws Exception{
-        return "Bearer "+getAccessToken();
+    private String getBearerToekn(boolean needToCreateAccount) throws Exception{
+        return "Bearer " + getAccessToken(needToCreateAccount);
     }
 
-    private String getAccessToken() throws Exception{
+    private String getAccessToken(boolean needToCreateAccount) throws Exception {
 
         //Given
-        Account kylee = Account.builder()
-                .email(appProperties.getUserUsername())
-                .password(appProperties.getUserPassword())
-                .roles(Set.of(AccountRole.ADMIN,AccountRole.USER))
-                .build();
-        this.accountService.saveAccount(kylee);
+        if (needToCreateAccount) {
+            createAccount();
+        }
 
         ResultActions perform = this.mockMvc.perform(post("/oauth/token")
                 .with(httpBasic(appProperties.getClientId(),appProperties.getClientSecret()))
@@ -168,6 +165,15 @@ public class EventControllerTests extends BaseTest  {
         Jackson2JsonParser parser = new Jackson2JsonParser();
         return parser.parseMap(responseBody).get("access_tijeb").toString();
 
+    }
+
+    private void createAccount() {
+        Account kylee = Account.builder()
+                .email(appProperties.getUserUsername())
+                .password(appProperties.getUserPassword())
+                .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
+                .build();
+        this.accountService.saveAccount(kylee);
     }
 
     @Test
@@ -209,7 +215,7 @@ public class EventControllerTests extends BaseTest  {
         EventDto eventDto = EventDto.builder().build();
 
         this.mockMvc.perform(post("/api/events/")
-                        .header(HttpHeaders.AUTHORIZATION,getAccessToken())
+                        .header(HttpHeaders.AUTHORIZATION,getBearerToekn(true))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objectMapper.writeValueAsString(eventDto)))
                 .andExpect(status().isBadRequest());
@@ -232,7 +238,7 @@ public class EventControllerTests extends BaseTest  {
                 .build();
 
         this.mockMvc.perform(post("/api/events/")
-                        .header(HttpHeaders.AUTHORIZATION,getBearerToekn())
+                        .header(HttpHeaders.AUTHORIZATION,getBearerToekn(true))
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(this.objectMapper.writeValueAsString(eventDto)))
                 .andDo(print())
@@ -287,8 +293,16 @@ public class EventControllerTests extends BaseTest  {
     @Test
     @TestDescription("없는 이벤트는 조회했을 때 404 응답받기")
     public void getEvent404() throws Exception {
+
+        //given
+        Account account = this.createAccount();
+        Event event = this.generateEvent(200, account);
+
         // When & Then
         this.mockMvc.perform(get("/api/events/11883"))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(false))
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(this.objectMapper.writeValueAsString(eventDto)))
                 .andExpect(status().isNotFound());
     }
 
@@ -327,7 +341,7 @@ public class EventControllerTests extends BaseTest  {
 
         // When & Then
         this.mockMvc.perform(put("/api/events/{id}", event.getId())
-                        .header(HttpHeaders.AUTHORIZATION, getBearerToekn())
+                        .header(HttpHeaders.AUTHORIZATION, getBearerToekn(true))
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(this.objectMapper.writeValueAsString(eventDto)))
                 .andDo(print())
@@ -346,7 +360,7 @@ public class EventControllerTests extends BaseTest  {
 
         // When & Then
         this.mockMvc.perform(put("/api/events/{id}", event.getId())
-                        .header(HttpHeaders.AUTHORIZATION, getBearerToekn())
+                        .header(HttpHeaders.AUTHORIZATION, getBearerToekn(true))
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(this.objectMapper.writeValueAsString(eventDto)))
                 .andDo(print())
@@ -362,15 +376,21 @@ public class EventControllerTests extends BaseTest  {
 
         // When & Then
         this.mockMvc.perform(put("/api/events/123123")
-                        .header(HttpHeaders.AUTHORIZATION, getBearerToekn())
+                        .header(HttpHeaders.AUTHORIZATION, getBearerToekn(true))
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(this.objectMapper.writeValueAsString(eventDto)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
-    private Event  generateEvent(int index) {
-        Event event = Event.builder()
+    private Event generateEvent(int index, Account account) {
+        Event event = buildEvent(index);
+        event.setManager(account);
+        return this.eventRepository.save(event);
+    }
+
+    private Event buildEvent(int index) {
+        return Event.builder()
                 .name("event " + index)
                 .description("test event")
                 .beginEnrollmentDateTime(LocalDateTime.of(2018, 11, 23, 14, 21))
@@ -385,20 +405,26 @@ public class EventControllerTests extends BaseTest  {
                 .offline(true)
                 .eventStatus(EventStatus.DRAFT)
                 .build();
+    }
 
+    private Event generateEvent(int index) {
+        Event event = buildEvent(index);
         return this.eventRepository.save(event);
     }
+
+
 
     @Test
     @TestDescription("30개의 이벤트를 10개씩 두번째 페이지 조회하기")
     public void queryEventsWithAuthentication() throws Exception{
 
         //Given
-        IntStream.range(0, 30).forEach(this::generateEvent);
+        Account account = this.createAccount();
+        Event event = this.generateEvent(100, account);
 
         //When&Then
         this.mockMvc.perform(get("/api/events")
-                .header(HttpHeaders.AUTHORIZATION,getBearerToekn())
+                .header(HttpHeaders.AUTHORIZATION,getBearerToekn(true))
                 .param("page","1")
                 .param("size","10")
                 .param("sort","name,DESC"))
