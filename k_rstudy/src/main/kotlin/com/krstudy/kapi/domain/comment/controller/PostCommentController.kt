@@ -4,6 +4,7 @@ import com.krstudy.kapi.com.krstudy.kapi.global.exception.GlobalException
 import com.krstudy.kapi.com.krstudy.kapi.global.https.ReqData
 
 import com.krstudy.kapi.domain.post.service.PostService
+import com.krstudy.kapi.global.exception.ErrorCode
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import org.springframework.security.access.prepost.PreAuthorize
@@ -23,9 +24,9 @@ class PostCommentController(
         @PathVariable id: Long,
         @Valid @ModelAttribute form: WriteForm
     ): String {
-        val member = rq.member ?: throw GlobalException("401-1", "인증된 사용자가 아닙니다.")
-        val post = postService.findById(id).orElseThrow { GlobalException("404-1", "해당 글이 존재하지 않습니다.") }
-        val body = form.body ?: throw GlobalException("400-1", "댓글 내용이 비어 있습니다.")
+        val member = rq.member ?: throw  GlobalException(ErrorCode.UNAUTHORIZED)
+        val post = postService.findById(id).orElseThrow { GlobalException( ErrorCode.NOT_FOUND_POST) }
+        val body = form.body ?: throw GlobalException(ErrorCode.EMPTY_COMMENT_BODY)
 
         val postComment = postService.writeComment(member, post, body)
 
@@ -38,12 +39,12 @@ class PostCommentController(
         @PathVariable id: Long,
         @PathVariable commentId: Long
     ): String {
-        val member = rq.member ?: throw GlobalException("401-1", "인증된 사용자가 아닙니다.")
-        val post = postService.findById(id).orElseThrow { GlobalException("404-1", "해당 글이 존재하지 않습니다.") }
-        val postComment = postService.findCommentById(commentId).orElseThrow { GlobalException("404-1", "해당 댓글이 존재하지 않습니다.") }
+        val member = rq.member ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
+        val post = postService.findById(id).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_POST) }
+        val postComment = postService.findCommentById(commentId).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_COMMENT) }
 
         if (!postService.canModifyComment(member, postComment)) {
-            throw GlobalException("403-1", "해당 댓글을 수정할 권한이 없습니다.")
+            throw GlobalException(ErrorCode.FORBIDDEN)
         }
 
         rq.setAttribute("post", post)
@@ -59,12 +60,12 @@ class PostCommentController(
         @PathVariable commentId: Long,
         @Valid @ModelAttribute form: ModifyForm
     ): String {
-        val member = rq.member ?: throw GlobalException("401-1", "인증된 사용자가 아닙니다.")
-        val postComment = postService.findCommentById(commentId).orElseThrow { GlobalException("404-1", "해당 댓글이 존재하지 않습니다.") }
-        val body = form.body ?: throw GlobalException("400-1", "댓글 내용이 비어 있습니다.")
+        val member = rq.member ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
+        val postComment = postService.findCommentById(commentId).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_POST) }
+        val body = form.body ?: throw GlobalException(ErrorCode.EMPTY_COMMENT_BODY)
 
         if (!postService.canModifyComment(member, postComment)) {
-            throw GlobalException("403-1", "해당 댓글을 수정할 권한이 없습니다.")
+            throw GlobalException(ErrorCode.FORBIDDEN)
         }
 
         postService.modifyComment(postComment, body)
@@ -78,11 +79,11 @@ class PostCommentController(
         @PathVariable id: Long,
         @PathVariable commentId: Long
     ): String {
-        val member = rq.member ?: throw GlobalException("401-1", "인증된 사용자가 아닙니다.")
-        val postComment = postService.findCommentById(commentId).orElseThrow { GlobalException("404-1", "해당 댓글이 존재하지 않습니다.") }
+        val member = rq.member ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
+        val postComment = postService.findCommentById(commentId).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_COMMENT) }
 
         if (!postService.canDeleteComment(member, postComment)) {
-            throw GlobalException("403-1", "해당 댓글을 삭제할 권한이 없습니다.")
+            throw GlobalException(ErrorCode.FORBIDDEN)
         }
 
         postService.deleteComment(postComment)

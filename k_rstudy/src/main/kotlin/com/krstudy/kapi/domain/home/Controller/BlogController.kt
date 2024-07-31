@@ -6,6 +6,7 @@ import com.krstudy.kapi.com.krstudy.kapi.domain.post.entity.Post
 import com.krstudy.kapi.com.krstudy.kapi.global.exception.GlobalException
 import com.krstudy.kapi.com.krstudy.kapi.global.https.ReqData
 import com.krstudy.kapi.domain.post.service.PostService
+import com.krstudy.kapi.global.exception.ErrorCode
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -34,7 +35,7 @@ class BlogController(
         val pageable: Pageable = PageRequest.of(page - 1, 10, Sort.by(sorts))
 
         val blogMember = memberService.findByUsername(username)
-            ?: throw GlobalException("404-1", "존재하지 않는 사용자입니다.")
+            ?: throw GlobalException(ErrorCode.NOT_FOUND_USER)
 
         val postPage: Page<Post> = postService.search(blogMember, true, kw, pageable)
 
@@ -51,9 +52,9 @@ class BlogController(
         @PathVariable id: Long
     ): String {
         val blogMember = memberService.findByUsername(username)
-            ?: throw GlobalException("404-1", "존재하지 않는 사용자입니다.")
+            ?: throw GlobalException(ErrorCode.NOT_FOUND_USER)
         val post = postService.findById(id)
-            ?: throw GlobalException("404-2", "존재하지 않는 글입니다.")
+            ?: throw GlobalException(ErrorCode.NOT_FOUND_POST)
 
         rq.setAttribute("post", post)
 

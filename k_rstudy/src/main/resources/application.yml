@@ -36,7 +36,7 @@ logging:
     org.springframework.transaction.interceptor: TRACE
 custom:
   site:
-    name: medium
+    name: sleekydz86
     baseUrl: "http://localhost:${server.port}"
   tempDirPath: D:/temp
   genFile:
