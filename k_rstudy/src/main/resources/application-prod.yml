@@ -6,20 +6,21 @@ spring:
       max-file-size: 5MB
       max-request-size: 5MB
   datasource:
-    url: jdbc:mysql://172.17.0.1:3306/kotlin_Boot
+    url: jdbc:mysql://localhost:3306/kotlin_Boot?allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8
     username: kotlin_Boot
     password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
 logging:
   level:
     com.ll.medium: INFO
-    org.hibernate.SQL: INFO
+    org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: INFO
     org.hibernate.orm.jdbc.extract: INFO
-    org.springframework.transaction.interceptor: INFO
+    org.springframework.transaction.interceptor: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: DEBUG
 custom:
   tempDirPath: /gen/temp
   site:

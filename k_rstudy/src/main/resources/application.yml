@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev
+    active: prod
     include: secret
   servlet:
     multipart:
@@ -13,14 +13,7 @@ spring:
     hiddenmethod:
       filter:
         enabled: true
-  datasource:
-    url: jdbc:h2:./medium_dev;MODE=MYSQL
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
   jpa:
-    hibernate:
-      ddl-auto: update
     properties:
       hibernate:
         default_batch_fetch_size: 100
