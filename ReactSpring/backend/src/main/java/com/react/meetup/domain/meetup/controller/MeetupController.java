@@ -1,7 +1,7 @@
-package com.react.meetup.domain.controller;
+package com.react.meetup.domain.meetup.controller;
 
-import com.react.meetup.domain.entity.Meetup;
-import com.react.meetup.domain.service.MeetupService;
+import com.react.meetup.domain.meetup.entity.Meetup;
+import com.react.meetup.domain.meetup.service.MeetupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

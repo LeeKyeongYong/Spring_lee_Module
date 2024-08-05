@@ -1,7 +1,7 @@
-package com.react.meetup.domain.service;
+package com.react.meetup.domain.meetup.service;
 
-import com.react.meetup.domain.entity.Meetup;
-import com.react.meetup.domain.repository.MeetupRepository;
+import com.react.meetup.domain.meetup.entity.Meetup;
+import com.react.meetup.domain.meetup.repository.MeetupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

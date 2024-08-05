@@ -1,4 +1,4 @@
-package com.react.meetup.domain.entity;
+package com.react.meetup.domain.meetup.entity;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -15,7 +15,7 @@ import com.querydsl.core.types.Path;
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
 public class QMeetup extends EntityPathBase<Meetup> {
 
-    private static final long serialVersionUID = 1075293747L;
+    private static final long serialVersionUID = 754982555L;
 
     public static final QMeetup meetup = new QMeetup("meetup");
 
