@@ -15,9 +15,11 @@ public class Meals {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
+    @Column(unique = true)
     private String slug;
     private String image;
     private String summary;
+    @Column(columnDefinition = "LONGTEXT")
     private String instructions;
     private String creator;
     @Column(name = "creatorEmail")

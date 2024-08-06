@@ -1,4 +1,16 @@
 spring:
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  web:
+    resources:
+      chain:
+        enabled: true
+        cache:
+          cachecontrol:
+            max-age: 365d
   profiles:
     active: prod
     include: secret
@@ -16,7 +28,7 @@ spring:
   datasource:
     url: jdbc:h2:./medium_dev;MODE=MYSQL
     username: sa
-    password:
+    password: ""
     driver-class-name: org.h2.Driver
   jpa:
     hibernate:

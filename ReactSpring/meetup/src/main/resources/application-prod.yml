@@ -6,7 +6,7 @@ spring:
       max-file-size: 5MB
       max-request-size: 5MB
   datasource:
-    url: jdbc:mysql://localhost:3306/kotlin_Boot
+    url: jdbc:mysql://localhost:3306/kotlin_Boot?useUnicode=true&characterSetResults=utf8mb4
     username: kotlin_Boot
     password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
