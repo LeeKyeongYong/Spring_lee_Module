@@ -1,23 +1,6 @@
-import multer from 'multer';
+import formidable from 'formidable';
 import path from 'path';
-import fs from 'fs';
-
-const upload = multer({
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => {
-      const uploadPath = path.join(process.cwd(), 'public/images');
-      if (!fs.existsSync(uploadPath)) {
-        fs.mkdirSync(uploadPath, { recursive: true });
-      }
-      cb(null, uploadPath);
-    },
-    filename: (req, file, cb) => {
-      // 파일 이름을 UTF-8로 디코딩
-      const fileName = decodeURIComponent(file.originalname);
-      cb(null, fileName);
-    }
-  })
-});
+import AWS from 'aws-sdk';
 
 export const config = {
   api: {
@@ -25,20 +8,42 @@ export const config = {
   },
 };
 
-export default (req, res) => {
-  const uploadHandler = upload.single('image');
+// AWS S3 클라이언트 설정
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION,
+});
 
-  uploadHandler(req, res, (err) => {
+export default async (req, res) => {
+  const form = new formidable.IncomingForm({
+    keepExtensions: true,
+  });
+
+  form.parse(req, async (err, fields, files) => {
     if (err) {
-      console.error('Error uploading file:', err);
       return res.status(500).json({ error: 'File upload failed' });
     }
 
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
+    const file = files.image[0];
+    const fileStream = fs.createReadStream(file.filepath);
 
-    const fileUrl = `/images/${req.file.filename}`;
-    res.status(200).json({ fileUrl });
+    // S3 업로드 매개변수 설정
+    const uploadParams = {
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Key: path.basename(file.filepath), // S3 객체 키
+      Body: fileStream,
+      ContentType: file.mimetype,
+    };
+
+    try {
+      // S3에 파일 업로드
+      const data = await s3.upload(uploadParams).promise();
+      const fileUrl = data.Location; // 업로드된 파일의 URL
+
+      res.status(200).json({ fileUrl });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to upload file to S3' });
+    }
   });
 };
