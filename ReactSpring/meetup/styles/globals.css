@@ -1,0 +1,7 @@
+/* src/styles/globals.css */
+.error {
+  padding: 2rem;
+  text-align: center;
+  background-color: #f8d7da;
+  color: #721c24;
+}

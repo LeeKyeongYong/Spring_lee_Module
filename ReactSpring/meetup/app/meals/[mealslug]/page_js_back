@@ -1,0 +1,60 @@
+"use client"; // 클라이언트 컴포넌트로 지정
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation'; // next/navigation에서 useParams import
+import { fetchMealBySlug } from '@/util/api'; // API 유틸리티에서 데이터 패칭 함수
+import Loading from '../loading-out'; // 로딩 컴포넌트
+import Notfound from '@/pages/404';
+
+export default function MealDetailPage() {
+  const { mealslug } = useParams(); // slug를 useParams로 가져옴
+  const [meal, setMeal] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (mealslug) {
+      const loadMeal = async () => {
+        try {
+          // 2초 후에 데이터 로드
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          const fetchedMeal = await fetchMealBySlug(mealslug);
+          setMeal(fetchedMeal);
+        } catch (error) {
+          console.error('Failed to fetch meal', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      loadMeal();
+    }
+  }, [mealslug]);
+
+  if (loading) {
+    return <Loading />;
+  }
+
+  if (!meal) {
+    return <Notfound/>;
+  }
+
+  return (
+    <main>
+      <h1>{meal.title}</h1>
+      <div>
+        {/* <img src={meal.image} alt={meal.title} style={{ maxWidth: '100%' }} /> */}
+        <Image
+          src={meal.image}
+          alt={meal.title}
+          width={500}  // 원하는 너비로 설정
+          height={300} // 원하는 높이로 설정
+          style={{ maxWidth: '100%' }}
+        />
+        <p>{meal.summary}</p>
+        <p>Instructions: {meal.instructions}</p>
+        <p>Created by: {meal.creator}</p>
+        <p>Email: {meal.creatorEmail}</p>
+      </div>
+    </main>
+  );
+}

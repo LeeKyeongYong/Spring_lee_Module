@@ -1,0 +1,15 @@
+/* pages/404.module.css */
+.container {
+  text-align: center;
+  padding: 4rem;
+}
+
+.title {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.message {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+}

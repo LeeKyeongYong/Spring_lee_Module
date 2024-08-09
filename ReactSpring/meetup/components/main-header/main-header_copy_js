@@ -1,0 +1,26 @@
+import logoImg from '@/assets/logo.png';
+import Image from 'next/image';
+
+import MainheaderBackground from './components/main-header-background';
+export default function MainHeader() {
+  return (
+    <MainheaderBackground />
+    <header className={classicNameResolver.header}>
+      <a href='/'>
+        <Image src={logoImg} alt="A plate with food on it" />
+        NextLevel Food
+      </a>
+
+      <nav>
+        <ul>
+          <li>
+            <a href="/meals">Browse Meals</a>
+          </li>
+          <li>
+            <a href="/community">Browse Community</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+  );
+}

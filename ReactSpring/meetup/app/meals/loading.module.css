@@ -1,0 +1,7 @@
+/* src/util/loading.module.css */
+.loading {
+  text-align: center;
+  font-size: 1.5rem;
+  color: #888;
+  margin-top: 2rem;
+}

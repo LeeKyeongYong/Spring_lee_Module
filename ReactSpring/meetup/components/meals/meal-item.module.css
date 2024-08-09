@@ -1,0 +1,61 @@
+/* meal-item.module.css */
+.meal {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+
+.meal:hover {
+  transform: translateY(-5px);
+}
+
+.image {
+  width: 100%;
+  height: 10rem; /* 높이를 고정하여 이미지 크기 조정 */
+  position: relative;
+}
+
+.image img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.headerText {
+  padding: 1rem;
+}
+
+.headerText h2 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.headerText p {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.content {
+  padding: 1rem;
+}
+
+.summary {
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.actions {
+  margin-top: 1rem;
+}
+
+.actions a {
+  color: #0070f3;
+  text-decoration: none;
+}
+
+.actions a:hover {
+  text-decoration: underline;
+}
