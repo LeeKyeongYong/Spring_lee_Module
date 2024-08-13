@@ -1,6 +1,6 @@
 package com.study.mstudy.item.valid;
 
-import com.study.mstudy.item.constant.ItemType;
+import com.study.mstudy.item.dto.constant.ItemType;
 import jakarta.validation.Constraint;
 import jakarta.validation.ConstraintValidator;
 import java.lang.annotation.*;

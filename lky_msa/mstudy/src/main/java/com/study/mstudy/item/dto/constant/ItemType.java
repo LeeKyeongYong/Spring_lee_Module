@@ -1,4 +1,4 @@
-package com.study.mstudy.item.constant;
+package com.study.mstudy.item.dto.constant;
 
 public enum ItemType {
     FOOD("F", "음식"),

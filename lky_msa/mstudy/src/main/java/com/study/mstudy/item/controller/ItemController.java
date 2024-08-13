@@ -1,7 +1,6 @@
 package com.study.mstudy.item.controller;
 
 
-import com.study.mstudy.item.constant.ItemType;
 import com.study.mstudy.item.dto.ItemDTO;
 import com.study.mstudy.item.dto.ResponseDTO;
 import com.study.mstudy.item.service.ItemService;
@@ -13,8 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Arrays;
 
 @RestController
 @RequestMapping(value="v1/item")
