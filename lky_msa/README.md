@@ -38,7 +38,8 @@ Reference:
 
 - 여러 인스턴스를 등록할때 랜덤포트
 
-![image](https://user-images.githubusercontent.com/59721293/186801649-04cf33be-64f0-4c8a-839f-33266b5eb087.png)
+![image](https://github.com/user-attachments/assets/bd5e3e44-2aae-4240-ac48-f08546490e30)
+
 ![image](https://user-images.githubusercontent.com/59721293/186801663-409b1937-a2b5-4661-bb5c-d0b61fa6633a.png)
 
 ### Swagger 통합
