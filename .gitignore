@@ -21,5 +21,3 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
-
-lky_msa/mstudy/logs/api.log
