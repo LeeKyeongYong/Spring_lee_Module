@@ -3,6 +3,7 @@ package com.study.mstudy.item.controller;
 
 import com.study.mstudy.item.dto.ItemDTO;
 import com.study.mstudy.item.dto.ResponseDTO;
+import com.study.mstudy.item.exception.ApiException;
 import com.study.mstudy.item.service.ItemService;
 import com.study.mstudy.item.valid.ItemTypeValid;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class ItemController {
     private final ItemService itemService;
 
     @RequestMapping(value="/add/{itemType}", method=RequestMethod.POST)
-    public ResponseEntity<ResponseDTO> add(@Valid @RequestBody ItemDTO itemDTO,@ItemTypeValid @PathVariable String itemType){
+    public ResponseEntity<ResponseDTO> add(@Valid @RequestBody ItemDTO itemDTO,@ItemTypeValid @PathVariable String itemType) throws Exception{
         ResponseDTO.ResponseDTOBuilder responseBuilder = ResponseDTO.builder();
 
         /*
@@ -43,6 +44,12 @@ public class ItemController {
         }
 
        */
+
+        try{
+            Integer.parseInt("test");
+        }catch(Exception e){
+            throw new ApiException("test에러 입니다.");
+        }
 
         itemDTO.setItemType(itemType);
         itemService.insertItem(itemDTO);

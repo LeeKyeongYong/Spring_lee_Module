@@ -41,4 +41,12 @@ public class ApiExceptionHandler {
         responseBuilder.code("500").message(builder.toString());
         return ResponseEntity.ok(responseBuilder.build());
     }
+
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<?> ApiException(HttpServletRequest request, ApiException e) throws Exception {
+        ResponseDTO.ResponseDTOBuilder responseBuilder = ResponseDTO.builder();
+        responseBuilder.code("501").message(e.getMessage());
+        return ResponseEntity.ok(responseBuilder.build());
+    }
+
 }
