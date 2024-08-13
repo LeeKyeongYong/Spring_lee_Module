@@ -1,31 +1,53 @@
 package com.study.mstudy.item.controller;
 
 
+import com.study.mstudy.item.constant.ItemType;
 import com.study.mstudy.item.dto.ItemDTO;
 import com.study.mstudy.item.dto.ResponseDTO;
 import com.study.mstudy.item.service.ItemService;
+import com.study.mstudy.item.valid.ItemTypeValid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Arrays;
+
 @RestController
 @RequestMapping(value="v1/item")
 @Slf4j
 @RequiredArgsConstructor
+@Validated
 public class ItemController {
 
     private final ItemService itemService;
 
-    @RequestMapping(value="/add", method=RequestMethod.POST)
-    public ResponseEntity<ResponseDTO> add(@Valid @RequestBody ItemDTO itemDTO){
+    @RequestMapping(value="/add/{itemType}", method=RequestMethod.POST)
+    public ResponseEntity<ResponseDTO> add(@Valid @RequestBody ItemDTO itemDTO,@ItemTypeValid @PathVariable String itemType){
         ResponseDTO.ResponseDTOBuilder responseBuilder = ResponseDTO.builder();
 
+        /*
+        log.debug("path.variable itemType = {}", itemType);
+        boolean hasItemType = false;
+        ItemType [] itemTypeList = ItemType.values();
+        for(ItemType i : itemTypeList) {
+            hasItemType = i.hasItemCd(itemType);
+            if(hasItemType) break;
+        }
+
+        if(!hasItemType) {
+            responseBuilder.code("500").message("invalid itemType .[" + itemType + "]");
+            return ResponseEntity.ok(responseBuilder.build());
+        }else {
+            itemDTO.setItemType(itemType);
+        }
+
+       */
+
+        itemDTO.setItemType(itemType);
         itemService.insertItem(itemDTO);
         log.debug("request add item id = {}", itemDTO.getId());
 

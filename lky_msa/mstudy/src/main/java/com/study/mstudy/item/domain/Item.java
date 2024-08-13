@@ -27,4 +27,7 @@ public class Item {
 
     @Column(name="UPD_DTS",length = 14)
     private String updDts;
+
+    @Column(name = "ITEM_TYPE", length = 1)
+    private String itemType;
 }
