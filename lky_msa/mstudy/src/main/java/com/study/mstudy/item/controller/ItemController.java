@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -35,8 +36,13 @@ public class ItemController {
             @ApiResponse(responseCode = "501", description = "API EXCEPTION")
     })
     @RequestMapping(value="/add/{itemType}", method=RequestMethod.POST)
-    public ResponseEntity<ResponseDTO> add(@Valid @RequestBody ItemDTO itemDTO,@ItemTypeValid @PathVariable String itemType) throws Exception{
+    public ResponseEntity<ResponseDTO> add(
+            HttpServletRequest req,
+            @Valid @RequestBody ItemDTO itemDTO,@ItemTypeValid @PathVariable String itemType) throws Exception{
         ResponseDTO.ResponseDTOBuilder responseBuilder = ResponseDTO.builder();
+
+        String accountId = req.getHeader("accountId").toString().replace("[", "").replace("]", "");
+        log.info("accountId = {}", accountId);
 
         /*
         log.debug("path.variable itemType = {}", itemType);
@@ -63,7 +69,7 @@ public class ItemController {
         */
 
         itemDTO.setItemType(itemType);
-        itemService.insertItem(itemDTO);
+        itemService.insertItem(itemDTO, accountId);
         log.debug("request add item id = {}", itemDTO.getId());
 
         responseBuilder.code("200").message("success");

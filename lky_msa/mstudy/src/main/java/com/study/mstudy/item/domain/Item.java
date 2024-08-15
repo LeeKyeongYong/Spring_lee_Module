@@ -34,4 +34,8 @@ public class Item {
 
     @Column(name = "UPD_DTS", length = 14)
     private String updDts;
+
+    @Column(name = "ACCOUNT_ID")
+    private String accountId;
+
 }

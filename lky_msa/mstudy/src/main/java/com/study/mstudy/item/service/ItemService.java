@@ -15,7 +15,7 @@ public class ItemService {
     private final ItemRepository itemRepository;
 
 
-    public void insertItem(ItemDTO itemDTO) {
+    public void insertItem(ItemDTO itemDTO,String accountId) {
         SimpleDateFormat form = new SimpleDateFormat("yyyyMMddHHmmss");
         String date = form.format(new Date());
 
@@ -27,6 +27,7 @@ public class ItemService {
                 .regDts(date)
                 .itemType(itemDTO.getItemType())
                 .updDts(date)
+                .accountId(accountId)
                 .build();
         itemRepository.save(item);
 
