@@ -3,6 +3,7 @@
 # User-specific configurations
 ### Gradle ###
 Dockerfile
+bootstrap-docker.yml
 build/
 gradle/
 gradlew
