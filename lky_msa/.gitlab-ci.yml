@@ -1,0 +1,41 @@
+variables:
+    GIT_STRATEGY: none
+    GIT_CHECKOUT: "false"
+    CONFIG_IMAGE_NAME: config-server-image
+    CONFIG_CON_NAME: config-server
+
+stages:
+  - clone
+  - build
+  - deploy
+
+clone:
+  stage: clone
+  variables:
+      GIT_STRATEGY: fetch
+      GIT_CHECKOUT: "true"
+  tags:
+    - gitlab-runner
+  script:
+    - chcp 65001
+
+configserver-build:
+  stage: build
+  tags:
+    - gitlab-runner
+  script:
+    - echo $CONFIG_IMAGE_NAME
+    - docker stop $CONFIG_CON_NAME || echo "none container"
+    - docker rm $CONFIG_CON_NAME || echo "none container"
+    - docker rmi $CONFIG_IMAGE_NAME || echo "none image"
+    - docker ps -a
+    - docker images
+    - docker build ./config-server -t $CONFIG_IMAGE_NAME
+    - docker images
+
+configserver-deploy:
+    stage: deploy
+    tags:
+    - gitlab-runner
+    script:
+        - docker run --network msa-network -d -p 8080:8080 --name $CONFIG_CON_NAME $CONFIG_IMAGE_NAME

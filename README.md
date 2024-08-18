@@ -58,4 +58,7 @@
 
 14. 코틀린과 스프링부트로 간단한 Rest API 서버 만들기: 입문 가이드<br/>
          - https://velog.io/@sleekydevzero86/kotlin-springboot-rest-api-guide
+
+15. 베이직2 MSA<br/>
+          - msa 프로젝트 하기위해서 베이직 학습(발표용 - youtube에 적용)
     
