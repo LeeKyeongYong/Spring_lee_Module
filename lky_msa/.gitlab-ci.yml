@@ -39,3 +39,87 @@ configserver-deploy:
     - gitlab-runner
     script:
         - docker run --network msa-network -d -p 8080:8080 --name $CONFIG_CON_NAME $CONFIG_IMAGE_NAME
+
+eurekaserver-build:
+  stage: build
+  tags:
+    - gitlab-runner
+  script:
+    - echo $EUREKA_IMAGE_NAME
+    - docker stop $EUREKA_CON_NAME || echo "none container"
+    - docker rm $EUREKA_CON_NAME || echo "none container"
+    - docker rmi $EUREKA_IMAGE_NAME || echo "none image"
+    - docker ps -a
+    - docker images
+    - docker build ./eureka-server -t $EUREKA_IMAGE_NAME
+    - docker images
+
+eurekaserver-deploy:
+    stage: deploy
+    tags:
+    - gitlab-runner
+    script:
+        - docker run --network msa-network -d -p 8761:8761 --name $EUREKA_CON_NAME $EUREKA_IMAGE_NAME
+
+gatewayserver-build:
+  stage: build
+  tags:
+    - gitlab-runner
+  script:
+    - echo $GATEWAY_IMAGE_NAME
+    - docker stop $GATEWAY_CON_NAME || echo "none container"
+    - docker rm $GATEWAY_CON_NAME || echo "none container"
+    - docker rmi $GATEWAY_IMAGE_NAME || echo "none image"
+    - docker ps -a
+    - docker images
+    - docker build ./gateway-server -t $GATEWAY_IMAGE_NAME
+    - docker images
+
+gatewayserver-deploy:
+    stage: deploy
+    tags:
+    - gitlab-runner
+    script:
+        - docker run --network msa-network -d -p 8070:8070 --name $GATEWAY_CON_NAME $GATEWAY_IMAGE_NAME
+
+authenticationserver-build:
+  stage: build
+  tags:
+    - gitlab-runner
+  script:
+    - echo $AUTH_IMAGE_NAME
+    - docker stop $AUTH_CON_NAME || echo "none container"
+    - docker rm $AUTH_CON_NAME || echo "none container"
+    - docker rmi $AUTH_IMAGE_NAME || echo "none image"
+    - docker ps -a
+    - docker images
+    - docker build ./authentication-server -t $AUTH_IMAGE_NAME
+    - docker images
+
+authenticationserver-deploy:
+    stage: deploy
+    tags:
+    - gitlab-runner
+    script:
+        - docker run --network msa-network -d -p 8900:8900 --name $AUTH_CON_NAME $AUTH_IMAGE_NAME
+
+mstudy-build:
+  stage: build
+  tags:
+    - gitlab-runner
+  script:
+    - echo $MSTUDY_IMAGE_NAME
+    - docker stop $MSTUDY_CON_NAME || echo "none container"
+    - docker rm $MSTUDY_CON_NAME || echo "none container"
+    - docker rmi $MSTUDY_IMAGE_NAME || echo "none image"
+    - docker ps -a
+    - docker images
+    - docker build ./mstudy -t $MSTUDY_IMAGE_NAME
+    - docker images
+
+mstudy-deploy:
+    stage: deploy
+    tags:
+    - gitlab-runner
+    script:
+        - docker run --network msa-network -d --name $MSTUDY_CON_NAME $MSTUDY_IMAGE_NAME
