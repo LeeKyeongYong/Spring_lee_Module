@@ -1,7 +1,0 @@
-rootProject.name = 'kshop'
-include 'product'
-include 'order'
-include 'member'
-include 'eureka'
-include 'apigateway'
-
