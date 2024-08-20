@@ -1,12 +1,13 @@
 package com.study.mstudy.item.service;
 
-import com.study.mstudy.feign.HistoryFeignClient;
+import com.study.mstudy.global.feign.HistoryFeignClient;
 import com.study.mstudy.item.domain.Item;
 import com.study.mstudy.item.dto.ItemDTO;
 import com.study.mstudy.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -19,7 +20,7 @@ import java.util.Map;
 public class ItemService {
     private final ItemRepository itemRepository;
     private final HistoryFeignClient historyFeignClient;
-
+    private final RestTemplate restTemplate;
 
     public void insertItem(ItemDTO itemDTO,String accountId) {
         SimpleDateFormat form = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -40,7 +41,11 @@ public class ItemService {
         Map<String, Object> historyMap = new HashMap<String, Object>();
         historyMap.put("accountId", accountId);
         historyMap.put("itemId", itemDTO.getId());
+        //http통신
         log.info("feign result = {}", historyFeignClient.saveHistory(historyMap));
+        
+        //rest통신
+        log.info("resttemplate result = {}", restTemplate.postForObject("http://HISTORY-SERVICE/v1/history/save", historyMap, String.class));
 
     }
 }

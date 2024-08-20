@@ -1,4 +1,4 @@
-package com.study.mstudy.feign;
+package com.study.mstudy.global.feign;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
