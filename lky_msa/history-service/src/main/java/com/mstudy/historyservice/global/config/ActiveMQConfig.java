@@ -15,10 +15,12 @@ import jakarta.jms.Queue;
 @EnableJms
 public class ActiveMQConfig {
 
-    @Value("${activemq.broker.url}")
+    //@Value("${activemq.broker.url}")
+    @Value("${spring.activemq.broker.url}")
     private String brokerUrl;
 
-    @Value("${activemq.broker.topic}")
+    //@Value("${activemq.broker.topic}")
+    @Value("${spring.activemq.broker.topic}")
     private String topic;
 
     @Bean
