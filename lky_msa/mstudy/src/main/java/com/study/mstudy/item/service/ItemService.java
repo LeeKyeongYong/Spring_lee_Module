@@ -1,11 +1,15 @@
 package com.study.mstudy.item.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.mstudy.global.feign.HistoryFeignClient;
 import com.study.mstudy.item.domain.Item;
 import com.study.mstudy.item.dto.ItemDTO;
 import com.study.mstudy.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jms.JmsException;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -13,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import jakarta.jms.Queue;
 
 @Slf4j
 @Service
@@ -21,6 +26,9 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final HistoryFeignClient historyFeignClient;
     private final RestTemplate restTemplate;
+    private final JmsTemplate jmsTemplate;
+    private final Queue activeMq;
+    ObjectMapper objectMapper = new ObjectMapper();
 
     public void insertItem(ItemDTO itemDTO,String accountId) {
         SimpleDateFormat form = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -46,6 +54,12 @@ public class ItemService {
         
         //rest통신
         log.info("resttemplate result = {}", restTemplate.postForObject("http://HISTORY-SERVICE/v1/history/save", historyMap, String.class));
+
+        try {
+            jmsTemplate.convertAndSend(activeMq, objectMapper.writeValueAsString(itemDTO));
+        } catch (JmsException | JsonProcessingException e) {
+            e.printStackTrace();
+        }
 
     }
 }

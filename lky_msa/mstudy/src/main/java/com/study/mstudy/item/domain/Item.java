@@ -17,6 +17,9 @@ public class Item {
     @Column(name = "ID", length = 30)
     private String id;
 
+    @Column(name = "ACCOUNT_ID")
+    private String accountId;
+
     @Column(name = "NAME", length = 30)
     private String name;
 
@@ -34,8 +37,4 @@ public class Item {
 
     @Column(name = "UPD_DTS", length = 14)
     private String updDts;
-
-    @Column(name = "ACCOUNT_ID")
-    private String accountId;
-
 }

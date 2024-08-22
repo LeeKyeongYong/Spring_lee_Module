@@ -20,7 +20,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@OpenAPIDefinition(info = @Info(title="물품 처리요청 API",description = "물품 처리 요청 api", version = "v1.0"))
+@OpenAPIDefinition(info = @Info(title = "물품 처리요청 API", description = "물품 처리요청 API", version = "v1"))
 @RestController
 @RequestMapping(value="v1/item")
 @Slf4j
@@ -37,11 +37,11 @@ public class ItemController {
     })
     @RequestMapping(value="/add/{itemType}", method=RequestMethod.POST)
     public ResponseEntity<ResponseDTO> add(
-            HttpServletRequest req,
-            @Valid @RequestBody ItemDTO itemDTO,@ItemTypeValid @PathVariable String itemType) throws Exception{
+            HttpServletRequest request,
+            @Valid @RequestBody ItemDTO itemDTO, @ItemTypeValid @PathVariable String itemType) throws Exception{
         ResponseDTO.ResponseDTOBuilder responseBuilder = ResponseDTO.builder();
 
-        String accountId = req.getHeader("accountId").toString().replace("[", "").replace("]", "");
+        String accountId = request.getHeader("accountId").toString().replace("[", "").replace("]", "");
         log.info("accountId = {}", accountId);
 
         /*
