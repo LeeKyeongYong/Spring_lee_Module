@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.EnableJms;
+import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.core.JmsTemplate;
 
 import jakarta.jms.Queue;
@@ -15,10 +16,10 @@ import jakarta.jms.Queue;
 @EnableJms
 public class ActiveMQConfig {
 
-    @Value("${spring.activemq.broker.url}")
+    @Value("${activemq.broker.url}")
     private String brokerUrl;
 
-    @Value("${spring.activemq.broker.topic}")
+    @Value("${activemq.broker.topic}")
     private String topic;
 
     @Bean

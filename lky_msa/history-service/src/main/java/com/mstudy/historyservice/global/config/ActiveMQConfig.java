@@ -15,12 +15,10 @@ import jakarta.jms.Queue;
 @EnableJms
 public class ActiveMQConfig {
 
-    //@Value("${activemq.broker.url}")
-    @Value("${spring.activemq.broker.url}")
+    @Value("${activemq.broker.url}")
     private String brokerUrl;
 
-    //@Value("${activemq.broker.topic}")
-    @Value("${spring.activemq.broker.topic}")
+    @Value("${activemq.broker.topic}")
     private String topic;
 
     @Bean
@@ -46,5 +44,4 @@ public class ActiveMQConfig {
         factory.setConcurrency("5-10");
         return factory;
     }
-
 }
