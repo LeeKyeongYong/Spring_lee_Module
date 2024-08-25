@@ -7,6 +7,7 @@ import com.study.mstudy.item.domain.Item;
 import com.study.mstudy.item.dto.ItemDTO;
 import com.study.mstudy.item.repository.ItemRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jms.JmsException;
@@ -36,7 +37,8 @@ public class ItemService {
     @Value(value = "${topic.name}")
     private String topicName;
 
-    @CircuitBreaker(name="itemCircuitBreaker",fallbackMethod = "fallback")
+    @Retry(name = "insertItem", fallbackMethod = "fallback")
+    //@CircuitBreaker(name="itemCircuitBreaker",fallbackMethod = "fallback")
     public void insertItem(ItemDTO itemDTO,String accountId) {
         SimpleDateFormat form = new SimpleDateFormat("yyyyMMddHHmmss");
         String date = form.format(new Date());
