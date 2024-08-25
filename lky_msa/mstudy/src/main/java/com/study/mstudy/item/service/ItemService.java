@@ -6,6 +6,7 @@ import com.study.mstudy.global.feign.HistoryFeignClient;
 import com.study.mstudy.item.domain.Item;
 import com.study.mstudy.item.dto.ItemDTO;
 import com.study.mstudy.item.repository.ItemRepository;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ public class ItemService {
     @Value(value = "${topic.name}")
     private String topicName;
 
+    @Bulkhead(name = "bulkInsertItem", fallbackMethod = "bulkheadFallback")
     @Retry(name = "insertItem", fallbackMethod = "fallback")
     //@CircuitBreaker(name="itemCircuitBreaker",fallbackMethod = "fallback")
     public void insertItem(ItemDTO itemDTO,String accountId) {
@@ -76,5 +78,9 @@ public class ItemService {
 
     private void fallback(Throwable e) {
         log.error("fallback check.");
+    }
+
+    private void bulkheadFallback(Throwable e) {
+        log.error("bulk fallback check.");
     }
 }
