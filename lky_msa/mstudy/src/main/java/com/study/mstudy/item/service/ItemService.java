@@ -21,6 +21,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+
 import jakarta.jms.Queue;
 import org.springframework.beans.factory.annotation.Value;
 @Slf4j
@@ -34,6 +37,7 @@ public class ItemService {
     private final Queue activeMq;
     private final KafkaTemplate<String, String> kafkaTemplate;
     ObjectMapper objectMapper = new ObjectMapper();
+    private final Executor itemThreadExecutor;
 
     @Value(value = "${topic.name}")
     private String topicName;
@@ -44,6 +48,13 @@ public class ItemService {
     public void insertItem(ItemDTO itemDTO,String accountId) {
         SimpleDateFormat form = new SimpleDateFormat("yyyyMMddHHmmss");
         String date = form.format(new Date());
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(5000L);
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
 
         Item item = Item.builder()
                 .id(itemDTO.getId())
@@ -74,6 +85,8 @@ public class ItemService {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+    }, itemThreadExecutor);
+
     }
 
     private void fallback(Throwable e) {
