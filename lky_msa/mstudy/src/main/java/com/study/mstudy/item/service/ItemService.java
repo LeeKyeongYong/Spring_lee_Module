@@ -6,6 +6,7 @@ import com.study.mstudy.global.feign.HistoryFeignClient;
 import com.study.mstudy.item.domain.Item;
 import com.study.mstudy.item.dto.ItemDTO;
 import com.study.mstudy.item.repository.ItemRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jms.JmsException;
@@ -35,6 +36,7 @@ public class ItemService {
     @Value(value = "${topic.name}")
     private String topicName;
 
+    @CircuitBreaker(name="itemCircuitBreaker",fallbackMethod = "fallback")
     public void insertItem(ItemDTO itemDTO,String accountId) {
         SimpleDateFormat form = new SimpleDateFormat("yyyyMMddHHmmss");
         String date = form.format(new Date());
@@ -55,17 +57,22 @@ public class ItemService {
         historyMap.put("accountId", accountId);
         historyMap.put("itemId", itemDTO.getId());
         //http통신
-        log.info("feign result = {}", historyFeignClient.saveHistory(historyMap));
+        //log.info("feign result = {}", historyFeignClient.saveHistory(historyMap));
         
         //rest통신
-        log.info("resttemplate result = {}", restTemplate.postForObject("http://HISTORY-SERVICE/v1/history/save", historyMap, String.class));
+        //log.info("resttemplate result = {}", restTemplate.postForObject("http://HISTORY-SERVICE/v1/history/save", historyMap, String.class));
 
         try {
-           // jmsTemplate.convertAndSend(activeMq, objectMapper.writeValueAsString(itemDTO));
-            this.kafkaTemplate.send(topicName, objectMapper.writeValueAsString(itemDTO));
-        } catch (JmsException | JsonProcessingException e) {
+
+          jmsTemplate.convertAndSend(activeMq, objectMapper.writeValueAsString(itemDTO));
+           // this.kafkaTemplate.send(topicName, objectMapper.writeValueAsString(itemDTO));
+        //} catch (JmsException | JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+    }
 
+    private void fallback(Throwable e) {
+        log.error("fallback check.");
     }
 }
