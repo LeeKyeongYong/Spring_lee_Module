@@ -5,9 +5,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import com.krstudy.kapi.global.https.ReqData
 import com.krstudy.kapi.domain.post.service.PostService
 
-
-
-
 @Controller
 class HomeController(
     private val rq: ReqData,
