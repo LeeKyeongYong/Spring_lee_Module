@@ -21,6 +21,7 @@ class CustomUserDetailsService(
 
         return SecurityUser(
             id = member.id!!,  // member.id가 null이 아닌 경우만 이 부분이 실행됨
+            userid = member.userid,
             username = member.username,
             password = member.password,
             authorities = member.authorities

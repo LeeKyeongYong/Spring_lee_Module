@@ -1,10 +1,12 @@
 server:
   shutdown: graceful
+
 spring:
   servlet:
     multipart:
       max-file-size: 5MB
       max-request-size: 5MB
+
   datasource:
     url: jdbc:mysql://localhost:3307/msa
     username: root
@@ -21,6 +23,9 @@ spring:
         prepStmtCacheSqlLimit: 2048
     validation-query: select 1
     test-on-borrow: true
+    schema: classpath:db/migration/k_db.sql
+    initialization-mode: always
+
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -34,6 +39,7 @@ logging:
     org.hibernate.orm.jdbc.extract: INFO
     org.springframework.transaction.interceptor: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: DEBUG
+
 custom:
   tempDirPath: /gen/temp
   site:

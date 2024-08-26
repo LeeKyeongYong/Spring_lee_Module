@@ -38,13 +38,13 @@ class NotProd(
     @Transactional
     fun work1() {
         runBlocking {
-            val memberUser1 = memberService.join("user1", "1234", "").data
-            val memberUser2 = memberService.join("user2", "1234", "").data
-            val memberUser3 = memberService.join("user3", "1234", "").data
-            val memberUser4 = memberService.join("user4", "1234", "").data
-            val memberUser5 = memberService.join("m_user01", "1234", "ROLE_MANAGER").data
-            val memberUser6 = memberService.join("h_user01", "1234", "ROLE_HR").data
-            val memberUser7 = memberService.join("d_user5", "1234", "ROLE_ADMIN").data
+            val memberUser1 = memberService.join("user1","memberUser1","1234", "").data
+             val memberUser2 = memberService.join("user3", "memberUser2","1234", "").data
+            val memberUser3 = memberService.join("user3", "memberUser3","1234", "").data
+            val memberUser4 = memberService.join("user4", "memberUser4","1234", "").data
+            val memberUser5 = memberService.join("m_user01", "memberUser5","1234", "ROLE_MANAGER").data
+            val memberUser6 = memberService.join("h_user01", "memberUser6","1234", "ROLE_HR").data
+            val memberUser7 = memberService.join("d_user5", "memberUser7","1234", "ROLE_ADMIN").data
 
             if (memberUser1 == null || memberUser2 == null || memberUser3 == null || memberUser4 == null || memberUser5 == null || memberUser6 == null) {
                 return@runBlocking

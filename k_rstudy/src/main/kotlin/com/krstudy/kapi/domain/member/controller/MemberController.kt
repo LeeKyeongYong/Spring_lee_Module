@@ -30,6 +30,7 @@ class MemberController(
 
     @Validated
     data class JoinForm(
+        @field:NotBlank val userid: String,
         @field:NotBlank val username: String,
         @field:NotBlank val password: String
     )
@@ -37,7 +38,7 @@ class MemberController(
     @PreAuthorize("isAnonymous()")
     @PostMapping("/join")
     fun join(@Valid joinForm: JoinForm): String {
-        registrationQueue.enqueue(joinForm.username, joinForm.password)
+        registrationQueue.enqueue(joinForm.userid,joinForm.username, joinForm.password)
 
         // 성공적인 응답 생성
         val successResponse: RespData<String> = RespData.of(

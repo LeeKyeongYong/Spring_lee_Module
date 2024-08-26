@@ -12,7 +12,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 @Entity
 class Member : BaseEntity() {
 
-    @Column(nullable = false, unique = true) // 유니크 제약 조건 추가
+    @Column(nullable = false, unique = true)
+    var userid: String = ""
+
+    @Column(nullable = false) // 유니크 제약 조건 추가
     var username: String = ""
 
     @Column(nullable = false)
@@ -31,7 +34,7 @@ class Member : BaseEntity() {
             authorities.add(SimpleGrantedAuthority(role.authority))
 
             // username에 따라 admin 역할 추가
-            if (username.equals("system", ignoreCase = true) || username.equals("admin", ignoreCase = true)) {
+            if (userid.equals("system", ignoreCase = true) || userid.equals("admin", ignoreCase = true)) {
                 authorities.add(SimpleGrantedAuthority(M_Role.ADMIN.authority))
             }
 

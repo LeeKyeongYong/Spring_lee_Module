@@ -6,6 +6,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm") version "1.9.24"
     id("org.jetbrains.kotlin.kapt") version "1.9.24"
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.24"
+
     val kotlinVersion = "1.9.24"
     kotlin("plugin.allopen") version kotlinVersion
 }
@@ -81,8 +82,6 @@ dependencies {
     // excel lib
     implementation("org.apache.poi:poi-ooxml:5.2.5")
 
-    //implementation("org.jasypt:jasypt-spring-boot-starter:3.0.0")
-    //implementation("org.jasypt:jasypt-spring-boot-starter:3.0.1")
     implementation("com.github.ulisesbocchio:jasypt-spring-boot:3.0.5")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0")
 }

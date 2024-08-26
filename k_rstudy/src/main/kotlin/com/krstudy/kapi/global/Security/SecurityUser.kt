@@ -6,11 +6,12 @@ import org.springframework.security.core.userdetails.UserDetails
 
 class SecurityUser(
     val id: Long,
-    username: String,
+    userid:String,
+    username:String,
     password: String,
     authorities: Collection<out GrantedAuthority>,
     enabled: Boolean = true,
     accountNonExpired: Boolean = true,
     credentialsNonExpired: Boolean = true,
     accountNonLocked: Boolean = true
-) : User(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities) { }
+) : User(userid,password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities) { }

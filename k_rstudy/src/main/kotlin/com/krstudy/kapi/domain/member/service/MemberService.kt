@@ -22,20 +22,21 @@ class MemberService(
     private val executor = Executors.newFixedThreadPool(10) // 스레드 풀을 생성하여 비동기 작업 처리
 
     @Transactional
-    suspend fun join(username: String, password: String, role: String): RespData<Member> {
-        val existingMember = findByUsername(username)
+    suspend fun join(userid: String,username: String ,password: String, role: String): RespData<Member> {
+        val existingMember = findByUsername(userid)
         if (existingMember != null) {
             return RespData.fromErrorCode(ErrorCode.UNAUTHORIZED)
         }
 
         // username에 따라 roleType을 결정
         val roleType = when {
-            username.equals("admin", ignoreCase = true) || username.equals("system", ignoreCase = true) -> M_Role.ADMIN.authority
+            userid.equals("admin", ignoreCase = true) || userid.equals("system", ignoreCase = true) -> M_Role.ADMIN.authority
             role.isNotBlank() -> M_Role.values().find { it.authority.equals(role, ignoreCase = true) }?.authority ?: M_Role.MEMBER.authority
             else -> M_Role.MEMBER.authority
         }
 
         val member = Member().apply {
+            this.userid = userid
             this.username = username
             this.password = passwordEncoder.encode(password)
             this.roleType = roleType
@@ -47,13 +48,13 @@ class MemberService(
 
         return RespData.of(
             ErrorCode.SUCCESS.code,
-            "${member.username}님 환영합니다. 회원가입이 완료되었습니다. 로그인 후 이용해주세요.",
+            "${member.userid}님 환영합니다. 회원가입이 완료되었습니다. 로그인 후 이용해주세요.",
             member
         )
     }
 
-    fun findByUsername(username: String): Member? {
-        return memberRepository.findByUsername(username)
+    fun findByUsername(userid: String): Member? {
+        return memberRepository.findByUserid(userid)
     }
 
     fun count(): Long {
