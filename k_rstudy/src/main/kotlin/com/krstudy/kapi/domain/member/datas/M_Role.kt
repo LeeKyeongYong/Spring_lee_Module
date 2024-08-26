@@ -1,4 +1,4 @@
-package com.krstudy.kapi.com.krstudy.kapi.domain.member.datas
+package com.krstudy.kapi.domain.member.datas
 
 enum class M_Role(val authority: String) {
     MEMBER("ROLE_MEMBER"),       // 일반 사용자

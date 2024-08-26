@@ -1,8 +1,8 @@
-package com.krstudy.kapi.com.krstudy.kapi.global.https
+package com.krstudy.kapi.global.https
 
-import com.krstudy.kapi.com.krstudy.kapi.domain.member.entity.Member
-import com.krstudy.kapi.com.krstudy.kapi.standard.base.Ut
-import com.ll.medium.global.security.SecurityUser
+import com.krstudy.kapi.domain.member.entity.Member
+import com.krstudy.kapi.global.Security.SecurityUser
+import com.krstudy.kapi.standard.base.Ut
 import jakarta.persistence.EntityManager
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse

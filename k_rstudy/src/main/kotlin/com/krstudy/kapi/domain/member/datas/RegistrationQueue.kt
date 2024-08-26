@@ -1,15 +1,16 @@
-package com.krstudy.kapi.domain.member.datas
+package com.krstudy.kapi.domain.member.datas;
 
-
-import com.krstudy.kapi.domain.member.service.MemberService
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.springframework.stereotype.Component
-import java.util.concurrent.ConcurrentLinkedQueue
+import com.krstudy.kapi.domain.member.service.MemberService;
+import kotlinx.coroutines.CoroutineScope;
+import kotlinx.coroutines.Dispatchers;
+import kotlinx.coroutines.launch;
+import org.springframework.stereotype.Component;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Component
-public class RegistrationQueue(private val memberService: MemberService) {
+class RegistrationQueue(
+    private val memberService: MemberService
+) {
     private val queue = ConcurrentLinkedQueue<Pair<String, String>>()
     private val scope = CoroutineScope(Dispatchers.Default)
 
@@ -26,6 +27,6 @@ public class RegistrationQueue(private val memberService: MemberService) {
     }
 
     fun enqueue(username: String, password: String) {
-        queue.add(Pair(username, password))
+        queue.add(username to password)
     }
 }

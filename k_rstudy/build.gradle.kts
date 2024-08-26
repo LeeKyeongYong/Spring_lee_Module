@@ -1,79 +1,67 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id("org.springframework.boot") version "3.3.1"
     id("io.spring.dependency-management") version "1.1.5"
     id("org.jetbrains.kotlin.jvm") version "1.9.24"
-    kotlin("kapt") version "1.9.24"
+    id("org.jetbrains.kotlin.kapt") version "1.9.24"
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.24"
-    //kotlin("jvm") version "1.9.24" // 사용 중인 Kotlin 버전에 맞게 수정
+    val kotlinVersion = "1.9.24"
+    kotlin("plugin.allopen") version kotlinVersion
 }
 
 group = "org.jc"
 version = "0.0.1-SNAPSHOT"
+java.sourceCompatibility = JavaVersion.VERSION_19
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(19))
+sourceSets["main"].withConvention(org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet::class) {
+    kotlin.srcDir("$buildDir/generated/source/kapt/main")
+}
+
+
+configurations {
+    compileOnly {
+        extendsFrom(configurations.annotationProcessor.get())
     }
 }
 
 repositories {
     mavenCentral()
-    mavenCentral()
-    jcenter() // Optional, if needed
 }
 
 dependencies {
-
-    //코틀린 관련 의존성
+    // Kotlin 의존성
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    //스프링 부트 및 관련 의존성
+    // Spring Boot 및 관련 의존성
     implementation("org.springframework.boot:spring-boot-starter")
+
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-web")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-    //DB
+    // DB
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    runtimeOnly( "com.mysql:mysql-connector-j")
+    implementation("mysql:mysql-connector-java:8.0.30")
     runtimeOnly("com.h2database:h2")
 
     // LOMBOK
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
-
-    // LOMBOK FOR TEST
     testCompileOnly("org.projectlombok:lombok")
     testAnnotationProcessor("org.projectlombok:lombok")
 
     // DEV TOOLS
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
-    // https://mvnrepository.com/artifact/org.modelmapper/modelmapper
-    implementation("org.modelmapper:modelmapper:3.2.0")
-
-    // WEB
-    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-    implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")
-
-    // JPA QueryDSL
+    // QueryDSL
     implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
-    annotationProcessor("com.querydsl:querydsl-apt:5.0.0:jakarta")
-    //annotationProcessor("com.querydsl:querydsl-apt:${dependencyManagement.importedProperties["querydsl.version"]}:jakarta")
-    annotationProcessor("jakarta.annotation:jakarta.annotation-api")
-    annotationProcessor("jakarta.persistence:jakarta.persistence-api")
-    implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
     kapt("com.querydsl:querydsl-apt:5.0.0:jakarta")
-    kapt("org.springframework.boot:spring-boot-configuration-processor")
 
     // SWAGGER
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
-
 
     // 시큐리티
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -93,21 +81,19 @@ dependencies {
     // excel lib
     implementation("org.apache.poi:poi-ooxml:5.2.5")
 
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.24")
-
-
+    //implementation("org.jasypt:jasypt-spring-boot-starter:3.0.0")
+    //implementation("org.jasypt:jasypt-spring-boot-starter:3.0.1")
+    implementation("com.github.ulisesbocchio:jasypt-spring-boot:3.0.5")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0")
 }
 
-kotlin {
-    jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(19))
-    }
-    compilerOptions {
-        freeCompilerArgs.add("-Xjsr305=strict")
-
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs = listOf("-Xjsr305=strict")
+        jvmTarget = "19"
     }
 }
 
-tasks.named<Test>("test") {
+tasks.withType<Test> {
     useJUnitPlatform()
 }

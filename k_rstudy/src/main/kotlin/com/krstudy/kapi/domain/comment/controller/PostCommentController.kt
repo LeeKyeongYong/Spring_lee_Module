@@ -1,7 +1,7 @@
 package com.krstudy.kapi.domain.comment.controller
 
-import com.krstudy.kapi.com.krstudy.kapi.global.exception.GlobalException
-import com.krstudy.kapi.com.krstudy.kapi.global.https.ReqData
+import com.krstudy.kapi.global.exception.GlobalException
+import com.krstudy.kapi.global.https.ReqData
 
 import com.krstudy.kapi.domain.post.service.PostService
 import com.krstudy.kapi.global.exception.ErrorCode

@@ -1,4 +1,4 @@
-package com.krstudy.kapi.com.krstudy.kapi.global.jpa
+package com.krstudy.kapi.global.jpa
 
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType.IDENTITY

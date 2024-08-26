@@ -1,4 +1,4 @@
-package com.krstudy.kapi.com.krstudy.kapi.global.Security
+package com.krstudy.kapi.global.Security
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

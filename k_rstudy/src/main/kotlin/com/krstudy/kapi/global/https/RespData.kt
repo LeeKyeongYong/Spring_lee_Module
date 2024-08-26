@@ -1,4 +1,4 @@
-package com.krstudy.kapi.com.krstudy.kapi.global.https
+package com.krstudy.kapi.global.https
 
 data class RespData<T>(
     val resultCode: String,

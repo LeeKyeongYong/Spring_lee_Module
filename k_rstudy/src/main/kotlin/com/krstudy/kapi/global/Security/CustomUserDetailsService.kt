@@ -1,6 +1,6 @@
-package com.krstudy.kapi.com.krstudy.kapi.global.Security
+package com.krstudy.kapi.global.Security
 
-import com.krstudy.kapi.com.krstudy.kapi.domain.member.repository.MemberRepository
+import com.krstudy.kapi.domain.member.repository.MemberRepository
 import com.ll.medium.global.security.SecurityUser
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService

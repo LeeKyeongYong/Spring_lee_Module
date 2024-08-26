@@ -1,4 +1,4 @@
-package com.ll.medium.global.security
+package com.krstudy.kapi.global.Security
 
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.User

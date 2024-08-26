@@ -6,13 +6,26 @@ spring:
       max-file-size: 5MB
       max-request-size: 5MB
   datasource:
-    url: jdbc:mysql://localhost:3306/kotlin_Boot?allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8
-    username: kotlin_Boot
+    url: jdbc:mysql://localhost:3307/msa
+    username: root
     password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      poolName: Hikari
+      max-lifetime: 1800000
+      auto-commit: false
+      maximum-pool-size: 5
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+    validation-query: select 1
+    test-on-borrow: true
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: create-drop
+      dialect: org.hibernate.dialect.MySQL8Dialect
+
 logging:
   level:
     com.ll.medium: INFO

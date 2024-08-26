@@ -1,12 +1,15 @@
-package com.krstudy.kapi.com.krstudy.kapi.domain.member.service
+package com.krstudy.kapi.domain.member.service;
 
 import com.krstudy.kapi.com.krstudy.kapi.domain.member.datas.M_Role
 import com.krstudy.kapi.com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.com.krstudy.kapi.domain.member.repository.MemberRepository
 import com.krstudy.kapi.com.krstudy.kapi.global.https.RespData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.concurrent.Executors
 
 @Service
 @Transactional(readOnly = true)
@@ -14,9 +17,10 @@ class MemberService(
     private val memberRepository: MemberRepository,
     private val passwordEncoder: PasswordEncoder
 ) {
+    private val executor = Executors.newFixedThreadPool(10) // 스레드 풀을 생성하여 비동기 작업 처리
 
     @Transactional
-    fun join(username: String, password: String, role: String): RespData<Member> {
+    suspend fun join(username: String, password: String, role: String): RespData<Member> {
         val existingMember = findByUsername(username)
         if (existingMember != null) {
             return RespData.of("400-2", "이미 존재하는 회원입니다.")
@@ -34,7 +38,10 @@ class MemberService(
             this.password = passwordEncoder.encode(password)
             this.roleType = roleType
         }
-        memberRepository.save(member)
+
+        withContext(Dispatchers.IO) {
+            memberRepository.save(member)
+        }
 
         return RespData.of(
             "200",

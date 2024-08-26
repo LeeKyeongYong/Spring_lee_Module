@@ -1,6 +1,6 @@
-package com.krstudy.kapi.com.krstudy.kapi.global.exception
+package com.krstudy.kapi.global.exception
 
-import com.krstudy.kapi.com.krstudy.kapi.global.https.RespData
+import com.krstudy.kapi.global.https.RespData
 import com.krstudy.kapi.global.exception.ErrorCode
 
 class GlobalException(

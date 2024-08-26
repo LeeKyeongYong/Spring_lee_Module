@@ -1,4 +1,4 @@
-package com.krstudy.kapi.com.krstudy.kapi.domain.post.entity
+package com.krstudy.kapi.domain.post.entity
 
 import com.krstudy.kapi.com.krstudy.kapi.domain.comment.entity.PostComment
 import com.krstudy.kapi.com.krstudy.kapi.domain.member.entity.Member

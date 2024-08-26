@@ -1,4 +1,4 @@
-package com.krstudy.kapi.com.krstudy.kapi.domain.post.repository
+package com.krstudy.kapi.domain.post.repository
 
 import com.krstudy.kapi.domain.post.entity.PostLike
 import org.springframework.data.jpa.repository.JpaRepository

@@ -1,8 +1,8 @@
 package com.krstudy.kapi.com.krstudy.kapi.domain.comment.entity
 
-import com.krstudy.kapi.com.krstudy.kapi.domain.member.entity.Member
-import com.krstudy.kapi.com.krstudy.kapi.domain.post.entity.Post
-import com.krstudy.kapi.com.krstudy.kapi.global.jpa.BaseEntity
+import com.krstudy.kapi.domain.member.entity.Member
+import com.krstudy.kapi.domain.post.entity.Post
+import com.krstudy.kapi.global.jpa.BaseEntity
 import jakarta.persistence.*
 
 @Entity

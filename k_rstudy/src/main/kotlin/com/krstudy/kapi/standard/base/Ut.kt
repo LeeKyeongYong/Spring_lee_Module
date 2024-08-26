@@ -1,4 +1,4 @@
-package com.krstudy.kapi.com.krstudy.kapi.standard.base
+package com.krstudy.kapi.standard.base
 
 class Ut {
     companion object {
