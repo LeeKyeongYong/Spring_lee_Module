@@ -2,6 +2,14 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=eclipse,intellij
 # User-specific configurations
 ### Gradle ###
+# SQL 파일
+*.sql
+
+# YAML 파일
+*.yml
+
+# Gradle Kotlin DSL 파일
+build.gradle.kts
 Dockerfile
 bootstrap-docker.yml
 build/
