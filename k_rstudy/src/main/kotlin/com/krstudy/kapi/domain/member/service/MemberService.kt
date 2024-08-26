@@ -1,8 +1,10 @@
-package com.krstudy.kapi.domain.member.service;
+package com.krstudy.kapi.domain.member.service
 
+import com.krstudy.kapi.com.krstudy.kapi.global.exception.CustomException
 import com.krstudy.kapi.domain.member.datas.M_Role
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.repository.MemberRepository
+import com.krstudy.kapi.global.exception.ErrorCode
 import com.krstudy.kapi.global.https.RespData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -23,7 +25,7 @@ class MemberService(
     suspend fun join(username: String, password: String, role: String): RespData<Member> {
         val existingMember = findByUsername(username)
         if (existingMember != null) {
-            return RespData.of("400-2", "이미 존재하는 회원입니다.")
+            return RespData.fromErrorCode(ErrorCode.UNAUTHORIZED)
         }
 
         // username에 따라 roleType을 결정
@@ -44,7 +46,7 @@ class MemberService(
         }
 
         return RespData.of(
-            "200",
+            ErrorCode.SUCCESS.code,
             "${member.username}님 환영합니다. 회원가입이 완료되었습니다. 로그인 후 이용해주세요.",
             member
         )

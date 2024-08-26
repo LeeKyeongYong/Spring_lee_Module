@@ -21,5 +21,8 @@ enum class ErrorCode(val code: String, val message: String) {
     EMPTY_COMMENT_BODY("400-2", "댓글 내용이 비어 있습니다."),
 
     // 서버 오류
-    INTERNAL_SERVER_ERROR("500-1", "서버 내부 오류입니다.")
+    INTERNAL_SERVER_ERROR("500-1", "서버 내부 오류입니다."),
+
+    // 성공적인 응답
+    SUCCESS("200-1", "요청이 성공적으로 처리되었습니다.")
 }

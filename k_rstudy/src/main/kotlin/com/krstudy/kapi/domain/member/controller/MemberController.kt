@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import com.krstudy.kapi.domain.member.datas.RegistrationQueue
+import com.krstudy.kapi.global.exception.ErrorCode
 
 @Controller
 @RequestMapping("/member")
@@ -37,9 +38,17 @@ class MemberController(
     @PostMapping("/join")
     fun join(@Valid joinForm: JoinForm): String {
         registrationQueue.enqueue(joinForm.username, joinForm.password)
+
+        // 성공적인 응답 생성
+        val successResponse: RespData<String> = RespData.of(
+            resultCode = ErrorCode.SUCCESS.code,
+            msg = "회원가입 요청이 큐에 추가되었습니다."
+        )
+
+        // 리디렉션 또는 페이지 이동
         return rq.redirectOrBack(
-            RespData.of<String>("200", "회원가입 요청이 큐에 추가되었습니다."),
-            "/member/login"
+            rs = successResponse,
+            path = "/member/login"
         )
     }
 

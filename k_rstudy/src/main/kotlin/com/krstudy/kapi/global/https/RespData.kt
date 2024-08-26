@@ -1,5 +1,7 @@
 package com.krstudy.kapi.global.https
 
+import com.krstudy.kapi.global.exception.ErrorCode
+
 
 data class RespData<T>(
     val resultCode: String,
@@ -11,6 +13,15 @@ data class RespData<T>(
         fun <T> of(resultCode: String, msg: String, data: T? = null): RespData<T> {
             val statusCode = resultCode.split("-", limit = 2)[0].toIntOrNull() ?: 0
             return RespData(resultCode, statusCode, msg, data)
+        }
+
+        fun <T> fromErrorCode(errorCode: ErrorCode): RespData<T> {
+            return RespData(
+                errorCode.code,
+                errorCode.code.split("-", limit = 2)[0].toIntOrNull() ?: 0,
+                errorCode.message,
+                null
+            )
         }
     }
 
