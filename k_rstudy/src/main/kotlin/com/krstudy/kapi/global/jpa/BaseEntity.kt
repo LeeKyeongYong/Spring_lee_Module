@@ -1,5 +1,6 @@
 package com.krstudy.kapi.global.jpa
 
+import jakarta.persistence.Column
 import jakarta.persistence.EntityListeners
 import jakarta.persistence.MappedSuperclass
 import lombok.Getter
@@ -16,9 +17,11 @@ import java.time.format.DateTimeFormatter
 @ToString(callSuper = true)
 open class BaseEntity : IdEntity() {
     @CreatedDate
+    @Column(columnDefinition = "DATETIME(0)")
     private var createDate: LocalDateTime? = null
 
     @LastModifiedDate
+    @Column(columnDefinition = "DATETIME(0)")
     private var modifyDate: LocalDateTime? = null
 
     // Getters and Setters
