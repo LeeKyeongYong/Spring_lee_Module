@@ -1,8 +1,8 @@
 package com.krstudy.kapi.domain.post.entity
 
-import com.krstudy.kapi.com.krstudy.kapi.domain.comment.entity.PostComment
-import com.krstudy.kapi.com.krstudy.kapi.domain.member.entity.Member
-import com.krstudy.kapi.com.krstudy.kapi.global.jpa.BaseEntity
+import com.krstudy.kapi.domain.comment.entity.PostComment
+import com.krstudy.kapi.domain.member.entity.Member
+import com.krstudy.kapi.global.jpa.BaseEntity
 import com.krstudy.kapi.domain.post.entity.PostLike
 import jakarta.persistence.*
 import jakarta.persistence.CascadeType.ALL

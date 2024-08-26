@@ -4,7 +4,7 @@ import com.krstudy.kapi.domain.member.datas.M_Role
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Transient
-import com.krstudy.kapi.com.krstudy.kapi.global.jpa.BaseEntity
+import com.krstudy.kapi.global.jpa.BaseEntity
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 

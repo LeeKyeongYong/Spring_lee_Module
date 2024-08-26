@@ -1,9 +1,9 @@
 package com.krstudy.kapi.domain.post.repository
 
-import com.krstudy.kapi.com.krstudy.kapi.domain.member.entity.Member
-import com.krstudy.kapi.com.krstudy.kapi.domain.post.entity.Post
-import com.krstudy.kapi.com.krstudy.kapi.domain.post.entity.QPost
-import com.krstudy.kapi.com.krstudy.kapi.domain.post.repository.PostRepositoryCustom
+import com.krstudy.kapi.domain.member.entity.Member
+import com.krstudy.kapi.domain.post.entity.Post
+import com.krstudy.kapi.domain.post.entity.QPost
+import com.krstudy.kapi.domain.post.repository.PostRepositoryCustom
 import com.querydsl.core.types.Order
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
