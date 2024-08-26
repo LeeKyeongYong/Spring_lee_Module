@@ -50,42 +50,42 @@ public class ItemService {
         String date = form.format(new Date());
 
         CompletableFuture.runAsync(() -> {
+                try {
+                    Thread.sleep(5000L);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+
+            Item item = Item.builder()
+                    .id(itemDTO.getId())
+                    .name(itemDTO.getName())
+                    .description(itemDTO.getDescription())
+                    .count(itemDTO.getCount())
+                    .regDts(date)
+                    .itemType(itemDTO.getItemType())
+                    .updDts(date)
+                    .accountId(accountId)
+                    .build();
+            itemRepository.save(item);
+
+            Map<String, Object> historyMap = new HashMap<String, Object>();
+            historyMap.put("accountId", accountId);
+            historyMap.put("itemId", itemDTO.getId());
+            //http통신
+            //log.info("feign result = {}", historyFeignClient.saveHistory(historyMap));
+
+            //rest통신
+            //log.info("resttemplate result = {}", restTemplate.postForObject("http://HISTORY-SERVICE/v1/history/save", historyMap, String.class));
+
             try {
-                Thread.sleep(5000L);
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
+
+              jmsTemplate.convertAndSend(activeMq, objectMapper.writeValueAsString(itemDTO));
+               // this.kafkaTemplate.send(topicName, objectMapper.writeValueAsString(itemDTO));
+            //} catch (JmsException | JsonProcessingException e) {
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
             }
-
-        Item item = Item.builder()
-                .id(itemDTO.getId())
-                .name(itemDTO.getName())
-                .description(itemDTO.getDescription())
-                .count(itemDTO.getCount())
-                .regDts(date)
-                .itemType(itemDTO.getItemType())
-                .updDts(date)
-                .accountId(accountId)
-                .build();
-        itemRepository.save(item);
-
-        Map<String, Object> historyMap = new HashMap<String, Object>();
-        historyMap.put("accountId", accountId);
-        historyMap.put("itemId", itemDTO.getId());
-        //http통신
-        //log.info("feign result = {}", historyFeignClient.saveHistory(historyMap));
-        
-        //rest통신
-        //log.info("resttemplate result = {}", restTemplate.postForObject("http://HISTORY-SERVICE/v1/history/save", historyMap, String.class));
-
-        try {
-
-          jmsTemplate.convertAndSend(activeMq, objectMapper.writeValueAsString(itemDTO));
-           // this.kafkaTemplate.send(topicName, objectMapper.writeValueAsString(itemDTO));
-        //} catch (JmsException | JsonProcessingException e) {
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-    }, itemThreadExecutor);
+        }, itemThreadExecutor);
 
     }
 

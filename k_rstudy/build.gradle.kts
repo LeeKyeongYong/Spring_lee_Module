@@ -4,6 +4,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm") version "1.9.24"
     kotlin("kapt") version "1.9.24"
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.24"
+    //kotlin("jvm") version "1.9.24" // 사용 중인 Kotlin 버전에 맞게 수정
 }
 
 group = "org.jc"
@@ -91,6 +92,9 @@ dependencies {
     implementation("org.jsoup:jsoup:1.17.2")
     // excel lib
     implementation("org.apache.poi:poi-ooxml:5.2.5")
+
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.24")
+
 
 }
 
