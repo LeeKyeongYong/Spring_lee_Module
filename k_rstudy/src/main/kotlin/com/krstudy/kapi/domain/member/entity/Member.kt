@@ -23,8 +23,6 @@ class Member : BaseEntity() {
     @get:Transient
     val authorities: Collection<GrantedAuthority>
         get() {
-            //val role: M_Role = M_Role.fromRoleType(roleType)
-           // val authorities: MutableCollection<GrantedAuthority> = ArrayList()
             val authorities: MutableCollection<GrantedAuthority> = ArrayList()
 
             // roleType에 따라 권한 추가
@@ -32,7 +30,7 @@ class Member : BaseEntity() {
             authorities.add(SimpleGrantedAuthority(role.authority))
 
             // username에 따라 admin 역할 추가
-            if (username == "system" || username == "admin") {
+            if (username.equals("system") || username.equals("admin")) {
                 authorities.add(SimpleGrantedAuthority(M_Role.ADMIN.authority))
             }
 
@@ -40,5 +38,5 @@ class Member : BaseEntity() {
         }
 
     val isAdmin: Boolean
-        get() = authorities.any { auth -> auth.authority == M_Role.ADMIN.authority }
+        get() = authorities.any { auth -> auth.authority.equals(M_Role.ADMIN.authority) }
 }

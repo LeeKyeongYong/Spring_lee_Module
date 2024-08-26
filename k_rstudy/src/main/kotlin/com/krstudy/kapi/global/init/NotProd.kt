@@ -16,7 +16,6 @@ import java.util.stream.IntStream
 class NotProd(
     private val memberService: MemberService,
     private val postService: PostService
-    //private val postcommentService: PostcommentService
 ) {
 
     private val log = LoggerFactory.getLogger(NotProd::class.java)
@@ -35,12 +34,15 @@ class NotProd(
 
     @Transactional
     fun work1() {
-        val memberUser1 = memberService.join("user1", "1234","").data
-        val memberUser2 = memberService.join("user2", "1234","").data
-        val memberUser3 = memberService.join("user3", "1234","").data
-        val memberUser4 = memberService.join("user4", "1234","").data
+        val memberUser1 = memberService.join("user1", "1234", "").data
+        val memberUser2 = memberService.join("user2", "1234", "").data
+        val memberUser3 = memberService.join("user3", "1234", "").data
+        val memberUser4 = memberService.join("user4", "1234", "").data
+        val memberUser5 = memberService.join("m_user01", "1234", "ROLE_MANAGER").data
+        val memberUser6 = memberService.join("h_user01", "1234", "ROLE_HR").data
+        val memberUser7 = memberService.join("d_user5", "1234", "ROLE_ADMIN").data
 
-        if (memberUser1 == null || memberUser2 == null || memberUser3 == null || memberUser4 == null) {
+        if (memberUser1 == null || memberUser2 == null || memberUser3 == null || memberUser4 == null || memberUser5 == null || memberUser6 == null) {
             return
         }
 
@@ -53,22 +55,21 @@ class NotProd(
         val post6 = postService.write(memberUser2, "제목 6", "내용 6", false)
 
         IntStream.rangeClosed(7, 100).forEach { i ->
-                postService.write(memberUser3, "제목 $i", "내용 $i", true)
-                postService.writeComment(memberUser1, post1, "안녕하세요! $i 댓글입니다. 잘부탁드립니다.")
-                postService.writeComment(memberUser2, post2, "안녕하세요! $i 댓글입니다. 잘부탁드립니다.")
-                postService.writeComment(memberUser3, post3, "안녕하세요! $i 댓글입니다. 잘부탁드립니다.")
-                postService.writeComment(memberUser4, post4, "안녕하세요! $i 댓글입니다. 잘부탁드립니다.")
-                postService.writeComment(memberUser1, post5, "안녕하세요! $i 댓글입니다. 잘부탁드립니다.")
+            postService.write(memberUser3, "제목 $i", "내용 $i", true)
+            postService.writeComment(memberUser1, post1, "안녕하세요! $i 댓글입니다. 잘부탁드립니다.")
+            postService.writeComment(memberUser2, post2, "안녕하세요! $i 댓글입니다. 잘부탁드립니다.")
+            postService.writeComment(memberUser3, post3, "안녕하세요! $i 댓글입니다. 잘부탁드립니다.")
+            postService.writeComment(memberUser4, post4, "안녕하세요! $i 댓글입니다. 잘부탁드립니다.")
+            postService.writeComment(memberUser1, post5, "안녕하세요! $i 댓글입니다. 잘부탁드립니다.")
         }
-            IntStream.rangeClosed(1, 100).forEach { i ->
+
+        IntStream.rangeClosed(1, 100).forEach { i ->
             postService.like(memberUser2, post1)
             postService.like(memberUser3, post1)
             postService.like(memberUser4, post1)
             postService.like(memberUser2, post2)
             postService.like(memberUser3, post2)
             postService.like(memberUser2, post3)
-
         }
-
     }
 }
