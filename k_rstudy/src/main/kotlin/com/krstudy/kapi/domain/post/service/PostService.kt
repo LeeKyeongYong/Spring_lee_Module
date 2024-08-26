@@ -1,7 +1,7 @@
 package com.krstudy.kapi.domain.post.service
 
-import com.krstudy.kapi.domain.comment.entity.PostComment
 import com.krstudy.kapi.domain.comment.repository.PostCommentRepository
+import com.krstudy.kapi.domain.comment.entity.PostComment
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.post.entity.Post
 import com.krstudy.kapi.domain.post.repository.PostRepository

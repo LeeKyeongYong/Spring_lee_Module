@@ -1,4 +1,4 @@
-package com.krstudy.kapi.com.krstudy.kapi.domain.comment.repository
+package com.krstudy.kapi.domain.comment.repository
 
 import com.krstudy.kapi.domain.comment.entity.PostComment
 import org.springframework.data.jpa.repository.JpaRepository

@@ -19,18 +19,18 @@ class ReqData(
     private val response: HttpServletResponse,
     private val entityManager: EntityManager
 ) {
-    public var member: Member? = null
+    private var member: Member? = null
 
     fun redirect(url: String, msg: String): String {
         val urlBits = url.split("#", limit = 2)
-        var baseUrl = urlBits[0]
-        val encodedMsg = URLEncoder.encode(msg, StandardCharsets.UTF_8.toString())
+        val newUrl = urlBits[0]
+        val encodedMsg = URLEncoder.encode(msg, StandardCharsets.UTF_8)
 
         val sb = StringBuilder()
         sb.append("redirect:")
-        sb.append(baseUrl)
+        sb.append(newUrl)
 
-        if (msg.isNotEmpty()) {
+        if (encodedMsg.isNotEmpty()) {
             sb.append("?msg=")
             sb.append(encodedMsg)
         }
@@ -53,8 +53,7 @@ class ReqData(
     }
 
     fun getUser(): SecurityUser? {
-        val context = SecurityContextHolder.getContext()
-        return (context.authentication?.principal as? SecurityUser)
+        return (SecurityContextHolder.getContext().authentication?.principal as? SecurityUser)
     }
 
     fun isLogin(): Boolean {
@@ -66,8 +65,9 @@ class ReqData(
     }
 
     fun isAdmin(): Boolean {
-        return if (isLogout()) false
-        else getUser()?.authorities?.any { it.authority == "ROLE_ADMIN" } == true
+        if (isLogout()) return false
+
+        return getUser()?.authorities?.any { it.authority == "ROLE_ADMIN" } == true
     }
 
     fun setAttribute(key: String, value: Any) {
@@ -79,8 +79,13 @@ class ReqData(
         return Ut.deleteQueryParam(queryString, paramName)
     }
 
-    fun fetchMember(): Member? {
-        return if (isLogout()) null
-        else member ?: entityManager.getReference(Member::class.java, getUser()?.id)?.also { member = it }
+    fun getMember(): Member? {
+        if (isLogout()) return null
+
+        if (member == null) {
+            member = entityManager.getReference(Member::class.java, getUser()?.id)
+        }
+
+        return member
     }
 }

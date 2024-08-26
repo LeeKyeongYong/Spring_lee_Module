@@ -1,31 +1,50 @@
-package com.krstudy.kapi.domain.member.datas
-
+package com.krstudy.kapi.domain.member.controller
 
 import com.krstudy.kapi.domain.member.service.MemberService
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.springframework.stereotype.Component
-import java.util.concurrent.ConcurrentLinkedQueue
+import com.krstudy.kapi.global.https.ReqData
+import com.krstudy.kapi.global.https.RespData
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.stereotype.Controller
+import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import com.krstudy.kapi.domain.member.datas.RegistrationQueue
 
-@Component
-public class RegistrationQueue(private val memberService: MemberService) {
-    private val queue = ConcurrentLinkedQueue<Pair<String, String>>()
-    private val scope = CoroutineScope(Dispatchers.Default)
+@Controller
+@RequestMapping("/member")
+class MemberController(
+    private val memberService: MemberService,
+    private val rq: ReqData,
+    private val registrationQueue: RegistrationQueue
+) {
 
-    init {
-        scope.launch {
-            while (true) {
-                val pair = queue.poll()
-                if (pair != null) {
-                    val (username, password) = pair
-                    memberService.join(username, password, "")
-                }
-            }
-        }
+    @PreAuthorize("isAnonymous()")
+    @GetMapping("/join")
+    fun showJoin(): String {
+        return "domain/member/member/join"
     }
 
-    fun enqueue(username: String, password: String) {
-        queue.add(Pair(username, password))
+    @Validated
+    data class JoinForm(
+        @field:NotBlank val username: String,
+        @field:NotBlank val password: String
+    )
+
+    @PreAuthorize("isAnonymous()")
+    @PostMapping("/join")
+    fun join(@Valid joinForm: JoinForm): String {
+        registrationQueue.enqueue(joinForm.username, joinForm.password)
+        return rq.redirectOrBack(
+            RespData.of<String>("200", "회원가입 요청이 큐에 추가되었습니다."),
+            "/member/login"
+        )
+    }
+
+    @GetMapping("/login")
+    fun showLogin(): String {
+        return "domain/member/member/login"
     }
 }

@@ -1,12 +1,12 @@
 package com.krstudy.kapi.domain.comment.controller
 
+import com.krstudy.kapi.domain.post.datas.ModifyForm
+import com.krstudy.kapi.domain.post.datas.WriteForm
 import com.krstudy.kapi.global.exception.GlobalException
 import com.krstudy.kapi.global.https.ReqData
-
 import com.krstudy.kapi.domain.post.service.PostService
 import com.krstudy.kapi.global.exception.ErrorCode
 import jakarta.validation.Valid
-import jakarta.validation.constraints.NotBlank
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
@@ -24,8 +24,8 @@ class PostCommentController(
         @PathVariable id: Long,
         @Valid @ModelAttribute form: WriteForm
     ): String {
-        val member = rq.member ?: throw  GlobalException(ErrorCode.UNAUTHORIZED)
-        val post = postService.findById(id).orElseThrow { GlobalException( ErrorCode.NOT_FOUND_POST) }
+        val member = rq.getMember() ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
+        val post = postService.findById(id).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_POST) }
         val body = form.body ?: throw GlobalException(ErrorCode.EMPTY_COMMENT_BODY)
 
         val postComment = postService.writeComment(member, post, body)
@@ -39,7 +39,7 @@ class PostCommentController(
         @PathVariable id: Long,
         @PathVariable commentId: Long
     ): String {
-        val member = rq.member ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
+        val member = rq.getMember() ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
         val post = postService.findById(id).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_POST) }
         val postComment = postService.findCommentById(commentId).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_COMMENT) }
 
@@ -60,8 +60,8 @@ class PostCommentController(
         @PathVariable commentId: Long,
         @Valid @ModelAttribute form: ModifyForm
     ): String {
-        val member = rq.member ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
-        val postComment = postService.findCommentById(commentId).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_POST) }
+        val member = rq.getMember() ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
+        val postComment = postService.findCommentById(commentId).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_COMMENT) }
         val body = form.body ?: throw GlobalException(ErrorCode.EMPTY_COMMENT_BODY)
 
         if (!postService.canModifyComment(member, postComment)) {
@@ -79,7 +79,7 @@ class PostCommentController(
         @PathVariable id: Long,
         @PathVariable commentId: Long
     ): String {
-        val member = rq.member ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
+        val member = rq.getMember() ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
         val postComment = postService.findCommentById(commentId).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_COMMENT) }
 
         if (!postService.canDeleteComment(member, postComment)) {
@@ -90,14 +90,4 @@ class PostCommentController(
 
         return rq.redirect("/post/$id", "$commentId 번 댓글이 삭제되었습니다.")
     }
-
-    data class WriteForm(
-        @field:NotBlank
-        var body: String? = null
-    )
-
-    data class ModifyForm(
-        @field:NotBlank
-        var body: String? = null
-    )
 }

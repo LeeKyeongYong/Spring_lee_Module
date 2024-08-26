@@ -1,5 +1,6 @@
 package com.krstudy.kapi.global.https
 
+
 data class RespData<T>(
     val resultCode: String,
     val statusCode: Int,
@@ -7,14 +8,8 @@ data class RespData<T>(
     val data: T?
 ) {
     companion object {
-        @JvmStatic
-        fun <T> of(resultCode: String, msg: String): RespData<T> {
-            return of(resultCode, msg, null)
-        }
-
-        @JvmStatic
-        fun <T> of(resultCode: String, msg: String, data: T?): RespData<T> {
-            val statusCode = resultCode.split("-", limit = 2)[0].toInt()
+        fun <T> of(resultCode: String, msg: String, data: T? = null): RespData<T> {
+            val statusCode = resultCode.split("-", limit = 2)[0].toIntOrNull() ?: 0
             return RespData(resultCode, statusCode, msg, data)
         }
     }

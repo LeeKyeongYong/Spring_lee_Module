@@ -26,7 +26,7 @@ class PostController(
 ) {
     @GetMapping("/{id}")
     fun showDetail(@PathVariable id: Long): String {
-       val post = postService.findById(id).orElseThrow { GlobalException(ErrorCode.EMPTY_COMMENT_BODY) }
+        val post = postService.findById(id).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_POST) }
         postService.increaseHit(post)
         rq.setAttribute("post", post)
         return "domain/post/detail"
@@ -53,7 +53,7 @@ class PostController(
     ): String {
         val sorts = listOf(Sort.Order.desc("id"))
         val pageable: Pageable = PageRequest.of(page - 1, 10, Sort.by(sorts))
-        val member = rq.member ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
+        val member = rq.getMember() ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
         val postPage: Page<Post> = postService.search(member, null, kw, pageable)
         rq.setAttribute("postPage", postPage)
         rq.setAttribute("page", page)
@@ -73,7 +73,7 @@ class PostController(
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/write")
     fun write(@Valid @ModelAttribute form: WriteForm, redirectAttributes: RedirectAttributes): RedirectView {
-        val member = rq.member ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
+        val member = rq.getMember() ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
         val post = postService.write(member, form.title, form.body, form.isPublished)
         redirectAttributes.addFlashAttribute("message", "${post.id}번 글이 작성되었습니다.")
         return RedirectView("/post/${post.id}")
@@ -83,7 +83,7 @@ class PostController(
     @GetMapping("/{id}/modify")
     fun showModify(@PathVariable id: Long, model: Model): String {
         val post = postService.findById(id).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_POST) }
-        val member = rq.member ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
+        val member = rq.getMember() ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
         if (!postService.canModify(member, post)) throw GlobalException(ErrorCode.FORBIDDEN)
         model.addAttribute("post", post)
         return "domain/post/modify"
@@ -98,8 +98,8 @@ class PostController(
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}/modify")
     fun modify(@PathVariable id: Long, @Valid @ModelAttribute form: ModifyForm, redirectAttributes: RedirectAttributes): RedirectView {
-        val post = postService.findById(id).orElseThrow { GlobalException(ErrorCode.EMPTY_COMMENT_BODY) }
-        val member = rq.member ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
+        val post = postService.findById(id).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_POST) }
+        val member = rq.getMember() ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
         if (!postService.canModify(member, post)) throw GlobalException(ErrorCode.FORBIDDEN)
         postService.modify(post, form.title, form.body, form.isPublished)
         redirectAttributes.addFlashAttribute("message", "${post.id}번 글이 수정되었습니다.")
@@ -109,8 +109,8 @@ class PostController(
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}/delete")
     fun delete(@PathVariable id: Long, redirectAttributes: RedirectAttributes): RedirectView {
-        val post = postService.findById(id).orElseThrow { GlobalException(ErrorCode.EMPTY_COMMENT_BODY) }
-        val member = rq.member ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
+        val post = postService.findById(id).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_POST) }
+        val member = rq.getMember() ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
         if (!postService.canDelete(member, post)) throw GlobalException(ErrorCode.FORBIDDEN)
         postService.delete(post)
         redirectAttributes.addFlashAttribute("message", "${post.id}번 글이 삭제되었습니다.")
@@ -120,8 +120,8 @@ class PostController(
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/like")
     fun like(@PathVariable id: Long, redirectAttributes: RedirectAttributes): RedirectView {
-        val post = postService.findById(id).orElseThrow { GlobalException(ErrorCode.EMPTY_COMMENT_BODY) }
-        val member = rq.member ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
+        val post = postService.findById(id).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_POST) }
+        val member = rq.getMember() ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
         if (!postService.canLike(member, post)) throw GlobalException(ErrorCode.FORBIDDEN)
         postService.like(member, post)
         redirectAttributes.addFlashAttribute("message", "${post.id}번 글을 추천하였습니다.")
@@ -131,8 +131,8 @@ class PostController(
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}/cancelLike")
     fun cancelLike(@PathVariable id: Long, redirectAttributes: RedirectAttributes): RedirectView {
-        val post = postService.findById(id).orElseThrow { GlobalException(ErrorCode.EMPTY_COMMENT_BODY) }
-        val member = rq.member ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
+        val post = postService.findById(id).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_POST) }
+        val member = rq.getMember() ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
         if (!postService.canCancelLike(member, post)) throw GlobalException(ErrorCode.FORBIDDEN)
         postService.cancelLike(member, post)
         redirectAttributes.addFlashAttribute("message", "${post.id}번 글을 추천취소하였습니다.")
