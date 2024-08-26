@@ -42,7 +42,8 @@ class MemberController(
         // 성공적인 응답 생성
         val successResponse: RespData<String> = RespData.of(
             resultCode = ErrorCode.SUCCESS.code,
-            msg = "회원가입 요청이 큐에 추가되었습니다."
+            msg = ErrorCode.SUCCESS.message
+            //msg = "회원가입 요청이 큐에 추가되었습니다."
         )
 
         // 리디렉션 또는 페이지 이동
