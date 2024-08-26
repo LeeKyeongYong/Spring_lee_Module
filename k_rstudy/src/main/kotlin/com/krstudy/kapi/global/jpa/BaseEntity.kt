@@ -8,7 +8,7 @@ import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDateTime
-
+import java.time.format.DateTimeFormatter
 
 @MappedSuperclass
 @Getter
@@ -27,4 +27,14 @@ open class BaseEntity : IdEntity() {
 
     fun getModifyDate(): LocalDateTime? = modifyDate
     fun setModifyDate(modifyDate: LocalDateTime?) { this.modifyDate = modifyDate }
+
+    // Method to format LocalDateTime to a string in the desired format
+    fun formatDateTime(dateTime: LocalDateTime?): String {
+        return dateTime?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) ?: ""
+    }
+
+    // Overriding toString to include formatted dates
+    override fun toString(): String {
+        return "BaseEntity(id=$id, createDate=${formatDateTime(createDate)}, modifyDate=${formatDateTime(modifyDate)})"
+    }
 }
