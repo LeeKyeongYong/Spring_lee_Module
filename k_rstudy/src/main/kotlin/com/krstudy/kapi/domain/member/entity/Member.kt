@@ -37,3 +37,4 @@ class Member(
         return roleStrategy.getAuthorities(roleType, userid)
     }
 }
+

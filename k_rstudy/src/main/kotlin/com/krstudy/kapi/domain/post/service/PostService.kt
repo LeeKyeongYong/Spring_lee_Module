@@ -118,4 +118,9 @@ class PostService(
     fun deleteComment(postComment: PostComment) {
         postCommentRepository.delete(postComment)
     }
+
+    // 리포지토리 메소드 호출
+    fun findAuthorNameByPostId(postId: Long, authorId: Long): String {
+        return postRepository.findAuthorNameByPostId(postId, authorId)
+    }
 }

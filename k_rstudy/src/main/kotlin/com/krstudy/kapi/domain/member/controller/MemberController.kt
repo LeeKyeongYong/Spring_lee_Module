@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import com.krstudy.kapi.domain.member.datas.RegistrationQueue
 import com.krstudy.kapi.global.exception.ErrorCode
+import com.krstudy.kapi.global.lgexecution.LogExecutionTime
 import lombok.extern.slf4j.Slf4j
 
 @Slf4j
@@ -35,6 +36,7 @@ class MemberController(
      */
     @PreAuthorize("isAnonymous()")
     @GetMapping("/join")
+    @LogExecutionTime
     fun showJoin(): String {
         log.info("showJoin() method called") // 메소드 호출 로그 기록
         return "domain/member/member/join" // 가입 페이지로의 경로 반환
@@ -48,6 +50,7 @@ class MemberController(
      */
     @PreAuthorize("isAnonymous()")
     @PostMapping("/join")
+    @LogExecutionTime
     fun join(@Valid joinForm: JoinForm): String {
         log.info("join() method called with JoinForm: $joinForm") // 폼 데이터와 함께 메소드 호출 로그 기록
 
@@ -75,6 +78,7 @@ class MemberController(
      * @return 로그인 페이지의 뷰 이름
      */
     @GetMapping("/login")
+    @LogExecutionTime
     fun showLogin(): String {
         log.info("showLogin() method called") // 메소드 호출 로그 기록
         return "domain/member/member/login" // 로그인 페이지로의 경로 반환

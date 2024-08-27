@@ -88,6 +88,8 @@ dependencies {
     implementation("com.github.ulisesbocchio:jasypt-spring-boot:3.0.5")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0")
 
+    // Spring AOP 의존성 추가
+    implementation("org.springframework.boot:spring-boot-starter-aop")
 
 }
 

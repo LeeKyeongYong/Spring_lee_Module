@@ -28,7 +28,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
       dialect: org.hibernate.dialect.MySQL8Dialect
 
 logging:
