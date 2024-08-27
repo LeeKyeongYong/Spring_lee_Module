@@ -1,6 +1,5 @@
 package com.krstudy.kapi.domain.member.entity;
 
-
 import com.krstudy.kapi.domain.member.datas.M_Role
 import com.krstudy.kapi.global.jpa.BaseEntity
 import jakarta.persistence.Column
@@ -10,37 +9,31 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 
 @Entity
-class Member : BaseEntity() {
-
+class Member(
     @Column(nullable = false, unique = true)
-    var userid: String = ""
-
-    @Column(nullable = false) // 유니크 제약 조건 추가
-    var username: String = ""
+    var userid: String = "",
 
     @Column(nullable = false)
-    var password: String = ""
+    var username: String? = null,
 
-    @Column(nullable = true)
-    var roleType: String? = null
+    @Column(nullable = false)
+    var roleType: String? = null,
+
+    @Column(nullable = false)
+    var password: String = "",
+
+    @Transient  
+    private val roleStrategy: RoleStrategy = DefaultRoleStrategy()
+) : BaseEntity() {
 
     @get:Transient
     val authorities: Collection<GrantedAuthority>
-        get() {
-            val authorities = mutableListOf<GrantedAuthority>()
-
-            // roleType에 따라 권한 추가
-            val role: M_Role = M_Role.values().find { it.authority == roleType } ?: M_Role.MEMBER
-            authorities.add(SimpleGrantedAuthority(role.authority))
-
-            // username에 따라 admin 역할 추가
-            if (userid.equals("system", ignoreCase = true) || userid.equals("admin", ignoreCase = true)) {
-                authorities.add(SimpleGrantedAuthority(M_Role.ADMIN.authority))
-            }
-
-            return authorities
-        }
+        get() = roleStrategy.getAuthorities(roleType, userid)
 
     val isAdmin: Boolean
         get() = authorities.any { auth -> auth.authority.equals(M_Role.ADMIN.authority) }
+
+    fun getRoleAuthorities(roleStrategy: RoleStrategy, userid: String): Collection<GrantedAuthority> {
+        return roleStrategy.getAuthorities(roleType, userid)
+    }
 }

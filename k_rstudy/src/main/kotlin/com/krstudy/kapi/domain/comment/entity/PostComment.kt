@@ -1,8 +1,9 @@
 package com.krstudy.kapi.domain.comment.entity
 
 
+
 import com.krstudy.kapi.domain.member.entity.Member // 올바른 경로로 수정
-import com.krstudy.kapi.domain.post.entity.Post // 올바른 경로로 수정
+import com.krstudy.kapi.domain.post.entity.Post
 import com.krstudy.kapi.global.jpa.BaseEntity
 import jakarta.persistence.*
 

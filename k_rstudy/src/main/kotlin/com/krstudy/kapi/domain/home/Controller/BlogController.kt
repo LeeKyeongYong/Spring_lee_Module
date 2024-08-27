@@ -1,8 +1,9 @@
 package com.krstudy.kapi.domain.home.Controller;
 
 
+
 import com.krstudy.kapi.domain.member.service.MemberService;
-import com.krstudy.kapi.domain.post.entity.Post;
+import com.krstudy.kapi.domain.post.entity.Post
 import com.krstudy.kapi.global.exception.GlobalException;
 import com.krstudy.kapi.global.https.ReqData;
 import com.krstudy.kapi.domain.post.service.PostService

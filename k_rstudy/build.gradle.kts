@@ -81,6 +81,7 @@ dependencies {
     implementation("org.jsoup:jsoup:1.17.2")
     // excel lib
     implementation("org.apache.poi:poi-ooxml:5.2.5")
+    implementation("org.apache.poi:poi:5.2.5")
 
     implementation("com.github.ulisesbocchio:jasypt-spring-boot:3.0.5")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0")

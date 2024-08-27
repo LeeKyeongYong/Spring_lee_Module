@@ -4,9 +4,9 @@ import com.krstudy.kapi.domain.comment.repository.PostCommentRepository
 import com.krstudy.kapi.domain.comment.entity.PostComment
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.post.entity.Post
+import com.krstudy.kapi.domain.post.entity.PostLike
 import com.krstudy.kapi.domain.post.repository.PostRepository
 import com.krstudy.kapi.domain.post.repository.PostlikeRepository
-import com.krstudy.kapi.domain.post.entity.PostLike
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -23,13 +23,7 @@ class PostService(
 
     @Transactional
     fun write(author: Member, title: String, body: String, isPublished: Boolean): Post {
-        val post = Post(
-            author = author,
-            title = title,
-            body = body,
-            isPublished = isPublished
-        )
-
+        val post = Post(author = author, title = title, body = body, isPublished = isPublished)
         return postRepository.save(post)
     }
 
@@ -42,29 +36,11 @@ class PostService(
     }
 
     fun search(kw: String, pageable: Pageable): Page<Post> {
-        // Ensure 'true' is being used for 'isPublished' if it is a required value
         return postRepository.search(null, true, kw, pageable)
     }
 
     fun search(author: Member?, isPublished: Boolean?, kw: String, pageable: Pageable): Page<Post> {
-        // Ensure to handle cases where parameters might be null
         return postRepository.search(author, isPublished, kw, pageable)
-    }
-
-    fun canLike(actor: Member?, post: Post): Boolean {
-        return actor != null && !post.hasLike(actor)
-    }
-
-    fun canCancelLike(actor: Member?, post: Post): Boolean {
-        return actor != null && post.hasLike(actor)
-    }
-
-    fun canModify(actor: Member?, post: Post): Boolean {
-        return actor != null && actor == post.author
-    }
-
-    fun canDelete(actor: Member?, post: Post): Boolean {
-        return actor != null && (actor.isAdmin || actor == post.author)
     }
 
     @Transactional
@@ -86,27 +62,39 @@ class PostService(
 
     @Transactional
     fun like(actor: Member, post: Post) {
-        val postLike = PostLike.builder()
-            .post(post)
-            .member(actor)
-            .build()
-
-        postlikeRepository.save(postLike) // Corrected the method call
+        if (canLike(actor, post)) {
+            post.addLike(actor)
+            postlikeRepository.save(PostLike(post = post, member = actor))
+        }
     }
 
     @Transactional
     fun cancelLike(actor: Member, post: Post) {
-        post.deleteLike(actor)
+        if (canCancelLike(actor, post)) {
+            post.deleteLike(actor)
+        }
     }
 
     @Transactional
     fun writeComment(actor: Member, post: Post, body: String): PostComment {
-        val postComment = PostComment.builder()
-            .author(actor)
-            .post(post)
-            .body(body)
-            .build()
+        val postComment = PostComment(author = actor, post = post, body = body)
         return postCommentRepository.save(postComment)
+    }
+
+    fun canLike(actor: Member?, post: Post): Boolean {
+        return actor != null && !post.hasLike(actor)
+    }
+
+    fun canCancelLike(actor: Member?, post: Post): Boolean {
+        return actor != null && post.hasLike(actor)
+    }
+
+    fun canModify(actor: Member?, post: Post): Boolean {
+        return actor != null && actor == post.author
+    }
+
+    fun canDelete(actor: Member?, post: Post): Boolean {
+        return actor != null && (actor.isAdmin || actor == post.author)
     }
 
     fun canModifyComment(actor: Member?, comment: PostComment): Boolean {

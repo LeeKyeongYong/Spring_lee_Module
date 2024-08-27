@@ -1,31 +1,19 @@
 package com.krstudy.kapi.domain.post.entity
 
-
 import com.krstudy.kapi.domain.comment.entity.PostComment
 import com.krstudy.kapi.domain.member.entity.Member
-
-import com.krstudy.kapi.domain.post.entity.PostLike
 import com.krstudy.kapi.global.jpa.BaseEntity
 import jakarta.persistence.*
 import jakarta.persistence.CascadeType.ALL
 import jakarta.persistence.FetchType.LAZY
-import jakarta.persistence.GenerationType.IDENTITY
-import lombok.*
 import java.util.ArrayList
 
 @Entity
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
-@Getter
-@Setter
 class Post(
     @OneToMany(mappedBy = "post", cascade = [ALL], orphanRemoval = true)
-    @Builder.Default
     var likes: MutableList<PostLike> = ArrayList(),
 
     @OneToMany(mappedBy = "post", cascade = [ALL], orphanRemoval = true)
-    @Builder.Default
     @OrderBy("id DESC")
     var comments: MutableList<PostComment> = ArrayList(),
 
@@ -39,7 +27,6 @@ class Post(
 
     var isPublished: Boolean = false,
 
-    @Setter(AccessLevel.PROTECTED)
     var hit: Long = 0
 ) : BaseEntity() {
 
@@ -48,16 +35,9 @@ class Post(
     }
 
     fun addLike(member: Member) {
-        if (hasLike(member)) {
-            return
+        if (!hasLike(member)) {
+            likes.add(PostLike(post = this, member = member))
         }
-
-        likes.add(
-            PostLike.builder()
-                .post(this)
-                .member(member)
-                .build()
-        )
     }
 
     fun hasLike(member: Member): Boolean {
@@ -69,14 +49,8 @@ class Post(
     }
 
     fun writeComment(actor: Member, body: String): PostComment {
-        val postComment = PostComment.builder()
-            .post(this)
-            .author(actor)
-            .body(body)
-            .build()
-
+        val postComment = PostComment(author = actor, post = this, body = body)
         comments.add(postComment)
-
         return postComment
     }
 }

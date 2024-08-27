@@ -1,5 +1,6 @@
 package com.krstudy.kapi.domain.post.repository
 
+
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.post.entity.Post
 import org.springframework.data.domain.Page
