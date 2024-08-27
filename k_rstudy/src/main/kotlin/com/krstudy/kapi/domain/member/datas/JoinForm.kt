@@ -1,4 +1,4 @@
-package com.krstudy.kapi.com.krstudy.kapi.domain.member.datas
+package com.krstudy.kapi.domain.member.datas
 
 import jakarta.validation.constraints.NotBlank
 import org.springframework.validation.annotation.Validated

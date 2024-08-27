@@ -55,8 +55,19 @@ class ReqData(
     }
 
     fun getUser(): SecurityUser? {
-        return (SecurityContextHolder.getContext().authentication?.principal as? SecurityUser)
+        val authentication = SecurityContextHolder.getContext().authentication
+        val principal = authentication?.principal
+
+        println("Authentication: $authentication")
+        println("Principal: $principal")
+
+        return if (principal is SecurityUser) {
+            principal
+        } else {
+            null
+        }
     }
+
 
     fun isLogin(): Boolean {
         return getUser() != null

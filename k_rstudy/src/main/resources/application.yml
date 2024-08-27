@@ -1,4 +1,10 @@
 spring:
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+    mode: HTML5
+    encoding: UTF-8
   profiles:
     active: prod
     include: secret
@@ -27,6 +33,8 @@ logging:
     org.hibernate.orm.jdbc.bind: TRACE
     org.hibernate.orm.jdbc.extract: TRACE
     org.springframework.transaction.interceptor: TRACE
+    org.thymeleaf: DEBUG
+    org.thymeleaf.spring6: DEBUG
 custom:
   site:
     name: sleekydz86

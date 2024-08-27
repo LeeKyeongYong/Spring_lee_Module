@@ -11,11 +11,11 @@
 
     <script>
         function submitLoginForm(form) {
-            form.userid.value = form.userid.value.trim();
+            form.username.value = form.username.value.trim();
 
-            if (form.userid.value.length == 0) {
+            if (form.userid.username.length == 0) {
                 toastWarning('사용자 ID를 입력해주세요.');
-                form.userid.focus();
+                form.username.focus();
                 return;
             }
 
@@ -31,10 +31,10 @@
         }
     </script>
 
-    <form th:action="@{/member/login}" method="POST" onSubmit="submitLoginForm(this); return false;">
+    <form th:action method="POST" onSubmit="submitLoginForm(this); return false;">
         <div>
             <label>사용자 ID</label>
-            <input type="text" name="userid">
+            <input type="text" name="username">
         </div>
 
         <div>

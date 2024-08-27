@@ -3,7 +3,7 @@ package com.krstudy.kapi.global.https
 import com.krstudy.kapi.global.exception.ErrorCode
 
 
-data class RespData<T>(
+class RespData<T>(
     val resultCode: String,
     val statusCode: Int,
     val msg: String,

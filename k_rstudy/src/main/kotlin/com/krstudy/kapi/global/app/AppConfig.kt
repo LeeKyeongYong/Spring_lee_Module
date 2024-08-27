@@ -7,26 +7,23 @@ import java.io.IOException
 
 @Configuration
 class AppConfig {
+
     companion object {
         private var resourcesStaticDirPath: String? = null
 
         @JvmStatic
-        @get:Value("\${custom.tempDirPath}")
         var tempDirPath: String? = null
             private set
 
         @JvmStatic
-        @get:Value("\${custom.genFile.dirPath}")
         var genFileDirPath: String? = null
             private set
 
         @JvmStatic
-        @get:Value("\${custom.site.name}")
         var siteName: String? = null
             private set
 
         @JvmStatic
-        @get:Value("\${custom.site.baseUrl}")
         var siteBaseUrl: String? = null
             private set
 
@@ -42,5 +39,25 @@ class AppConfig {
             }
             return resourcesStaticDirPath!!
         }
+    }
+
+    @Value("\${custom.tempDirPath}")
+    fun setTempDirPath(tempDirPath: String) {
+        Companion.tempDirPath = tempDirPath
+    }
+
+    @Value("\${custom.genFile.dirPath}")
+    fun setGenFileDirPath(genFileDirPath: String) {
+        Companion.genFileDirPath = genFileDirPath
+    }
+
+    @Value("\${custom.site.name}")
+    fun setSiteName(siteName: String) {
+        Companion.siteName = siteName
+    }
+
+    @Value("\${custom.site.baseUrl}")
+    fun setSiteBaseUrl(siteBaseUrl: String) {
+        Companion.siteBaseUrl = siteBaseUrl
     }
 }

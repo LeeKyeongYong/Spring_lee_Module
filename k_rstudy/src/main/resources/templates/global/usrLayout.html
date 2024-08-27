@@ -8,6 +8,22 @@
 <body>
 
 <header layout:fragment="header">
+
+<!--    으하하-->
+<!--    <div th:if="${#authentication.principal != null}">-->
+<!--        &lt;!&ndash; 로그인한 사용자에게 보여줄 콘텐츠 &ndash;&gt;-->
+<!--&lt;!&ndash;        <p>Welcome, <span th:text="${#authentication.principal.username}">User</span>!</p>&ndash;&gt;-->
+
+<!--        <ul>-->
+<!--            <li th:each="authority : ${#authentication.authorities}">-->
+<!--                <span th:text="${authority}"></span>-->
+<!--            </li>-->
+<!--        </ul>-->
+
+<!--        &lt;!&ndash; 로그아웃 버튼 등 &ndash;&gt;-->
+<!--    </div>-->
+
+
     <h1 th:text="|${@appConfig.siteName}|"></h1>
 
     <a href="/">홈</a>
@@ -18,6 +34,8 @@
     <a th:if="${@reqData.login}" href="/member/logout">로그아웃</a>
     <a th:if="${@reqData.logout}" href="/member/login">로그인</a>
     <a th:if="${@reqData.logout}" href="/member/join">회원가입</a>
+
+
 </header>
 
 </body>

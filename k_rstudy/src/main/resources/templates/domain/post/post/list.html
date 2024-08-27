@@ -22,7 +22,7 @@
     </ul>
 
     <th:block th:with="queryStrBase = ${@reqData.getCurrentQueryStringWithoutParam('page')}">
-        <th:block th:replace="global/fagments/pagination :: pagination(${postPage}, ${queryStrBase}, 1)">
+        <th:block th:replace="global/fragments/pagination :: pagination(${postPage}, ${queryStrBase}, 1)">
 
         </th:block>
     </th:block>

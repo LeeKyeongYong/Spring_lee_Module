@@ -1,32 +1,58 @@
 package com.krstudy.kapi.domain.member.controller
 
-import com.krstudy.kapi.com.krstudy.kapi.domain.member.datas.JoinForm
-import com.krstudy.kapi.domain.member.service.MemberService
-import com.krstudy.kapi.global.https.ReqData
-import com.krstudy.kapi.global.https.RespData
-import jakarta.validation.Valid
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
+import com.krstudy.kapi.domain.member.datas.JoinForm
 import com.krstudy.kapi.domain.member.datas.RegistrationQueue
+import com.krstudy.kapi.domain.member.service.MemberService
 import com.krstudy.kapi.global.Security.SecurityUser
 import com.krstudy.kapi.global.exception.CustomException
 import com.krstudy.kapi.global.exception.ErrorCode
+import com.krstudy.kapi.global.https.ReqData
+import com.krstudy.kapi.global.https.RespData
 import com.krstudy.kapi.global.lgexecution.LogExecutionTime
 import jakarta.servlet.http.HttpSession
+import jakarta.validation.Valid
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.stereotype.Controller
 import lombok.extern.slf4j.Slf4j
+import org.springframework.web.bind.annotation.*
+import org.slf4j.LoggerFactory
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.web.bind.annotation.RequestParam
-
+import org.slf4j.Logger
 @Slf4j
 @Controller
 @RequestMapping("/member")
+/*
+class MemberController(
+    private val memberService: MemberService,
+    private val rq: ReqData
+) {
+
+    private val log = LoggerFactory.getLogger(MemberController::class.java)
+
+    @PreAuthorize("isAnonymous()")
+    @GetMapping("/join")
+    fun showJoin(): String {
+        return "domain/member/member/join"
+    }
+
+    @GetMapping("/login")
+    fun showLogin(): String {
+        return "domain/member/login" // 로그인 페이지의 뷰 경로 반환
+    }
+
+    @Validated
+    data class JoinForm(
+        @field:NotBlank
+        var username: String? = null,
+
+        @field:NotBlank
+        var password: String? = null
+    )
+}
+*/
+
 class MemberController(
     private val memberService: MemberService, // 회원 서비스에 대한 의존성 주입
     private val rq: ReqData, // 요청 데이터에 대한 의존성 주입

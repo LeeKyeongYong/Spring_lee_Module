@@ -25,19 +25,8 @@ class SecurityConfig {
         http
             .authorizeRequests { authorizeRequests ->
                 authorizeRequests
-                    .requestMatchers("/gen/**").permitAll()
-                    .requestMatchers("/resource/**").permitAll()
-                    .requestMatchers("/h2-console/**").permitAll()
                     .requestMatchers("/adm/**").hasRole("ADMIN")
                     .anyRequest().permitAll()
-            }
-            .headers { headers ->
-                headers.frameOptions { frameOptions ->
-                    frameOptions.sameOrigin()
-                }
-            }
-            .csrf { csrf ->
-                csrf.ignoringRequestMatchers("/h2-console/**")
             }
             .formLogin { formLogin ->
                 formLogin
@@ -45,10 +34,12 @@ class SecurityConfig {
                     .defaultSuccessUrl("/?msg=" + URLEncoder.encode("환영합니다.", StandardCharsets.UTF_8))
                     .failureUrl("/member/login?failMsg=" + URLEncoder.encode("아이디 또는 비밀번호가 틀렸습니다.", StandardCharsets.UTF_8))
             }
+
             .logout { logout ->
                 logout.logoutRequestMatcher(AntPathRequestMatcher("/member/logout"))
             }
 
         return http.build()
     }
+
 }
