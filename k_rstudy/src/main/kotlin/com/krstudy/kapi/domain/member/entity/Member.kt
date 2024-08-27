@@ -22,7 +22,7 @@ class Member(
     @Column(nullable = false)
     var password: String = "",
 
-    @Transient  
+    @Transient
     private val roleStrategy: RoleStrategy = DefaultRoleStrategy()
 ) : BaseEntity() {
 
