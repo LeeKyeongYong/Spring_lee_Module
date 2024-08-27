@@ -1,10 +1,19 @@
 <html layout:decorate="~{global/usrLayout}">
+
 <head>
     <title>홈</title>
 </head>
-<body>
-  <div layout:fragment="content">
-    <h1>관리자 설명</h1>
-  </div>
-</body>
+
+<div layout:fragment="content">
+    <h1>메인</h1>
+
+    <h2>최신 게시물</h2>
+
+    <ul>
+        <li th:each="post : ${posts}">
+            <a th:href="|/post/${post.id}|" th:text="${post.title}"></a>
+        </li>
+    </ul>
+</div>
+
 </html>

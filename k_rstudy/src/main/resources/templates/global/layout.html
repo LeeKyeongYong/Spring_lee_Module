@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
     <meta charset="utf-8">
@@ -14,32 +14,35 @@
 
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
     <script>
-        const urlParams=getUrlParams(location.href);
+        const urlParams = getUrlParams(location.href);
     </script>
 </head>
 <body>
-        <th:block layout:fagment="header"></th:block>
-        <th:block layout:fagment="content"></th:block>
-    <script>
-        // history.back 에 의해서 돌아온 경우에 자바스크립트가 실행이 안될 수 도 있다.
-        // $(window).bind("pageshow", function (event) {}); 를 사용하면 해결이 된다.
-            $(window).bind("pageshow",function(event){
-                if(sessionStorage.getItem("historyBackFailMsg")){
-                    tostWring(sessionStorage.getItem("historyBackFailMsg"));
-                    sessionStorage.removeItem("historyBackFailMsg");
-                }
-            });
 
-            if(urlParams.msg){
-                toastNotice(urlParams.msg);
-            }
+<th:block layout:fragment="header"></th:block>
 
-            if(urlParams.failMsg){
-                toastWarning(urlParams.failMsg);
-            }
+<th:block layout:fragment="content"></th:block>
 
-    </script>
+<script>
+    // history.back 에 의해서 돌아온 경우에 자바스크립트가 실행이 안될 수 도 잇다.
+    // $(window).bind("pageshow", function (event) {}); 를 사용하면 해결이 된다.
+    $(window).bind("pageshow", function (event) {
+        if (sessionStorage.getItem("historyBackFailMsg")) {
+            toastWarning(sessionStorage.getItem("historyBackFailMsg"));
+            sessionStorage.removeItem("historyBackFailMsg");
+        }
+    });
+
+    if (urlParams.msg) {
+        toastNotice(urlParams.msg);
+    }
+
+    if (urlParams.failMsg) {
+        toastWarning(urlParams.failMsg);
+    }
+</script>
 
 </body>
 </html>

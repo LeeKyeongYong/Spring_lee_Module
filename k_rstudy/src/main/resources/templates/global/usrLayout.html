@@ -1,24 +1,25 @@
 <!DOCTYPE html>
 <html layout:decorate="~{global/layout}">
-<head>
-    <title layout:title-pattern="$CONTENT-TITLE - $LAYOUT_TITLE" th:text="${@appConfig.siteName}"></title>
-</head>
-<body>
-    <header layout:fragment="header">
-        <h1 th:text="|${@appConfig.siteName}|"></h1>
 
-        <a href="/">홈</a>
-        <a href="/post/list">글 목록</a>
-        <a th:if="${@rq.admin}" href="/adm">관리자 홈</a>
-        <a th:if="${@rq.admin}" href="/adm/memberList">사용자 목록</a>
-        <a th:if="${@rq.admin}" href="/adm/postList">게시판 홈</a>
-        <a th:if="${@rq.login}" href="/adm/postList">헤드헌터 페이지</a>
-        <a th:if="${@rq.login}" href="/adm/postList">인사담당자 페이지</a>
-        <a th:if="${@rq.login}" href="/post/write">글 쓰기</a>
-        <a th:if="${@rq.login}" href="/post/myList">내글 목록</a>
-        <a th:if="${@rq.login}" href="/member/logout">로그아웃</a>
-        <a th:if="${@rq.logout}" href="/member/login">로그인</a>
-        <a th:if="${@rq.logout}" href="/member/join">회원가입</a>
-    </header>
+<head>
+    <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE" th:text="${@appConfig.siteName}"></title>
+</head>
+
+<body>
+
+<header layout:fragment="header">
+    <h1 th:text="|${@appConfig.siteName}|"></h1>
+
+    <a href="/">홈</a>
+    <a href="/post/list">글 목록</a>
+    <a th:if="${@rq.admin}" href="/adm">관리자 홈</a>
+    <a th:if="${@rq.login}" href="/post/write">글 쓰기</a>
+    <a th:if="${@rq.login}" href="/post/myList">내글 목록</a>
+    <a th:if="${@rq.login}" href="/member/logout">로그아웃</a>
+    <a th:if="${@rq.logout}" href="/member/login">로그인</a>
+    <a th:if="${@rq.logout}" href="/member/join">회원가입</a>
+</header>
+
 </body>
+
 </html>
