@@ -1,7 +1,6 @@
 package com.krstudy.kapi.domain.member.controller
 
 import com.krstudy.kapi.com.krstudy.kapi.domain.member.datas.JoinForm
-import com.krstudy.kapi.com.krstudy.kapi.global.exception.CustomException
 import com.krstudy.kapi.domain.member.service.MemberService
 import com.krstudy.kapi.global.https.ReqData
 import com.krstudy.kapi.global.https.RespData
@@ -15,11 +14,14 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import com.krstudy.kapi.domain.member.datas.RegistrationQueue
 import com.krstudy.kapi.global.Security.SecurityUser
+import com.krstudy.kapi.global.exception.CustomException
 import com.krstudy.kapi.global.exception.ErrorCode
 import com.krstudy.kapi.global.lgexecution.LogExecutionTime
+import jakarta.servlet.http.HttpSession
 import lombok.extern.slf4j.Slf4j
-import org.springframework.security.core.Authentication // Correct import
+import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.web.bind.annotation.RequestParam
 
 @Slf4j
 @Controller
@@ -89,18 +91,52 @@ class MemberController(
     }
 
     /**
+     * 로그인 요청을 처리하는 메소드.
+     * 사용자 인증을 수행하고, 비밀번호를 검증하며, 로그인 성공 시 세션에 사용자 정보를 저장합니다.
+     * @param userid 사용자 아이디
+     * @param password 사용자 비밀번호
+     * @param httpSession HTTP 세션 객체
+     * @return 로그인 성공 또는 실패 후 리디렉션 경로
+     */
+    @PostMapping("/login")
+    @LogExecutionTime // 메소드 실행 시간 로그 기록
+    fun login(@RequestParam userid: String, @RequestParam password: String, httpSession: HttpSession): String {
+        log.info("login() method called with userid: $userid")
+
+        return try {
+            // 사용자 인증
+            val member = memberService.findByUserid(userid) ?: throw CustomException(ErrorCode.NOT_FOUND_USER)
+
+            // 비밀번호 검증
+            if (member.password != password) {
+                throw CustomException(ErrorCode.BAD_REQUEST, "비밀번호가 일치하지 않습니다.")
+            }
+
+            // 로그인 성공 후 세션에 사용자 정보를 저장
+            httpSession.setAttribute("loggedInUser", member)
+
+            log.info("User $userid logged in successfully")
+            "redirect:/member/login/ok"  // 로그인 후 리다이렉션 경로
+
+        } catch (e: CustomException) {
+            log.error("Login failed for userid: $userid", e)
+            "redirect:/member/login?error=${e.errorCode.code}"  // 로그인 실패 시 리다이렉션
+        }
+    }
+
+    /**
      * 로그인 처리 후의 경로를 반환하는 메소드.
      * 인증된 사용자에 대해 로그인 후 페이지를 반환합니다.
      * @return 로그인 처리 후의 페이지 경로
      */
-    @GetMapping("/login/ok") // GET 요청에 대해 /member/login/ok 경로로 매핑
+    @GetMapping("/login/ok")
     @LogExecutionTime // 메소드 실행 시간 로그 기록
     fun logi2n(): String {
-        log.info("logi2n() method called") // 메소드 호출 로그 기록
+        log.info("logi2n() method called")
 
         // 현재 인증 정보 가져오기
         val auth: Authentication? = SecurityContextHolder.getContext().authentication
-        val securityUser  = auth?.principal as? SecurityUser ?: throw CustomException(ErrorCode.UNAUTHORIZED_LOGIN_REQUIRED)
+        val securityUser = auth?.principal as? SecurityUser ?: throw CustomException(ErrorCode.UNAUTHORIZED_LOGIN_REQUIRED)
 
         val userid = securityUser.userid
         log.info("Authenticated username: $userid")
@@ -114,5 +150,4 @@ class MemberController(
         // 로그인 후 페이지 반환
         return "domain/member/login"
     }
-
 }

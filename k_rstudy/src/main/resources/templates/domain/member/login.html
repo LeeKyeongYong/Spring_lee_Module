@@ -13,7 +13,7 @@
         function submitLoginForm(form) {
             form.username.value = form.username.value.trim();
 
-            if (form.username.value.length == 0) {
+            if (form.userid.value.length == 0) {
                 toastWarning('사용자 ID를 입력해주세요.');
                 form.username.focus();
                 return;
@@ -31,10 +31,10 @@
         }
     </script>
 
-    <form th:action method="POST" onSubmit="submitLoginForm(this); return false;">
+    <form th:action="@{/member/login}" method="POST" onSubmit="submitLoginForm(this); return false;">
         <div>
             <label>사용자 ID</label>
-            <input type="text" name="username">
+            <input type="text" name="userid">
         </div>
 
         <div>

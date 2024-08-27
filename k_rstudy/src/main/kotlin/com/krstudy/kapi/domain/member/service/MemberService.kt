@@ -1,9 +1,10 @@
 package com.krstudy.kapi.domain.member.service
 
-import com.krstudy.kapi.com.krstudy.kapi.global.exception.CustomException
+
 import com.krstudy.kapi.domain.member.datas.M_Role
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.repository.MemberRepository
+import com.krstudy.kapi.global.exception.CustomException
 import com.krstudy.kapi.global.exception.ErrorCode
 import com.krstudy.kapi.global.https.RespData
 import kotlinx.coroutines.Dispatchers

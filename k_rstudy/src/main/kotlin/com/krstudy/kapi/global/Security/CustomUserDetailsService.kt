@@ -1,7 +1,8 @@
 package com.krstudy.kapi.global.Security
 
-import com.krstudy.kapi.com.krstudy.kapi.global.exception.CustomException
+
 import com.krstudy.kapi.domain.member.repository.MemberRepository
+import com.krstudy.kapi.global.exception.CustomException
 import com.krstudy.kapi.global.exception.ErrorCode
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
