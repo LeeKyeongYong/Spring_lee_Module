@@ -1,5 +1,6 @@
 package com.krstudy.kapi.global.init
 
+import com.krstudy.kapi.domain.member.datas.M_Role
 import com.krstudy.kapi.domain.member.service.MemberService
 import com.krstudy.kapi.domain.post.service.PostService
 import kotlinx.coroutines.runBlocking
@@ -42,9 +43,11 @@ class NotProd(
              val memberUser2 = memberService.join("user3", "memberUser2","1234", "").data
             val memberUser3 = memberService.join("user3", "memberUser3","1234", "").data
             val memberUser4 = memberService.join("user4", "memberUser4","1234", "").data
-            val memberUser5 = memberService.join("m_user01", "memberUser5","1234", "ROLE_MANAGER").data
-            val memberUser6 = memberService.join("h_user01", "memberUser6","1234", "ROLE_HR").data
-            val memberUser7 = memberService.join("d_user5", "memberUser7","1234", "ROLE_ADMIN").data
+            // M_Role을 직접 사용하는 대신, 이름으로 변환
+            val memberUser5 = memberService.join("m_user01", "memberUser5", "1234", M_Role.getRoleType(M_Role.MANAGER)).data
+            val memberUser6 = memberService.join("h_user01", "memberUser6", "1234", M_Role.getRoleType(M_Role.HR)).data
+            val memberUser7 = memberService.join("d_user5", "memberUser7", "1234", M_Role.getRoleType(M_Role.ADMIN)).data
+
 
             if (memberUser1 == null || memberUser2 == null || memberUser3 == null || memberUser4 == null || memberUser5 == null || memberUser6 == null) {
                 return@runBlocking
