@@ -19,21 +19,23 @@ class MemberService(
     private val memberRepository: MemberRepository,
     private val passwordEncoder: PasswordEncoder
 ) {
-    private val executor = Executors.newFixedThreadPool(10) // 스레드 풀을 생성하여 비동기 작업 처리
-
     @Transactional
-    suspend fun join(userid: String,username: String ,password: String, role: String): RespData<Member> {
+    suspend fun join(userid: String, username: String, password: String, role: String): RespData<Member> {
         val existingMember = findByUsername(userid)
         if (existingMember != null) {
             return RespData.fromErrorCode(ErrorCode.UNAUTHORIZED)
         }
 
-        // username에 따라 roleType을 결정
-        val roleType = when {
-            userid.equals("admin", ignoreCase = true) || userid.equals("system", ignoreCase = true) -> M_Role.ADMIN.authority
-            role.isNotBlank() -> M_Role.values().find { it.authority.equals(role, ignoreCase = true) }?.authority ?: M_Role.MEMBER.authority
-            else -> M_Role.MEMBER.authority
-        }
+        // role 매개변수를 M_Role의 authority와 정확히 일치하는지 확인하고 설정
+        val roleType = M_Role.values().find { it.authority.equals(role, ignoreCase = true) }?.authority
+            ?: run {
+                // role이 null이거나 빈 문자열인 경우 처리
+                if (userid.equals("system", ignoreCase = true) || userid.equals("admin", ignoreCase = true)) {
+                    M_Role.ADMIN.authority
+                } else {
+                    M_Role.MEMBER.authority
+                }
+            }
 
         val member = Member().apply {
             this.userid = userid
