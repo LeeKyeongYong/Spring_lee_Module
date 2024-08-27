@@ -5,6 +5,7 @@ enum class ErrorCode(val code: String, val message: String) {
     // 인증 관련 오류
     UNAUTHORIZED("401-1", "인증된 사용자가 아닙니다."),
     UNAUTHORIZED_LOGIN_REQUIRED("401-2", "로그인이 필요합니다."),
+    LOGIN_DISABLED_USER("401-3", "로그인할 수 없는 아이디입니다."),  // 새로운 에러 코드 추가
 
     // 리소스 관련 오류
     NOT_FOUND_POST("404-1", "해당 글이 존재하지 않습니다."),

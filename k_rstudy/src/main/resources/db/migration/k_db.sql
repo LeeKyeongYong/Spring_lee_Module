@@ -7,8 +7,8 @@ CREATE FUNCTION get_author_name(author_id BIGINT) RETURNS VARCHAR(255)
     DETERMINISTIC
 BEGIN
     DECLARE author_name VARCHAR(255);
-SELECT IFNULL(username, '사용자없음') INTO author_name FROM member WHERE id = author_id;
-RETURN author_name;
+SELECT username INTO author_name FROM member WHERE id = author_id;
+RETURN IFNULL(author_name, '사용자 없음');
 END;
 
 commit;

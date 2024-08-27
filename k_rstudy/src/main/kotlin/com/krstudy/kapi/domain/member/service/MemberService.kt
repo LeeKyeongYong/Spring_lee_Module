@@ -11,7 +11,6 @@ import kotlinx.coroutines.withContext
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.concurrent.Executors
 
 @Service
 @Transactional(readOnly = true)
@@ -26,10 +25,8 @@ class MemberService(
             return RespData.fromErrorCode(ErrorCode.UNAUTHORIZED)
         }
 
-        // role 매개변수를 M_Role의 authority와 정확히 일치하는지 확인하고 설정
         val roleType = M_Role.values().find { it.authority.equals(role, ignoreCase = true) }?.authority
             ?: run {
-                // role이 null이거나 빈 문자열인 경우 처리
                 if (userid.equals("system", ignoreCase = true) || userid.equals("admin", ignoreCase = true)) {
                     M_Role.ADMIN.authority
                 } else {
@@ -42,6 +39,7 @@ class MemberService(
             this.username = username
             this.password = passwordEncoder.encode(password)
             this.roleType = roleType
+            this.useYn = "Y"  // 기본값은 Y
         }
 
         withContext(Dispatchers.IO) {
@@ -61,5 +59,11 @@ class MemberService(
 
     fun count(): Long {
         return memberRepository.count()
+    }
+
+    fun validateLogin(member: Member) {
+        if (member.useYn == "N") {
+            throw CustomException(ErrorCode.LOGIN_DISABLED_USER)
+        }
     }
 }

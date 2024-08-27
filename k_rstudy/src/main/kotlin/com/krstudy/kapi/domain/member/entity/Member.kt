@@ -1,4 +1,4 @@
-package com.krstudy.kapi.domain.member.entity;
+package com.krstudy.kapi.domain.member.entity
 
 import com.krstudy.kapi.domain.member.datas.M_Role
 import com.krstudy.kapi.global.jpa.BaseEntity
@@ -6,7 +6,6 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Transient
 import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 
 @Entity
 class Member(
@@ -21,6 +20,9 @@ class Member(
 
     @Column(nullable = false)
     var password: String = "",
+
+    @Column(nullable = false)
+    var useYn: String = "Y",  // Y: 사용 가능, N: 사용 불가능
 
     @Transient
     private val roleStrategy: RoleStrategy = DefaultRoleStrategy()
@@ -37,4 +39,3 @@ class Member(
         return roleStrategy.getAuthorities(roleType, userid)
     }
 }
-
