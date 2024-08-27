@@ -43,7 +43,7 @@ class MemberController(
     @LogExecutionTime // 메소드 실행 시간 로그 기록
     fun showJoin(): String {
         log.info("showJoin() method called") // 메소드 호출 로그 기록
-        return "domain/member/member/join" // 가입 페이지의 뷰 경로 반환
+        return "domain/member/join" // 가입 페이지의 뷰 경로 반환
     }
 
     /**
@@ -72,7 +72,7 @@ class MemberController(
         log.info("Redirecting to /member/login with success response: $successResponse") // 리디렉션 로그 기록
         return rq.redirectOrBack(
             rs = successResponse,
-            path = "/member/login"
+            path = "domain/member/login"
         )
     }
 
@@ -85,7 +85,7 @@ class MemberController(
     @LogExecutionTime // 메소드 실행 시간 로그 기록
     fun showLogin(): String {
         log.info("showLogin() method called") // 메소드 호출 로그 기록
-        return "domain/member/member/login" // 로그인 페이지의 뷰 경로 반환
+        return "domain/member/login" // 로그인 페이지의 뷰 경로 반환
     }
 
     /**
@@ -112,7 +112,7 @@ class MemberController(
         memberService.validateLogin(member)
 
         // 로그인 후 페이지 반환
-        return "domain/member/member/login"
+        return "domain/member/login"
     }
 
 }

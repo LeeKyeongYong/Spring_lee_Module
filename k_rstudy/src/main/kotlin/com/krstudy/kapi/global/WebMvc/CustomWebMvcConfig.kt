@@ -10,9 +10,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @Configuration
 class CustomWebMvcConfig : WebMvcConfigurer {
 
-    @Autowired
-    lateinit var appConfig: AppConfig
-
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/api/**")
             .allowedOrigins("https://cdpn.io", "http://localhost:5173")
@@ -23,6 +20,6 @@ class CustomWebMvcConfig : WebMvcConfigurer {
 
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
         registry.addResourceHandler("/gen/**")
-            .addResourceLocations("file:///${appConfig.genFileDirPath}/")
+            .addResourceLocations("file:///${AppConfig.genFileDirPath}/")
     }
 }

@@ -6,7 +6,7 @@ spring:
       ddl-auto: create
 custom:
   site:
-    baseUrl: "http://localhost:80"
+    baseUrl: "http://localhost:8080"
   tempDirPath: D:/temp/Kotlin_Boot
   genFile:
     dirPath: D:/temp/Kotlin_Boot

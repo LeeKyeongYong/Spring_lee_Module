@@ -38,20 +38,20 @@
 
     <div>
         <button onclick="history.back();">뒤로가기</button>
-        <a th:if="${@postService.canModify(@rq.member, post)}" th:href="|/post/${post.id}/modify|">글 수정</a>
+        <a th:if="${@postService.canModify(@reqData.member, post)}" th:href="|/post/${post.id}/modify|">글 수정</a>
 
-        <a th:if="${@postService.canLike(@rq.member, post)}"
+        <a th:if="${@postService.canLike(@reqData.member, post)}"
            th:href="|/post/${post.id}/like|" method="POST">
             추천
         </a>
 
-        <a th:if="${@postService.canCancelLike(@rq.member, post)}"
+        <a th:if="${@postService.canCancelLike(@reqData.member, post)}"
            th:href="|/post/${post.id}/cancelLike|" method="DELETE">
             추천취소
         </a>
 
         <form style="display: contents"
-              th:if="${@postService.canDelete(@rq.member, post)}"
+              th:if="${@postService.canDelete(@reqData.member, post)}"
               th:action="|/post/${post.id}/delete|"
               method="POST"
         >
@@ -60,7 +60,7 @@
         </form>
 
         <a
-                th:if="${@postService.canDelete(@rq.member, post)}"
+                th:if="${@postService.canDelete(@reqData.member, post)}"
                 th:href="|/post/${post.id}/delete|"
                 method="DELETE"
                 onclick="return confirm('정말로 삭제하시겠습니까?');"
@@ -69,7 +69,7 @@
         </a>
     </div>
 
-    <th:block th:if="${@rq.login}">
+    <th:block th:if="${@reqData.login}">
         <h3>댓글 작성</h3>
         <form th:action="|/post/${post.id}/comment/write|" method="POST">
             <textarea name="body" cols="30" rows="10" required maxlength="10000" placeholder="댓글"></textarea>
@@ -90,11 +90,11 @@
             </div>
 
             <div>
-                <a th:if="${@postService.canModifyComment(@rq.member, postComment)}"
+                <a th:if="${@postService.canModifyComment(@reqData.member, postComment)}"
                    th:href="|/post/${post.id}/comment/${postComment.id}/modify|">
                     댓글 수정
                 </a>
-                <a th:if="${@postService.canDeleteComment(@rq.member, postComment)}"
+                <a th:if="${@postService.canDeleteComment(@reqData.member, postComment)}"
                    th:href="|/post/${post.id}/comment/${postComment.id}/delete|" method="DELETE"
                    onclick="return confirm('정말로 삭제하시겠습니까?');"
                 >

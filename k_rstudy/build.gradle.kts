@@ -39,7 +39,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
 
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-web")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
@@ -90,6 +89,11 @@ dependencies {
 
     // Spring AOP 의존성 추가
     implementation("org.springframework.boot:spring-boot-starter-aop")
+
+    // WEB
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+    implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")
 
 }
 

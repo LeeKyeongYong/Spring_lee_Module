@@ -31,7 +31,7 @@ class PostController(
         val post = postService.findById(id).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_POST) }
         postService.increaseHit(post)
         rq.setAttribute("post", post)
-        return "domain/post/detail"
+        return "domain/post/post/detail"
     }
 
     @GetMapping("/list")
@@ -44,7 +44,7 @@ class PostController(
         val postPage: Page<Post> = postService.search(kw, pageable)
         rq.setAttribute("postPage", postPage)
         rq.setAttribute("page", page)
-        return "domain/post/list"
+        return "domain/post/post/list"
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -59,7 +59,7 @@ class PostController(
         val postPage: Page<Post> = postService.search(member, null, kw, pageable)
         rq.setAttribute("postPage", postPage)
         rq.setAttribute("page", page)
-        return "domain/post/myList"
+        return "domain/post/post/myList"
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -88,7 +88,7 @@ class PostController(
         val member = rq.getMember() ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
         if (!postService.canModify(member, post)) throw GlobalException(ErrorCode.FORBIDDEN)
         model.addAttribute("post", post)
-        return "domain/post/modify"
+        return "domain/post/post/modify"
     }
 
     data class ModifyForm(
