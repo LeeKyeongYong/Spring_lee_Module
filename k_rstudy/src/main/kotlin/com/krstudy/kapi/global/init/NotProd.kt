@@ -28,7 +28,7 @@ class NotProd(
         return ApplicationRunner { args ->
             runBlocking {
                 // findByUsername이 Member?를 반환한다고 가정
-                val memberUser1 = memberService.findByUsername("user1")
+                val memberUser1 = memberService.findByUserid("user1")
                 if (memberUser1 != null) return@runBlocking
 
                 work1()

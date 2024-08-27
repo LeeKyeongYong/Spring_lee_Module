@@ -35,7 +35,7 @@ class BlogController(
         val sorts = listOf(Sort.Order.desc("id"))
         val pageable: Pageable = PageRequest.of(page - 1, 10, Sort.by(sorts))
 
-        val blogMember = memberService.findByUsername(username)
+        val blogMember = memberService.findByUserid(username)
             ?: throw GlobalException(ErrorCode.NOT_FOUND_USER)
 
         val postPage: Page<Post> = postService.search(blogMember, true, kw, pageable)
@@ -52,7 +52,7 @@ class BlogController(
         @PathVariable username: String,
         @PathVariable id: Long
     ): String {
-        val blogMember = memberService.findByUsername(username)
+        val blogMember = memberService.findByUserid(username)
             ?: throw GlobalException(ErrorCode.NOT_FOUND_USER)
         val post = postService.findById(id)
             ?: throw GlobalException(ErrorCode.NOT_FOUND_POST)

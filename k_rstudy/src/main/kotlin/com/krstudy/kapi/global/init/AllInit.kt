@@ -20,7 +20,7 @@ class AllInit(private val memberService: MemberService) {
         return ApplicationRunner { args ->
             CoroutineScope(Dispatchers.Default).launch {
                 // findByUsername이 Member?를 반환한다고 가정
-                if (memberService.findByUsername("system") != null) return@launch
+                if (memberService.findByUserid("system") != null) return@launch
 
                 // 회원가입 시 역할이 자동으로 설정되도록 변경
                 memberService.join("system","시스템관리자", "1234", "") // roleType은 비워두면 기본값 ROLE_ADMIN이 설정됨
