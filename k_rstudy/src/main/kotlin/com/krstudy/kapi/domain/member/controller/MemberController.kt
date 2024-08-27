@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpSession
 import lombok.extern.slf4j.Slf4j
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.RequestParam
 
 @Slf4j
@@ -29,7 +30,8 @@ import org.springframework.web.bind.annotation.RequestParam
 class MemberController(
     private val memberService: MemberService, // 회원 서비스에 대한 의존성 주입
     private val rq: ReqData, // 요청 데이터에 대한 의존성 주입
-    private val registrationQueue: RegistrationQueue // 가입 요청 큐에 대한 의존성 주입
+    private val registrationQueue: RegistrationQueue, // 가입 요청 큐에 대한 의존성 주입
+    private val passwordEncoder: PasswordEncoder // PasswordEncoder 주입
 ) {
 
     // Logger 인스턴스 생성: 로그를 기록하기 위해 사용
@@ -99,16 +101,22 @@ class MemberController(
      * @return 로그인 성공 또는 실패 후 리디렉션 경로
      */
     @PostMapping("/login")
-    @LogExecutionTime // 메소드 실행 시간 로그 기록
+    @LogExecutionTime
     fun login(@RequestParam userid: String, @RequestParam password: String, httpSession: HttpSession): String {
         log.info("login() method called with userid: $userid")
+
+        // Check if userid and password are null or empty
+        if (userid.isNullOrEmpty() || password.isNullOrEmpty()) {
+            log.error("Userid or password is null or empty")
+            return "redirect:/member/login?failMsg=invalid_input"
+        }
 
         return try {
             // 사용자 인증
             val member = memberService.findByUserid(userid) ?: throw CustomException(ErrorCode.NOT_FOUND_USER)
 
             // 비밀번호 검증
-            if (member.password != password) {
+            if (!passwordEncoder.matches(password, member.password)) {
                 throw CustomException(ErrorCode.BAD_REQUEST, "비밀번호가 일치하지 않습니다.")
             }
 
@@ -124,6 +132,7 @@ class MemberController(
         }
     }
 
+
     /**
      * 로그인 처리 후의 경로를 반환하는 메소드.
      * 인증된 사용자에 대해 로그인 후 페이지를 반환합니다.
@@ -138,7 +147,7 @@ class MemberController(
         val auth: Authentication? = SecurityContextHolder.getContext().authentication
         val securityUser = auth?.principal as? SecurityUser ?: throw CustomException(ErrorCode.UNAUTHORIZED_LOGIN_REQUIRED)
 
-        val userid = securityUser.userid
+        val userid = securityUser.username
         log.info("Authenticated username: $userid")
 
         // 사용자 정보를 가져옴

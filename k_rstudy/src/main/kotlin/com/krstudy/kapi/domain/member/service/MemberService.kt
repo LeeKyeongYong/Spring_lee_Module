@@ -1,6 +1,5 @@
 package com.krstudy.kapi.domain.member.service
 
-
 import com.krstudy.kapi.domain.member.datas.M_Role
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.repository.MemberRepository
@@ -40,7 +39,7 @@ class MemberService(
             this.username = username
             this.password = passwordEncoder.encode(password)
             this.roleType = roleType
-            this.useYn = "Y"  // 기본값은 Y
+            this.useYn = "Y"
         }
 
         withContext(Dispatchers.IO) {
@@ -64,7 +63,7 @@ class MemberService(
 
     fun validateLogin(member: Member) {
         if (member.useYn == "N") {
-            throw CustomException(ErrorCode.LOGIN_DISABLED_USER)
+            throw CustomException(ErrorCode.LOGIN_DISABLED_USER, "로그인 비활성화된 사용자입니다.")
         }
     }
 }
