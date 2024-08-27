@@ -44,12 +44,12 @@ class NotProd(
             val memberUser3 = memberService.join("user3", "memberUser3","1234", "").data
             val memberUser4 = memberService.join("user4", "memberUser4","1234", "").data
             // M_Role을 직접 사용하는 대신, 이름으로 변환
-            val memberUser5 = memberService.join("m_user01", "memberUser5", "1234", M_Role.MANAGER.authority).data
-            val memberUser6 = memberService.join("h_user01", "memberUser6", "1234", M_Role.HR.authority).data
-            val memberUser7 = memberService.join("d_user5", "memberUser7", "1234", M_Role.ADMIN.authority).data
+            val memberUser5 = memberService.join("m_user01", "기업운영자", "1234", M_Role.MANAGER.authority).data
+            val memberUser6 = memberService.join("h_user01", "인사담당자", "1234", M_Role.HR.authority).data
+            val memberUser7 = memberService.join("d_user5", "임시관리자", "1234", M_Role.ADMIN.authority).data
 
-            val memberUser8 = memberService.join("h_user02", "memberUser6", "1234","ROLE_HEADHUNTER").data
-            val memberUser9 = memberService.join("d_user2", "memberUser7", "1234", "ROLE_HR").data
+            val memberUser8 = memberService.join("h_user02", "헤드헌터", "1234","ROLE_HEADHUNTER").data
+            val memberUser9 = memberService.join("d_user2", "인사담당자", "1234", "ROLE_HR").data
 
 
             if (memberUser1 == null || memberUser2 == null || memberUser3 == null || memberUser4 == null || memberUser5 == null || memberUser6 == null
