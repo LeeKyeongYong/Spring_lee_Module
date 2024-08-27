@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import com.krstudy.kapi.domain.member.datas.RegistrationQueue
+import com.krstudy.kapi.global.Security.SecurityUser
 import com.krstudy.kapi.global.exception.ErrorCode
 import com.krstudy.kapi.global.lgexecution.LogExecutionTime
 import lombok.extern.slf4j.Slf4j
@@ -96,13 +97,22 @@ class MemberController(
     @LogExecutionTime // 메소드 실행 시간 로그 기록
     fun logi2n(): String {
         log.info("logi2n() method called") // 메소드 호출 로그 기록
-        val auth: Authentication? = SecurityContextHolder.getContext().authentication // 현재 인증 정보 가져오기
-        val member = memberService.findByUsername(auth?.name ?: throw CustomException(ErrorCode.UNAUTHORIZED_LOGIN_REQUIRED)) // 사용자 정보를 가져옴
+
+        // 현재 인증 정보 가져오기
+        val auth: Authentication? = SecurityContextHolder.getContext().authentication
+        val securityUser  = auth?.principal as? SecurityUser ?: throw CustomException(ErrorCode.UNAUTHORIZED_LOGIN_REQUIRED)
+
+        val userid = securityUser.userid
+        log.info("Authenticated username: $userid")
+
+        // 사용자 정보를 가져옴
+        val member = memberService.findByUserid(userid) ?: throw CustomException(ErrorCode.NOT_FOUND_USER)
 
         // 로그인 검증
-        memberService.validateLogin(member ?: throw CustomException(ErrorCode.NOT_FOUND_USER))
+        memberService.validateLogin(member)
 
         // 로그인 후 페이지 반환
         return "domain/member/member/login"
     }
+
 }

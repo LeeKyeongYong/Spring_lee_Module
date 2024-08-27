@@ -20,7 +20,7 @@ class MemberService(
 ) {
     @Transactional
     suspend fun join(userid: String, username: String, password: String, role: String): RespData<Member> {
-        val existingMember = findByUsername(userid)
+        val existingMember = findByUserid(userid)
         if (existingMember != null) {
             return RespData.fromErrorCode(ErrorCode.UNAUTHORIZED)
         }
@@ -53,7 +53,7 @@ class MemberService(
         )
     }
 
-    fun findByUsername(userid: String): Member? {
+    fun findByUserid(userid: String): Member? {
         return memberRepository.findByUserid(userid)
     }
 

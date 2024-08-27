@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails
 
 class SecurityUser(
     val id: Long,
-    userid:String,
+    val userid:String,
     username:String,
     password: String,
     authorities: Collection<out GrantedAuthority>,
