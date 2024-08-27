@@ -1,10 +1,21 @@
+
+DROP FUNCTION get_author_name;
+
+commit;
+
 CREATE FUNCTION get_author_name(author_id BIGINT) RETURNS VARCHAR(255)
     DETERMINISTIC
 BEGIN
     DECLARE author_name VARCHAR(255);
-SELECT username INTO author_name FROM member WHERE id = author_id;
+SELECT IFNULL(username, '사용자없음') INTO author_name FROM member WHERE id = author_id;
 RETURN author_name;
 END;
+
+commit;
+
+DROP VIEW IF EXISTS member_view;
+
+commit;
 
 CREATE VIEW member_view AS
 SELECT
