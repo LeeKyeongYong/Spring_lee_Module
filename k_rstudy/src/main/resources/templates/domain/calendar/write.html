@@ -42,7 +42,7 @@
                         const responseData = await response.json();
                         console.log('Response Data:', responseData);
                         alert("일정이 저장되었습니다.");
-                        //window.location.href = '/calendar'; // Redirect to /calendar
+                        window.location.href = '/calendar'; // Redirect to /calendar
                     } else {
                         const errorData = await response.text(); // HTML or plain text
                         console.error('Error Response:', errorData);

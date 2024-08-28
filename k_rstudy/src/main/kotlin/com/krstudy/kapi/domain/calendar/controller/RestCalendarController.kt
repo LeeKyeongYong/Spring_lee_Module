@@ -21,9 +21,7 @@ class RestCalendarController @Autowired constructor(
 
     @PostMapping
     fun createScalendar(@RequestBody scalendar: Scalendar): ResponseEntity<Any> {
-        println("Received Scalendar: $scalendar") // 수신된 Scalendar 로그
-        println("Received Scalendar2: "+scalendar.fcolor) // 수신된 Scalendar 로그
-        println("Received Scalendar3: "+scalendar.body) // 수신된 Scalendar 로그
+
         return try {
             val authentication = SecurityContextHolder.getContext().authentication
             val username = (authentication.principal as UserDetails).username
@@ -40,7 +38,6 @@ class RestCalendarController @Autowired constructor(
             ResponseEntity(mapOf("error" to "An unexpected error occurred"), HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
-
 
     @GetMapping("/{id}")
     fun getScalendarById(@PathVariable id: Long): ResponseEntity<Scalendar> {
