@@ -13,6 +13,7 @@ class ScalendarService @Autowired constructor(
 
     // 새로운 Scalendar를 저장하는 메소드
     fun createScalendar(scalendar: Scalendar): Scalendar {
+        println("Saving Scalendar: $scalendar")
         return scalendarRepository.save(scalendar)
     }
 
@@ -30,7 +31,7 @@ class ScalendarService @Autowired constructor(
                 body = updatedScalendar.body
                 startDay = updatedScalendar.startDay
                 endDay = updatedScalendar.endDay
-                fColor = updatedScalendar.fColor
+                fcolor = updatedScalendar.fcolor
             }
             scalendarRepository.save(existingScalendar)
         }.orElse(null)

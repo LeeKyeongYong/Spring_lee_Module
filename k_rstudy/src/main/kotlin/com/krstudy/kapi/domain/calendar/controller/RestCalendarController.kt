@@ -2,26 +2,46 @@ package com.krstudy.kapi.domain.calendar.controller
 
 import com.krstudy.kapi.domain.calendar.entity.Scalendar
 import com.krstudy.kapi.domain.calendar.service.ScalendarService
+import com.krstudy.kapi.domain.member.entity.Member
+import com.krstudy.kapi.domain.member.service.MemberService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/v1/scalendar")
 class RestCalendarController @Autowired constructor(
-    private val scalendarService: ScalendarService
+    private val scalendarService: ScalendarService,
+    private val memberService: MemberService // Inject UserService
 ) {
 
-    // Scalendar를 생성하는 엔드포인트
     @PostMapping
-    fun createScalendar(@RequestBody scalendar: Scalendar): ResponseEntity<Scalendar> {
-        println("scalendar: "+scalendar)
-        val createdScalendar = scalendarService.createScalendar(scalendar)
-        return ResponseEntity(createdScalendar, HttpStatus.CREATED)
+    fun createScalendar(@RequestBody scalendar: Scalendar): ResponseEntity<Any> {
+        println("Received Scalendar: $scalendar") // 수신된 Scalendar 로그
+        println("Received Scalendar2: "+scalendar.fcolor) // 수신된 Scalendar 로그
+        println("Received Scalendar3: "+scalendar.body) // 수신된 Scalendar 로그
+        return try {
+            val authentication = SecurityContextHolder.getContext().authentication
+            val username = (authentication.principal as UserDetails).username
+            val author: Member = memberService.findByUserid(username)
+                ?: throw UsernameNotFoundException("User not found with username: $username")
+            scalendar.author = author
+            val createdScalendar = scalendarService.createScalendar(scalendar)
+            ResponseEntity(createdScalendar, HttpStatus.CREATED)
+        } catch (e: UsernameNotFoundException) {
+            e.printStackTrace()
+            ResponseEntity(mapOf("error" to "User not found: ${e.message}"), HttpStatus.NOT_FOUND)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ResponseEntity(mapOf("error" to "An unexpected error occurred"), HttpStatus.INTERNAL_SERVER_ERROR)
+        }
     }
 
-    // Scalendar를 ID로 조회하는 엔드포인트
+
     @GetMapping("/{id}")
     fun getScalendarById(@PathVariable id: Long): ResponseEntity<Scalendar> {
         val scalendar = scalendarService.getScalendarById(id)
@@ -32,7 +52,6 @@ class RestCalendarController @Autowired constructor(
         }
     }
 
-    // Scalendar를 ID로 업데이트하는 엔드포인트
     @PutMapping("/{id}")
     fun updateScalendar(
         @PathVariable id: Long,
@@ -46,14 +65,12 @@ class RestCalendarController @Autowired constructor(
         }
     }
 
-    // Scalendar를 ID로 삭제하는 엔드포인트
     @DeleteMapping("/{id}")
     fun deleteScalendar(@PathVariable id: Long): ResponseEntity<Void> {
         scalendarService.deleteScalendar(id)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 
-    // Scalendar의 조회 수를 증가시키는 엔드포인트
     @PatchMapping("/{id}/hit")
     fun increaseHit(@PathVariable id: Long): ResponseEntity<Void> {
         scalendarService.increaseHit(id)

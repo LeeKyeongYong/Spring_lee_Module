@@ -8,6 +8,7 @@ import com.krstudy.kapi.global.exception.ErrorCode
 import com.krstudy.kapi.global.https.RespData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -58,6 +59,10 @@ class MemberService(
         return memberRepository.findByUserid(userid)
     }
 
+    fun findByUserName(username: String): Member {
+        return memberRepository.findByUsername(username)
+            ?: throw UsernameNotFoundException("User not found with username: $username")
+    }
     fun count(): Long {
         return memberRepository.count()
     }

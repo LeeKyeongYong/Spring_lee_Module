@@ -11,8 +11,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 class CustomWebMvcConfig : WebMvcConfigurer {
 
     override fun addCorsMappings(registry: CorsRegistry) {
-        registry.addMapping("/api/**")
-            .allowedOrigins("https://cdpn.io", "http://localhost:5173")
+        registry.addMapping("/v1/**")  // 수정: /v1/**로 수정
+            .allowedOrigins("http://localhost:8090")  // 개발 서버 URL 추가
             .allowedMethods("*")
             .allowedHeaders("*")
             .allowCredentials(true)
