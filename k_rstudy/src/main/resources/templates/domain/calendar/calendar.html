@@ -15,32 +15,32 @@
       margin: 0 auto;
     }
   </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var calendarEl = document.getElementById('calendar');
+      var calendar = new FullCalendar.Calendar(calendarEl, { // FullCalendar 네임스페이스 사용
+        initialView: 'dayGridMonth',
+        events: '/v1/scalendar',  // REST API 호출하여 이벤트 가져오기
+        eventClick: function(info) {
+          window.location.href = `/calendar/view?id=${info.event.id}`;
+        }
+      });
+      calendar.render();
+    });
+
+    function createScalendar() {
+      window.location.href = '/calendar/write'; // URL을 실제 이벤트 생성 페이지로 변경
+    }
+  </script>
 </head>
 
 <body>
 <div layout:fragment="content">
   <h1>일정 목록</h1>
   <div id="calendar"></div>
-  <button onclick="window.location.href = '/calendar/write';">작성</button>
+  <button onclick="createScalendar()">작성</button>
 </div>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('calendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, { // FullCalendar 네임스페이스 사용
-      initialView: 'dayGridMonth',
-      events: '/v1/scalendar',  // REST API 호출하여 이벤트 가져오기
-      eventClick: function(info) {
-        window.location.href = `/calendar/view?id=${info.event.id}`;
-      }
-    });
-    calendar.render();
-  });
 
-  function createScalendar() {
-    alert("AA");
-    // window.location.href = '/calendar/write'; // URL을 실제 이벤트 생성 페이지로 변경
-  }
-</script>
 </body>
 </html>
