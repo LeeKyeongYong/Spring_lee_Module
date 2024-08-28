@@ -10,5 +10,4 @@ import org.springframework.stereotype.Repository
 @Repository
 interface PostlikeRepository : JpaRepository<PostLike, Long> {
     fun existsByPostAndMember(post: Post, member: Member): Boolean
-
 }

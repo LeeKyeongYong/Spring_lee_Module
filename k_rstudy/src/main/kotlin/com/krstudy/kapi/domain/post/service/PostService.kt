@@ -7,7 +7,7 @@ import com.krstudy.kapi.domain.post.entity.Post
 import com.krstudy.kapi.domain.post.entity.PostLike
 import com.krstudy.kapi.domain.post.repository.PostRepository
 import com.krstudy.kapi.domain.post.repository.PostlikeRepository
-import com.krstudy.kapi.global.exception.CustomException
+import com.krstudy.kapi.global.exception.GlobalException
 import com.krstudy.kapi.global.exception.ErrorCode
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Page
@@ -67,25 +67,28 @@ class PostService(
     fun like(member: Member, post: Post) {
         // 이미 좋아요를 눌렀는지 검사
         if (postlikeRepository.existsByPostAndMember(post, member)) {
-            throw CustomException(ErrorCode.ALREADY_LIKED)
+            throw GlobalException(ErrorCode.ALREADY_LIKED)
         }
 
-        // 트랜잭션 내에서 중복 데이터 삽입을 방지하기 위해
         try {
-            // 기존 좋아요가 없다면 좋아요 추가 진행
-            val postLike = PostLike(post, member)
+            // 좋아요 추가 진행
+            val postLike = PostLike(
+                member = member,
+                post = post
+            )
             postlikeRepository.save(postLike)
-            post.addLike(member)
+
+            // 추가적으로 Post 객체의 좋아요 수를 업데이트하거나 필요한 작업 수행
+            post.addLike(member) // 예시로 추가적인 좋아요 수 업데이트를 가정
         } catch (e: DataIntegrityViolationException) {
             // 경쟁 조건의 경우, 좋아요가 존재하는지 다시 확인
             if (postlikeRepository.existsByPostAndMember(post, member)) {
-                throw CustomException(ErrorCode.ALREADY_LIKED)
+                throw GlobalException(ErrorCode.ALREADY_LIKED)
             } else {
                 throw e // 다른 무결성 위반이라면 예외를 다시 throw
             }
         }
     }
-
 
 
     @Transactional

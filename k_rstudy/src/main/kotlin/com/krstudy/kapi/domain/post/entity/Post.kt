@@ -53,4 +53,9 @@ class Post(
         comments.add(postComment)
         return postComment
     }
+
+    // username을 가져오는 메소드
+    fun getAuthorUsername(): String? {
+        return author?.username
+    }
 }

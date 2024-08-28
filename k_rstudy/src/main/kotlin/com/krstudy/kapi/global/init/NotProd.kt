@@ -77,13 +77,21 @@ class NotProd(
                 postService.writeComment(memberUser1, post5, "안녕하세요! $i 댓글입니다. 잘부탁드립니다.")
             }
 
-            IntStream.rangeClosed(1, 1000).forEach { i ->
-                postService.like(memberUser2, post1)
-                postService.like(memberUser3, post1)
-                postService.like(memberUser4, post1)
-                postService.like(memberUser2, post2)
-                postService.like(memberUser3, post2)
-                postService.like(memberUser2, post3)
+            val likePairs = listOf(
+                Pair(memberUser2, post1),
+                Pair(memberUser3, post1),
+                Pair(memberUser4, post1),
+                Pair(memberUser2, post2),
+                Pair(memberUser3, post2),
+                Pair(memberUser2, post3)
+            )
+
+            likePairs.forEach { (member, post) ->
+                if (!postService.canLike(member, post)) {
+                    println("이미 좋아요를 누른 사용자: ${member.userid}, 게시물: ${post.id}")
+                } else {
+                    postService.like(member, post)
+                }
             }
         }
     }

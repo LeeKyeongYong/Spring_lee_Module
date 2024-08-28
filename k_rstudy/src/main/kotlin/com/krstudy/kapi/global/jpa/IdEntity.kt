@@ -10,8 +10,7 @@ import java.io.Serializable
 abstract class IdEntity : Serializable {
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    var id: Long? = null
-        protected set
+    open val id: Long = 0
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

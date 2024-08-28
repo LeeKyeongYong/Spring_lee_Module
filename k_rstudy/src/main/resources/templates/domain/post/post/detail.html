@@ -10,6 +10,11 @@
     <h1>글 내용</h1>
 
     <div>
+        <h3>작성자</h3>
+        <div th:text="${post.author?.username}"></div>
+    </div>
+
+    <div>
         <h3>조회수</h3>
         <div th:text="${#numbers.formatInteger(post.hit, 3, 'COMMA')}"></div>
     </div>
