@@ -25,5 +25,6 @@ enum class ErrorCode(val code: String, val message: String) {
     INTERNAL_SERVER_ERROR("500-1", "서버 내부 오류입니다."),
 
     // 성공적인 응답
-    SUCCESS("200-1", "요청이 성공적으로 처리되었습니다.")
+    SUCCESS("200-1", "요청이 성공적으로 처리되었습니다."),
+    ALREADY_LIKED("400-3", "이미 좋아요를 눌렀습니다.")
 }

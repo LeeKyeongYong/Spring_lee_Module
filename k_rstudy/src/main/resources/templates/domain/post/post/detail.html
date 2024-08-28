@@ -42,9 +42,10 @@
 
         <form th:if="${@postService.canLike(@reqData.member, post)}"
               th:action="@{/post/{id}/like(id=${post.id})}"
-              method="post">
-            <button type="submit">추천</button>
+              method="post" id="likeForm">
+            <button type="submit" onclick="this.disabled=true; this.form.submit();">추천</button>
         </form>
+
 
         <form style="display: contents"
               th:if="${@postService.canCancelLike(@reqData.member, post)}"
