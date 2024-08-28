@@ -18,7 +18,7 @@ class PostCommentController(
     private val rq: ReqData
 ) {
 
-    @GetMapping("/write")
+    @PostMapping("/write")
     @PreAuthorize("isAuthenticated()")
     fun write(
         @PathVariable id: Long,

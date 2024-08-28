@@ -2,6 +2,8 @@ package com.krstudy.kapi.domain.post.controller
 
 
 
+import com.krstudy.kapi.domain.post.datas.ModifyForm
+import com.krstudy.kapi.domain.post.datas.WriteForm
 import com.krstudy.kapi.domain.post.entity.Post
 import com.krstudy.kapi.global.exception.GlobalException
 import com.krstudy.kapi.global.https.ReqData
@@ -66,12 +68,6 @@ class PostController(
     @GetMapping("/write")
     fun showWrite(): String = "domain/post/post/write"
 
-    data class WriteForm(
-        @field:NotBlank val title: String,
-        @field:NotBlank val body: String,
-        val isPublished: Boolean
-    )
-
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/write")
     fun write(@Valid @ModelAttribute form: WriteForm, redirectAttributes: RedirectAttributes): RedirectView {
@@ -91,11 +87,7 @@ class PostController(
         return "domain/post/post/modify"
     }
 
-    data class ModifyForm(
-        @field:NotBlank val title: String,
-        @field:NotBlank val body: String,
-        val isPublished: Boolean
-    )
+
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}/modify")

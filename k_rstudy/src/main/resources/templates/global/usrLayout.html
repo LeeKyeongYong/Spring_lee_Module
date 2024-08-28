@@ -9,20 +9,27 @@
 
 <header layout:fragment="header">
 
-<!--    으하하-->
-<!--    <div th:if="${#authentication.principal != null}">-->
-<!--        &lt;!&ndash; 로그인한 사용자에게 보여줄 콘텐츠 &ndash;&gt;-->
-<!--&lt;!&ndash;        <p>Welcome, <span th:text="${#authentication.principal.username}">User</span>!</p>&ndash;&gt;-->
+    <div th:if="${@reqData.login}">
+        <h1>Hello, <span th:text="${@reqData.getMember().username}">User</span>!</h1>
+        <p th:if="${@reqData.getMember() != null and @reqData.getMember().getCreateDate() != null}"
+           th:text="${#strings.replace(@reqData.getMember().createDate.toString(), 'T', ' ')}">You are an 등록일.</p>
 
-<!--        <ul>-->
-<!--            <li th:each="authority : ${#authentication.authorities}">-->
-<!--                <span th:text="${authority}"></span>-->
-<!--            </li>-->
-<!--        </ul>-->
+          <!--
+        LocalDateTime을 Date로 변환 하기위해서 만약 #dates 유틸리티를 계속 사용해야 한다면 Date 객체로 변환 처리해야한다
+            <p th:if="${@reqData.getMember() != null and @reqData.getMember().createDate != null}"
+          th:text="${#dates.format(@reqData.getMember().createDate, 'yyyy-MM-dd HH:mm:ss')}">You are an 등록일.</p>
 
-<!--        &lt;!&ndash; 로그아웃 버튼 등 &ndash;&gt;-->
-<!--    </div>-->
+          -->
+        <p th:if="${@reqData.getMember() != null and @reqData.getMember().createDate != null}"
+           th:text="${#temporals.format(@reqData.getMember().createDate, 'yyyy-MM-dd HH:mm:ss')}">
+            등록일
+        </p>
 
+
+        <p th:if="${@reqData.getMember().userid}">You are an userId.</p>
+        <p th:if="${@reqData.getMember().roleType}">You are an RoleType.</p>
+        <p th:if="${@reqData.getMember().useYn}">You are an useYn.</p>
+    </div>
 
     <h1 th:text="|${@appConfig.siteName}|"></h1>
 

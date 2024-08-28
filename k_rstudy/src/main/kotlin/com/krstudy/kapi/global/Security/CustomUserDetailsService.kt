@@ -22,7 +22,7 @@ class CustomUserDetailsService(
 
     @Throws(UsernameNotFoundException::class)
     override fun loadUserByUsername(username: String): UserDetails {
-        println("username: "+username);
+
         val member = memberRepository.findByUserid(username)
             ?: throw UsernameNotFoundException("User not found: $username")
 

@@ -40,15 +40,20 @@
         <button onclick="history.back();">뒤로가기</button>
         <a th:if="${@postService.canModify(@reqData.member, post)}" th:href="|/post/${post.id}/modify|">글 수정</a>
 
-        <a th:if="${@postService.canLike(@reqData.member, post)}"
-           th:href="|/post/${post.id}/like|" method="POST">
-            추천
-        </a>
+        <form th:if="${@postService.canLike(@reqData.member, post)}"
+              th:action="@{/post/{id}/like(id=${post.id})}"
+              method="post">
+            <button type="submit">추천</button>
+        </form>
 
-        <a th:if="${@postService.canCancelLike(@reqData.member, post)}"
-           th:href="|/post/${post.id}/cancelLike|" method="DELETE">
-            추천취소
-        </a>
+        <form style="display: contents"
+              th:if="${@postService.canCancelLike(@reqData.member, post)}"
+              th:action="|/post/${post.id}/cancelLike|"
+              method="POST">
+            <input type="hidden" name="_method" value="DELETE" />
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+            <button type="submit">추천 취소</button>
+        </form>
 
         <form style="display: contents"
               th:if="${@postService.canDelete(@reqData.member, post)}"
@@ -58,15 +63,6 @@
             <input type="hidden" name="_method" value="DELETE">
             <button onclick="return confirm('정말로 삭제하시겠습니까?');">글 삭제</button>
         </form>
-
-        <a
-                th:if="${@postService.canDelete(@reqData.member, post)}"
-                th:href="|/post/${post.id}/delete|"
-                method="DELETE"
-                onclick="return confirm('정말로 삭제하시겠습니까?');"
-        >
-            글 삭제
-        </a>
     </div>
 
     <th:block th:if="${@reqData.login}">
