@@ -1,4 +1,5 @@
 package com.krstudy.kapi.global.init
+
 import com.krstudy.kapi.domain.member.service.MemberService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,8 +24,8 @@ class AllInit(private val memberService: MemberService) {
                 if (memberService.findByUserid("system") != null) return@launch
 
                 // 회원가입 시 역할이 자동으로 설정되도록 변경
-                memberService.join("system","시스템관리자", "abc@lky.co.kr","1234", "") // roleType은 비워두면 기본값 ROLE_ADMIN이 설정됨
-                memberService.join("admin", "관리자","abc@lky.co.kr","1234", "") // roleType은 비워두면 기본값 ROLE_ADMIN이 설정됨
+                memberService.join("system", "시스템관리자", "system@example.com", "1234", "")
+                memberService.join("admin", "관리자", "admin@example.com", "1234", "")
             }
         }
     }

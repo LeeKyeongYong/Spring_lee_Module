@@ -4,6 +4,7 @@ import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.global.Security.SecurityUser
 import com.krstudy.kapi.standard.base.Ut
 import jakarta.persistence.EntityManager
+import jakarta.persistence.EntityNotFoundException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import lombok.RequiredArgsConstructor
@@ -58,9 +59,6 @@ class ReqData(
         val authentication = SecurityContextHolder.getContext().authentication
         val principal = authentication?.principal
 
-        println("Authentication: $authentication")
-        println("Principal: $principal")
-
         return if (principal is SecurityUser) {
             principal
         } else {
@@ -94,11 +92,17 @@ class ReqData(
 
     fun getMember(): Member? {
         if (isLogout()) return null
-
-        if (member == null) {
-            member = entityManager.getReference(Member::class.java, getUser()?.id)
+        val userId = getUser()?.id
+        return try {
+            if (userId != null) {
+                entityManager.getReference(Member::class.java, userId)
+            } else {
+                null
+            }
+        } catch (e: EntityNotFoundException) {
+            // 로그를 기록하거나 기본값을 반환
+            println("EntityNotFoundException: ${e.message}")
+            null
         }
-
-        return member
     }
 }

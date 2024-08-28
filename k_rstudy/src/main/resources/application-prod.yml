@@ -1,7 +1,9 @@
 server:
   shutdown: graceful
   port: 8090
-
+  servlet:
+    session:
+      timeout: 30m
 spring:
   servlet:
     multipart:

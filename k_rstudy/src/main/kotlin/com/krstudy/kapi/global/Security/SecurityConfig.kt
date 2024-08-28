@@ -37,6 +37,14 @@ class SecurityConfig {
 
             .logout { logout ->
                 logout.logoutRequestMatcher(AntPathRequestMatcher("/member/logout"))
+                    .logoutSuccessUrl("/?msg=" + URLEncoder.encode("로그아웃되었습니다.", StandardCharsets.UTF_8))
+                    .invalidateHttpSession(true) // 세션 무효화
+                    .deleteCookies("JSESSIONID") // 쿠키 삭제
+            }.sessionManagement { sessionManagement ->
+                sessionManagement
+                    .invalidSessionUrl("/member/login?failMsg=" + URLEncoder.encode("세션이 만료되었습니다.", StandardCharsets.UTF_8))
+                    .maximumSessions(1)
+                    .expiredUrl("/member/login?failMsg=" + URLEncoder.encode("세션이 만료되었습니다.", StandardCharsets.UTF_8))
             }
 
         return http.build()

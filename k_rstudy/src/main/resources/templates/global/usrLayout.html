@@ -11,7 +11,7 @@
 
     <div th:if="${@reqData.login}">
         <h1>Hello, <span th:text="${@reqData.getMember().username}">User</span>!</h1>
-        <p th:if="${@reqData.getMember() != null and @reqData.getMember().getCreateDate() != null}"
+        <p th:if="${@reqData.getMember() != null and @reqData.getMember().createDate != null}"
            th:text="${#strings.replace(@reqData.getMember().createDate.toString(), 'T', ' ')}">You are an 등록일.</p>
 
           <!--

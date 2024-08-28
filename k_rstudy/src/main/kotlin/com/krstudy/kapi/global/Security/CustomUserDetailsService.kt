@@ -2,6 +2,7 @@ package com.krstudy.kapi.global.Security
 
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.repository.MemberRepository
+import com.krstudy.kapi.domain.member.service.MemberService
 import com.krstudy.kapi.global.Security.SecurityUser
 import lombok.RequiredArgsConstructor
 import org.springframework.security.core.userdetails.User
@@ -16,14 +17,12 @@ import java.util.*
 @Service
 @Transactional(readOnly = true)
 class CustomUserDetailsService(
-    private val memberRepository: MemberRepository,
-    private val passwordEncoder: PasswordEncoder
+    private val memberService: MemberService
 ) : UserDetailsService {
-
     @Throws(UsernameNotFoundException::class)
     override fun loadUserByUsername(username: String): UserDetails {
 
-        val member = memberRepository.findByUserid(username)
+        val member = memberService.findByUserid(username)
             ?: throw UsernameNotFoundException("User not found: $username")
 
         return SecurityUser(
@@ -34,10 +33,4 @@ class CustomUserDetailsService(
         )
     }
 
-    fun authenticate(username: String, rawPassword: String): Boolean {
-        val member = memberRepository.findByUserid(username)
-            ?: return false
-
-        return passwordEncoder.matches(rawPassword, member.password)
-    }
 }
