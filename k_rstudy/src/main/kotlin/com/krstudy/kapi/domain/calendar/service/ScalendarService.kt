@@ -50,4 +50,10 @@ class ScalendarService @Autowired constructor(
             scalendarRepository.save(scalendar)
         }
     }
+
+    // 모든 Scalendar 이벤트를 조회하는 메소드
+    fun getAllScalendarEvents(): List<Scalendar> {
+        return scalendarRepository.findAll()
+    }
+
 }

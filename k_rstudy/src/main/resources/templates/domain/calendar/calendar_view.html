@@ -1,67 +1,65 @@
 <html layout:decorate="~{global/usrLayout}">
-
 <head>
     <title id="eventDetails"></title>
-</head>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
 
-<body>
+            const response = await fetch(`/v1/scalendar/${id}`);
+            if (response.ok) {
+                const event = await response.json();
 
-<div layout:fragment="content">
-    <h1>글 내용</h1>
-    <div id="eventDetails"></div>
-    <div>
-        <button onclick="history.back();">뒤로가기</button>
-        <button id="editButton" style="display: none;">Edit</button>
-        <button id="deleteButton" style="display: none;">Delete</button>
-    </div>
-</div>
-<script type="module">
-    document.addEventListener('DOMContentLoaded', async function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const id = urlParams.get('id');
-
-        const response = await fetch(`/v1/scalendar/${id}`);
-        if (response.ok) {
-            const event = await response.json();
-
-            document.getElementById('eventDetails').innerHTML = `
+                document.getElementById('eventDetails').innerHTML = `
                     <h2>${event.title}</h2>
-                     <p><strong>Author:</strong> <span th:text="${event.author.username}">Author Username</span></p>
+                    <p><strong>Author:</strong> <span>${event.author.username}</span></p>
                     <p><strong>Description:</strong> ${event.body}</p>
                     <p><strong>Start:</strong> ${event.startDay}</p>
                     <p><strong>End:</strong> ${event.endDay}</p>
                     <p><strong>Hit:</strong> ${event.hit}</p>
                 `;
 
-            // Update hit count
-            await fetch(`/v1/scalendar/${id}/hit`, {
-                method: 'PATCH'
-            });
-
-            // Check if the user is the author to show edit/delete buttons
-            const user = await fetch('/api/user'); // Implement this endpoint to get the current user
-            const currentUser = await user.json();
-            if (event.author.id === currentUser.id) {
-                document.getElementById('editButton').style.display = 'inline';
-                document.getElementById('editButton').addEventListener('click', () => {
-                    window.location.href = `/write.html?id=${id}`; // Implement editing
+                // Update hit count
+                await fetch(`/v1/scalendar/${id}/hit`, {
+                    method: 'PATCH'
                 });
-                document.getElementById('deleteButton').style.display = 'inline';
-                document.getElementById('deleteButton').addEventListener('click', async () => {
-                    const response = await fetch(`/api/scalendar/${id}`, {
-                        method: 'DELETE'
+
+                // Get the current user from a data attribute
+                const currentUser = document.getElementById('userData').textContent || document.getElementById('userData').innerText;
+                if (event.author.userid === currentUser) {
+                    document.getElementById('editButton').style.display = 'inline';
+                    document.getElementById('editButton').addEventListener('click', () => {
+                        window.location.href = `/write.html?id=${id}`; // Implement editing
                     });
-                    if (response.ok) {
-                        window.location.href = '/index.html';
-                    } else {
-                        alert('Error deleting event');
-                    }
-                });
+                    document.getElementById('deleteButton').style.display = 'inline';
+                    document.getElementById('deleteButton').addEventListener('click', async () => {
+                        const response = await fetch(`/v1/scalendar/${id}`, {
+                            method: 'DELETE'
+                        });
+                        if (response.ok) {
+                            window.location.href = '/index.html';
+                        } else {
+                            alert('Error deleting event');
+                        }
+                    });
+                }
+            } else {
+                alert('Event not found');
             }
-        } else {
-            alert('Event not found');
-        }
-    });
+        });
+    </script>
+</head>
+<body>
+<div layout:fragment="content">
+    <h1>글 내용</h1>
+    <div id="eventDetails"></div>
+    <!-- Thymeleaf variable injected into data attribute -->
+    <p id="userData" th:text="${@reqData.getMember().userid}" style="display: none;"></p>
+    <div>
+        <button onclick="history.back();">Back</button>
+        <button id="editButton" style="display: none;">Edit</button>
+        <button id="deleteButton" style="display: none;">Delete</button>
+    </div>
+</div>
 </body>
-
 </html>

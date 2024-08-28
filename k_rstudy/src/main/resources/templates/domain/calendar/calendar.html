@@ -20,8 +20,15 @@
       var calendarEl = document.getElementById('calendar');
       var calendar = new FullCalendar.Calendar(calendarEl, { // FullCalendar 네임스페이스 사용
         initialView: 'dayGridMonth',
-        events: '/v1/scalendar',  // REST API 호출하여 이벤트 가져오기
+        events: {
+          url: '/v1/scalendar',  // REST API 호출하여 이벤트 가져오기
+          method: 'GET',
+          failure: function() {
+            alert('Error fetching events!');
+          }
+        },
         eventClick: function(info) {
+          console.log("Event info: ", info);
           window.location.href = `/calendar/view?id=${info.event.id}`;
         }
       });
@@ -37,10 +44,8 @@
 <body>
 <div layout:fragment="content">
   <h1>일정 목록</h1>
-  <div id="calendar"></div>
   <button onclick="createScalendar()">작성</button>
+  <div id="calendar"></div>
 </div>
-
-
 </body>
 </html>

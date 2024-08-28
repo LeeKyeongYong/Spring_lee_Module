@@ -19,6 +19,22 @@ class RestCalendarController @Autowired constructor(
     private val memberService: MemberService // Inject UserService
 ) {
 
+    @GetMapping
+    fun getAllScalendarEvents(): ResponseEntity<List<Map<String, Any?>>> {
+        val events = scalendarService.getAllScalendarEvents()
+        val response = events.map { event ->
+            mapOf(
+                "id" to event.id,
+                "title" to event.title,
+                "start" to event.startDay,
+                "end" to event.endDay,
+                "backgroundColor" to event.fcolor
+            )
+        }
+        return ResponseEntity(response, HttpStatus.OK)
+    }
+
+
     @PostMapping
     fun createScalendar(@RequestBody scalendar: Scalendar): ResponseEntity<Any> {
 

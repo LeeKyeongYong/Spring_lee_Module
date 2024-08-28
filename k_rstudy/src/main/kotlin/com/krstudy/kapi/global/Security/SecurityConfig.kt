@@ -26,7 +26,12 @@ class SecurityConfig {
             .authorizeRequests { authorizeRequests ->
                 authorizeRequests
                     .requestMatchers("/adm/**").hasRole("ADMIN")
+                    .requestMatchers("/v1/**").authenticated() // 인증된 사용자만 접근 가능
                     .anyRequest().permitAll()
+            }
+            .csrf { csrf ->
+                csrf
+                    .ignoringRequestMatchers("/v1/**") // CSRF 보호 비활성화
             }
             .formLogin { formLogin ->
                 formLogin
