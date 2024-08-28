@@ -43,8 +43,9 @@
     <a th:if="${@reqData.logout}" href="/member/join">회원가입</a>
     <a th:if="${@reqData.login}" href="/member/logout">회원 엑셀다운로드</a>
     <a th:if="${@reqData.login}" href="/member/logout">게시글 엑셀다운로드</a>
-    <a th:if="${@reqData.login}" href="/calednar">일정관리</a>
-
+    <a th:if="${@reqData.login}" href="/calendar">일정관리</a>
+    <a th:if="${@reqData.login}" href="/calednar">결제하기</a>
+    <a th:if="${@reqData.login}" href="/calednar">통계</a>
 
 </header>
 

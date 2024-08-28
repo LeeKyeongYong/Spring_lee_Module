@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html layout:decorate="~{global/usrLayout}">
+
+<head>
+    <title>글 쓰기</title>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <h1>Write Event</h1>
+    <form id="eventForm">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required>
+
+        <label for="startDay">Start Date:</label>
+        <input type="date" id="startDay" name="startDay" required>
+
+        <label for="endDay">End Date:</label>
+        <input type="date" id="endDay" name="endDay" required>
+
+        <label for="body">Description:</label>
+        <textarea id="body" name="body" rows="4" cols="50"></textarea>
+
+        <label for="fColor">Color:</label>
+        <select id="fColor" name="fColor">
+            <option value="#000000">Black</option>
+            <option value="#FF0000">Red</option>
+            <option value="#00FF00">Green</option>
+            <option value="#0000FF">Blue</option>
+            <!-- Add more colors as needed -->
+        </select>
+
+        <button type="submit">Save</button>
+    </form>
+</div>
+<script type="module">
+    document.getElementById('eventForm').addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+        const payload = {
+            title: formData.get('title'),
+            startDay: formData.get('startDay'),
+            endDay: formData.get('endDay'),
+            body: formData.get('body'),
+            isPublished: false,
+            hit: 0,
+            fColor: formData.get('fColor')
+        };
+
+        console.log('Payload:', payload);
+
+        try {
+            const response = await fetch('/v1/scalendar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            console.log('Response Status:', response.status);
+            const responseData = await response.json();
+            console.log('Response Data:', responseData);
+
+            if (response.ok) {
+                window.location.href = '/calendar'; // Redirect to /calendar
+            } else {
+                alert('Error saving event');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An unexpected error occurred');
+        }
+    });
+</script>
+</body>
+
+</html>
