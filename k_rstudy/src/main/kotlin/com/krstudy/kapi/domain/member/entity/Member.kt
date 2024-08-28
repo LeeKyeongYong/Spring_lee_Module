@@ -24,6 +24,9 @@ class Member(
     @Column(nullable = false)
     var useYn: String = "Y",  // Y: 사용 가능, N: 사용 불가능
 
+    @Column(nullable = false)
+    var userEmail: String = "",
+
     @Transient
     private val roleStrategy: RoleStrategy = DefaultRoleStrategy()
 ) : BaseEntity() {

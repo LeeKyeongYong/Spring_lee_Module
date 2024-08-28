@@ -10,10 +10,19 @@
 
     <script>
         function submitJoinForm(form) {
+
+            form.userid.value = form.userid.value.trim();
+
+            if (form.userid.value.length == 0) {
+                toastWarning('사용자 ID를 입력해주세요.');
+                form.userid.focus();
+                return;
+            }
+
             form.username.value = form.username.value.trim();
 
             if (form.username.value.length == 0) {
-                toastWarning('사용자 ID를 입력해주세요.');
+                toastWarning('사용자 이름을 입력해주세요.');
                 form.username.focus();
                 return;
             }
@@ -40,14 +49,32 @@
                 return;
             }
 
+            form.userEmail.value = form.userEmail.value.trim();
+
+            // 이메일 형식 검사
+            var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(form.userEmail.value)) {
+                toastWarning('유효한 이메일 주소를 입력해주세요.');
+                form.userEmail.focus();
+                return;
+            }
+
             form.submit();
         }
     </script>
 
-    <form th:action method="POST" onSubmit="submitJoinForm(this); return false;">
+    <form th:action="@{/member/join}" method="POST" onSubmit="submitJoinForm(this); return false;">
         <div>
-            <label>사용자 ID</label>
+            <label>사용자 아이디</label>
+            <input type="text" name="userid">
+        </div>
+        <div>
+            <label>사용자 이름</label>
             <input type="text" name="username">
+        </div>
+        <div>
+            <label>사용자 이메일</label>
+            <input type="text" name="userEmail">
         </div>
 
         <div>

@@ -20,6 +20,10 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.slf4j.Logger
+import org.springframework.validation.BindingResult
+import org.springframework.validation.FieldError
+import org.springframework.web.servlet.mvc.support.RedirectAttributes
+
 @Slf4j
 @Controller
 @RequestMapping("/member")
@@ -85,11 +89,26 @@ class MemberController(
     @PreAuthorize("isAnonymous()") // 인증되지 않은 사용자만 접근 가능
     @PostMapping("/join") // POST 요청에 대해 /member/join 경로로 매핑
     @LogExecutionTime // 메소드 실행 시간 로그 기록
-    fun join(@Valid joinForm: JoinForm): String {
+    fun join(@Valid @ModelAttribute joinForm: JoinForm,
+             bindingResult: BindingResult,
+             redirectAttributes: RedirectAttributes
+    ): String {
+        // 검증 오류가 있는 경우
+        if (bindingResult.hasErrors()) {
+            // 오류 메시지를 RedirectAttributes에 추가
+            bindingResult.allErrors.forEach { error ->
+                val fieldName = (error as FieldError).field
+                val errorMessage = error.defaultMessage
+                redirectAttributes.addFlashAttribute("error_$fieldName", errorMessage)
+            }
+
+            // 회원가입 페이지로 리디렉션
+            return "redirect:/member/join" // 실제 회원가입 페이지 URL로 변경
+        }
         log.info("join() method called with JoinForm: $joinForm") // 폼 데이터와 함께 메소드 호출 로그 기록
 
         // 가입 요청을 큐에 추가
-        registrationQueue.enqueue(joinForm.userid, joinForm.username, joinForm.password)
+        registrationQueue.enqueue(joinForm.userid, joinForm.username,joinForm.userEmail, joinForm.password)
         log.info("User with userid: ${joinForm.userid} enqueued successfully") // 큐에 추가된 사용자 로그 기록
 
         // 성공적인 응답 생성
@@ -102,7 +121,7 @@ class MemberController(
         log.info("Redirecting to /member/login with success response: $successResponse") // 리디렉션 로그 기록
         return rq.redirectOrBack(
             rs = successResponse,
-            path = "domain/member/login"
+            path = "/member/login"
         )
     }
 

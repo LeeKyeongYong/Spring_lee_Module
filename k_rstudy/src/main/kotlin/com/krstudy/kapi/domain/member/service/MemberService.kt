@@ -19,7 +19,7 @@ class MemberService(
     private val passwordEncoder: PasswordEncoder
 ) {
     @Transactional
-    suspend fun join(userid: String, username: String, password: String, role: String): RespData<Member> {
+    suspend fun join(userid: String, username: String, userEmail: String,password: String, role: String): RespData<Member> {
         val existingMember = findByUserid(userid)
         if (existingMember != null) {
             return RespData.fromErrorCode(ErrorCode.UNAUTHORIZED)
@@ -37,6 +37,7 @@ class MemberService(
         val member = Member().apply {
             this.userid = userid
             this.username = username
+            this.userEmail = userEmail
             this.password = passwordEncoder.encode(password)
             this.roleType = roleType
             this.useYn = "Y"
