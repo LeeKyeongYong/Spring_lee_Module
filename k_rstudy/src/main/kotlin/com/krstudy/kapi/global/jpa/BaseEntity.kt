@@ -1,5 +1,6 @@
 package com.krstudy.kapi.global.jpa
 
+import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.persistence.Column
 import jakarta.persistence.EntityListeners
 import jakarta.persistence.MappedSuperclass
@@ -16,10 +17,12 @@ import java.time.format.DateTimeFormatter
 @EntityListeners(AuditingEntityListener::class)
 @ToString(callSuper = true)
 open class BaseEntity : IdEntity() {
+    @Schema(hidden = true)
     @CreatedDate
     @Column(columnDefinition = "DATETIME(0)")
     private var createDate: LocalDateTime? = null
 
+    @Schema(hidden = true)
     @LastModifiedDate
     @Column(columnDefinition = "DATETIME(0)")
     private var modifyDate: LocalDateTime? = null

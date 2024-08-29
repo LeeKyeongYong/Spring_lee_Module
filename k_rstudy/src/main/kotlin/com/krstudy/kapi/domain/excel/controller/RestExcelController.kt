@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.ModelAndView
 
-@RestController
-@RequestMapping("/v1/scalendar")
+//@RestController
+//@RequestMapping("/v1/scalendar")
 class RestExcelController {
-
+/*
     @Autowired
     private lateinit var memberExcelView: MemberExcelView
 
@@ -52,5 +52,5 @@ class RestExcelController {
             addObject("fileName", "$fileName.xls")
         }
     }
-
+*/
 }

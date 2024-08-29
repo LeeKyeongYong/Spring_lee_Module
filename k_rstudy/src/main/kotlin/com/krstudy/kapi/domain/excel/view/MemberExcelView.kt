@@ -1,7 +1,7 @@
 package com.krstudy.kapi.domain.excel.view
 
 import com.krstudy.kapi.domain.excel.entity.MemberView
-import com.krstudy.kapi.domain.excel.repository.MemberViewRepository
+import com.krstudy.kapi.com.krstudy.kapi.domain.excel.repository.MemberViewRepository
 import com.krstudy.kapi.standard.base.AbstractExcelView
 import jakarta.servlet.http.HttpServletRequest
 import org.apache.poi.ss.usermodel.CellStyle
