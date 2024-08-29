@@ -25,6 +25,11 @@ class ScalendarController(
         return "domain/calendar/write"  // src/main/resources/templates/write.html을 반환
     }
 
+    @RequestMapping("/calendar/modify")
+    fun modifyPage(): String {//수정기능
+        return "domain/calendar/modify"  // src/main/resources/templates/modify.html을 반환
+    }
+
     @RequestMapping("/calendar/view")
     fun calendarViewPage(): String {
         return "domain/calendar/calendar_view"  // src/main/resources/templates/calendar_view.html을 반환

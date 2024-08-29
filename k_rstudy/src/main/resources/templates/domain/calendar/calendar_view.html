@@ -19,17 +19,21 @@
                     <p><strong>Hit:</strong> ${event.hit}</p>
                 `;
 
-                // Update hit count
-                await fetch(`/v1/scalendar/${id}/hit`, {
-                    method: 'PATCH'
-                });
 
                 // Get the current user from a data attribute
                 const currentUser = document.getElementById('userData').textContent || document.getElementById('userData').innerText;
+
+                if (event.author.userid !== currentUser) { //자신이 보면 hit가 되면 안됨.
+                    // Update hit count
+                    await fetch(`/v1/scalendar/${id}/hit`, {
+                        method: 'PATCH'
+                    });
+                }
+
                 if (event.author.userid === currentUser) {
                     document.getElementById('editButton').style.display = 'inline';
                     document.getElementById('editButton').addEventListener('click', () => {
-                        window.location.href = `/write.html?id=${id}`; // Implement editing
+                        window.location.href = `/calendar/modify?id=${id}`; // Implement editing
                     });
                     document.getElementById('deleteButton').style.display = 'inline';
                     document.getElementById('deleteButton').addEventListener('click', async () => {
@@ -37,7 +41,7 @@
                             method: 'DELETE'
                         });
                         if (response.ok) {
-                            window.location.href = '/index.html';
+                            window.location.href = '/calendar';
                         } else {
                             alert('Error deleting event');
                         }
