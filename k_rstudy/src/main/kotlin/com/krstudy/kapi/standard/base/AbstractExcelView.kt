@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.apache.poi.hssf.util.HSSFColor
 import org.apache.poi.ss.usermodel.*
-import org.apache.poi.ss.util.CellUtil
 import org.springframework.web.servlet.view.document.AbstractXlsView
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -15,12 +14,14 @@ abstract class AbstractExcelView<T> : AbstractXlsView() {
 
     @Throws(Exception::class)
     override fun buildExcelDocument(model: Map<String, Any>, workbook: Workbook, request: HttpServletRequest, response: HttpServletResponse) {
-        val title = model["title"] as String
+        val title = model["title"] as String? ?: "Excel Report"  // 제목이 null인 경우 기본값 설정
         val headerTitles = model["headerTitles"] as List<String>
         val startDateStr = model["startDate"] as String
         val endDateStr = model["endDate"] as String
         val sheetName = model["sheetName"] as String? ?: "Sheet1"
-        val fileName = model["fileName"] as String? ?: "$title_${LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))}.xls"
+        val fileName = (model["fileName"] as String?) ?: "${title}_${LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))}.xls"
+
+
         val items = getData(request)
 
         response.setHeader("Content-Disposition", "attachment; filename=\"$fileName\"")

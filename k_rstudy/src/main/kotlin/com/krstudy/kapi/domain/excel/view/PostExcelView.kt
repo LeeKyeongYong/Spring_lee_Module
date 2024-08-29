@@ -1,15 +1,21 @@
 package com.krstudy.kapi.domain.excel.view
 
+import com.krstudy.kapi.com.krstudy.kapi.domain.excel.repository.PostDetailsRepository
 import com.krstudy.kapi.domain.excel.entity.PostDetails
 import com.krstudy.kapi.standard.base.AbstractExcelView
 import org.apache.poi.ss.usermodel.CellStyle
 import org.apache.poi.ss.usermodel.Sheet
 import jakarta.servlet.http.HttpServletRequest
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 
+@Component
 class PostExcelView : AbstractExcelView<PostDetails>() {
-    override fun getData(request: HttpServletRequest): List<PostDetails> {
-        // 데이터베이스에서 PostDetails 데이터를 가져오는 로직
 
+    @Autowired
+    private lateinit var postDetailsRepository: PostDetailsRepository
+    override fun getData(request: HttpServletRequest): List<PostDetails> {
+        return postDetailsRepository.findAll() // 실제 필요한 데이터 조회 로직으로 변경
     }
 
     override fun fillData(sheet: Sheet, items: List<PostDetails>, bodyStyle: CellStyle) {

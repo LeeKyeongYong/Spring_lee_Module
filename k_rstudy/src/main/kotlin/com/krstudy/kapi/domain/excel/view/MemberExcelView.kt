@@ -1,17 +1,22 @@
 package com.krstudy.kapi.domain.excel.view
 
 import com.krstudy.kapi.domain.excel.entity.MemberView
+import com.krstudy.kapi.domain.excel.repository.MemberViewRepository
 import com.krstudy.kapi.standard.base.AbstractExcelView
 import jakarta.servlet.http.HttpServletRequest
 import org.apache.poi.ss.usermodel.CellStyle
 import org.apache.poi.ss.usermodel.Sheet
-import org.springframework.web.servlet.view.document.AbstractXlsView
-import jakarta.servlet.http.HttpServletRequest
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 
+@Component
 class MemberExcelView : AbstractExcelView<MemberView>() {
-    override fun getData(request: HttpServletRequest): List<MemberView> {
-        // 데이터베이스에서 MemberView 데이터를 가져오는 로직
 
+    @Autowired
+    private lateinit var memberViewRepository: MemberViewRepository
+
+    override fun getData(request: HttpServletRequest): List<MemberView> {
+        return memberViewRepository.findAll() // 실제 필요한 데이터 조회 로직으로 변경
     }
 
     override fun fillData(sheet: Sheet, items: List<MemberView>, bodyStyle: CellStyle) {
