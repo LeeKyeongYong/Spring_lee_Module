@@ -9,7 +9,7 @@
       var sheetName = document.getElementById("sheetName").value;
       var fileName = document.getElementById("fileName").value;
 
-      var url = '/v1/excel/download/member?startDay=' + encodeURIComponent(startDay)
+      var url = '/v1/excel/download/post?startDay=' + encodeURIComponent(startDay)
               + '&endDay=' + encodeURIComponent(endDay)
               + '&sheetName=' + encodeURIComponent(sheetName)
               + '&fileName=' + encodeURIComponent(fileName);

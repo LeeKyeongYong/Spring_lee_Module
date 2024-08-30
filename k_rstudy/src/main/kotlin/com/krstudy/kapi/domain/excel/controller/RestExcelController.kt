@@ -28,7 +28,7 @@ class RestExcelController {
         @RequestParam("fileName", defaultValue = "회원_데이터") fileName: String
     ): ModelAndView {
         return createModelAndView(
-            view = postExcelView,
+            view = memberExcelView,
             title = "회원 목록",
             headerTitles = listOf("회원ID", "사용자ID", "이름", "역할", "관리자 여부"),
             startDay = startDay,
@@ -47,7 +47,7 @@ class RestExcelController {
         @RequestParam("fileName", defaultValue = "게시물_데이터") fileName: String
     ): ModelAndView {
         return createModelAndView(
-            view = memberExcelView,
+            view = postExcelView,
             title = "게시글 목록",
             headerTitles = listOf("게시물ID", "제목", "작성일", "수정일", "조회수", "작성자ID", "댓글ID", "댓글작성자ID", "댓글작성일", "좋아요ID", "좋아요일"),
             startDay = startDay,
