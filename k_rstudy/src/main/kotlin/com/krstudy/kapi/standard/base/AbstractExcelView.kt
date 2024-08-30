@@ -21,7 +21,9 @@ abstract class AbstractExcelView<T> : AbstractXlsView() {
         val startDateStr = model["startDate"] as String
         val endDateStr = model["endDate"] as String
         val sheetName = model["sheetName"] as String? ?: "Sheet1"
-        val fileName = (model["fileName"] as String?) ?: "${title}_${LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))}.xls"
+        val fileName = (model["fileName"] as String?)?.let {
+            if (it.endsWith(".xls")) it else "$it.xls"
+        } ?: "${title}_${LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))}.xls"
 
         val items = getData(request)
 
@@ -88,7 +90,7 @@ abstract class AbstractExcelView<T> : AbstractXlsView() {
         val row1 = sheet.createRow(1).apply {
             val startDate = parseDate(startDateStr)
             val endDate = parseDate(endDateStr)
-            createCell(0).setCellValue("조회기간 : ${startDate} - ${endDate}")
+            createCell(0).setCellValue("조회기간 : ${startDate} ~ ${endDate}")
         }
 
         val row3 = sheet.createRow(3).apply {
@@ -102,28 +104,36 @@ abstract class AbstractExcelView<T> : AbstractXlsView() {
     }
 
     private fun parseDate(dateStr: String): String {
-        val possibleFormats = listOf(
+
+        val localDateFormats = listOf(
             DateTimeFormatter.ofPattern("yyyyMMdd"), // "20240801"
-            DateTimeFormatter.ofPattern("yyyy-MM-dd"), // "2024-08-01"
+            DateTimeFormatter.ofPattern("yyyy-MM-dd") // "2024-08-01"
+        )
+
+        val localDateTimeFormats = listOf(
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"), // "2024-08-01T19:29:54"
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX") // "2024-08-01T19:29:54.082+09:00"
         )
 
-        for (format in possibleFormats) {
+        for (format in localDateFormats) {
             try {
-                return try {
-                    val dateTime = LocalDateTime.parse(dateStr, format)
-                    dateTime.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                } catch (e: DateTimeParseException) {
-
-                    val date = LocalDate.parse(dateStr, format)
-                    date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                }
+                val date = LocalDate.parse(dateStr, format)
+                return date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             } catch (e: DateTimeParseException) {
-                logger.warn("Date parsing failed for format: ${format.toString()} with value: $dateStr", e)
+                logger.warn("DateTimeParseException1 value: $e")
             }
         }
 
+        for (format in localDateTimeFormats) {
+            try {
+                val dateTime = LocalDateTime.parse(dateStr, format)
+                return dateTime.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            } catch (e: DateTimeParseException) {
+                logger.warn("DateTimeParseException2 value: $e")
+            }
+        }
+
+        logger.warn("Date parsing failed for value: $dateStr")
         return "Invalid Date"
     }
 

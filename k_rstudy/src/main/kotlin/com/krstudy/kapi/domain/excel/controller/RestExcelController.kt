@@ -34,7 +34,7 @@ class RestExcelController {
             startDate = startDate,
             endDate = endDate,
             sheetName = sheetName,
-            fileName = "$fileName.xls"
+            fileName = "$fileName"
         )
     }
 
@@ -53,7 +53,7 @@ class RestExcelController {
             startDate = startDate,
             endDate = endDate,
             sheetName = sheetName,
-            fileName = "$fileName.xls"
+            fileName = "$fileName"
         )
     }
 
