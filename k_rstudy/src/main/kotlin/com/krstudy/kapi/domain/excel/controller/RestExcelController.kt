@@ -22,8 +22,8 @@ class RestExcelController {
 
     @GetMapping("/download/member")
     fun downloadMemberExcel(
-        @RequestParam("startDay") startDay: String,
-        @RequestParam("endDay") endDay: String,
+        @RequestParam("startDate") startDate: String,
+        @RequestParam("endDate") endDate: String,
         @RequestParam("sheetName", defaultValue = "MemberData") sheetName: String,
         @RequestParam("fileName", defaultValue = "회원_데이터") fileName: String
     ): ModelAndView {
@@ -31,8 +31,8 @@ class RestExcelController {
             view = memberExcelView,
             title = "회원 목록",
             headerTitles = listOf("회원ID", "사용자ID", "이름", "역할", "관리자 여부"),
-            startDay = startDay,
-            endDay = endDay,
+            startDate = startDate,
+            endDate = endDate,
             sheetName = sheetName,
             fileName = "$fileName.xls"
         )
@@ -41,8 +41,8 @@ class RestExcelController {
 
     @GetMapping("/download/post")
     fun downloadPostExcel(
-        @RequestParam("startDay") startDay: String,
-        @RequestParam("endDay") endDay: String,
+        @RequestParam("startDate") startDate: String,
+        @RequestParam("endDate") endDate: String,
         @RequestParam("sheetName", defaultValue = "PostData") sheetName: String,
         @RequestParam("fileName", defaultValue = "게시물_데이터") fileName: String
     ): ModelAndView {
@@ -50,8 +50,8 @@ class RestExcelController {
             view = postExcelView,
             title = "게시글 목록",
             headerTitles = listOf("게시물ID", "제목", "작성일", "수정일", "조회수", "작성자ID", "댓글ID", "댓글작성자ID", "댓글작성일", "좋아요ID", "좋아요일"),
-            startDay = startDay,
-            endDay = endDay,
+            startDate = startDate,
+            endDate = endDate,
             sheetName = sheetName,
             fileName = "$fileName.xls"
         )

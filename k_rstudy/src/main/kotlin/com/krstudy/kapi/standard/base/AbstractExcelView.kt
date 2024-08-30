@@ -6,7 +6,9 @@ import org.apache.poi.hssf.util.HSSFColor
 import org.apache.poi.ss.usermodel.*
 import org.springframework.web.servlet.view.document.AbstractXlsView
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 abstract class AbstractExcelView<T> : AbstractXlsView() {
     abstract fun getData(request: HttpServletRequest): List<T>
@@ -84,7 +86,9 @@ abstract class AbstractExcelView<T> : AbstractXlsView() {
         }
 
         val row1 = sheet.createRow(1).apply {
-            createCell(0).setCellValue("조회기간 : ${formatDate(startDateStr)} - ${formatDate(endDateStr)}")
+            val startDate = parseDate(startDateStr)
+            val endDate = parseDate(endDateStr)
+            createCell(0).setCellValue("조회기간 : ${startDate} - ${endDate}")
         }
 
         val row3 = sheet.createRow(3).apply {
@@ -97,12 +101,30 @@ abstract class AbstractExcelView<T> : AbstractXlsView() {
         }
     }
 
-    private fun formatDate(dateStr: String): String {
-        return try {
-            LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyyMMdd")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-        } catch (e: Exception) {
-            "Invalid Date"
+    private fun parseDate(dateStr: String): String {
+        val possibleFormats = listOf(
+            DateTimeFormatter.ofPattern("yyyyMMdd"), // "20240801"
+            DateTimeFormatter.ofPattern("yyyy-MM-dd"), // "2024-08-01"
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"), // "2024-08-01T19:29:54"
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX") // "2024-08-01T19:29:54.082+09:00"
+        )
+
+        for (format in possibleFormats) {
+            try {
+                return try {
+                    val dateTime = LocalDateTime.parse(dateStr, format)
+                    dateTime.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                } catch (e: DateTimeParseException) {
+
+                    val date = LocalDate.parse(dateStr, format)
+                    date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                }
+            } catch (e: DateTimeParseException) {
+                logger.warn("Date parsing failed for format: ${format.toString()} with value: $dateStr", e)
+            }
         }
+
+        return "Invalid Date"
     }
 
     private fun addTotalRow(sheet: Sheet, numberOfColumns: Int, bodyStyle: CellStyle) {

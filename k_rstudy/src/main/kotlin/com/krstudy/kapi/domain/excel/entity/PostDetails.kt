@@ -1,14 +1,11 @@
 package com.krstudy.kapi.domain.excel.entity
 
-
-
 import com.querydsl.core.annotations.Immutable
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
 @Immutable
-@IdClass(PostDetailsId::class)
 @Table(name = "post_details")
 data class PostDetails(
     @Id
