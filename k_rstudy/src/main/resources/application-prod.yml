@@ -11,9 +11,9 @@ spring:
       max-request-size: 5MB
 
   datasource:
-    url: jdbc:mysql://localhost:3307/msa
-    username: root
-    password: 1234
+    url: ENC(6cfhztgVfYcfZkMuSaiOYWX2jzMDvc0s0EtJSgFjeoPbHMZFzq6mgA==)
+    username: ENC(cFw3ePouhmGwMfEVk9R5/g==)
+    password: ENC(pJygnOjrAhRQQ0m6TSlokQ==)
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       poolName: Hikari
