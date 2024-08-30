@@ -14,13 +14,12 @@ abstract class AbstractExcelView<T> : AbstractXlsView() {
 
     @Throws(Exception::class)
     override fun buildExcelDocument(model: Map<String, Any>, workbook: Workbook, request: HttpServletRequest, response: HttpServletResponse) {
-        val title = model["title"] as String? ?: "Excel Report"  // 제목이 null인 경우 기본값 설정
+        val title = model["title"] as String? ?: "Excel Report"
         val headerTitles = model["headerTitles"] as List<String>
         val startDateStr = model["startDate"] as String
         val endDateStr = model["endDate"] as String
         val sheetName = model["sheetName"] as String? ?: "Sheet1"
         val fileName = (model["fileName"] as String?) ?: "${title}_${LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))}.xls"
-
 
         val items = getData(request)
 
@@ -37,7 +36,7 @@ abstract class AbstractExcelView<T> : AbstractXlsView() {
 
         createHeader(sheet, title, headerTitles, startDateStr, endDateStr, titleStyle, headStyle)
         fillData(sheet, items, bodyStyle)
-        addTotalRow(sheet, items.size, bodyStyle)
+        //addTotalRow(sheet, headerTitles.size, bodyStyle)
     }
 
     private fun createTitleStyle(workbook: Workbook): CellStyle {
@@ -106,18 +105,15 @@ abstract class AbstractExcelView<T> : AbstractXlsView() {
         }
     }
 
-    private fun addTotalRow(sheet: Sheet, itemCount: Int, bodyStyle: CellStyle) {
-        val rowEnd = sheet.createRow(4 + itemCount)
-        rowEnd.createCell(0).apply {
-            setCellValue("총계")
+    private fun addTotalRow(sheet: Sheet, numberOfColumns: Int, bodyStyle: CellStyle) {
+        val row = sheet.createRow(sheet.lastRowNum + 1)
+        val cell = row.createCell(0).apply {
+            setCellValue("Total")
             cellStyle = bodyStyle
         }
-        rowEnd.createCell(1).apply {
-            setCellValue(sheet.rowIterator().asSequence()
-                .drop(4)
-                .take(itemCount)
-                .sumOf { row -> row.getCell(1).numericCellValue })
-            cellStyle = bodyStyle
+        for (i in 1 until numberOfColumns) {
+            val cell = row.createCell(i)
+            cell.cellStyle = bodyStyle
         }
     }
 }

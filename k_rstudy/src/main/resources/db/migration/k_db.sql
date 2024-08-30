@@ -35,7 +35,7 @@ SELECT
     CASE
         WHEN m.role_type = 'ROLE_ADMIN' THEN TRUE
         ELSE FALSE
-        END AS isAdmin
+        END AS is_admin
 FROM
     member m;
 
