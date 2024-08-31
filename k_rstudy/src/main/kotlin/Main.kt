@@ -3,6 +3,7 @@ package com.krstudy.kapi
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
 import org.springframework.core.task.TaskExecutor
@@ -26,8 +27,11 @@ class Main {
 }
 
 fun main(args: Array<String>) {
-    val applicationContext = SpringApplication.run(Main::class.java, *args)
+    SpringApplication.run(Main::class.java, *args)
+   /*
+   val applicationContext = SpringApplication.run(Main::class.java, *args)
     System.exit(SpringApplication.exit(applicationContext))
+    */
 }
 //class Main
 //
