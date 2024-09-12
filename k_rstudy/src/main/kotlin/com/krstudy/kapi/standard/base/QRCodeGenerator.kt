@@ -8,6 +8,7 @@ import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import org.springframework.stereotype.Component
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -27,9 +28,9 @@ object QRCodeGenerator {
             val qrCodeImage = outputStream.toByteArray()
 
             // Save to file system
-            Files.write(Paths.get("/path/to/save/qr_code.png"), qrCodeImage)
-
+            FileUtils.ensureDirectoryExists("D:\\intel2\\qr_code.png")
             return qrCodeImage
         }
     }
+
 }
