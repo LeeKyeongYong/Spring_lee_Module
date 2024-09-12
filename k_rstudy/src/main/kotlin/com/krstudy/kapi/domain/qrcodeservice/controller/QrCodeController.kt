@@ -3,6 +3,7 @@ package com.krstudy.kapi.domain.qrcodeservice.controller
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.client.j2se.MatrixToImageWriter
 import com.google.zxing.qrcode.QRCodeWriter
+import com.krstudy.kapi.com.krstudy.kapi.domain.qrcodeservice.datas.QRCodeValidationRequest
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -38,11 +39,10 @@ class QRCodeController(private val qrCodeService: QRCodeService) {
     }
 
     @PostMapping("/extract")
-    fun extractQRCodeInfo(@RequestParam("file") file: MultipartFile): ResponseEntity<String> {
-        val info = qrCodeService.extractInfoFromQRCode(file.bytes)
+    fun validateQRCodeInfo(@RequestBody request: QRCodeValidationRequest): ResponseEntity<Map<String, String>> {
+        val info = qrCodeService.extractInfoFromQRCode(request.info.toByteArray())
         val validationResult = info?.let { qrCodeService.validatePhoneNumber(it) } ?: "정보 추출 실패"
-        log.info("Extracted QR Code Info: $info, Validation Result: $validationResult")
-        return ResponseEntity.ok(validationResult)
+        return ResponseEntity.ok(mapOf("validationResult" to validationResult))
     }
 
 }

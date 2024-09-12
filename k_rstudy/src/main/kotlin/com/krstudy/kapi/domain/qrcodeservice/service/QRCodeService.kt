@@ -19,6 +19,10 @@ class QRCodeService (private val qrCodeGenerator: QRCodeGenerator) {
 
     fun extractInfoFromQRCode(imageBytes: ByteArray): String? {
         val image = ImageIO.read(ByteArrayInputStream(imageBytes))
+        if (image == null) {
+            println("이미지 읽기 실패")
+            return null
+        }
         val source = BufferedImageLuminanceSource(image)
         val binaryBitmap = com.google.zxing.BinaryBitmap(HybridBinarizer(source))
         val reader = MultiFormatReader()
@@ -27,10 +31,11 @@ class QRCodeService (private val qrCodeGenerator: QRCodeGenerator) {
             val result: Result = reader.decode(binaryBitmap)
             result.text
         } catch (e: Exception) {
-            e.printStackTrace() // 예외 로그를 찍어주는 것이 좋다.
+            e.printStackTrace()
             null
         }
     }
+
 
     fun validatePhoneNumber(info: String): String { //전화번호 비교정보
         val phoneNumberRegex = """(\d{3}-\d{4}-\d{4}|\d{10})""".toRegex()
