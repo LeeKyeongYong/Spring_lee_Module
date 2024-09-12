@@ -53,8 +53,7 @@ dependencies {
     // LOMBOK
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
-    testCompileOnly("org.projectlombok:lombok")
-    testAnnotationProcessor("org.projectlombok:lombok")
+    kapt("org.projectlombok:lombok") // Kotlin의 경우
 
     // DEV TOOLS
     developmentOnly("org.springframework.boot:spring-boot-devtools")
@@ -73,11 +72,6 @@ dependencies {
 
     // OAUTH2
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
-
-    // JWT
-    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.3")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.3")
 
     // crawling lib
     implementation("org.jsoup:jsoup:1.17.2")
@@ -115,13 +109,26 @@ dependencies {
     implementation ("org.awaitility:awaitility")
 
     //jwt
-    implementation ("io.jsonwebtoken:jjwt:0.9.1")
+    implementation ("io.jsonwebtoken:jjwt:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.3")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.3")
 
     //qrcode
     implementation ("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation ("org.jetbrains.kotlin:kotlin-reflect")
     implementation("com.google.zxing:core:3.5.0")
     implementation("com.google.zxing:javase:3.5.0")
+
+    // redis - LocalDateTime
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    implementation("com.fasterxml.jackson.core:jackson-databind")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+    //log4j
+    implementation("ch.qos.logback:logback-classic:1.4.11")  // logback 최신 버전 사용
+
+
 
 
 }

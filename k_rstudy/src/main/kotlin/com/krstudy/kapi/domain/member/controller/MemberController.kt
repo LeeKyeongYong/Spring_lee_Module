@@ -3,6 +3,7 @@ package com.krstudy.kapi.domain.member.controller
 import com.krstudy.kapi.domain.member.datas.JoinForm
 import com.krstudy.kapi.domain.member.datas.RegistrationQueue
 import com.krstudy.kapi.domain.member.service.MemberService
+import com.krstudy.kapi.domain.qrcodeservice.service.QRCodeService
 import com.krstudy.kapi.global.Security.SecurityUser
 import com.krstudy.kapi.global.exception.CustomException
 import com.krstudy.kapi.global.exception.ErrorCode
@@ -26,6 +27,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.multipart.MultipartFile
 
 @Slf4j
 @Controller
@@ -61,6 +63,7 @@ class MemberController(
 */
 
 class MemberController(
+    private val qrCodeService: QRCodeService,
     private val memberService: MemberService, // 회원 서비스에 대한 의존성 주입
     private val rq: ReqData, // 요청 데이터에 대한 의존성 주입
     private val registrationQueue: RegistrationQueue, // 가입 요청 큐에 대한 의존성 주입

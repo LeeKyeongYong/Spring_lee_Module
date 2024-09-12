@@ -1,32 +1,32 @@
 package com.krstudy.kapi.domain.qrcodeservice.controller
 
 import com.google.zxing.BarcodeFormat
-import com.google.zxing.EncodeHintType
-import com.google.zxing.MultiFormatWriter
 import com.google.zxing.client.j2se.MatrixToImageWriter
-import com.google.zxing.common.BitMatrix
 import com.google.zxing.qrcode.QRCodeWriter
-import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
-import com.krstudy.kapi.domain.qrcodeservice.service.QRCodeService
-import lombok.extern.slf4j.Slf4j
+import org.slf4j.LoggerFactory
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import java.io.ByteArrayOutputStream
-import org.springframework.core.io.Resource
-import org.springframework.http.HttpHeaders
 import org.springframework.core.io.ByteArrayResource
+import org.springframework.core.io.Resource
+import java.io.ByteArrayOutputStream
+import com.krstudy.kapi.domain.qrcodeservice.service.QRCodeService
+import lombok.extern.slf4j.Slf4j
 
 @RestController
 @RequestMapping("/v1/qrcode")
 @Slf4j
 class QRCodeController(private val qrCodeService: QRCodeService) {
+
+    private val log = LoggerFactory.getLogger(QRCodeController::class.java)
+
     @GetMapping("/qr", produces = [MediaType.IMAGE_PNG_VALUE])
     fun createQRCode(): ResponseEntity<ByteArray> {
-        val url = "https://velog.io/@sleekydevzero86/posts"
+        //val url = "https://velog.io/@sleekydevzero86/posts"
+        val url = "010-1234-5678"
         val width = 200
         val height = 200
 
@@ -38,30 +38,11 @@ class QRCodeController(private val qrCodeService: QRCodeService) {
     }
 
     @PostMapping("/extract")
-    fun extractQRCodeInfo(@RequestParam("file") file: MultipartFile): String {
+    fun extractQRCodeInfo(@RequestParam("file") file: MultipartFile): ResponseEntity<String> {
         val info = qrCodeService.extractInfoFromQRCode(file.bytes)
-        return info ?: "QR Code information could not be extracted."
-    }
-
-    @PostMapping("/validate")
-    fun validatePhoneNumber(@RequestParam("file") file: MultipartFile): String {
-        val info = qrCodeService.extractInfoFromQRCode(file.bytes)
-        return qrCodeService.validatePhoneNumber(info ?: "")
-    }
-
-    @GetMapping("/generate")
-    fun generateQRCode(@RequestParam("text") text: String): ResponseEntity<Resource> {
-        val qrCodeWriter = QRCodeWriter()
-        val bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, 200, 200)
-
-        val outputStream = ByteArrayOutputStream()
-        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream)
-        val imageBytes = outputStream.toByteArray()
-
-        val resource = ByteArrayResource(imageBytes)
-        return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_TYPE, "image/png")
-            .body(resource)
+        val validationResult = info?.let { qrCodeService.validatePhoneNumber(it) } ?: "정보 추출 실패"
+        log.info("Extracted QR Code Info: $info, Validation Result: $validationResult")
+        return ResponseEntity.ok(validationResult)
     }
 
 }

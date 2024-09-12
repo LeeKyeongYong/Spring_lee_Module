@@ -27,12 +27,12 @@ class QRCodeService (private val qrCodeGenerator: QRCodeGenerator) {
             val result: Result = reader.decode(binaryBitmap)
             result.text
         } catch (e: Exception) {
-            e.printStackTrace()  // 예외 로그를 찍어주는 것이 좋다.
+            e.printStackTrace() // 예외 로그를 찍어주는 것이 좋다.
             null
         }
     }
 
-    fun validatePhoneNumber(info: String): String { //전화번호 비교
+    fun validatePhoneNumber(info: String): String { //전화번호 비교정보
         val phoneNumberRegex = """(\d{3}-\d{4}-\d{4}|\d{10})""".toRegex()
         val phoneNumber = "010-1234-5678" // 체크할 번호
         return if (phoneNumberRegex.containsMatchIn(info)) {

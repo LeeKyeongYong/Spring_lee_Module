@@ -13,7 +13,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 @Component
-object QRCodeGenerator {
+class QRCodeGenerator {
 
     private val hintMap: Map<EncodeHintType, Any> = mapOf(
         EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.L
