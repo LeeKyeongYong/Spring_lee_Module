@@ -25,9 +25,9 @@ class SecurityConfig {
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http
-            .authorizeRequests { authorizeRequests ->
+            .authorizeRequests { authorizeRequests  ->
                 authorizeRequests
-                    .requestMatchers("/adm/**").hasRole("ROLE_ADMIN")
+                    .requestMatchers("/adm/**").hasRole("ADMIN")
                     /*
                      MEMBER("ROLE_MEMBER"),
                      ADMIN("ROLE_ADMIN"),
