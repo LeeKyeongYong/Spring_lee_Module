@@ -28,14 +28,13 @@ class Main {
 
 fun main(args: Array<String>) {
     SpringApplication.run(Main::class.java, *args)
-   /*
-   val applicationContext = SpringApplication.run(Main::class.java, *args)
-    System.exit(SpringApplication.exit(applicationContext))
-    */
 }
+//    val applicationContext = SpringApplication.run(Main::class.java, *args)
+//    System.exit(SpringApplication.exit(applicationContext))
+//}
 //class Main
 //
 //fun main(args: Array<String>) {
 //    runApplication<Main>(*args)
 //}
-//
+

@@ -1,5 +1,6 @@
 package com.krstudy.kapi.global.Security
 
+import com.krstudy.kapi.com.krstudy.kapi.global.Security.CustomAuthenticationSuccessHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
@@ -8,6 +9,7 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -25,7 +27,15 @@ class SecurityConfig {
         http
             .authorizeRequests { authorizeRequests ->
                 authorizeRequests
-                    .requestMatchers("/adm/**").hasRole("ADMIN")
+                    .requestMatchers("/adm/**").hasRole("ROLE_ADMIN")
+                    /*
+                     MEMBER("ROLE_MEMBER"),
+                     ADMIN("ROLE_ADMIN"),
+                     HEADHUNTER("ROLE_HEADHUNTER"),
+                     MANAGER("ROLE_MANAGER"),
+                     HR("ROLE_HR");
+                     */
+                    //.requestMatchers("/adm/**").hasRole("ROLE_ADMIN")
                     .requestMatchers("/v1/**").authenticated() // 인증된 사용자만 접근 가능
                     .anyRequest().permitAll()
             }
@@ -36,6 +46,7 @@ class SecurityConfig {
             .formLogin { formLogin ->
                 formLogin
                     .loginPage("/member/login")
+                    .successHandler(customAuthenticationSuccessHandler()) // 커스터마이즈된 핸들러 적용
                     .defaultSuccessUrl("/?msg=" + URLEncoder.encode("환영합니다.", StandardCharsets.UTF_8))
                     .failureUrl("/member/login?failMsg=" + URLEncoder.encode("아이디 또는 비밀번호가 틀렸습니다.", StandardCharsets.UTF_8))
             }
@@ -53,6 +64,11 @@ class SecurityConfig {
             }
 
         return http.build()
+    }
+
+    @Bean
+    fun customAuthenticationSuccessHandler(): AuthenticationSuccessHandler {
+        return CustomAuthenticationSuccessHandler()
     }
 
 }
