@@ -28,7 +28,7 @@ object QRCodeGenerator {
             val qrCodeImage = outputStream.toByteArray()
 
             // Save to file system
-            FileUtils.ensureDirectoryExists("D:\\intel2\\qr_code.png")
+            FileUtils.saveQRCodeToFile(qrCodeImage, "D:\\intel2\\qr_code.png")
             return qrCodeImage
         }
     }
