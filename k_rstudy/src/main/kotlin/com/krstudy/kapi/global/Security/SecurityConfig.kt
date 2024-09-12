@@ -36,6 +36,7 @@ class SecurityConfig {
                      HR("ROLE_HR");
                      */
                     //.requestMatchers("/adm/**").hasRole("ROLE_ADMIN")
+                    .requestMatchers("/v1/qrcode/**").permitAll() // 로그인 없이 접근 허용
                     .requestMatchers("/v1/**").authenticated() // 인증된 사용자만 접근 가능
                     .anyRequest().permitAll()
             }

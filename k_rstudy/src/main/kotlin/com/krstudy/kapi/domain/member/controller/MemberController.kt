@@ -23,6 +23,9 @@ import org.slf4j.Logger
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
+import org.springframework.ui.Model
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestParam
 
 @Slf4j
 @Controller
@@ -132,8 +135,13 @@ class MemberController(
      */
     @GetMapping("/login") // GET 요청에 대해 /member/login 경로로 매핑
     @LogExecutionTime // 메소드 실행 시간 로그 기록
-    fun showLogin(): String {
+    fun showLogin(@RequestParam(name = "text", required = false) text: String?, model: Model): String {
         log.info("showLogin() method called") // 메소드 호출 로그 기록
+
+        if (text != null && text.isNotBlank()) {
+            model.addAttribute("qrcodeUrl", "/v1/qrcode/generate?text=${text}")
+        }
+
         return "domain/member/login" // 로그인 페이지의 뷰 경로 반환
     }
 

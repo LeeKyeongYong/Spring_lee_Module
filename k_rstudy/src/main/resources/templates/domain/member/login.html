@@ -46,6 +46,21 @@
     </form>
 </div>
 
+<br/>
+
+<h1>QR Code Example</h1>
+
+<form action="#" th:action="@{/v1/qrcode/generate}" method="get">
+    <label for="text">Enter text for QR Code:</label>
+    <input type="text" id="text" name="text" required />
+    <button type="submit">Generate QR Code</button>
+</form>
+
+<div th:if="${qrcodeUrl}">
+    <h2>Generated QR Code:</h2>
+    <img th:src="@{${qrcodeUrl}}" alt="QR Code" />
+</div>
+
 </body>
 
 </html>

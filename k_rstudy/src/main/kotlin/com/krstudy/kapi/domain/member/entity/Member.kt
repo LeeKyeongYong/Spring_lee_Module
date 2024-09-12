@@ -27,6 +27,9 @@ class Member(
     @Column(nullable = false)
     var userEmail: String = "",
 
+    @Column
+    var jwtToken: String? = null,  // JWT 토큰 필드 추가
+
     @Transient
     private val roleStrategy: RoleStrategy = DefaultRoleStrategy()
 ) : BaseEntity() {

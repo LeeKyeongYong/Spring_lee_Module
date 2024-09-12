@@ -13,11 +13,13 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 import java.io.ByteArrayOutputStream
+import org.springframework.core.io.Resource
+import org.springframework.http.HttpHeaders
+import org.springframework.core.io.ByteArrayResource
+
 @RestController
 @RequestMapping("/v1/qrcode")
 @Slf4j
@@ -34,4 +36,32 @@ class QRCodeController(private val qrCodeService: QRCodeService) {
             .contentType(MediaType.IMAGE_PNG)
             .body(qrCodeImage)
     }
+
+    @PostMapping("/extract")
+    fun extractQRCodeInfo(@RequestParam("file") file: MultipartFile): String {
+        val info = qrCodeService.extractInfoFromQRCode(file.bytes)
+        return info ?: "QR Code information could not be extracted."
+    }
+
+    @PostMapping("/validate")
+    fun validatePhoneNumber(@RequestParam("file") file: MultipartFile): String {
+        val info = qrCodeService.extractInfoFromQRCode(file.bytes)
+        return qrCodeService.validatePhoneNumber(info ?: "")
+    }
+
+    @GetMapping("/generate")
+    fun generateQRCode(@RequestParam("text") text: String): ResponseEntity<Resource> {
+        val qrCodeWriter = QRCodeWriter()
+        val bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, 200, 200)
+
+        val outputStream = ByteArrayOutputStream()
+        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream)
+        val imageBytes = outputStream.toByteArray()
+
+        val resource = ByteArrayResource(imageBytes)
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_TYPE, "image/png")
+            .body(resource)
+    }
+
 }

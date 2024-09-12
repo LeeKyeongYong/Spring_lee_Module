@@ -1,24 +1,29 @@
 package com.krstudy.kapi.domain.member.service
 
+import io.jsonwebtoken.SignatureAlgorithm
 import com.krstudy.kapi.domain.member.datas.M_Role
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.repository.MemberRepository
 import com.krstudy.kapi.global.exception.CustomException
 import com.krstudy.kapi.global.exception.ErrorCode
 import com.krstudy.kapi.global.https.RespData
+import io.jsonwebtoken.Jwts
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-
+import java.util.*
+import org.springframework.beans.factory.annotation.Value
 @Service
 @Transactional(readOnly = true)
 class MemberService(
     private val memberRepository: MemberRepository,
     private val passwordEncoder: PasswordEncoder
 ) {
+    @Value("\${security.jwt.secret}")
+    private lateinit var secretKey: String
     @Transactional
     suspend fun join(userid: String, username: String, userEmail: String,password: String, role: String): RespData<Member> {
         val existingMember = findByUserid(userid)
@@ -35,6 +40,9 @@ class MemberService(
                 }
             }
 
+        // JWT 생성
+        val token = generateJwtToken(userid, secretKey)
+
         val member = Member().apply {
             this.userid = userid
             this.username = username
@@ -42,6 +50,7 @@ class MemberService(
             this.password = passwordEncoder.encode(password)
             this.roleType = roleType
             this.useYn = "Y"
+            this.jwtToken = token
         }
 
         withContext(Dispatchers.IO) {
@@ -71,5 +80,13 @@ class MemberService(
         if (member.useYn == "N") {
             throw CustomException(ErrorCode.LOGIN_DISABLED_USER, "로그인 비활성화된 사용자입니다.")
         }
+    }
+
+    private fun generateJwtToken(userid: String, secretKey: String): String {
+        return Jwts.builder()
+            .setSubject(userid)
+            .setExpiration(Date(System.currentTimeMillis() + 600000))  // 1분 유효
+            .signWith(SignatureAlgorithm.HS512, secretKey.toByteArray())
+            .compact()
     }
 }
