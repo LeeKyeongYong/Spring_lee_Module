@@ -1,9 +1,13 @@
-<html layout:decorate="~{global/usrLayout}">
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>로그인</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stomp-websocket"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client"></script>
 </head>
-
 <body>
 
 <div layout:fragment="content">
@@ -13,22 +17,24 @@
         function submitLoginForm(form) {
             form.username.value = form.username.value.trim();
 
-            if (form.userid.username.length == 0) {
-                toastWarning('사용자 ID를 입력해주세요.');
+            if (form.username.value.length === 0) {
+                alert('사용자 ID를 입력해주세요.');
                 form.username.focus();
                 return;
             }
 
             form.password.value = form.password.value.trim();
 
-            if (form.password.value.length == 0) {
-                toastWarning('비밀번호를 입력해주세요.');
+            if (form.password.value.length === 0) {
+                alert('비밀번호를 입력해주세요.');
                 form.password.focus();
                 return;
             }
 
             form.submit();
         }
+
+
     </script>
 
     <form th:action method="POST" onSubmit="submitLoginForm(this); return false;">
@@ -44,23 +50,17 @@
 
         <button type="submit">로그인</button>
     </form>
+
+    <br/>
+
+    <div id="qrCodeContainer">
+        <!-- QR Code will be generated here -->
+    </div>
+
 </div>
+    <script>
 
-<br/>
 
-<h1>QR Code Example</h1>
-
-<form action="#" th:action="@{/v1/qrcode/generate}" method="get">
-    <label for="text">Enter text for QR Code:</label>
-    <input type="text" id="text" name="text" required />
-    <button type="submit">Generate QR Code</button>
-</form>
-
-<div th:if="${qrcodeUrl}">
-    <h2>Generated QR Code:</h2>
-    <img th:src="@{${qrcodeUrl}}" alt="QR Code" />
-</div>
-
+    </script>
 </body>
-
 </html>

@@ -76,12 +76,6 @@ class MemberService(
         return memberRepository.count()
     }
 
-    fun validateLogin(member: Member) {
-        if (member.useYn == "N") {
-            throw CustomException(ErrorCode.LOGIN_DISABLED_USER, "로그인 비활성화된 사용자입니다.")
-        }
-    }
-
     private fun generateJwtToken(userid: String, secretKey: String): String {
         return Jwts.builder()
             .setSubject(userid)

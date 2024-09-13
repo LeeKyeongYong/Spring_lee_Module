@@ -32,38 +32,8 @@ import org.springframework.web.multipart.MultipartFile
 @Slf4j
 @Controller
 @RequestMapping("/member")
-/*
-class MemberController(
-    private val memberService: MemberService,
-    private val rq: ReqData
-) {
-
-    private val log = LoggerFactory.getLogger(MemberController::class.java)
-
-    @PreAuthorize("isAnonymous()")
-    @GetMapping("/join")
-    fun showJoin(): String {
-        return "domain/member/member/join"
-    }
-
-    @GetMapping("/login")
-    fun showLogin(): String {
-        return "domain/member/login" // 로그인 페이지의 뷰 경로 반환
-    }
-
-    @Validated
-    data class JoinForm(
-        @field:NotBlank
-        var username: String? = null,
-
-        @field:NotBlank
-        var password: String? = null
-    )
-}
-*/
 
 class MemberController(
-    private val qrCodeService: QRCodeService,
     private val memberService: MemberService, // 회원 서비스에 대한 의존성 주입
     private val rq: ReqData, // 요청 데이터에 대한 의존성 주입
     private val registrationQueue: RegistrationQueue, // 가입 요청 큐에 대한 의존성 주입
@@ -138,15 +108,13 @@ class MemberController(
      */
     @GetMapping("/login") // GET 요청에 대해 /member/login 경로로 매핑
     @LogExecutionTime // 메소드 실행 시간 로그 기록
-    fun showLogin(@RequestParam(name = "text", required = false) text: String?, model: Model): String {
-        log.info("showLogin() method called") // 메소드 호출 로그 기록
-
-        if (text != null && text.isNotBlank()) {
-            model.addAttribute("qrcodeUrl", "/v1/qrcode/generate?text=${text}")
-        }
-
+    fun showLogin(): String {
         return "domain/member/login" // 로그인 페이지의 뷰 경로 반환
     }
+
+}
+
+/*
 
     /**
      * 로그인 요청을 처리하는 메소드.
@@ -215,4 +183,5 @@ class MemberController(
         // 로그인 후 페이지 반환
         return "domain/member/login"
     }
-}
+
+ */

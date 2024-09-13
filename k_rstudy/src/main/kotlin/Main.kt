@@ -26,6 +26,12 @@ class Main {
         taskExecutor.initialize()
         return taskExecutor
     }
+    @Bean
+    fun allowCircularReferences(): SpringApplication {
+        return SpringApplication().apply {
+            setDefaultProperties(mapOf("spring.main.allow-circular-references" to "true"))
+        }
+    }
 }
 
 fun main(args: Array<String>) {

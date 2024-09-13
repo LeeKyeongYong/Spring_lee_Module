@@ -1,15 +1,12 @@
 package com.krstudy.kapi.global.Security
 
-import com.krstudy.kapi.domain.member.entity.Member
-import com.krstudy.kapi.domain.member.repository.MemberRepository
 import com.krstudy.kapi.domain.member.service.MemberService
-import com.krstudy.kapi.global.Security.SecurityUser
-import lombok.RequiredArgsConstructor
-import org.springframework.security.core.userdetails.User
+import com.krstudy.kapi.global.exception.CustomException
+import com.krstudy.kapi.global.exception.ErrorCode
+import org.hibernate.query.sqm.tree.SqmNode.log
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
@@ -25,12 +22,16 @@ class CustomUserDetailsService(
         val member = memberService.findByUserid(username)
             ?: throw UsernameNotFoundException("User not found: $username")
 
+        log.info("member.useYn: ${member.useYn}")
+        if (!"Y".equals(member.useYn, ignoreCase = true)) {
+            throw UsernameNotFoundException("redirect:/member/login?failMsg=${ErrorCode.LOGIN_DISABLED_USER}")
+        }
+
         return SecurityUser(
-            id = member.id!!,
+            id = member.id ?: throw UsernameNotFoundException("User ID is null"),
             username = member.userid,
             password = member.password,
             authorities = member.authorities
         )
     }
-
 }
