@@ -24,7 +24,7 @@ class CustomUserDetailsService(
 
         log.info("member.useYn: ${member.useYn}")
         if (!"Y".equals(member.useYn, ignoreCase = true)) {
-            throw UsernameNotFoundException("redirect:/member/login?failMsg=${ErrorCode.LOGIN_DISABLED_USER}")
+            throw UsernameNotFoundException(ErrorCode.LOGIN_DISABLED_USER.message)
         }
 
         return SecurityUser(

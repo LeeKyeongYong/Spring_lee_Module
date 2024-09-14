@@ -17,7 +17,9 @@ import java.nio.charset.StandardCharsets
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler
 @Configuration
 @EnableMethodSecurity
-class SecurityConfig {
+class SecurityConfig (
+    private val customAuthenticationFailureHandler: CustomAuthenticationFailureHandler
+){
 
     @Autowired
     @Lazy
@@ -53,8 +55,10 @@ class SecurityConfig {
                     .loginPage("/member/login")
                     .successHandler(customAuthenticationSuccessHandler())
                     .defaultSuccessUrl("/?msg=" + URLEncoder.encode("환영합니다.", StandardCharsets.UTF_8))
-                    .failureUrl("/member/login?failMsg=" + URLEncoder.encode("아이디 또는 비밀번호가 틀렸습니다.", StandardCharsets.UTF_8))
+                    .failureHandler(customAuthenticationFailureHandler) // 커스텀 실패 핸들러 등록
+                    //.failureUrl("/member/login?failMsg=" + URLEncoder.encode("아이디 또는 비밀번호가 틀렸습니다.", StandardCharsets.UTF_8))
             }
+
             .logout { logout ->
                 logout.logoutRequestMatcher(AntPathRequestMatcher("/member/logout"))
                     .logoutSuccessUrl("/?msg=" + URLEncoder.encode("로그아웃되었습니다.", StandardCharsets.UTF_8))
