@@ -77,8 +77,8 @@ dependencies {
     implementation("org.jsoup:jsoup:1.17.2")
 
     // excel lib
-    implementation("org.apache.poi:poi-ooxml:5.2.5")
-    implementation("org.apache.poi:poi:5.2.5")
+    implementation("org.apache.poi:poi-ooxml:5.3.0")
+    implementation("org.apache.poi:poi:5.3.0")
 
     //코루틴
     implementation("com.github.ulisesbocchio:jasypt-spring-boot:3.0.5")
@@ -128,8 +128,8 @@ dependencies {
     //log4j
     implementation("ch.qos.logback:logback-classic:1.4.11")  // logback 최신 버전 사용
 
-
-
+    //pdf
+    implementation("com.itextpdf:itextpdf:5.5.13.4")
 
 }
 
