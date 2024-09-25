@@ -10,25 +10,17 @@ import jakarta.persistence.*;
 @Table(name = "subject")
 public class Subject {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "my_sequence")
-    @SequenceGenerator(name = "my_sequence", sequenceName = "subject_no_seq", allocationSize = 1)
-    @Column(name = "no")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "subject_sequence")
+    @SequenceGenerator(name = "subject_sequence", sequenceName = "subject_no_seq", allocationSize = 1)
     private Long no;
 
-    @Column(name = "name")
     private String name;
-
-    @Column(name = "unit")
     private Integer unit;
 
     @Temporal(TemporalType.DATE)
-    @Column(name = "opendate")
     private Date opendate;
 
-    @ManyToMany
-    @JoinTable(name = "enroll",
-            joinColumns = @JoinColumn(name = "no"),
-            inverseJoinColumns = @JoinColumn(name = "id"))
+    @ManyToMany(mappedBy = "subjects")
     private List<Student> students = new ArrayList<>();
 
 

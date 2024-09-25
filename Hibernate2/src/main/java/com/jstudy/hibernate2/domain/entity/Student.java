@@ -11,36 +11,25 @@ import jakarta.persistence.GenerationType;
 @Entity
 @Table(name = "student")
 public class Student implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "my_sequence")
-    @SequenceGenerator(name = "my_sequence", sequenceName = "student_id_seq")
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "student_sequence")
+    @SequenceGenerator(name = "student_sequence", sequenceName = "student_id_seq", allocationSize = 1)
     private Long id;
 
-    @Column(name = "name")
     private String name;
-
-    @Column(name = "email")
     private String email;
-
-    @Column(name = "phone")
     private String phone;
 
     @Temporal(TemporalType.DATE)
-    @Column(name = "birthdate")
     private Date birthdate;
 
-    @Column(name = "age")
     private Integer age;
 
     @ManyToMany
     @JoinTable(name = "enroll",
             joinColumns = @JoinColumn(name = "id"),
             inverseJoinColumns = @JoinColumn(name = "no"))
-    private List<Subject> subjects = new ArrayList<Subject>();
+    private List<Subject> subjects = new ArrayList<>();
 
     public Student() {}
 

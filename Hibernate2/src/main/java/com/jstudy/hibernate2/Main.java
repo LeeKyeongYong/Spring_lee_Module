@@ -3,17 +3,18 @@ package com.jstudy.hibernate2;
 import com.jstudy.hibernate2.domain.dao.EnrollDAO;
 import com.jstudy.hibernate2.domain.entity.Student;
 import com.jstudy.hibernate2.domain.entity.Subject; // 여기를 확인
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-@SpringBootApplication // 스프링 부트 애플리케이션으로 설정
+@SpringBootApplication
 public class Main implements CommandLineRunner {
     private final EnrollDAO enrollDAO;
 
-    // 생성자 이름을 Main으로 변경
+    @Autowired
     public Main(EnrollDAO enrollDAO) {
         this.enrollDAO = enrollDAO;
     }

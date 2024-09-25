@@ -3,75 +3,84 @@ package com.jstudy.hibernate2.domain.dao;
 import com.jstudy.hibernate2.domain.entity.Student;
 import com.jstudy.hibernate2.domain.entity.Subject;
 import jakarta.annotation.Resource;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Repository("enrollDAO")
+@Repository
 @Transactional
-public class EnrollDAOImpl implements  EnrollDAO{
-    @Resource
-    private SessionFactory sessionFactory;
+public class EnrollDAOImpl implements EnrollDAO {
+    @PersistenceContext
+    private EntityManager entityManager;
 
-    @SuppressWarnings("unchecked")
+    @Override
     @Transactional(readOnly = true)
     public List<Student> getAllStudents() {
-        return sessionFactory.getCurrentSession()
-                .createQuery("select distinct s from Student s left join fetch s.subjects order by s.id asc", Student.class)
-                .getResultList();
+        TypedQuery<Student> query = entityManager.createQuery(
+                "SELECT DISTINCT s FROM Student s LEFT JOIN FETCH s.subjects ORDER BY s.id ASC", Student.class);
+        return query.getResultList();
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
     @Transactional(readOnly = true)
     public List<Subject> getAllSubjects() {
-        return sessionFactory.getCurrentSession()
-                .createQuery("select distinct s from Subject s left join fetch s.students order by s.no asc", Subject.class)
-                .getResultList();
+        TypedQuery<Subject> query = entityManager.createQuery(
+                "SELECT DISTINCT s FROM Subject s LEFT JOIN FETCH s.students ORDER BY s.no ASC", Subject.class);
+        return query.getResultList();
     }
 
-    @Transactional(readOnly = true)
-    public List<Student> getAllStudentsWithSubjects() {
-        return null;
-    }
-
+    @Override
     @Transactional
     public void saveStudent(Student student) {
-        sessionFactory.getCurrentSession().saveOrUpdate(student);
+        entityManager.merge(student);
     }
 
+    @Override
     @Transactional
     public void saveSubject(Subject subject) {
-        sessionFactory.getCurrentSession().saveOrUpdate(subject);
+        entityManager.merge(subject);
     }
 
+    @Override
     @Transactional
     public void removeStudent(Student student) {
-        sessionFactory.getCurrentSession().delete(student);
+        entityManager.remove(entityManager.contains(student) ? student : entityManager.merge(student));
     }
 
+    @Override
+    @Transactional
     public void removeSubject(Subject subject) {
-        sessionFactory.getCurrentSession().delete(subject);
+        entityManager.remove(entityManager.contains(subject) ? subject : entityManager.merge(subject));
     }
 
+    @Override
+    @Transactional
     public void removeAll() {
-        sessionFactory.getCurrentSession().createNativeQuery("delete from enroll").executeUpdate();
-        sessionFactory.getCurrentSession().createQuery("delete from Student").executeUpdate();
-        sessionFactory.getCurrentSession().createQuery("delete from Subject").executeUpdate();
+        entityManager.createQuery("DELETE FROM enroll").executeUpdate();
+        entityManager.createQuery("DELETE FROM Student").executeUpdate();
+        entityManager.createQuery("DELETE FROM Subject").executeUpdate();
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Student getStudentByName(String name) {
-        return sessionFactory.getCurrentSession()
-                .createQuery("select distinct s from Student s left join fetch s.subjects where s.name=:name", Student.class)
-                .setParameter("name", name)
-                .uniqueResult();
+        TypedQuery<Student> query = entityManager.createQuery(
+                "SELECT DISTINCT s FROM Student s LEFT JOIN FETCH s.subjects WHERE s.name = :name", Student.class);
+        query.setParameter("name", name);
+        return query.getSingleResult();
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Subject getSubjectByName(String name) {
-        return sessionFactory.getCurrentSession()
-                .createQuery("select distinct s from Subject s left join fetch s.students where s.name=:name", Subject.class)
-                .setParameter("name", name)
-                .uniqueResult();
+        TypedQuery<Subject> query = entityManager.createQuery(
+                "SELECT DISTINCT s FROM Subject s LEFT JOIN FETCH s.students WHERE s.name = :name", Subject.class);
+        query.setParameter("name", name);
+        return query.getSingleResult();
     }
 }
