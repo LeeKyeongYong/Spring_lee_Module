@@ -10,8 +10,8 @@ import jakarta.persistence.*;
 @Table(name = "subject")
 public class Subject {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "my_sequence")
-    @SequenceGenerator(name = "my_sequence", sequenceName = "subject_no_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "my_sequence")
+    @SequenceGenerator(name = "my_sequence", sequenceName = "subject_no_seq", allocationSize = 1)
     @Column(name = "no")
     private Long no;
 
@@ -29,7 +29,8 @@ public class Subject {
     @JoinTable(name = "enroll",
             joinColumns = @JoinColumn(name = "no"),
             inverseJoinColumns = @JoinColumn(name = "id"))
-    private List<Student> students = new ArrayList<Student>();
+    private List<Student> students = new ArrayList<>();
+
 
     public Subject() {}
 
