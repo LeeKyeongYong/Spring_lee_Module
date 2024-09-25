@@ -2,7 +2,7 @@ package com.jstudy.hibernate2;
 
 import com.jstudy.hibernate2.domain.dao.EnrollDAO;
 import com.jstudy.hibernate2.domain.entity.Student;
-import com.jstudy.hibernate2.domain.entity.Subject;
+import com.jstudy.hibernate2.domain.entity.Subject; // 여기를 확인
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

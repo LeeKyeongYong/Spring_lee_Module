@@ -18,69 +18,60 @@ public class EnrollDAOImpl implements  EnrollDAO{
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     public List<Student> getAllStudents() {
-        // TODO Auto-generated method stub
         return sessionFactory.getCurrentSession()
-                .createQuery("select distinct s from Student s left join fetch s.subjects order by s.id asc").list();
+                .createQuery("select distinct s from Student s left join fetch s.subjects order by s.id asc", Student.class)
+                .getResultList();
     }
 
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     public List<Subject> getAllSubjects() {
-        // TODO Auto-generated method stub
         return sessionFactory.getCurrentSession()
-                .createQuery("select distinct s from Subject s left join fetch s.students order by s.no asc").list();
+                .createQuery("select distinct s from Subject s left join fetch s.students order by s.no asc", Subject.class)
+                .getResultList();
     }
 
     @Transactional(readOnly = true)
     public List<Student> getAllStudentsWithSubjects() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Transactional
     public void saveStudent(Student student) {
-        // TODO Auto-generated method stub
         sessionFactory.getCurrentSession().saveOrUpdate(student);
-
     }
+
     @Transactional
     public void saveSubject(Subject subject) {
-        // TODO Auto-generated method stub
         sessionFactory.getCurrentSession().saveOrUpdate(subject);
     }
 
     @Transactional
     public void removeStudent(Student student) {
-        // TODO Auto-generated method stub
         sessionFactory.getCurrentSession().delete(student);
     }
 
     public void removeSubject(Subject subject) {
-        // TODO Auto-generated method stub
         sessionFactory.getCurrentSession().delete(subject);
     }
 
     public void removeAll() {
-        // TODO Auto-generated method stub
-        sessionFactory.getCurrentSession().createSQLQuery("delete from enroll").executeUpdate();
+        sessionFactory.getCurrentSession().createNativeQuery("delete from enroll").executeUpdate();
         sessionFactory.getCurrentSession().createQuery("delete from Student").executeUpdate();
         sessionFactory.getCurrentSession().createQuery("delete from Subject").executeUpdate();
     }
 
     public Student getStudentByName(String name) {
-        // TODO Auto-generated method stub
-        return (Student)sessionFactory.getCurrentSession()
-                .createQuery("select distinct s from Student s left join fetch s.subjects where s.name=:name")
-                .setString("name", name)
+        return sessionFactory.getCurrentSession()
+                .createQuery("select distinct s from Student s left join fetch s.subjects where s.name=:name", Student.class)
+                .setParameter("name", name)
                 .uniqueResult();
     }
 
     public Subject getSubjectByName(String name) {
-        // TODO Auto-generated method stub
-        return (Subject)sessionFactory.getCurrentSession()
-                .createQuery("select distinct s from Subject s left join fetch s.students where s.name=:name")
-                .setString("name", name)
+        return sessionFactory.getCurrentSession()
+                .createQuery("select distinct s from Subject s left join fetch s.students where s.name=:name", Subject.class)
+                .setParameter("name", name)
                 .uniqueResult();
     }
-
 }
