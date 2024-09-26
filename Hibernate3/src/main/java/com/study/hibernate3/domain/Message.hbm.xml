@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "https://hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.study.hibernate3.domain.Message" table="MESSAGE">
+        <id name="id" column="MESSAGE_ID">
+            <generator class="org.hibernate.id.IncrementGenerator" />
+        </id>
+        <property name="text" column="MESSAGE_TEXT" />
+        <many-to-one name="nextMessage" class="com.study.hibernate3.domain.Message" cascade="all" column="NEXT_MESSAGE_ID" foreign-key="FK_NEXT_MESSAGE"/>
+    </class>
+</hibernate-mapping>
