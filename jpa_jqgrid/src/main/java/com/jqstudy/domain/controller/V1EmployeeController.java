@@ -1,7 +1,6 @@
 package com.jqstudy.domain.controller;
 
 import com.jqstudy.domain.entity.Employee;
-import com.jqstudy.domain.entity.EmployeeFactory;
 import com.jqstudy.domain.entity.EmployeesDto;
 import com.jqstudy.domain.service.EmployeeService;
 import org.slf4j.Logger;
@@ -11,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
-
+import com.jqstudy.domain.entity.EmployeeFactoryDto;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +54,7 @@ public class V1EmployeeController {
     @PostMapping("/edit")
     public ResponseEntity<String> addEmployee(@RequestBody EmployeesDto employeeDto) {
         try {
-            Employee employee = EmployeeFactory.createEmployeeFromDto(employeeDto);
+            Employee employee = EmployeeFactoryDto.createEmployeeFromDto(employeeDto);
             return handleOperation(employeeDto, employee);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
