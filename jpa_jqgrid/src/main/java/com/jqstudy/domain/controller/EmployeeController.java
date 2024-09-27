@@ -92,8 +92,6 @@ public class EmployeeController {
         System.out.println("Received DTO: " + employeeDto);
 
         try {
-
-
             Employee employee = new Employee();
             employee.setFirstName(employeeDto.getFirstName());
             employee.setLastName(employeeDto.getLastName());
@@ -101,10 +99,16 @@ public class EmployeeController {
             employee.setPhoneNumber(employeeDto.getPhoneNumber());
 
             // 날짜 파싱 에러 처리
-            try {
-                employee.setHireDate(LocalDate.parse(employeeDto.getHireDate(), dtf).atStartOfDay());
-            } catch (DateTimeParseException e) {
-                return ResponseEntity.badRequest().body("Invalid date format. Use yyyy/MM/dd.");
+            if (employeeDto.getOper().equals("add") || employeeDto.getOper().equals("edit")) {
+                if (employeeDto.getHireDate() != null) {
+                    try {
+                        employee.setHireDate(LocalDate.parse(employeeDto.getHireDate(), dtf).atStartOfDay());
+                    } catch (DateTimeParseException e) {
+                        return ResponseEntity.badRequest().body("Invalid date format. Use yyyy/MM/dd.");
+                    }
+                } else {
+                    return ResponseEntity.badRequest().body("Hire date cannot be null for add/edit operations.");
+                }
             }
 
             employee.setJobId(employeeDto.getJobId());
@@ -124,8 +128,14 @@ public class EmployeeController {
                     employeeService.updateEmployee(employee);
                     return ResponseEntity.ok("Employee updated successfully");
                 case "del":
-                    employeeService.deleteEmployee(Integer.parseInt(employeeDto.getEmployeeId()));
-                    return ResponseEntity.ok("Employee deleted successfully");
+                    // employeeId 검증 및 삭제
+                    if (employeeDto.getEmployeeId() != null) {
+                        employeeService.deleteEmployee(Integer.parseInt(employeeDto.getEmployeeId()));
+                        System.out.println("Integer.parseInt(employeeDto.getEmployeeId()): " + Integer.parseInt(employeeDto.getEmployeeId()));
+                        return ResponseEntity.ok("Employee deleted successfully");
+                    } else {
+                        return ResponseEntity.badRequest().body("Employee ID cannot be null for deletion.");
+                    }
                 default:
                     return ResponseEntity.badRequest().body("Invalid operation");
             }
@@ -135,6 +145,7 @@ public class EmployeeController {
                     .body("An error occurred: " + e.getMessage());
         }
     }
+
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<String> handleJsonParsingException(HttpMessageNotReadableException e) {
