@@ -38,14 +38,25 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional(readOnly = true)
     public List<Employee> selectEmployees(boolean _search, int page, int rows, String sidx, String sord,
                                           String searchField, String searchString, String searchOper) {
+
+        // 페이지 값이 0 미만인 경우 처리
+        if (page < 1) {
+            page = 1;  // 1페이지를 기본으로 설정
+        }
+
+        // 페이지 요청을 0으로 맞추기 위해 1을 빼줌
+        int pageIndex = page - 1;
+
         Specification<Employee> spec = (root, query, criteriaBuilder) -> {
             if (_search) {
                 return criteriaBuilder.like(root.get(searchField), "%" + searchString + "%");
             }
             return criteriaBuilder.conjunction();
         };
-        return employeeRepository.findAll(spec, PageRequest.of(page - 1, rows, Sort.by(Sort.Direction.fromString(sord), sidx))).getContent();
+
+        return employeeRepository.findAll(spec, PageRequest.of(pageIndex, rows, Sort.by(Sort.Direction.fromString(sord), sidx))).getContent();
     }
+
 
     @Override
     public void insertEmployee(Employee employee) {
