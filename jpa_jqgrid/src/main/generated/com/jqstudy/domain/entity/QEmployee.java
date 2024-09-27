@@ -29,7 +29,7 @@ public class QEmployee extends EntityPathBase<Employee> {
 
     public final StringPath firstName = createString("firstName");
 
-    public final DateTimePath<java.time.LocalDateTime> hireDate = createDateTime("hireDate", java.time.LocalDateTime.class);
+    public final DatePath<java.time.LocalDate> hireDate = createDate("hireDate", java.time.LocalDate.class);
 
     public final StringPath jobId = createString("jobId");
 

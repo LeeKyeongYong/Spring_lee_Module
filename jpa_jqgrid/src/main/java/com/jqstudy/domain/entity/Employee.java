@@ -1,12 +1,11 @@
 package com.jqstudy.domain.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "employees")
@@ -17,8 +16,8 @@ public class Employee implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE,generator = "employee_seqgenerator")
-    @SequenceGenerator(name="employee_seq_generator",sequenceName = "EMPLOYEE_SEQUENCE", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "employee_seq_generator")
+    @SequenceGenerator(name = "employee_seq_generator", sequenceName = "EMPLOYEE_SEQUENCE", allocationSize = 1)
     @Column(name = "employee_id")
     private Integer employeeId;
 
@@ -35,7 +34,7 @@ public class Employee implements Serializable {
     private String phoneNumber;
 
     @Column(name = "hire_date")
-    private LocalDateTime hireDate;  // LocalDateTime으로 변경
+    private LocalDate hireDate; // LocalDate로 변경
 
     @Column(name = "job_id")
     private String jobId;
@@ -52,12 +51,10 @@ public class Employee implements Serializable {
     @Column(name = "department_id")
     private Integer departmentId;
 
-    // 기본 생성자
     public Employee() {}
 
-    // 생성자
     public Employee(Integer employeeId, String firstName, String lastName,
-                    String email, String phoneNumber, LocalDateTime hireDate, String jobId,
+                    String email, String phoneNumber, LocalDate hireDate, String jobId,
                     Double salary, Double commissionPct, Integer managerId,
                     Integer departmentId) {
         this.employeeId = employeeId;
@@ -72,6 +69,4 @@ public class Employee implements Serializable {
         this.managerId = managerId;
         this.departmentId = departmentId;
     }
-
-    // Getter 및 Setter 생략
 }

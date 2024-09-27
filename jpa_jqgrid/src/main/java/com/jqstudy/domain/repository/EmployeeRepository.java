@@ -9,6 +9,4 @@ import java.util.List;
 
 
 @Repository
-public interface EmployeeRepository extends JpaRepository<Employee, Integer>, JpaSpecificationExecutor<Employee> {
-    // 추가적인 쿼리 메서드를 정의할 수 있습니다.
-}
+public interface EmployeeRepository extends JpaRepository<Employee, Integer>, JpaSpecificationExecutor<Employee> {}

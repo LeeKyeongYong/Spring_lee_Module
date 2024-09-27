@@ -2,7 +2,7 @@ package com.jqstudy.domain.contoller;
 
 import com.jqstudy.domain.controller.V1EmployeeController;
 import com.jqstudy.domain.entity.Employee;
-import com.jqstudy.domain.entity.EmployeeDto;
+import com.jqstudy.domain.entity.EmployeesDto;
 import com.jqstudy.domain.service.EmployeeService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,9 +12,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -35,7 +32,7 @@ class V1EmployeeControllerTest {
     @Test
     void givenEmployeeDto_whenAdd_thenReturnSuccessMessage() {
         // given
-        EmployeeDto employeeDto = new EmployeeDto();
+        EmployeesDto employeeDto = new EmployeesDto();
         employeeDto.setOper("add");
         employeeDto.setFirstName("John");
         employeeDto.setLastName("Doe");
@@ -66,7 +63,7 @@ class V1EmployeeControllerTest {
     @Test
     void givenInvalidHireDate_whenAdd_thenReturnErrorMessage() {
         // given
-        EmployeeDto employeeDto = new EmployeeDto();
+        EmployeesDto employeeDto = new EmployeesDto();
         employeeDto.setOper("add");
         employeeDto.setHireDate("invalid-date");
 
@@ -82,7 +79,7 @@ class V1EmployeeControllerTest {
     @Test
     void givenEmployeeId_whenDelete_thenReturnSuccessMessage() {
         // given
-        EmployeeDto employeeDto = new EmployeeDto();
+        EmployeesDto employeeDto = new EmployeesDto();
         employeeDto.setOper("del");
         employeeDto.setEmployeeId("14");
 
@@ -100,7 +97,7 @@ class V1EmployeeControllerTest {
     @Test
     void givenNullEmployeeId_whenDelete_thenReturnErrorMessage() {
         // given
-        EmployeeDto employeeDto = new EmployeeDto();
+        EmployeesDto employeeDto = new EmployeesDto();
         employeeDto.setOper("del");
 
         // when
