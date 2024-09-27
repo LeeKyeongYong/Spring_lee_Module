@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html layout:decorate="~{script}">
+<head>
+    <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE" th:text="'Oracle, Spring, Hibernate, jpa 만들기'"></title>
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            $("#list").jqGrid({
+                url: "/api/read",
+                datatype: "json",
+                height: "auto",
+                colNames: [
+                    "Employee ID", "First Name", "Last Name", "Email",
+                    "Phone Number", "Hire Date", "Job ID", "Salary",
+                    "Commission Percentage", "Manager ID", "Department ID"
+                ],
+                colModel: [
+                    {name: "employeeId", index: "employeeId",width: 60 },
+                    {name: "firstName", index: "firstName", editable: true,width:'30%'},
+                    {name: "lastName", index: "lastName", editable: true,width:'30%'},
+                    {name: "email", index: "email", editable: true,width:'30%'},
+                    {name: "phoneNumber", index: "phoneNumber", editable: true,width:'30%'},
+                    {name: "hireDate", index: "hireDate", editable: true,width:'30%'},
+                    {name: "jobId", index: "jobId", editable: true,width:'30%'},
+                    {name: "salary", index: "salary", editable: true, align: "right",width:'30%'},
+                    {name: "commissionPct", index: "commissionPct", editable: true, align: "right",width:'30%'},
+                    {name: "managerId", index: "managerId", editable: true,width:'30%'},
+                    {name: "departmentId", index: "departmentId", editable: true,width:'30%'}
+                ],
+                sortable: true,
+                rowNum: 10,
+                sortname: "employeeId",  // 여기에 맞는 속성으로 변경
+                sortorder: "asc",         // sortorder 설정
+                autowidth: true,
+                rowList: [10, 20, 30],
+                pager: "#pager",
+                viewrecords: true,
+                caption: "Employees",
+                editurl: "/api/edit" // edit URL 수정
+                ,
+                loadComplete: function(data) {
+                    console.log("Loaded data:", data); // 로드된 데이터 확인
+                }
+            });
+
+            $("#list").jqGrid("navGrid", "#pager",
+                {edit: true, add: true, del: true},
+                {closeAfterEdit: true, reloadAfterSubmit: true},
+                {closeAfterAdd: true, reloadAfterSubmit: true},
+                {reloadAfterSubmit: true},
+                {sopt: ["eq", "ne", "lt", "le", "gt", "ge", "bw", "bn", "ew", "en", "cn", "nc", "in", "ni"]}
+            );
+        });
+    </script>
+</head>
+<body>
+<header layout:fragment="header">
+    <h3>Oracle, Spring, Hibernate, jqGrid 만들기</h3>
+    <table border="1px" id="list"></table>
+    <div id="pager"></div>
+</header>
+
+
+<th:block layout:fragment="content"></th:block>
+</body>
+</html>

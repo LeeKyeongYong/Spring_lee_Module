@@ -12,6 +12,6 @@ public class EmployeeController {
 
     @GetMapping({"/", "/index"})
     public String index(Locale locale, Model model) {
-        return "index.html";
+        return "index";
     }
 }
