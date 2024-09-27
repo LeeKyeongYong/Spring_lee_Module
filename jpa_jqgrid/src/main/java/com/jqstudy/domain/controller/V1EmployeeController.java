@@ -65,21 +65,26 @@ public class V1EmployeeController {
     }
 
     private ResponseEntity<String> handleOperation(EmployeesDto employeeDto, Employee employee) {
-        switch (employeeDto.getOper()) {
-            case "add":
+        var oper = employeeDto.getOper();
+
+        return switch (oper) {
+            case "add" -> {
                 employeeService.insertEmployee(employee);
-                return ResponseEntity.ok("Employee added successfully");
-            case "edit":
+                yield ResponseEntity.ok("Employee added successfully");
+            }
+            case "edit" -> {
                 employee.setEmployeeId(Integer.parseInt(employeeDto.getEmployeeId()));
                 employeeService.updateEmployee(employee);
-                return ResponseEntity.ok("Employee updated successfully");
-            case "del":
+                yield ResponseEntity.ok("Employee updated successfully");
+            }
+            case "del" -> {
                 employeeService.deleteEmployee(Integer.parseInt(employeeDto.getEmployeeId()));
-                return ResponseEntity.ok("Employee deleted successfully");
-            default:
-                return ResponseEntity.badRequest().body("Invalid operation");
-        }
+                yield ResponseEntity.ok("Employee deleted successfully");
+            }
+            default -> ResponseEntity.badRequest().body("Invalid operation");
+        };
     }
+
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<String> handleJsonParsingException(HttpMessageNotReadableException e) {
