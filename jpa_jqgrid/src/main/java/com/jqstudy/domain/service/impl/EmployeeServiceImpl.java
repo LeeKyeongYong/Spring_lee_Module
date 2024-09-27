@@ -20,9 +20,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     private EmployeeRepository employeeRepository;
 
-    @Autowired
-    private EmployeeFactoryDto employeeFactory; // EmployeeFactory 주입
-
     @Override
     @Transactional(readOnly = true)
     public int getTotalRecord(boolean _search, String searchField, String searchString, String searchOper) {
