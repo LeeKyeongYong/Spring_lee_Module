@@ -19,7 +19,7 @@ class RegistrationQueue(private val memberService: MemberService) {
                     val (userid, username, password, userEmail, imageType, imageBytes) = registrationData
 
                     val finalImageBytes = imageBytes ?: getDefaultImageBytes()
-                    memberService.join(userid, username, userEmail, password, imageType ?: "defaultImageType", finalImageBytes, "")
+                    memberService.join(userid, username, userEmail, password, imageType ?: "image/jpeg", finalImageBytes, "")
                 }
             }
         }

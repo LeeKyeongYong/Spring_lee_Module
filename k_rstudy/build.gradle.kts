@@ -1,15 +1,19 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-
     id("org.springframework.boot") version "3.3.1"
     id("io.spring.dependency-management") version "1.1.5"
-    id("org.jetbrains.kotlin.jvm") version "1.9.24"
-    id("org.jetbrains.kotlin.kapt") version "1.9.24"
-    id("org.jetbrains.kotlin.plugin.spring") version "1.9.24"
+    kotlin("jvm") version "1.9.24"
+    kotlin("kapt") version "1.9.24"
+    kotlin("plugin.spring") version "1.9.24"
+    kotlin("plugin.jpa") version "1.9.24"
+    kotlin("plugin.allopen") version "1.9.24"
+}
 
-    val kotlinVersion = "1.9.24"
-    kotlin("plugin.allopen") version kotlinVersion
+allOpen {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
 }
 
 group = "org.jc"
@@ -19,7 +23,6 @@ java.sourceCompatibility = JavaVersion.VERSION_19
 sourceSets["main"].withConvention(org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet::class) {
     kotlin.srcDir("$buildDir/generated/source/kapt/main")
 }
-
 
 configurations {
     compileOnly {
@@ -85,7 +88,7 @@ dependencies {
     implementation("com.github.ulisesbocchio:jasypt-spring-boot:3.0.5")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.0")
-    implementation("\"org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
 
     // Spring AOP 의존성 추가
     implementation("org.springframework.boot:spring-boot-starter-aop")

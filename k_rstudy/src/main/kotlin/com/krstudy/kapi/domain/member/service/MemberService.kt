@@ -28,18 +28,21 @@ class MemberService(
     suspend fun join(userid: String, username: String, userEmail: String, password: String, imageType: String?, imageBytes: ByteArray?, roleType: String?): RespData<Member> {
         val existingMember = findByUserid(userid)
         if (existingMember != null) {
-            return RespData.fromErrorCode(ErrorCode.DUPLICATED_USERID) // 새로운 에러 코드 추가
-        //return RespData.fromErrorCode(ErrorCode.UNAUTHORIZED)
+            return RespData.fromErrorCode(ErrorCode.DUPLICATED_USERID)
         }
 
         // 역할을 결정하는 로직
-        val finalRoleType = M_Role.values().find { it.authority.equals(userid, ignoreCase = true) }?.authority
-            ?: if (userid.equals("system", ignoreCase = true) || userid.equals("admin", ignoreCase = true)) {
+        val finalRoleType = when {
+            userid.equals("system", ignoreCase = true) || userid.equals("admin", ignoreCase = true) -> {
                 M_Role.ADMIN.authority
-            } else {
+            }
+            roleType.isNullOrEmpty() -> {
                 M_Role.MEMBER.authority
             }
-
+            else -> {
+                M_Role.values().find { it.authority.equals(roleType, ignoreCase = true) }?.authority ?: M_Role.MEMBER.authority
+            }
+        }
 
         // JWT 생성
         val token = generateJwtToken(userid, secretKey)
@@ -52,8 +55,8 @@ class MemberService(
             this.roleType = finalRoleType
             this.useYn = "Y"
             this.jwtToken = token
-            this.imageType = imageType // 이미지 타입 저장
-            this.image = imageBytes // 이미지 바이트 저장
+            this.imageType = imageType
+            this.image = imageBytes
         }
 
         withContext(Dispatchers.IO) {
