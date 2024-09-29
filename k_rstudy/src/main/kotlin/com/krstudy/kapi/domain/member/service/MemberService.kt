@@ -25,7 +25,7 @@ class MemberService(
     @Value("\${security.jwt.secret}")
     private lateinit var secretKey: String
     @Transactional
-    suspend fun join(userid: String, username: String, userEmail: String, password: String, imageType: String?, imageBytes: ByteArray?): RespData<Member> {
+    suspend fun join(userid: String, username: String, userEmail: String, password: String, imageType: String?, imageBytes: ByteArray?, roleType: String?): RespData<Member> {
         val existingMember = findByUserid(userid)
         if (existingMember != null) {
             return RespData.fromErrorCode(ErrorCode.DUPLICATED_USERID) // 새로운 에러 코드 추가
@@ -33,14 +33,13 @@ class MemberService(
         }
 
         // 역할을 결정하는 로직
-        val roleType = M_Role.values().find { it.authority.equals(userid, ignoreCase = true) }?.authority
-            ?: run {
-                if (userid.equals("system", ignoreCase = true) || userid.equals("admin", ignoreCase = true)) {
-                    M_Role.ADMIN.authority
-                } else {
-                    M_Role.MEMBER.authority
-                }
+        val finalRoleType = M_Role.values().find { it.authority.equals(userid, ignoreCase = true) }?.authority
+            ?: if (userid.equals("system", ignoreCase = true) || userid.equals("admin", ignoreCase = true)) {
+                M_Role.ADMIN.authority
+            } else {
+                M_Role.MEMBER.authority
             }
+
 
         // JWT 생성
         val token = generateJwtToken(userid, secretKey)
@@ -50,7 +49,7 @@ class MemberService(
             this.username = username
             this.userEmail = userEmail
             this.password = passwordEncoder.encode(password)
-            this.roleType = roleType
+            this.roleType = finalRoleType
             this.useYn = "Y"
             this.jwtToken = token
             this.imageType = imageType // 이미지 타입 저장

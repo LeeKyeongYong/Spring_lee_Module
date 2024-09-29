@@ -8,9 +8,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 class DefaultRoleStrategy : RoleStrategy {
     override fun getAuthorities(roleType: String?, userid: String): Collection<GrantedAuthority> {
         val authorities = mutableListOf<GrantedAuthority>()
+        val role: M_Role = M_Role.fromRoleType(roleType) // 역할 찾기
 
-        // 역할에 따른 권한 추가
-        val role: M_Role = M_Role.values().find { it.authority == roleType } ?: M_Role.MEMBER
         authorities.add(SimpleGrantedAuthority(role.authority))
 
         // 시스템 관리자 또는 admin 권한 추가

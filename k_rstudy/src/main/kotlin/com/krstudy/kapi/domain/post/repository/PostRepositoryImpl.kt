@@ -1,8 +1,6 @@
 package com.krstudy.kapi.domain.post.repository
 
 import com.krstudy.kapi.domain.member.entity.Member
-import com.krstudy.kapi.domain.post.entity.Post
-import com.krstudy.kapi.domain.post.entity.QPost
 import com.krstudy.kapi.domain.post.repository.PostRepositoryCustom
 import com.querydsl.core.types.Order
 import com.querydsl.core.types.OrderSpecifier
@@ -14,6 +12,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
 import com.querydsl.core.types.dsl.*
+import com.krstudy.kapi.domain.post.entity.*
 
 @Repository
 class PostRepositoryImpl(

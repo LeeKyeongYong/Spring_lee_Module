@@ -71,7 +71,6 @@ class MemberController(
         bindingResult: BindingResult,
         redirectAttributes: RedirectAttributes
     ): String {
-        // 입력 검증
         if (bindingResult.hasErrors()) {
             bindingResult.allErrors.forEach { error ->
                 val fieldName = (error as FieldError).field
@@ -81,46 +80,22 @@ class MemberController(
             return "redirect:/member/join"
         }
 
-        // 중복 가입 시도 방지
-        synchronized(this) {
-            val existingMember = memberService.findByUserid(joinForm.userid)
-            if (existingMember != null) {
-                redirectAttributes.addFlashAttribute("error_userid", "이미 등록된 사용자 ID입니다.")
-                return "redirect:/member/join"
-            }
+        if (memberService.findByUserid(joinForm.userid) != null) {
+            redirectAttributes.addFlashAttribute("error_userid", "이미 등록된 사용자 ID입니다.")
+            return "redirect:/member/join"
         }
 
         log.info("회원가입 시도: userid=${joinForm.userid}, username=${joinForm.username}, userEmail=${joinForm.userEmail}")
 
-        val (userid, username, password, userEmail, image) = joinForm
-        val imageType: String?
-        val imageBytes: ByteArray?
+        val imageBytes = joinForm.image?.let { getImageBytes(it) } ?: getDefaultImageBytes()
+        registrationQueue.enqueue(joinForm.userid, joinForm.username, joinForm.password, joinForm.userEmail, null, imageBytes)
 
-        if (image != null && !image.isEmpty) {
-            imageType = image.contentType
-            imageBytes = image.bytes
-        } else {
-            imageType = "image/png" // 기본 이미지 타입
-            imageBytes = getDefaultImageBytes() // 기본 이미지 바이트
-        }
+        redirectAttributes.addFlashAttribute("userid", joinForm.userid)
+        return "redirect:/member/login"
+    }
 
-        val finalImageType = imageType ?: "image/png"
-        val finalImageBytes = imageBytes ?: getDefaultImageBytes()
-
-        // 회원가입 요청 큐에 추가
-        registrationQueue.enqueue(userid, username, password, userEmail, finalImageType, finalImageBytes)
-
-        // 비동기 회원가입 처리
-        memberService.join(userid, username, userEmail, password, finalImageType, finalImageBytes) // memberService.join은 suspend여야 함
-        log.info("회원가입 완료: userid=${userid}")
-
-        return rq.redirectOrBack(
-            rs = RespData.of<Any>(
-                resultCode = ErrorCode.SUCCESS.code,
-                msg = ErrorCode.SUCCESS.message
-            ),
-            path = "/member/login"
-        )
+    private fun getImageBytes(image: MultipartFile): ByteArray {
+        return image.bytes
     }
 
     // 기본 이미지 바이트를 가져오는 함수
