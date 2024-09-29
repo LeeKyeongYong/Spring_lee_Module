@@ -58,6 +58,7 @@ class MemberService(
         }
 
         withContext(Dispatchers.IO) {
+            println("Insert method called with data: $member") // 로그 추가
             memberRepository.save(member)
         }
 
