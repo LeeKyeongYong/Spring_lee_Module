@@ -83,4 +83,13 @@ class MemberService(
             .signWith(SignatureAlgorithm.HS512, secretKey.toByteArray())
             .compact()
     }
+
+    fun getImageByNo(id: Long): Member? {
+        return getMemberByNo(id)
+    }
+
+    fun getMemberByNo(id: Long): Member? {
+        return memberRepository.findById(id).orElse(null)
+    }
+
 }

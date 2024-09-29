@@ -1,6 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+
     id("org.springframework.boot") version "3.3.1"
     id("io.spring.dependency-management") version "1.1.5"
     id("org.jetbrains.kotlin.jvm") version "1.9.24"
@@ -130,6 +131,7 @@ dependencies {
 
     //pdf
     implementation("com.itextpdf:itextpdf:5.5.13.4")
+    implementation ("com.lowagie:itext:2.1.7")
 
 }
 

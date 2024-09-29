@@ -4,6 +4,7 @@ import com.krstudy.kapi.domain.member.datas.M_Role
 import com.krstudy.kapi.global.jpa.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.Lob
 import jakarta.persistence.Transient
 import org.springframework.security.core.GrantedAuthority
 
@@ -29,6 +30,12 @@ class Member(
 
     @Column
     var jwtToken: String? = null,  // JWT 토큰 필드 추가
+
+    @Column(name = "image_type")
+    var imageType: String? = null,
+
+    @Lob
+    var image: ByteArray? = null,
 
     @Transient
     private val roleStrategy: RoleStrategy = DefaultRoleStrategy()

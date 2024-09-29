@@ -2,46 +2,43 @@ package com.krstudy.kapi.domain.member.controller
 
 import com.krstudy.kapi.domain.member.datas.JoinForm
 import com.krstudy.kapi.domain.member.datas.RegistrationQueue
+import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.service.MemberService
-import com.krstudy.kapi.domain.qrcodeservice.service.QRCodeService
-import com.krstudy.kapi.global.Security.SecurityUser
-import com.krstudy.kapi.global.exception.CustomException
+import org.springframework.http.MediaType
 import com.krstudy.kapi.global.exception.ErrorCode
 import com.krstudy.kapi.global.https.ReqData
 import com.krstudy.kapi.global.https.RespData
 import com.krstudy.kapi.global.lgexecution.LogExecutionTime
-import jakarta.servlet.http.HttpSession
+import com.krstudy.kapi.standard.base.MemberPdfView
 import jakarta.validation.Valid
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Controller
 import lombok.extern.slf4j.Slf4j
 import org.springframework.web.bind.annotation.*
 import org.slf4j.LoggerFactory
-import org.springframework.security.core.Authentication
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.slf4j.Logger
+import org.springframework.http.ResponseEntity
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
-import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.multipart.MultipartFile
+import org.springframework.web.servlet.ModelAndView
 
 @Slf4j
 @Controller
-@RequestMapping("/member")
+@RequestMapping("/member") // 회원 관련 요청을 처리하는 컨트롤러
 
 class MemberController(
     private val memberService: MemberService, // 회원 서비스에 대한 의존성 주입
     private val rq: ReqData, // 요청 데이터에 대한 의존성 주입
     private val registrationQueue: RegistrationQueue, // 가입 요청 큐에 대한 의존성 주입
-    private val passwordEncoder: PasswordEncoder // PasswordEncoder 주입
+    private val passwordEncoder: PasswordEncoder // 비밀번호 인코더 주입
 ) {
 
-    // Logger 인스턴스 생성: 로그를 기록하기 위해 사용
-    private val log: Logger = LoggerFactory.getLogger(MemberController::class.java)
+    private val log: Logger = LoggerFactory.getLogger(MemberController::class.java) // Logger 인스턴스 생성
 
     /**
      * 회원 가입 페이지를 보여주는 메소드.
@@ -67,7 +64,8 @@ class MemberController(
     @LogExecutionTime // 메소드 실행 시간 로그 기록
     fun join(@Valid @ModelAttribute joinForm: JoinForm,
              bindingResult: BindingResult,
-             redirectAttributes: RedirectAttributes
+             redirectAttributes: RedirectAttributes,
+             @RequestParam image: MultipartFile // 이미지 파일 파라미터
     ): String {
         // 검증 오류가 있는 경우
         if (bindingResult.hasErrors()) {
@@ -75,16 +73,36 @@ class MemberController(
             bindingResult.allErrors.forEach { error ->
                 val fieldName = (error as FieldError).field
                 val errorMessage = error.defaultMessage
-                redirectAttributes.addFlashAttribute("error_$fieldName", errorMessage)
+                redirectAttributes.addFlashAttribute("error_$fieldName", errorMessage) // 오류 필드에 대한 플래시 속성 추가
             }
 
             // 회원가입 페이지로 리디렉션
-            return "redirect:/member/join" // 실제 회원가입 페이지 URL로 변경
+            return "redirect:/member/join" // 회원가입 페이지 URL로 리디렉션
         }
+
+        // 파일 처리 로직
+        if (!image.isEmpty) {
+            val imageType = image.contentType // 이미지 타입 가져오기
+            val imageBytes = image.bytes // 이미지 바이트 가져오기
+
+            // Member 객체 생성 및 이미지 저장
+            val member = Member(
+                userid = joinForm.userid,
+                username = joinForm.username,
+                password = passwordEncoder.encode(joinForm.password), // 비밀번호 인코딩
+                userEmail = joinForm.userEmail,
+                imageType = imageType,
+                image = imageBytes
+            )
+
+            // 회원가입 처리 로직 필요 (주석 처리)
+            // memberService.saveMember(member)
+        }
+
         log.info("join() method called with JoinForm: $joinForm") // 폼 데이터와 함께 메소드 호출 로그 기록
 
         // 가입 요청을 큐에 추가
-        registrationQueue.enqueue(joinForm.userid, joinForm.username,joinForm.userEmail, joinForm.password)
+        registrationQueue.enqueue(joinForm.userid, joinForm.username, joinForm.userEmail, joinForm.password)
         log.info("User with userid: ${joinForm.userid} enqueued successfully") // 큐에 추가된 사용자 로그 기록
 
         // 성공적인 응답 생성
@@ -97,7 +115,7 @@ class MemberController(
         log.info("Redirecting to /member/login with success response: $successResponse") // 리디렉션 로그 기록
         return rq.redirectOrBack(
             rs = successResponse,
-            path = "/member/login"
+            path = "/member/login" // 로그인 페이지로 리디렉션
         )
     }
 
@@ -110,6 +128,48 @@ class MemberController(
     @LogExecutionTime // 메소드 실행 시간 로그 기록
     fun showLogin(): String {
         return "domain/member/login" // 로그인 페이지의 뷰 경로 반환
+    }
+
+    /**
+     * 회원의 PDF 정보를 보여주는 메소드.
+     * @param id 회원 ID
+     * @return ModelAndView 객체
+     */
+    @GetMapping("/view_pdf/{id}") // 특정 회원의 PDF 정보를 보여주는 GET 요청
+    fun viewPdf(@PathVariable id: Long): ModelAndView {
+        val member: Member? = memberService.getMemberByNo(id)
+
+        // member가 null인지 확인
+        if (member == null) {
+            log.error("Member not found for id: $id") // 오류 로그 기록
+            throw RuntimeException("Member not found") // 적절한 예외 처리
+        }
+
+        val mav = ModelAndView()
+        mav.view = MemberPdfView() // PDF 뷰 설정
+        mav.addObject("member", member) // member 객체 추가
+        return mav
+    }
+
+    /**
+     * 특정 회원의 이미지를 가져오는 메소드.
+     * @param id 회원 ID
+     * @return 이미지 바이트 배열을 포함한 ResponseEntity
+     */
+    @GetMapping("/image/{id}") // 특정 회원의 이미지를 가져오는 GET 요청
+    fun getImage(@PathVariable id: Long): ResponseEntity<ByteArray> {
+        val member: Member? = memberService.getImageByNo(id)
+
+        // member가 null인지 확인
+        if (member == null || member.image == null) {
+            return ResponseEntity.notFound().build() // 404 응답 반환
+        }
+
+        val contentType = member.imageType ?: MediaType.APPLICATION_OCTET_STREAM_VALUE // 기본 MIME 타입 설정
+
+        return ResponseEntity.ok()
+            .contentType(MediaType.valueOf(contentType)) // 적절한 콘텐츠 타입 설정
+            .body(member.image) // 이미지 바디 반환
     }
 
 }
