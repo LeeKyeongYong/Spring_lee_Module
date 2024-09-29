@@ -35,6 +35,7 @@ class Member(
     var imageType: String? = null,
 
     @Lob
+    @Column(columnDefinition = "LONGBLOB")
     var image: ByteArray? = null,
 
     @Transient

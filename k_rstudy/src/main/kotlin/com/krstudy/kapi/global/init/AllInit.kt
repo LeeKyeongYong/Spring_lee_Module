@@ -24,8 +24,8 @@ class AllInit(private val memberService: MemberService) {
                 if (memberService.findByUserid("system") != null) return@launch
 
                 // 회원가입 시 역할이 자동으로 설정되도록 변경
-                memberService.join("system", "시스템관리자", "system@example.com", "1234", "")
-                memberService.join("admin", "관리자", "admin@example.com", "1234", "")
+                memberService.join("system", "시스템관리자", "system@example.com", "1234", null, null)
+                memberService.join("admin", "관리자", "admin@example.com", "1234", null, null)
             }
         }
     }

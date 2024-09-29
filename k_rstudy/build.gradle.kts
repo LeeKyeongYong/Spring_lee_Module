@@ -84,6 +84,8 @@ dependencies {
     //코루틴
     implementation("com.github.ulisesbocchio:jasypt-spring-boot:3.0.5")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.0")
+    implementation("\"org.springframework.boot:spring-boot-starter-webflux")
 
     // Spring AOP 의존성 추가
     implementation("org.springframework.boot:spring-boot-starter-aop")

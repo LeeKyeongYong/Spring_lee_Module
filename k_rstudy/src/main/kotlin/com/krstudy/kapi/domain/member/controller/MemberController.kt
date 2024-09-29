@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*
 import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.slf4j.Logger
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
@@ -26,6 +27,10 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.ModelAndView
+import org.springframework.http.HttpHeaders
+import java.io.File
+import java.io.FileNotFoundException
+
 
 @Slf4j
 @Controller
@@ -59,65 +64,75 @@ class MemberController(
      * @param joinForm 가입 폼 데이터
      * @return 가입 성공 후 리디렉션할 경로
      */
-    @PreAuthorize("isAnonymous()") // 인증되지 않은 사용자만 접근 가능
-    @PostMapping("/join") // POST 요청에 대해 /member/join 경로로 매핑
-    @LogExecutionTime // 메소드 실행 시간 로그 기록
-    fun join(@Valid @ModelAttribute joinForm: JoinForm,
-             bindingResult: BindingResult,
-             redirectAttributes: RedirectAttributes,
-             @RequestParam image: MultipartFile // 이미지 파일 파라미터
+    @PostMapping("/join")
+    @LogExecutionTime
+    suspend fun join(
+        @Valid @ModelAttribute joinForm: JoinForm,
+        bindingResult: BindingResult,
+        redirectAttributes: RedirectAttributes
     ): String {
-        // 검증 오류가 있는 경우
+        // 입력 검증
         if (bindingResult.hasErrors()) {
-            // 오류 메시지를 RedirectAttributes에 추가
             bindingResult.allErrors.forEach { error ->
                 val fieldName = (error as FieldError).field
                 val errorMessage = error.defaultMessage
-                redirectAttributes.addFlashAttribute("error_$fieldName", errorMessage) // 오류 필드에 대한 플래시 속성 추가
+                redirectAttributes.addFlashAttribute("error_$fieldName", errorMessage)
             }
-
-            // 회원가입 페이지로 리디렉션
-            return "redirect:/member/join" // 회원가입 페이지 URL로 리디렉션
+            return "redirect:/member/join"
         }
 
-        // 파일 처리 로직
-        if (!image.isEmpty) {
-            val imageType = image.contentType // 이미지 타입 가져오기
-            val imageBytes = image.bytes // 이미지 바이트 가져오기
-
-            // Member 객체 생성 및 이미지 저장
-            val member = Member(
-                userid = joinForm.userid,
-                username = joinForm.username,
-                password = passwordEncoder.encode(joinForm.password), // 비밀번호 인코딩
-                userEmail = joinForm.userEmail,
-                imageType = imageType,
-                image = imageBytes
-            )
-
-            // 회원가입 처리 로직 필요 (주석 처리)
-            // memberService.saveMember(member)
+        // 중복 가입 시도 방지
+        synchronized(this) {
+            val existingMember = memberService.findByUserid(joinForm.userid)
+            if (existingMember != null) {
+                redirectAttributes.addFlashAttribute("error_userid", "이미 등록된 사용자 ID입니다.")
+                return "redirect:/member/join"
+            }
         }
 
-        log.info("join() method called with JoinForm: $joinForm") // 폼 데이터와 함께 메소드 호출 로그 기록
+        log.info("회원가입 시도: userid=${joinForm.userid}, username=${joinForm.username}, userEmail=${joinForm.userEmail}")
 
-        // 가입 요청을 큐에 추가
-        registrationQueue.enqueue(joinForm.userid, joinForm.username, joinForm.userEmail, joinForm.password)
-        log.info("User with userid: ${joinForm.userid} enqueued successfully") // 큐에 추가된 사용자 로그 기록
+        val (userid, username, password, userEmail, image) = joinForm
+        val imageType: String?
+        val imageBytes: ByteArray?
 
-        // 성공적인 응답 생성
-        val successResponse: RespData<String> = RespData.of(
-            resultCode = ErrorCode.SUCCESS.code,
-            msg = ErrorCode.SUCCESS.message
-        )
+        if (image != null && !image.isEmpty) {
+            imageType = image.contentType
+            imageBytes = image.bytes
+        } else {
+            imageType = "image/png" // 기본 이미지 타입
+            imageBytes = getDefaultImageBytes() // 기본 이미지 바이트
+        }
 
-        // 리디렉션 또는 페이지 이동
-        log.info("Redirecting to /member/login with success response: $successResponse") // 리디렉션 로그 기록
+        val finalImageType = imageType ?: "image/png"
+        val finalImageBytes = imageBytes ?: getDefaultImageBytes()
+
+        // 회원가입 요청 큐에 추가
+        registrationQueue.enqueue(userid, username, password, userEmail, finalImageType, finalImageBytes)
+
+        // 비동기 회원가입 처리
+        memberService.join(userid, username, userEmail, password, finalImageType, finalImageBytes) // memberService.join은 suspend여야 함
+        log.info("회원가입 완료: userid=${userid}")
+
         return rq.redirectOrBack(
-            rs = successResponse,
-            path = "/member/login" // 로그인 페이지로 리디렉션
+            rs = RespData.of<Any>(
+                resultCode = ErrorCode.SUCCESS.code,
+                msg = ErrorCode.SUCCESS.message
+            ),
+            path = "/member/login"
         )
     }
+
+    // 기본 이미지 바이트를 가져오는 함수
+    private fun getDefaultImageBytes(): ByteArray {
+        val inputStream = this::class.java.classLoader.getResourceAsStream("gen/images/notphoto.jpg")
+            ?: throw FileNotFoundException("Default image not found in resources")
+
+        return inputStream.readBytes().also {
+            inputStream.close() // InputStream을 닫는 것을 잊지 마세요
+        }
+    }
+
 
     /**
      * 로그인 페이지를 보여주는 메소드.
@@ -170,6 +185,23 @@ class MemberController(
         return ResponseEntity.ok()
             .contentType(MediaType.valueOf(contentType)) // 적절한 콘텐츠 타입 설정
             .body(member.image) // 이미지 바디 반환
+    }
+
+    @GetMapping("/image")
+    fun getImageByNo(@RequestParam(value = "id") id: Long): ResponseEntity<ByteArray> {
+        val member = memberService.getImageByNo(id)
+
+        if (member == null || member.image == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+        }
+
+        val image = member.image
+        val contentType = member.imageType ?: MediaType.APPLICATION_OCTET_STREAM_VALUE
+
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.parseMediaType(contentType)
+
+        return ResponseEntity(image, headers, HttpStatus.OK)
     }
 
 }

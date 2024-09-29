@@ -5,5 +5,7 @@ data class RegistrationData(
     val username: String,
     val password: String,
     val userEmail: String,
+    val imageType: String? = null,
+    val imageBytes: ByteArray? = null,
     val additionalFields: Map<String, Any> = emptyMap() // 추가 필드를 위한 Map
 )

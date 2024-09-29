@@ -25,13 +25,15 @@ class MemberService(
     @Value("\${security.jwt.secret}")
     private lateinit var secretKey: String
     @Transactional
-    suspend fun join(userid: String, username: String, userEmail: String,password: String, role: String): RespData<Member> {
+    suspend fun join(userid: String, username: String, userEmail: String, password: String, imageType: String?, imageBytes: ByteArray?): RespData<Member> {
         val existingMember = findByUserid(userid)
         if (existingMember != null) {
-            return RespData.fromErrorCode(ErrorCode.UNAUTHORIZED)
+            return RespData.fromErrorCode(ErrorCode.DUPLICATED_USERID) // 새로운 에러 코드 추가
+        //return RespData.fromErrorCode(ErrorCode.UNAUTHORIZED)
         }
 
-        val roleType = M_Role.values().find { it.authority.equals(role, ignoreCase = true) }?.authority
+        // 역할을 결정하는 로직
+        val roleType = M_Role.values().find { it.authority.equals(userid, ignoreCase = true) }?.authority
             ?: run {
                 if (userid.equals("system", ignoreCase = true) || userid.equals("admin", ignoreCase = true)) {
                     M_Role.ADMIN.authority
@@ -51,6 +53,8 @@ class MemberService(
             this.roleType = roleType
             this.useYn = "Y"
             this.jwtToken = token
+            this.imageType = imageType // 이미지 타입 저장
+            this.image = imageBytes // 이미지 바이트 저장
         }
 
         withContext(Dispatchers.IO) {

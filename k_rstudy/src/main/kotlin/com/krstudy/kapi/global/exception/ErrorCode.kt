@@ -12,7 +12,7 @@ enum class ErrorCode(val code: String, val message: String) {
     NOT_FOUND_COMMENT("404-2", "해당 댓글이 존재하지 않습니다."),
     NOT_FOUND_USER("404-3", "존재하지 않는 사용자입니다."),
     NOT_FOUND_RESOURCE("404-4", "해당 리소스가 존재하지 않습니다."),
-
+    DUPLICATED_USERID("409", "이미 사용 중인 사용자 ID입니다."), // 중복 사용자 ID 에러 코드 추가
 
     // 권한 관련 오류
     FORBIDDEN("403-1", "권한이 없습니다."),

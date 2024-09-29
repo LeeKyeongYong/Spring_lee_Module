@@ -39,17 +39,17 @@ class NotProd(
     @Transactional
     fun work1() {
         runBlocking {
-            val memberUser1 = memberService.join("user1","일반 사용자1","abc@lky.co.kr","1234", "").data
-             val memberUser2 = memberService.join("user2", "일반 사용자2","abc@lky.co.kr","1234", "").data
-            val memberUser3 = memberService.join("user3", "일반 사용자3","abc@lky.co.kr","1234", "").data
-            val memberUser4 = memberService.join("user4", "일반 사용자4","abc@lky.co.kr","1234", "").data
+            val memberUser1 = memberService.join("user1","일반 사용자1","abc@lky.co.kr","1234", "", null).data
+            val memberUser2 = memberService.join("user2", "일반 사용자2","abc@lky.co.kr","1234", "", null).data
+            val memberUser3 = memberService.join("user3", "일반 사용자3","abc@lky.co.kr","1234", "", null).data
+            val memberUser4 = memberService.join("user4", "일반 사용자4","abc@lky.co.kr","1234", "", null).data
             // M_Role을 직접 사용하는 대신, 이름으로 변환
-            val memberUser5 = memberService.join("m_user01", "그룹 운영자", "abc@lky.co.kr","1234", M_Role.MANAGER.authority).data
-            val memberUser6 = memberService.join("h_user01", "인사 담당자", "abc@lky.co.kr","1234", M_Role.HR.authority).data
-            val memberUser7 = memberService.join("d_user5", "임시 관리자", "abc@lky.co.kr","1234", M_Role.ADMIN.authority).data
+            val memberUser5 = memberService.join("m_user01", "그룹 운영자", "abc@lky.co.kr","1234", "", null).data
+            val memberUser6 = memberService.join("h_user01", "인사 담당자", "abc@lky.co.kr","1234", "", null).data
+            val memberUser7 = memberService.join("d_user5", "임시 관리자", "abc@lky.co.kr","1234", "", null).data
 
-            val memberUser8 = memberService.join("h_user02", "헤드 헌터", "abc@lky.co.kr","1234","ROLE_HEADHUNTER").data
-            val memberUser9 = memberService.join("d_user2", "인사 담당자", "abc@lky.co.kr","1234", "ROLE_HR").data
+            val memberUser8 = memberService.join("h_user02", "헤드 헌터", "abc@lky.co.kr","1234","", null).data
+            val memberUser9 = memberService.join("d_user2", "인사 담당자", "abc@lky.co.kr","1234", "", null).data
 
 
             if (memberUser1 == null || memberUser2 == null || memberUser3 == null || memberUser4 == null || memberUser5 == null || memberUser6 == null
