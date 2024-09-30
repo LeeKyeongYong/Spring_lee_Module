@@ -22,7 +22,7 @@ class CustomAuthenticationSuccessHandler(
         response: HttpServletResponse,
         authentication: Authentication
     ) {
-        val isAdmin = authentication.authorities.any { it.authority == "ROLE_ADMIN" }
+        val isAdmin = authentication.authorities.any { it.authority == "ADMIN" }
 
         if (isAdmin) {
             log.info("User is an admin: ${authentication.name}") // 관리자 로그

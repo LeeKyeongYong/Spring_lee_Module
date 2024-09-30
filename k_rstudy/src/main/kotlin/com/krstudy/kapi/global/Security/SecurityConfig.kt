@@ -43,8 +43,10 @@ class SecurityConfig (
                     .requestMatchers("/adm/**").hasRole("ADMIN")
                     .requestMatchers("/v1/qrcode/**").permitAll()
                     .requestMatchers("/v1/**").authenticated()
-                    .requestMatchers("/member/join").permitAll()
-                    .requestMatchers("/image/**").permitAll()  // 이미지 경로에 대한 접근 허용
+                    .requestMatchers("/member/login").anonymous()
+                    .requestMatchers("/member/join")
+                    .access("hasRole('ADMIN') or isAnonymous()") // 관리자나 비로그인 사용자만 접근 가능
+                    .requestMatchers("/image/**").permitAll() // 이미지 경로에 대한 접근 허용
                     .anyRequest().permitAll()
             }
             .csrf { csrf ->
@@ -57,8 +59,7 @@ class SecurityConfig (
                     .loginPage("/member/login")
                     .successHandler(customAuthenticationSuccessHandler())
                     .defaultSuccessUrl("/?msg=" + URLEncoder.encode("환영합니다.", StandardCharsets.UTF_8))
-                    .failureHandler(customAuthenticationFailureHandler) // 커스텀 실패 핸들러 등록
-                    //.failureUrl("/member/login?failMsg=" + URLEncoder.encode("아이디 또는 비밀번호가 틀렸습니다.", StandardCharsets.UTF_8))
+                    .failureHandler(customAuthenticationFailureHandler)
             }
 
             .logout { logout ->

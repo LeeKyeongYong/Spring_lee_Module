@@ -51,7 +51,7 @@ class MemberController(
      * 인증되지 않은 사용자만 접근할 수 있습니다.
      * @return 가입 페이지의 뷰 이름
      */
-    @PreAuthorize("isAnonymous()") // 인증되지 않은 사용자만 접근 가능
+    @PreAuthorize("isAnonymous() or hasRole('ADMIN')") // 인증되지 않은 사용자,관리자만 접근 가능
     @GetMapping("/join") // GET 요청에 대해 /member/join 경로로 매핑
     @LogExecutionTime // 메소드 실행 시간 로그 기록
     fun showJoin(): String {
