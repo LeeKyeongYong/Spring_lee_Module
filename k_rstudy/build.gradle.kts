@@ -138,6 +138,35 @@ dependencies {
     implementation("com.itextpdf:itextpdf:5.5.13.4")
     implementation ("com.lowagie:itext:2.1.7")
 
+    //config 서버 안해줘도 업데이트 할수있음..
+    implementation ("org.springframework.boot:spring-boot-starter-actuator")
+
+    implementation ("org.projectlombok:lombok:1.18.26")
+    testImplementation ("org.projectlombok:lombok:1.18.26")
+
+    implementation ("org.apache.commons:commons-lang3:3.12.0")
+
+    implementation("io.micrometer:micrometer-tracing-bridge-brave:1.1.1")
+    implementation("io.zipkin.reporter2:zipkin-reporter-brave:2.16.3")
+
+    //rabbit-mq
+    implementation("org.springframework.boot:spring-boot-starter-activemq")
+    implementation("org.apache.activemq:activemq-broker:5.18.1")
+
+    //카프카 추가
+    implementation ("org.springframework.kafka:spring-kafka")
+
+    implementation("io.github.resilience4j:resilience4j-spring-boot2:2.2.0")
+
+    // Resilience4j Retry
+    implementation("io.github.resilience4j:resilience4j-retry:2.2.0")
+
+    // Resilience4j Bulkhead
+    implementation("io.github.resilience4j:resilience4j-bulkhead:2.2.0")
+    implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.1.3") // Feign 의존성 추가
+
+
+
 }
 
 tasks.withType<KotlinCompile> {

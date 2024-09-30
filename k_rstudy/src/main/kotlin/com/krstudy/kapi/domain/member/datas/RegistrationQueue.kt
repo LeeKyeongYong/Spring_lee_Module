@@ -31,6 +31,6 @@ class RegistrationQueue(private val memberService: MemberService) {
 
     private fun getDefaultImageBytes(): ByteArray {
         // 기본 이미지 파일을 불러와서 ByteArray로 변환하는 로직
-        return byteArrayOf() // 실제로 반환할 기본 이미지 바이트 배열을 넣어주세요
+        return byteArrayOf() // 실제로 반환할 기본 이미지 바이트 배열사용
     }
 }
