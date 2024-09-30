@@ -50,6 +50,7 @@ class SecurityConfig (
             .csrf { csrf ->
                 csrf
                     .ignoringRequestMatchers("/v1/**")
+                    .ignoringRequestMatchers("/member/join")
             }
             .formLogin { formLogin ->
                 formLogin

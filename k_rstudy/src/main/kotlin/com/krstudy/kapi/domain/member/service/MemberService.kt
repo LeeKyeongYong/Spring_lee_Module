@@ -1,9 +1,12 @@
 package com.krstudy.kapi.domain.member.service
 
+import com.krstudy.kapi.domain.comment.repository.PostCommentRepository
 import io.jsonwebtoken.SignatureAlgorithm
 import com.krstudy.kapi.domain.member.datas.M_Role
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.repository.MemberRepository
+import com.krstudy.kapi.domain.post.repository.PostRepository
+import com.krstudy.kapi.domain.post.repository.PostlikeRepository
 import com.krstudy.kapi.global.exception.CustomException
 import com.krstudy.kapi.global.exception.ErrorCode
 import com.krstudy.kapi.global.https.RespData
@@ -20,7 +23,10 @@ import org.springframework.beans.factory.annotation.Value
 @Transactional(readOnly = true)
 class MemberService(
     private val memberRepository: MemberRepository,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
+    private val postRepository: PostRepository,
+    private val postCommentRepository: PostCommentRepository,
+    private val postlikeRepository: PostlikeRepository
 ) {
     @Value("\${security.jwt.secret}")
     private lateinit var secretKey: String
@@ -95,8 +101,21 @@ class MemberService(
         return getMemberByNo(id)
     }
 
+    @Transactional(readOnly = true)
     fun getMemberByNo(id: Long): Member? {
-        return memberRepository.findById(id).orElse(null)
+        return memberRepository.findById(id).orElse(null) // ID 타입이 Long이어야 합니다.
+    }
+
+    @Transactional(readOnly = true)
+    fun getAllMembers(): List<Member> {
+        return memberRepository.findAll()
+    }
+
+    @Transactional
+    fun removeMember(id: Long) {
+        memberRepository.deleteById(id) // ID에 해당하는 멤버 삭제
+        postRepository.deleteByAuthorId(id)
+        postCommentRepository.deleteByAuthorId(id)
     }
 
 }

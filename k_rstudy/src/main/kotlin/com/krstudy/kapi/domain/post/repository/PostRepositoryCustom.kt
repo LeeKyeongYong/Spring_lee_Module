@@ -6,6 +6,7 @@ import com.krstudy.kapi.domain.post.entity.Post
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
+
 interface PostRepositoryCustom {
     fun search(author: Member?, isPublished: Boolean?, kw: String, pageable: Pageable): Page<Post>
 }
