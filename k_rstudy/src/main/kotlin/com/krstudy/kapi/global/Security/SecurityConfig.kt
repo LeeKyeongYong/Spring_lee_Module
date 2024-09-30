@@ -44,6 +44,7 @@ class SecurityConfig (
                     .requestMatchers("/v1/qrcode/**").permitAll()
                     .requestMatchers("/v1/**").authenticated()
                     .requestMatchers("/member/join").permitAll()
+                    .requestMatchers("/image/**").permitAll()  // 이미지 경로에 대한 접근 허용
                     .anyRequest().permitAll()
             }
             .csrf { csrf ->

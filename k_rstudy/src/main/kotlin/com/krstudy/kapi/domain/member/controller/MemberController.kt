@@ -150,6 +150,7 @@ class MemberController(
     fun getImage(@PathVariable id: Long): ResponseEntity<ByteArray> {
         val member: Member? = memberService.getImageByNo(id)
 
+
         // member가 null인지 확인
         if (member == null || member.image == null) {
             return ResponseEntity.notFound().build() // 404 응답 반환
@@ -161,24 +162,6 @@ class MemberController(
             .contentType(MediaType.valueOf(contentType)) // 적절한 콘텐츠 타입 설정
             .body(member.image) // 이미지 바디 반환
     }
-
-    @GetMapping("/image")
-    fun getImageByNo(@RequestParam(value = "id") id: Long): ResponseEntity<ByteArray> {
-        val member = memberService.getImageByNo(id)
-
-        if (member == null || member.image == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
-        }
-
-        val image = member.image
-        val contentType = member.imageType ?: MediaType.APPLICATION_OCTET_STREAM_VALUE
-
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.parseMediaType(contentType)
-
-        return ResponseEntity(image, headers, HttpStatus.OK)
-    }
-
 }
 
 /*

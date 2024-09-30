@@ -23,6 +23,12 @@ class CustomWebMvcConfig : WebMvcConfigurer {
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
         registry.addResourceHandler("/gen/**")
             .addResourceLocations("classpath:/gen/", "/gen/")
+
+        // 추가할 /image/** 리소스 핸들러
+        registry.addResourceHandler("/image/**")
+            .addResourceLocations("classpath:/static/image/")
+            .setCachePeriod(3600) // 캐시 설정 (옵션)
+
     }
 
 
