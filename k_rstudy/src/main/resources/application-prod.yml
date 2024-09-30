@@ -62,3 +62,6 @@ jasypt:
 security:
   jwt:
     secret: 'u]#SZTxIbtX\UCb7],V(*k^h70v-(<*|^?m+G|K=FSMy{a67yF$pe#c_Xw-Pui4G'
+
+topic:
+  name: your-topic-name

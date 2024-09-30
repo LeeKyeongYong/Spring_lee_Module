@@ -5,13 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.krstudy.kapi.domain.item.entity.Item
 import com.krstudy.kapi.domain.item.entity.ItemDTO
 import com.krstudy.kapi.domain.item.repository.ItemRepository
-import com.krstudy.kapi.global.app.HistoryFeignClient
 import io.github.resilience4j.bulkhead.annotation.Bulkhead
 import io.github.resilience4j.retry.annotation.Retry
 import lombok.RequiredArgsConstructor
 import org.slf4j.LoggerFactory
-import org.springframework.jms.JmsException
-import org.springframework.jms.core.JmsTemplate
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
@@ -19,16 +16,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
-import jakarta.jms.Queue
 import org.springframework.beans.factory.annotation.Value
 @Service
 @RequiredArgsConstructor
 class ItemService(
     private val itemRepository: ItemRepository,
-    private val historyFeignClient: HistoryFeignClient,
-    private val restTemplate: RestTemplate,
-    private val jmsTemplate: JmsTemplate,
-    private val activeMq: Queue,
     private val kafkaTemplate: KafkaTemplate<String, String>,
     private val itemThreadExecutor: Executor
 ) {
@@ -71,8 +63,7 @@ class ItemService(
             )
 
             try {
-                jmsTemplate.convertAndSend(activeMq, objectMapper.writeValueAsString(itemDTO))
-                // this.kafkaTemplate.send(topicName, objectMapper.writeValueAsString(itemDTO))
+                 this.kafkaTemplate.send(topicName, objectMapper.writeValueAsString(itemDTO))
             } catch (e: JsonProcessingException) {
                 e.printStackTrace()
             }

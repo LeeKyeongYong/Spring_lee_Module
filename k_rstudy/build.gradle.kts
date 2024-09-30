@@ -129,7 +129,7 @@ dependencies {
     // redis - LocalDateTime
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     implementation("com.fasterxml.jackson.core:jackson-databind")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+   // implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
     //log4j
     implementation("ch.qos.logback:logback-classic:1.4.11")  // logback 최신 버전 사용
@@ -146,12 +146,9 @@ dependencies {
 
     implementation ("org.apache.commons:commons-lang3:3.12.0")
 
-    implementation("io.micrometer:micrometer-tracing-bridge-brave:1.1.1")
-    implementation("io.zipkin.reporter2:zipkin-reporter-brave:2.16.3")
+//    implementation("io.micrometer:micrometer-tracing-bridge-brave:1.1.1")
+//    implementation("io.zipkin.reporter2:zipkin-reporter-brave:2.16.4")
 
-    //rabbit-mq
-    implementation("org.springframework.boot:spring-boot-starter-activemq")
-    implementation("org.apache.activemq:activemq-broker:5.18.1")
 
     //카프카 추가
     implementation ("org.springframework.kafka:spring-kafka")
