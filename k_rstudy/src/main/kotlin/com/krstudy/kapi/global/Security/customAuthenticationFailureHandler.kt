@@ -21,11 +21,8 @@ class CustomAuthenticationFailureHandler : SimpleUrlAuthenticationFailureHandler
         response: HttpServletResponse?,
         exception: AuthenticationException?
     ) {
-
-
         val errorMessage: String = when (exception) {
             is UsernameNotFoundException -> {
-                // 로그 출력
                 log.info("exception.message: ${exception?.message}")
 
                 if (exception.message == ErrorCode.LOGIN_DISABLED_USER.message) {
@@ -34,8 +31,7 @@ class CustomAuthenticationFailureHandler : SimpleUrlAuthenticationFailureHandler
                     "아이디 또는 비밀번호가 틀렸습니다."
                 }
             }
-            else ->   "관리자에게 문의 하세요."
-
+            else -> "관리자에게 문의 하세요."
         }
         log.info("exception.message2: ${exception?.message}")
         response?.sendRedirect("/member/login?failMsg=" + URLEncoder.encode(errorMessage, StandardCharsets.UTF_8))

@@ -1,14 +1,14 @@
 package com.krstudy.kapi.global.Security
 
+import com.krstudy.kapi.domain.member.service.AuthTokenService
 import com.krstudy.kapi.domain.member.service.MemberService
-
+import com.krstudy.kapi.global.https.ReqData
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Lazy
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -16,13 +16,14 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler
+
 @Configuration
 @EnableMethodSecurity
-class SecurityConfig (
-    private val customAuthenticationFailureHandler: CustomAuthenticationFailureHandler
-
-){
+class SecurityConfig(
+    private val customAuthenticationFailureHandler: CustomAuthenticationFailureHandler,
+    private val authTokenService: AuthTokenService,  // 추가된 authTokenService
+    private val rq: ReqData                               // 추가된 rq
+) {
 
     @Autowired
     @Lazy
@@ -30,15 +31,13 @@ class SecurityConfig (
 
     @Bean
     fun customAuthenticationSuccessHandler(): AuthenticationSuccessHandler {
-        return CustomAuthenticationSuccessHandler(memberService)
+        return CustomAuthenticationSuccessHandler(memberService, rq, authTokenService)  // 인자 순서 수정
     }
 
     @Bean
     fun passwordEncoder(): PasswordEncoder {
         return BCryptPasswordEncoder()
     }
-
-
 
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -50,23 +49,25 @@ class SecurityConfig (
                     .requestMatchers("/v1/**").authenticated()
                     .requestMatchers("/member/login").anonymous()
                     .requestMatchers("/member/join")
-                    .access("hasRole('ADMIN') or isAnonymous()") // 관리자나 비로그인 사용자만 접근 가능
-                    .requestMatchers("/image/**").permitAll() // 이미지 경로에 대한 접근 허용
+                    .access("hasRole('ADMIN') or isAnonymous()")
+                    .requestMatchers("/image/**").permitAll()
                     .anyRequest().permitAll()
             }
+            .headers { headers ->
+                headers.frameOptions { frameOptions ->
+                    frameOptions.sameOrigin()
+                }
+            }
             .csrf { csrf ->
-                csrf
-                    .ignoringRequestMatchers("/v1/**")
-                    .ignoringRequestMatchers("/member/join")
+                csrf.ignoringRequestMatchers("/v1/**")
             }
             .formLogin { formLogin ->
                 formLogin
                     .loginPage("/member/login")
-                    .successHandler(customAuthenticationSuccessHandler())
+                    .successHandler(customAuthenticationSuccessHandler())  // 수정된 부분
                     .defaultSuccessUrl("/?msg=" + URLEncoder.encode("환영합니다.", StandardCharsets.UTF_8))
                     .failureHandler(customAuthenticationFailureHandler)
             }
-
             .logout { logout ->
                 logout.logoutRequestMatcher(AntPathRequestMatcher("/member/logout"))
                     .logoutSuccessUrl("/?msg=" + URLEncoder.encode("로그아웃되었습니다.", StandardCharsets.UTF_8))
@@ -79,9 +80,10 @@ class SecurityConfig (
                     .maximumSessions(1)
                     .expiredUrl("/member/login?failMsg=" + URLEncoder.encode("세션이 만료되었습니다.", StandardCharsets.UTF_8))
             }
-
+            .oauth2Login { oauth2Login ->
+                oauth2Login.successHandler(customAuthenticationSuccessHandler())  // 수정된 부분
+            }
 
         return http.build()
     }
-
 }

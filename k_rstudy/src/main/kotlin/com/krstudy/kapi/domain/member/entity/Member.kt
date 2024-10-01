@@ -7,6 +7,7 @@ import jakarta.persistence.Entity
 import jakarta.persistence.Lob
 import jakarta.persistence.Transient
 import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 
 @Entity
 class Member(
@@ -32,17 +33,14 @@ class Member(
     var jwtToken: String? = null,  // JWT 토큰 필드 추가
 
     @Column(name = "image_type")
-    var imageType: String? = null, //일반로그인
+    var imageType: String? = null, // 일반로그인
 
     @Lob
     @Column(columnDefinition = "LONGBLOB")
-    var image: ByteArray? = null, //일반로그인
+    var image: ByteArray? = null, // 일반로그인
 
-    @Column(length = 255) //최대치
-    var picture: String? = null, //oauth로그인
-
-
-
+    @Column(length = 255) // 최대치
+    var picture: String? = null, // oauth로그인
 
     @Transient
     private val roleStrategy: RoleStrategy = DefaultRoleStrategy()
@@ -53,12 +51,12 @@ class Member(
         get() = roleStrategy.getAuthorities(roleType, userid)
 
     val isAdmin: Boolean
-        get() = authorities.any { auth -> auth.authority.equals(M_Role.ADMIN.authority) }
+        get() = authorities.any { auth -> auth.authority == M_Role.ADMIN.authority }
 
-    fun getRoleAuthorities(roleStrategy: RoleStrategy, userid: String): Collection<GrantedAuthority> {
-        return roleStrategy.getAuthorities(roleType, userid)
+    @Transient
+    fun getAuthoritiesAsStringList(): List<String> {
+        val authorities = mutableListOf("ROLE_MEMBER")
+        if (isAdmin) authorities.add("ROLE_ADMIN")
+        return authorities
     }
-
-
-
 }
