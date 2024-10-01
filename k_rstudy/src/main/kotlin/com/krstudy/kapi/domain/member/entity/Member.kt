@@ -1,6 +1,5 @@
 package com.krstudy.kapi.domain.member.entity
 
-import com.krstudy.kapi.domain.oauth2.entity.Social
 import com.krstudy.kapi.domain.member.datas.M_Role
 import com.krstudy.kapi.global.jpa.BaseEntity
 import jakarta.persistence.Column
@@ -42,8 +41,7 @@ class Member(
     @Column(length = 255) //최대치
     var picture: String? = null, //oauth로그인
 
-    @Column
-    var social: Social? = null, //토그인타입
+
 
 
     @Transient
@@ -61,8 +59,6 @@ class Member(
         return roleStrategy.getAuthorities(roleType, userid)
     }
 
-    // roleKey 메서드 추가
-    fun roleKey(): String {
-        return roleType ?: "ROLE_MEMBER" // 기본값으로 ROLE_USER를 반환
-    }
+
+
 }

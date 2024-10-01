@@ -1,6 +1,7 @@
 package com.krstudy.kapi.global.Security
 
 import com.krstudy.kapi.domain.member.service.MemberService
+
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -19,8 +20,7 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 @Configuration
 @EnableMethodSecurity
 class SecurityConfig (
-    private val customAuthenticationFailureHandler: CustomAuthenticationFailureHandler,
-    private val customOAuth2UserService: CustomOAuth2UserService
+    private val customAuthenticationFailureHandler: CustomAuthenticationFailureHandler
 
 ){
 
@@ -38,11 +38,7 @@ class SecurityConfig (
         return BCryptPasswordEncoder()
     }
 
-    private fun configureOAuth2Login(oauth2LoginConfigurer: OAuth2LoginConfigurer<HttpSecurity>) {
-        oauth2LoginConfigurer.userInfoEndpoint { endpointCustomizer ->
-            endpointCustomizer.userService(customOAuth2UserService)
-        }
-    }
+
 
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {

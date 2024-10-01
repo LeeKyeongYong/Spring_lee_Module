@@ -108,8 +108,8 @@ class MemberController(
             joinForm.password,
             joinForm.userEmail,
             imageType,
-            imageBytes,
-            null // 기본값으로 social은 null
+            imageBytes
+
         ) // 회원 가입 요청 큐에 추가
 
         redirectAttributes.addFlashAttribute("userid", joinForm.userid) // 가입 성공 후 사용자 ID 저장
