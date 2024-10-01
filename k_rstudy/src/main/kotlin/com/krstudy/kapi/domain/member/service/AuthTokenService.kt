@@ -26,7 +26,7 @@ class AuthTokenService {
             .setClaims(claims)
             .setIssuedAt(issuedAt)
             .setExpiration(expiration)
-            .signWith(SignatureAlgorithm.HS256, AppConfig.getJwtSecretKey())
+            .signWith(SignatureAlgorithm.HS256, AppConfig.getJwtSecretKeyOrThrow())
             .compact()
     }
 
@@ -36,7 +36,7 @@ class AuthTokenService {
 
     fun getDataFrom(token: String): Map<String, Any> {
         val payload = Jwts.parser()
-            .setSigningKey(AppConfig.getJwtSecretKey())
+            .setSigningKey(AppConfig.getJwtSecretKeyOrThrow())
             .build()
             .parseClaimsJws(token)
             .payload
@@ -50,7 +50,7 @@ class AuthTokenService {
 
     fun validateToken(token: String): Boolean {
         return try {
-            Jwts.parser().setSigningKey(AppConfig.getJwtSecretKey()).build().parseClaimsJws(token)
+            Jwts.parser().setSigningKey(AppConfig.getJwtSecretKeyOrThrow()).build().parseClaimsJws(token)
             true
         } catch (e: Exception) {
             false

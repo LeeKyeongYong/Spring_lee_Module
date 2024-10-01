@@ -38,7 +38,7 @@ class AppConfig {
         private var resourcesStaticDirPath: String? = null
 
         // Getter 메소드
-        fun getJwtSecretKey(): String {
+        fun getJwtSecretKeyOrThrow(): String {
             return jwtSecretKey ?: throw IllegalStateException("JWT secret key is not initialized")
         }
 
@@ -56,10 +56,6 @@ class AppConfig {
                 }
             }
             return resourcesStaticDirPath!!
-        }
-
-        fun getSiteCookieDomain(): String? {
-            return siteCookieDomain
         }
 
         fun getSiteFrontUrl(): String? {
