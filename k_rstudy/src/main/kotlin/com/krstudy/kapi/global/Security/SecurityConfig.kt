@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Lazy
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -18,7 +19,9 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 @Configuration
 @EnableMethodSecurity
 class SecurityConfig (
-    private val customAuthenticationFailureHandler: CustomAuthenticationFailureHandler
+    private val customAuthenticationFailureHandler: CustomAuthenticationFailureHandler,
+    private val customOAuth2UserService: CustomOAuth2UserService
+
 ){
 
     @Autowired
@@ -33,6 +36,12 @@ class SecurityConfig (
     @Bean
     fun passwordEncoder(): PasswordEncoder {
         return BCryptPasswordEncoder()
+    }
+
+    private fun configureOAuth2Login(oauth2LoginConfigurer: OAuth2LoginConfigurer<HttpSecurity>) {
+        oauth2LoginConfigurer.userInfoEndpoint { endpointCustomizer ->
+            endpointCustomizer.userService(customOAuth2UserService)
+        }
     }
 
     @Bean
@@ -75,6 +84,8 @@ class SecurityConfig (
                     .expiredUrl("/member/login?failMsg=" + URLEncoder.encode("세션이 만료되었습니다.", StandardCharsets.UTF_8))
             }
 
+
         return http.build()
     }
+
 }

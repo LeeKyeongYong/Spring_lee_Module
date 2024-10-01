@@ -146,10 +146,6 @@ dependencies {
 
     implementation ("org.apache.commons:commons-lang3:3.12.0")
 
-//    implementation("io.micrometer:micrometer-tracing-bridge-brave:1.1.1")
-//    implementation("io.zipkin.reporter2:zipkin-reporter-brave:2.16.4")
-
-
     //카프카 추가
     implementation ("org.springframework.kafka:spring-kafka")
 

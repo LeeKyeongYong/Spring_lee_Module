@@ -102,7 +102,15 @@ class MemberController(
         }
 
         // 회원 등록 로직에 imageType을 추가로 처리할 수 있습니다.
-        registrationQueue.enqueue(joinForm.userid, joinForm.username, joinForm.password, joinForm.userEmail, imageType, imageBytes) // 회원 가입 요청 큐에 추가
+        registrationQueue.enqueue(
+            joinForm.userid,
+            joinForm.username,
+            joinForm.password,
+            joinForm.userEmail,
+            imageType,
+            imageBytes,
+            null // 기본값으로 social은 null
+        ) // 회원 가입 요청 큐에 추가
 
         redirectAttributes.addFlashAttribute("userid", joinForm.userid) // 가입 성공 후 사용자 ID 저장
         return "redirect:/member/login" // 로그인 페이지로 리디렉션
@@ -193,5 +201,5 @@ class MemberController(
         return "redirect:/member/list" // 회원 목록 페이지로 리디렉션
     }
 
-   
+
 }

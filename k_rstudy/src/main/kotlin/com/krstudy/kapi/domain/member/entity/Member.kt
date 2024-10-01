@@ -1,5 +1,6 @@
 package com.krstudy.kapi.domain.member.entity
 
+import com.krstudy.kapi.domain.oauth2.entity.Social
 import com.krstudy.kapi.domain.member.datas.M_Role
 import com.krstudy.kapi.global.jpa.BaseEntity
 import jakarta.persistence.Column
@@ -32,11 +33,18 @@ class Member(
     var jwtToken: String? = null,  // JWT 토큰 필드 추가
 
     @Column(name = "image_type")
-    var imageType: String? = null,
+    var imageType: String? = null, //일반로그인
 
     @Lob
     @Column(columnDefinition = "LONGBLOB")
-    var image: ByteArray? = null,
+    var image: ByteArray? = null, //일반로그인
+
+    @Column(length = 255) //최대치
+    var picture: String? = null, //oauth로그인
+
+    @Column
+    var social: Social? = null, //토그인타입
+
 
     @Transient
     private val roleStrategy: RoleStrategy = DefaultRoleStrategy()
@@ -51,5 +59,10 @@ class Member(
 
     fun getRoleAuthorities(roleStrategy: RoleStrategy, userid: String): Collection<GrantedAuthority> {
         return roleStrategy.getAuthorities(roleType, userid)
+    }
+
+    // roleKey 메서드 추가
+    fun roleKey(): String {
+        return roleType ?: "ROLE_MEMBER" // 기본값으로 ROLE_USER를 반환
     }
 }

@@ -5,7 +5,7 @@ enum class ErrorCode(val code: String, val message: String) {
     // 인증 관련 오류
     UNAUTHORIZED("401-1", "인증된 사용자가 아닙니다."),
     UNAUTHORIZED_LOGIN_REQUIRED("401-2", "로그인이 필요합니다."),
-    LOGIN_DISABLED_USER("401-3", "로그인할 수 없는 아이디입니다."),  // 사용자가 탈퇴하면 N으로 변경하거나 관리자가 정지시키는 용도... 관리자는 그냥 통으로 지운다..
+    LOGIN_DISABLED_USER("401-3", "로그인할 수 없는 아이디입니다."), // 사용자가 탈퇴하면 N으로 변경하거나 관리자가 정지시키는 용도... 관리자는 그냥 통으로 지운다.
 
     // 리소스 관련 오류
     NOT_FOUND_POST("404-1", "해당 글이 존재하지 않습니다."),
@@ -26,5 +26,8 @@ enum class ErrorCode(val code: String, val message: String) {
 
     // 성공적인 응답
     SUCCESS("200-1", "요청이 성공적으로 처리되었습니다."),
-    ALREADY_LIKED("400-3", "이미 좋아요를 눌렀습니다.")
+    ALREADY_LIKED("400-3", "이미 좋아요를 눌렀습니다."),
+
+    // OAuth 관련 오류
+    NOT_SUPPORTED_OAUTH_VENDOR("400-4", "해당 OAuth2 벤더는 지원되지 않습니다.")
 }
