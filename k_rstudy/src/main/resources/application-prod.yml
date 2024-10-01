@@ -1,67 +1,98 @@
 server:
-  shutdown: graceful
-  port: 8090
+  shutdown: graceful               # 서버 종료 방식
+  port: 8090                       # 서버 포트 설정
   servlet:
     multipart:
-      max-file-size: 100MB
-      max-request-size: 100MB
+      max-file-size: 100MB        # 업로드 파일 최대 크기
+      max-request-size: 100MB     # 요청 최대 크기
     session:
-      timeout: 30m
+      timeout: 30m                 # 세션 타임아웃 설정
+
 spring:
+  main:
+    banner-mode: "off"            # 배너 비활성화
+    allow-circular-references: true # 순환 참조 허용
   servlet:
     multipart:
-      max-file-size: 5MB
-      max-request-size: 5MB
-  main:
-    allow-circular-references: true
-
+      max-file-size: 5MB          # 파일 업로드 최대 크기
+      max-request-size: 5MB        # 요청 최대 크기
   datasource:
-    url: ENC(6cfhztgVfYcfZkMuSaiOYWX2jzMDvc0s0EtJSgFjeoPbHMZFzq6mgA==)
-    username: ENC(cFw3ePouhmGwMfEVk9R5/g==)
-    password: ENC(pJygnOjrAhRQQ0m6TSlokQ==)
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ENC(6cfhztgVfYcfZkMuSaiOYWX2jzMDvc0s0EtJSgFjeoPbHMZFzq6mgA==) # 데이터소스 URL (암호화)
+    username: ENC(cFw3ePouhmGwMfEVk9R5/g==)                              # 사용자명 (암호화)
+    password: ENC(pJygnOjrAhRQQ0m6TSlokQ==)                              # 비밀번호 (암호화)
+    driver-class-name: com.mysql.cj.jdbc.Driver                          # JDBC 드라이버
     hikari:
-      poolName: Hikari
-      max-lifetime: 1800000
-      auto-commit: false
-      maximum-pool-size: 5
+      poolName: Hikari             # HikariCP 이름
+      max-lifetime: 1800000        # 최대 생명 주기
+      auto-commit: false           # 자동 커밋 비활성화
+      maximum-pool-size: 5         # 최대 풀 크기
       data-source-properties:
-        cachePrepStmts: true
-        prepStmtCacheSize: 250
-        prepStmtCacheSqlLimit: 2048
-    validation-query: select 1
-    test-on-borrow: true
-    schema: classpath:db/migration/k_db.sql
-    initialization-mode: always
-
+        cachePrepStmts: true       # Prepared Statement 캐시 활성화
+        prepStmtCacheSize: 250      # Prepared Statement 캐시 크기
+        prepStmtCacheSqlLimit: 2048 # Prepared Statement SQL 제한
+    validation-query: select 1     # 유효성 검사 쿼리
+    test-on-borrow: true           # 대여 시 유효성 검사 활성화
+    schema: classpath:db/migration/k_db.sql  # 스키마 파일 경로
+    initialization-mode: always     # 초기화 모드 설정
   jpa:
     hibernate:
-      ddl-auto: create-drop
-      dialect: org.hibernate.dialect.MySQL8Dialect
+      ddl-auto: create-drop  # 기존 테이블 유지
+    open-in-view: false
+
+  security:
+    oauth2:
+      client:
+        registration:
+          your-client:
+            client-id: your-client-id
+            client-secret: your-client-secret
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: read,write
+        provider:
+          your-client:
+            authorization-uri: https://example.com/oauth/authorize
+            token-uri: https://example.com/oauth/token
+            user-info-uri: https://example.com/oauth/userinfo
 
 logging:
   level:
-    com.ll.medium: INFO
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: INFO
-    org.hibernate.orm.jdbc.extract: INFO
-    org.springframework.transaction.interceptor: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: DEBUG
+    com.ll.medium: INFO            # 로그 레벨 설정
+    org.hibernate.SQL: DEBUG        # Hibernate SQL 로그 레벨
+    org.hibernate.orm.jdbc.bind: INFO   # Hibernate JDBC 바인드 로그 레벨
+    org.hibernate.orm.jdbc.extract: INFO # Hibernate JDBC 추출 로그 레벨
+    org.springframework.transaction.interceptor: DEBUG # 트랜잭션 인터셉터 로그 레벨
+    org.hibernate.type.descriptor.sql.BasicBinder: DEBUG # Hibernate 기본 바인더 로그 레벨
 
 custom:
-  tempDirPath: /gen/temp
+  dev:
+    cookieDomain: localhost        # 개발 환경 쿠키 도메인
+    backUrl: "http://${custom.dev.cookieDomain}:${server.port}" # 개발 환경 백엔드 URL
   site:
-    baseUrl: "https://www.sleekydz86.gg"
+    baseUrl: "https://www.sleekydz86.gg"  # 사이트 기본 URL
+    cookieDomain: "${custom.dev.cookieDomain}"  # 쿠키 도메인
+    backUrl: "${custom.dev.backUrl}"        # 백엔드 URL
+    name: sleekydz86                          # 사이트 이름
   genFile:
-    dirPath: /gen
+    dirPath: /gen                          # 생성된 파일 경로
+  temp:
+    dirPath: D:/workLEE                    # 임시 파일 경로
+  jwt:
+    secretKey: ON_SECRET
+    access:
+      token:
+        expiration: '#{60*60}'           # JWT 엑세스 토큰 만료 시간 (초)
+        sec: 3600                        # 엑세스 토큰 만료 시간 (초)
+  accessToken:
+    expirationSec: 3600                    # 엑세스 토큰 만료 시간 (초)
 
 jasypt:
   encryptor:
-    password: your-secret-password
+    password: your-secret-password          # Jasypt 암호화 비밀번호
 
 security:
   jwt:
-    secret: 'u]#SZTxIbtX\UCb7],V(*k^h70v-(<*|^?m+G|K=FSMy{a67yF$pe#c_Xw-Pui4G'
+    secret: 'u]#SZTxIbtX\UCb7],V(*k^h70v-(<*|^?m+G|K=FSMy{a67yF$pe#c_Xw-Pui4G'  # JWT 보안 비밀
 
 topic:
-  name: your-topic-name
+  name: your-topic-name                    # 토픽 이름

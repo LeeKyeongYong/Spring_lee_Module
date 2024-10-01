@@ -35,25 +35,25 @@ class CustomAuthenticationSuccessHandler(
             return
         }
 
-        if (rq.isFrontUrl(redirectUrlAfterSocialLogin)) {
-            val accessToken = authTokenService.genAccessToken(member)
-
-            // refreshToken도 nullable일 수 있으므로 처리
-            val refreshToken = member.jwtToken ?: run {
-                log.error("Refresh token not found for member: ${member.id}")
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Refresh token not found")
-                return
-            }
-
-            rq.destroySession()
-
-            rq.setCrossDomainCookie("accessToken", accessToken)
-            rq.setCrossDomainCookie("refreshToken", refreshToken)
-            rq.removeCookie("redirectUrlAfterSocialLogin")
-
-            response.sendRedirect(redirectUrlAfterSocialLogin)
-            return
-        }
+//        if (rq.isFrontUrl(redirectUrlAfterSocialLogin)) {
+//            val accessToken = authTokenService.genAccessToken(member)
+//
+//            // refreshToken도 nullable일 수 있으므로 처리
+//            val refreshToken = member.jwtToken ?: run {
+//                log.error("Refresh token not found for member: ${member.id}")
+//                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Refresh token not found")
+//                return
+//            }
+//
+//            rq.destroySession()
+//
+//            rq.setCrossDomainCookie("accessToken", accessToken)
+//            rq.setCrossDomainCookie("refreshToken", refreshToken)
+//            rq.removeCookie("redirectUrlAfterSocialLogin")
+//
+//            response.sendRedirect(redirectUrlAfterSocialLogin)
+//            return
+//        }
 
         super.onAuthenticationSuccess(request, response, authentication)
     }

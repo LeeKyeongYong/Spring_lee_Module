@@ -181,9 +181,9 @@ class ReqData(
         SecurityContextHolder.getContext().authentication = null
     }
 
-    fun isFrontUrl(url: String): Boolean {
-        return url.startsWith(AppConfig.getSiteFrontUrl() ?: "")
-    }
+//    fun isFrontUrl(url: String): Boolean {
+//        return url.startsWith(AppConfig.getSiteFrontUrl() ?: "")
+//    }
 
     fun destroySession() {
         req.session.invalidate()

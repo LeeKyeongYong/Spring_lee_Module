@@ -31,7 +31,7 @@ class AuthTokenService {
     }
 
     fun genAccessToken(member: Member): String {
-        return genToken(member, AppConfig.getAccessTokenExpirationSec())
+        return genToken(member, AppConfig.accessTokenExpirationSec) // 접근 방식 변경
     }
 
     fun getDataFrom(token: String): Map<String, Any> {
@@ -39,7 +39,7 @@ class AuthTokenService {
             .setSigningKey(AppConfig.getJwtSecretKeyOrThrow())
             .build()
             .parseClaimsJws(token)
-            .payload
+            .body
 
         return mapOf(
             "id" to payload.get("id", Integer::class.java),

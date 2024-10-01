@@ -10,40 +10,29 @@ import java.io.IOException
 @Configuration
 class AppConfig {
 
+    var jwt: JwtConfig? = null
+
+    // Inner class to hold JWT configuration
+    class JwtConfig {
+        var secretKey: String? = null
+        var expirationSec: Long? = null
+    }
+
     companion object {
-        var jwtSecretKey: String? = null
-            private set
-
-        var tempDirPath: String? = null
-            private set
-
-        var genFileDirPath: String? = null
-            private set
-
-        var siteName: String? = null
-            private set
-
-        var objectMapper: ObjectMapper? = null
-            private set
-
+        lateinit var jwtSecretKey: String
+        lateinit var tempDirPath: String
+        lateinit var genFileDirPath: String
+        lateinit var siteName: String
+        lateinit var objectMapper: ObjectMapper
         var basePageSize: Int = 10
-            private set
-
-        private var accessTokenExpirationSec: Long = 0
-        private var siteFrontUrl: String? = null
-        private var siteBackUrl: String? = null
-        var siteCookieDomain: String? = null
-            internal set
-
+        var accessTokenExpirationSec: Long = 0 // getter가 자동 생성됨
+        lateinit var siteCookieDomain: String
         private var resourcesStaticDirPath: String? = null
+        private var siteBackUrl: String? = null
 
-        // Getter 메소드
+        // Getter 메소드 (수동으로 정의할 필요 없음)
         fun getJwtSecretKeyOrThrow(): String {
             return jwtSecretKey ?: throw IllegalStateException("JWT secret key is not initialized")
-        }
-
-        fun getAccessTokenExpirationSec(): Long {
-            return accessTokenExpirationSec
         }
 
         fun getResourcesStaticDirPath(): String {
@@ -57,10 +46,6 @@ class AppConfig {
             }
             return resourcesStaticDirPath!!
         }
-
-        fun getSiteFrontUrl(): String? {
-            return siteFrontUrl
-        }
     }
 
     @Value("\${custom.jwt.secretKey}")
@@ -71,11 +56,6 @@ class AppConfig {
     @Value("\${custom.accessToken.expirationSec}")
     fun setAccessTokenExpirationSec(accessTokenExpirationSec: Long) {
         Companion.accessTokenExpirationSec = accessTokenExpirationSec
-    }
-
-    @Value("\${custom.site.frontUrl}")
-    fun setSiteFrontUrl(siteFrontUrl: String) {
-        Companion.siteFrontUrl = siteFrontUrl
     }
 
     @Value("\${custom.site.backUrl}")
