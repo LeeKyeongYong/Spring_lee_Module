@@ -24,42 +24,72 @@ class JwtAuthenticationFilter(
             return
         }
 
-        val bearerToken = rq.getHeader("Authorization","") ?: return filterChain.doFilter(request, response)
+        val bearerToken = rq.getHeader("Authorization", "")
+        if (bearerToken.isNullOrBlank() || !bearerToken.startsWith("Bearer ")) {
+            handleCookieBasedAuth(request, response, filterChain)
+            return
+        }
 
-        val tokensStr = bearerToken.substring("Bearer ".length).takeIf { it.isNotBlank() } ?: return
+        val tokensStr = bearerToken.substring("Bearer ".length)
         val tokens = tokensStr.split(" ", limit = 2)
-        val refreshToken: String = tokens[0]
-        var accessToken: String = tokens.getOrElse(1) { "" }
+        if (tokens.size < 2) {
+            filterChain.doFilter(request, response)
+            return
+        }
 
-        // 엑세스 토큰이 존재하면
+        val refreshToken = tokens[0]
+        val accessToken = tokens[1]
+
         if (accessToken.isNotBlank()) {
-            // 유효성 체크하여 만료되었으면 리프레시 토큰으로 새로운 엑세스 토큰을 발급받고 응답헤더에 추가
-            if (!memberService.validateToken(accessToken)) {
-                val rs: RespData<String> = memberService.refreshAccessToken(refreshToken)
-                accessToken = rs.data ?: return filterChain.doFilter(request, response) // 데이터가 null일 경우 처리
-                rq.setHeader("Authorization", "Bearer $refreshToken $accessToken")
+            handleTokenAuth(refreshToken, accessToken, request, response, filterChain)
+        } else {
+            handleCookieBasedAuth(request, response, filterChain)
+        }
+    }
+
+    private fun handleTokenAuth(refreshToken: String, accessToken: String, request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
+        val validatedAccessToken = if (!memberService.validateToken(accessToken)) {
+            val rs: RespData<String> = memberService.refreshAccessToken(refreshToken)
+            rs.data?.also { newAccessToken ->
+                rq.setHeader("Authorization", "Bearer $refreshToken $newAccessToken")
+            } ?: run {
+                filterChain.doFilter(request, response)
+                return
+            }
+        } else {
+            accessToken
+        }
+
+        val securityUser = memberService.getUserFromAccessToken(validatedAccessToken)
+        rq.setLogin(securityUser)
+        filterChain.doFilter(request, response)
+    }
+
+    private fun handleCookieBasedAuth(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
+        val accessToken = rq.getCookieValue("accessToken", "")
+        if (accessToken.isNullOrBlank()) {
+            filterChain.doFilter(request, response)
+            return
+        }
+
+        if (!memberService.validateToken(accessToken)) {
+            val refreshToken = rq.getCookieValue("refreshToken", "")
+            if (refreshToken.isNullOrBlank()) {
+                filterChain.doFilter(request, response)
+                return
             }
 
-            val securityUser = memberService.getUserFromAccessToken(accessToken)
+            val rs: RespData<String> = memberService.refreshAccessToken(refreshToken)
+            val newAccessToken = rs.data ?: run {
+                filterChain.doFilter(request, response)
+                return
+            }
+            rq.setCrossDomainCookie("accessToken", newAccessToken)
+            val securityUser = memberService.getUserFromAccessToken(newAccessToken)
             rq.setLogin(securityUser)
         } else {
-            // 토큰이 쿠키로 들어온 경우
-            var accessToken = rq.getCookieValue("accessToken", "") ?: ""
-
-            // 엑세스 토큰이 존재하면
-            if (accessToken.isNotBlank()) {
-                // 유효성 체크하여 만료되었으면 리프레시 토큰으로 새로운 엑세스 토큰을 발급받고 응답쿠키에 추가
-                if (!memberService.validateToken(accessToken)) {
-                    val refreshToken = rq.getCookieValue("refreshToken", "") ?: ""
-
-                    val rs: RespData<String> = memberService.refreshAccessToken(refreshToken)
-                    accessToken = rs.data ?: return filterChain.doFilter(request, response) // 데이터가 null일 경우 처리
-                    rq.setCrossDomainCookie("accessToken", accessToken)
-                }
-
-                val securityUser = memberService.getUserFromAccessToken(accessToken)
-                rq.setLogin(securityUser)
-            }
+            val securityUser = memberService.getUserFromAccessToken(accessToken)
+            rq.setLogin(securityUser)
         }
 
         filterChain.doFilter(request, response)

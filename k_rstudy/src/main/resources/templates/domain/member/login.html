@@ -67,17 +67,6 @@
             return 'http://localhost:8090/api/v1/member/socialLogin/naver?redirectUrl=' + encodeURIComponent('http://localhost:8090/api/v1/member/socialLoginCallback?providerTypeCode=naver');
         }
 
-        // function getKakaoLoginUrl() {
-        //     return 'http://localhost:9090/api/v1/member/socialLogin/kakao?redirectUrl=' + encodeURIComponent('http://localhost:9090/api/v1/member/socialLoginCallback?provierTypeCode=kakao');
-        // }
-        //
-        // function getGoogleLoginUrl() {
-        //     return 'http://localhost:9090/api/v1/member/socialLogin/google?redirectUrl=' + encodeURIComponent('http://localhost:9090/api/v1/member/socialLoginCallback?provierTypeCode=google');
-        // }
-        //
-        // function getNaverLoginUrl() {
-        //     return 'http://localhost:9090/api/v1/member/socialLogin/naver?redirectUrl=' + encodeURIComponent('http://localhost:9090/api/v1/member/socialLoginCallback?provierTypeCode=naver');
-        // }
 
     </script>
 
@@ -102,20 +91,19 @@
     </div>
     <br/>
     <div class="flex-grow flex items-center justify-center">
-        <a th:href="${#urls.add(getKakaoLoginUrl())}" class="btn">
+        <a id="kakaoLogin" class="btn" href="#" onclick="window.location.href=getKakaoLoginUrl(); return false;">
             <i class="fa-solid fa-comment text-[color:#ffe812]"></i>
             카카오로 3초만에 시작하기
         </a>
     </div>
     <div class="flex-grow flex justify-center">
-        <a th:href="${#urls.add(getNaverLoginUrl())}" class="btn">
+        <a id="naverLogin" class="btn" href="#" onclick="window.location.href=getNaverLoginUrl(); return false;">
             <i class="fa-solid fa-comment text-[color:#ffe812]"></i>
             네이버로 3초만에 시작하기
         </a>
     </div>
-
     <div class="flex-grow flex justify-center">
-        <a th:href="${#urls.add(getGoogleLoginUrl())}" class="btn">
+        <a id="googleLogin" class="btn" href="#" onclick="window.location.href=getGoogleLoginUrl(); return false;">
             <i class="fa-solid fa-comment text-[color:#ffe812]"></i>
             구글로 3초만에 시작하기
         </a>
