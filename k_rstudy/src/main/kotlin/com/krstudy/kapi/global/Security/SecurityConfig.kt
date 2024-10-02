@@ -30,7 +30,7 @@ class SecurityConfig(
     private lateinit var memberService: MemberService
 
     @Bean
-    fun customAuthenticationSuccessHandler(): AuthenticationSuccessHandler {
+    fun customAuthSuccessHandler(): AuthenticationSuccessHandler {
         return CustomAuthenticationSuccessHandler(memberService, rq, authTokenService)  // 인자 순서 수정
     }
 
@@ -64,7 +64,7 @@ class SecurityConfig(
             .formLogin { formLogin ->
                 formLogin
                     .loginPage("/member/login")
-                    .successHandler(customAuthenticationSuccessHandler())  // 수정된 부분
+                    .successHandler(customAuthSuccessHandler())  // 수정된 부분
                     .defaultSuccessUrl("/?msg=" + URLEncoder.encode("환영합니다.", StandardCharsets.UTF_8))
                     .failureHandler(customAuthenticationFailureHandler)
             }
@@ -81,7 +81,7 @@ class SecurityConfig(
                     .expiredUrl("/member/login?failMsg=" + URLEncoder.encode("세션이 만료되었습니다.", StandardCharsets.UTF_8))
             }
             .oauth2Login { oauth2Login ->
-                oauth2Login.successHandler(customAuthenticationSuccessHandler())  // 수정된 부분
+                oauth2Login.successHandler(customAuthSuccessHandler())  // 수정된 부분
             }
 
         return http.build()
