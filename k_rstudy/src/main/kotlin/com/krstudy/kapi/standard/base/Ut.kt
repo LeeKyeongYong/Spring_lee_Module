@@ -6,6 +6,7 @@ package com.krstudy.kapi.standard.base
  */
 class Ut {
     companion object {
+
         /**
          * 주어진 URL의 쿼리 파라미터를 수정한다.
          * 기존의 동일한 파라미터가 존재하는 경우, 해당 파라미터를 삭제한 후 새 값을 추가한다.
@@ -64,6 +65,15 @@ class Ut {
             } else {
                 url.substring(0, startPoint) + url.substring(endPoint + 1)
             }
+        }
+    }
+    object str {
+        fun isBlank(str: String?): Boolean {
+            return str == null || str.trim().isEmpty()
+        }
+
+        fun hasLength(str: String?): Boolean {
+            return !isBlank(str)
         }
     }
 }

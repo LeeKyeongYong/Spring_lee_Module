@@ -23,6 +23,7 @@ enum class ErrorCode(val code: String, val message: String) {
 
     // 서버 오류
     INTERNAL_SERVER_ERROR("500-1", "서버 내부 오류입니다."),
+    TOKEN_GENERATION_ERROR("500-2", "토큰 생성 중 오류가 발생했습니다."), // 추가한 토큰 생성 오류 코드
 
     // 성공적인 응답
     SUCCESS("200-1", "요청이 성공적으로 처리되었습니다."),

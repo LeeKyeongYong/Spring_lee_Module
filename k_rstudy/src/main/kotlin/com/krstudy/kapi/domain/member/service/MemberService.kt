@@ -1,6 +1,7 @@
 package com.krstudy.kapi.domain.member.service
 
 import com.krstudy.kapi.domain.comment.repository.PostCommentRepository
+import com.krstudy.kapi.domain.member.datas.AuthAndMakeTokensResponseBody
 import io.jsonwebtoken.SignatureAlgorithm
 import com.krstudy.kapi.domain.member.datas.M_Role
 import com.krstudy.kapi.domain.member.datas.RegistrationData
@@ -10,6 +11,7 @@ import com.krstudy.kapi.domain.post.repository.PostRepository
 import com.krstudy.kapi.domain.post.repository.PostlikeRepository
 import com.krstudy.kapi.global.exception.CustomException
 import com.krstudy.kapi.global.exception.ErrorCode
+import com.krstudy.kapi.global.exception.GlobalException
 import com.krstudy.kapi.global.https.RespData
 import io.jsonwebtoken.Jwts
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +30,8 @@ class MemberService(
     private val passwordEncoder: PasswordEncoder,
     private val postRepository: PostRepository,
     private val postCommentRepository: PostCommentRepository,
-    private val postlikeRepository: PostlikeRepository
+    private val postlikeRepository: PostlikeRepository,
+    private val authTokenService: AuthTokenService
 ) {
     @Value("\${security.jwt.secret}")
     private lateinit var secretKey: String
@@ -135,5 +138,29 @@ class MemberService(
         postRepository.deleteByAuthorId(id)
         postCommentRepository.deleteByAuthorId(id)
     }
+
+
+    fun passwordMatches(member: Member, password: String): Boolean {
+        return passwordEncoder.matches(password, member.password)
+    }
+
+    @Transactional
+    fun authAndMakeTokens(username: String, password: String): RespData<AuthAndMakeTokensResponseBody> {
+        val member = findByUserName(username) ?: throw GlobalException("400-1", "해당 유저가 존재하지 않습니다.")
+
+        if (!passwordMatches(member, password)) {
+            throw GlobalException("400-2", "비밀번호가 일치하지 않습니다.")
+        }
+
+        val refreshToken = member.jwtToken
+        val accessToken = authTokenService.genAccessToken(member)
+
+        return RespData.of(
+            ErrorCode.SUCCESS.code,  // resultCode에 SUCCESS 코드 추가
+            "${member.username}님 안녕하세요.",
+            AuthAndMakeTokensResponseBody(member, accessToken, refreshToken) // data에 ResponseBody 추가
+        )
+    }
+
 
 }

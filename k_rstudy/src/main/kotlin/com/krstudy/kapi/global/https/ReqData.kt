@@ -45,9 +45,6 @@ class ReqData(
         resp.status = statusCode
     }
 
-    fun getCurrentUrlPath(): String {
-        return req.requestURI
-    }
 
     fun isApi(): Boolean {
         val xRequestedWith = req.getHeader("X-Requested-With")
@@ -183,6 +180,10 @@ class ReqData(
 
     fun destroySession() {
         req.session.invalidate()
+    }
+
+    fun getCurrentUrlPath(): String {
+        return req.requestURI // 요청 URI를 반환
     }
 
     fun setAttribute(key: String, value: Any) {

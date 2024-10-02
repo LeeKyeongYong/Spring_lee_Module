@@ -2,6 +2,7 @@ package com.krstudy.kapi.domain.member.entity
 
 import com.krstudy.kapi.domain.member.datas.M_Role
 import com.krstudy.kapi.global.jpa.BaseEntity
+import com.krstudy.kapi.standard.base.Ut
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Lob
@@ -40,7 +41,8 @@ class Member(
     var image: ByteArray? = null, // 일반로그인
 
     @Column(length = 255) // 최대치
-    var picture: String? = null, // oauth로그인
+    var profileImgUrl: String? = null, // oauth로그인
+
 
     @Transient
     private val roleStrategy: RoleStrategy = DefaultRoleStrategy()
@@ -58,5 +60,13 @@ class Member(
         val authorities = mutableListOf("ROLE_MEMBER")
         if (isAdmin) authorities.add("ROLE_ADMIN")
         return authorities
+    }
+
+    fun getProfileImgUrlOrDefault(): String {
+        return if (Ut.str.hasLength(profileImgUrl)) { // Ut.str로 변경
+            profileImgUrl!!
+        } else {
+            "https://placehold.co/640x640?text=O_O"
+        }
     }
 }

@@ -2,7 +2,6 @@ package com.krstudy.kapi.global.https
 
 import com.krstudy.kapi.global.exception.ErrorCode
 
-
 class RespData<T>(
     val resultCode: String,
     val statusCode: Int,
@@ -23,6 +22,11 @@ class RespData<T>(
                 null
             )
         }
+    }
+
+    // 새로운 데이터를 가진 RespData 객체를 반환하는 메서드 추가
+    fun <U> newDataOf(newData: U): RespData<U> {
+        return RespData(resultCode, statusCode, msg, newData)
     }
 
     fun isSuccess(): Boolean {
