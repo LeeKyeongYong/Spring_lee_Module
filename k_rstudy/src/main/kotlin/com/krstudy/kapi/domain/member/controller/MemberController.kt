@@ -115,11 +115,7 @@ class MemberController(
         redirectAttributes.addFlashAttribute("userid", joinForm.userid) // 가입 성공 후 사용자 ID 저장
         // 로그인한 사용자의 권한을 확인하여 리디렉션 경로 설정
         val isAdmin = rq.isAdmin()
-        if (isAdmin) {
-           return "redirect:/adm" // 관리자 홈으로 리디렉션
-        } else {
-            return "redirect:/member/login" // 로그인 페이지로 리디렉션
-        }
+        return if (isAdmin) "redirect:/adm" else "redirect:/member/login"
     }
 
     // 이미지 파일을 ByteArray로 변환

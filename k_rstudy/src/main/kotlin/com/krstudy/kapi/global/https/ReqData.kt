@@ -211,4 +211,9 @@ class ReqData(
         return sb.toString()
     }
 
+    fun getCurrentQueryStringWithoutParam(paramToExclude: String): String {
+        val queryParams = req.queryString?.split("&")?.filter { !it.startsWith("$paramToExclude=") } ?: listOf()
+        return if (queryParams.isNotEmpty()) "?" + queryParams.joinToString("&") else ""
+    }
+
 }
