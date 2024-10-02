@@ -5,8 +5,8 @@ import com.krstudy.kapi.domain.member.datas.LoginResponseBody
 import com.krstudy.kapi.domain.member.datas.MeResponseBody
 import com.krstudy.kapi.domain.member.dto.MemberDto
 import com.krstudy.kapi.domain.member.service.MemberService
-import com.krstudy.kapi.global.exception.MessageCode
 import com.krstudy.kapi.global.exception.GlobalException
+import com.krstudy.kapi.global.exception.MessageCode
 import com.krstudy.kapi.global.https.ReqData
 import com.krstudy.kapi.global.https.RespData
 import com.krstudy.kapi.standard.base.Empty
@@ -14,6 +14,7 @@ import jakarta.validation.Valid
 import lombok.RequiredArgsConstructor
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
+
 
 @RestController
 @RequestMapping("/api/v1/members")
@@ -23,6 +24,19 @@ class ApiV1MemberController(
     private val memberService: MemberService,
     private val rq: ReqData
 ) {
+
+    @GetMapping("/socialLogin/{providerTypeCode}")
+    fun socialLogin(redirectUrl: String?, @PathVariable providerTypeCode: String): String {
+        // redirectUrl이 null이 아닌 경우에만 쿠키를 설정합니다.
+        redirectUrl?.let {
+            if (rq.isFrontUrl(it)) {
+                rq.setCookie("redirectUrlAfterSocialLogin", it, 60 * 10)
+            }
+        }
+
+        return "redirect:/oauth2/authorization/$providerTypeCode"
+    }
+
 
     @PostMapping("/login")
     fun login(@Valid @RequestBody body: LoginRequestBody): RespData<LoginResponseBody> {

@@ -34,6 +34,38 @@
             form.submit();
         }
 
+        // toastr 설정
+        toastr.options = {
+            showDuration: 300,
+            hideDuration: 300,
+            timeOut: 3000,
+            extendedTimeOut: 1000
+        };
+
+        function redirect(url) {
+            window.location.href = url;
+        }
+
+        function msgInfo(message) {
+            toastr.info(message);
+        }
+
+        function msgError(message) {
+            toastr.error(message);
+        }
+
+        // 로그인 URL 생성
+        function getKakaoLoginUrl() {
+            return '/api/v1/member/socialLogin/kakao?redirectUrl=' + encodeURIComponent('http://localhost:9090/api/v1/member/socialLoginCallback?provierTypeCode=kakao');
+        }
+
+        function getGoogleLoginUrl() {
+            return '/api/v1/member/socialLogin/google?redirectUrl=' + encodeURIComponent('http://localhost:9090/api/v1/member/socialLoginCallback?provierTypeCode=google');
+        }
+
+        function getNaverLoginUrl() {
+            return '/api/v1/member/socialLogin/naver?redirectUrl=' + encodeURIComponent('http://localhost:9090/api/v1/member/socialLoginCallback?provierTypeCode=naver');
+        }
 
     </script>
 
@@ -57,7 +89,26 @@
         <!-- QR Code will be generated here -->
     </div>
     <br/>
-    <!-- SNS로그인 추가 -->
+    <div class="flex-grow flex items-center justify-center">
+        <a th:href="${#urls.add(getKakaoLoginUrl())}" class="btn">
+            <i class="fa-solid fa-comment text-[color:#ffe812]"></i>
+            카카오로 3초만에 시작하기
+        </a>
+    </div>
+    <div class="flex-grow flex justify-center">
+        <a th:href="${#urls.add(getNaverLoginUrl())}" class="btn">
+            <i class="fa-solid fa-comment text-[color:#ffe812]"></i>
+            네이버로 3초만에 시작하기
+        </a>
+    </div>
+
+    <div class="flex-grow flex justify-center">
+        <a th:href="${#urls.add(getGoogleLoginUrl())}" class="btn">
+            <i class="fa-solid fa-comment text-[color:#ffe812]"></i>
+            구글로 3초만에 시작하기
+        </a>
+    </div>
+
 
 </div>
     <script>

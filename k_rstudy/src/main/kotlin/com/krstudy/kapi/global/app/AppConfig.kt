@@ -29,8 +29,14 @@ class AppConfig {
         lateinit var siteCookieDomain: String
         private var resourcesStaticDirPath: String? = null
         private var siteBackUrl: String? = null
+        @JvmStatic
+        lateinit var siteFrontUrl: String
 
-        // Getter 메소드 (수동으로 정의할 필요 없음)
+        // Getter for siteFrontUrl
+        fun getSiteFrontUrl(): String {
+            return siteFrontUrl
+        }
+
         fun getJwtSecretKeyOrThrow(): String {
             return jwtSecretKey ?: throw IllegalStateException("JWT secret key is not initialized")
         }
@@ -81,6 +87,11 @@ class AppConfig {
     @Value("\${custom.site.name}")
     fun setSiteName(siteName: String) {
         Companion.siteName = siteName
+    }
+
+    @Value("\${custom.dev.backUrl}")
+    fun setSiteFrontUrl(siteFrontUrl: String) {
+        Companion.siteFrontUrl = siteFrontUrl
     }
 
     @Autowired

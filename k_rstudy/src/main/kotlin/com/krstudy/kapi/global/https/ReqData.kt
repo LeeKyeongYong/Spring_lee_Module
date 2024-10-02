@@ -217,4 +217,8 @@ class ReqData(
         return if (queryParams.isNotEmpty()) "?" + queryParams.joinToString("&") else ""
     }
 
+    fun isFrontUrl(url: String): Boolean {
+        return url.startsWith(AppConfig.getSiteFrontUrl())
+    }
+
 }
