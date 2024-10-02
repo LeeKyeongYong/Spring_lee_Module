@@ -12,7 +12,6 @@ class AppConfig {
 
     var jwt: JwtConfig? = null
 
-    // Inner class to hold JWT configuration
     class JwtConfig {
         var secretKey: String? = null
         var expirationSec: Long? = null
@@ -25,17 +24,12 @@ class AppConfig {
         lateinit var siteName: String
         lateinit var objectMapper: ObjectMapper
         var basePageSize: Int = 10
-        var accessTokenExpirationSec: Long = 0 // getter가 자동 생성됨
+        var accessTokenExpirationSec: Long = 0
         lateinit var siteCookieDomain: String
         private var resourcesStaticDirPath: String? = null
         private var siteBackUrl: String? = null
-        @JvmStatic
         lateinit var siteFrontUrl: String
-
-        // Getter for siteFrontUrl
-        fun getSiteFrontUrl(): String {
-            return siteFrontUrl
-        }
+            private set  // private setter를 사용하여 외부에서 직접 수정을 방지
 
         fun getJwtSecretKeyOrThrow(): String {
             return jwtSecretKey ?: throw IllegalStateException("JWT secret key is not initialized")

@@ -218,7 +218,7 @@ class ReqData(
     }
 
     fun isFrontUrl(url: String): Boolean {
-        return url.startsWith(AppConfig.getSiteFrontUrl())
+        return url.startsWith(AppConfig.siteFrontUrl)
     }
 
 }
