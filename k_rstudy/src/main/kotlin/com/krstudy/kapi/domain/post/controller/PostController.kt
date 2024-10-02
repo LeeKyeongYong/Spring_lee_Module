@@ -58,11 +58,17 @@ class PostController(
         val sorts = listOf(Sort.Order.desc("id"))
         val pageable: Pageable = PageRequest.of(page - 1, 10, Sort.by(sorts))
         val member = rq.getMember() ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
+
         val postPage: Page<Post> = postService.search(member, null, kw, pageable)
+
+        // 수정된 println 호출
+        println("postPage: $postPage")
+
         rq.setAttribute("postPage", postPage)
         rq.setAttribute("page", page)
         return "domain/post/post/myList"
     }
+
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/write")
