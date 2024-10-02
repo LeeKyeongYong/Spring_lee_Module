@@ -18,6 +18,10 @@ class Member(
     @Column(nullable = false)
     var username: String? = null,
 
+    @Column
+    var nickname: String? = null,
+
+
     @Column(nullable = false)
     var roleType: String? = null,
 

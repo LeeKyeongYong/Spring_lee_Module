@@ -1,6 +1,6 @@
 package com.krstudy.kapi.global.https
 
-import com.krstudy.kapi.global.exception.ErrorCode
+import com.krstudy.kapi.global.exception.MessageCode
 
 class RespData<T>(
     val resultCode: String,
@@ -14,7 +14,7 @@ class RespData<T>(
             return RespData(resultCode, statusCode, msg, data)
         }
 
-        fun <T> fromErrorCode(errorCode: ErrorCode): RespData<T> {
+        fun <T> fromErrorCode(errorCode: MessageCode): RespData<T> {
             return RespData(
                 errorCode.code,
                 errorCode.code.split("-", limit = 2)[0].toIntOrNull() ?: 0,

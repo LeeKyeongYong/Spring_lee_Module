@@ -5,7 +5,7 @@ import com.krstudy.kapi.domain.member.datas.LoginResponseBody
 import com.krstudy.kapi.domain.member.datas.MeResponseBody
 import com.krstudy.kapi.domain.member.dto.MemberDto
 import com.krstudy.kapi.domain.member.service.MemberService
-import com.krstudy.kapi.global.exception.ErrorCode
+import com.krstudy.kapi.global.exception.MessageCode
 import com.krstudy.kapi.global.exception.GlobalException
 import com.krstudy.kapi.global.https.ReqData
 import com.krstudy.kapi.global.https.RespData
@@ -29,12 +29,12 @@ class ApiV1MemberController(
         val authAndMakeTokensRs = memberService.authAndMakeTokens(
             body.username,
             body.password
-        ) ?: throw GlobalException(ErrorCode.TOKEN_GENERATION_ERROR.code, ErrorCode.TOKEN_GENERATION_ERROR.message)
+        ) ?: throw GlobalException(MessageCode.TOKEN_GENERATION_ERROR.code, MessageCode.TOKEN_GENERATION_ERROR.message)
 
         val refreshToken = authAndMakeTokensRs.data?.refreshToken
-            ?: throw GlobalException(ErrorCode.TOKEN_GENERATION_ERROR.code, ErrorCode.TOKEN_GENERATION_ERROR.message)
+            ?: throw GlobalException(MessageCode.TOKEN_GENERATION_ERROR.code, MessageCode.TOKEN_GENERATION_ERROR.message)
         val accessToken = authAndMakeTokensRs.data?.accessToken
-            ?: throw GlobalException(ErrorCode.TOKEN_GENERATION_ERROR.code, ErrorCode.TOKEN_GENERATION_ERROR.message)
+            ?: throw GlobalException(MessageCode.TOKEN_GENERATION_ERROR.code, MessageCode.TOKEN_GENERATION_ERROR.message)
 
         rq.setCrossDomainCookie("refreshToken", refreshToken)
         rq.setCrossDomainCookie("accessToken", accessToken)
@@ -49,11 +49,11 @@ class ApiV1MemberController(
 
     @GetMapping("/me")
     fun getMe(): RespData<MeResponseBody> {
-        val member = rq.getMember() ?: return RespData.fromErrorCode(ErrorCode.UNAUTHORIZED_LOGIN_REQUIRED) // 로그인 필요 시 에러 반환
+        val member = rq.getMember() ?: return RespData.fromErrorCode(MessageCode.UNAUTHORIZED_LOGIN_REQUIRED) // 로그인 필요 시 에러 반환
 
         return RespData.of(
-            resultCode = ErrorCode.SUCCESS.code, // SUCCESS 코드 사용
-            msg = ErrorCode.SUCCESS.message, // SUCCESS 메시지 사용
+            resultCode = MessageCode.SUCCESS.code, // SUCCESS 코드 사용
+            msg = MessageCode.SUCCESS.message, // SUCCESS 메시지 사용
             data = MeResponseBody(MemberDto.from(member)) // MemberDto 변환
         )
     }
@@ -62,6 +62,6 @@ class ApiV1MemberController(
     fun logout(): RespData<Empty> {
         rq.setLogout()
 
-        return RespData.of(ErrorCode.SUCCESS.code, "로그아웃 성공") // ErrorCode.SUCCESS 사용
+        return RespData.of(MessageCode.SUCCESS.code, "로그아웃 성공") // ErrorCode.SUCCESS 사용
     }
 }

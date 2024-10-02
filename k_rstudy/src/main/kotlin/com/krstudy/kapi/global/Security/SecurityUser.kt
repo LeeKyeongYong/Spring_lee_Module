@@ -8,18 +8,19 @@ import org.springframework.security.oauth2.core.user.OAuth2User
 
 class SecurityUser(
     val id: Long,
-    private val username: String,
-    private val password: String,
-    private val authorities: Collection<out GrantedAuthority>,
+    private val _username: String,
+    private val _password: String,
+    private val authorities: Collection<GrantedAuthority>,
     private val enabled: Boolean = true,
     private val accountNonExpired: Boolean = true,
     private val credentialsNonExpired: Boolean = true,
     private val accountNonLocked: Boolean = true
 ) : UserDetails, OAuth2User {
 
+    override fun getUsername(): String = _username
+    override fun getPassword(): String = _password
+
     override fun getAuthorities(): Collection<GrantedAuthority> = authorities
-    override fun getPassword(): String = password
-    override fun getUsername(): String = username
     override fun isAccountNonExpired(): Boolean = accountNonExpired
     override fun isAccountNonLocked(): Boolean = accountNonLocked
     override fun isCredentialsNonExpired(): Boolean = credentialsNonExpired
@@ -37,7 +38,5 @@ class SecurityUser(
         return emptyMap() // 빈 맵 반환
     }
 
-    override fun getName(): String {
-        return username
-    }
+    override fun getName(): String = _username
 }

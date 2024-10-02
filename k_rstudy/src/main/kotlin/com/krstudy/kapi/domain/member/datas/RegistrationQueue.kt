@@ -26,11 +26,13 @@ class RegistrationQueue(private val memberService: MemberService) {
                     memberService.join(
                         userid,
                         username,
+                        username,
                         userEmail,
                         password,
                         imageType ?: "image/jpeg",
                         finalImageBytes,
-                        roleType
+                        roleType,
+                        ""
                     )
                 }
             }

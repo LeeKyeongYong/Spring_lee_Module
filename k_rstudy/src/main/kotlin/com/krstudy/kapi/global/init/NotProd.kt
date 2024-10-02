@@ -60,11 +60,13 @@ open class NotProd(
             memberService.join(
                 memberInfo.userid,
                 memberInfo.username,
+                memberInfo.username,
                 "abc@lky.co.kr",
                 "1234",
                 "image/jpeg",
                 defaultImageBytes, // 기본 이미지 바이트 전달
-                memberInfo.authority // 각 사용자에 맞는 권한 전달
+                memberInfo.authority,// 각 사용자에 맞는 권한 전달
+                ""
             )?.data
         }
 

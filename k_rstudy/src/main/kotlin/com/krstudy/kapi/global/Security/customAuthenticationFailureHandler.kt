@@ -1,6 +1,6 @@
 package com.krstudy.kapi.global.Security
 
-import com.krstudy.kapi.global.exception.ErrorCode
+import com.krstudy.kapi.global.exception.MessageCode
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.stereotype.Component
@@ -25,7 +25,7 @@ class CustomAuthenticationFailureHandler : SimpleUrlAuthenticationFailureHandler
             is UsernameNotFoundException -> {
                 log.info("exception.message: ${exception?.message}")
 
-                if (exception.message == ErrorCode.LOGIN_DISABLED_USER.message) {
+                if (exception.message == MessageCode.LOGIN_DISABLED_USER.message) {
                     "로그인할 수 없는 아이디입니다."
                 } else {
                     "아이디 또는 비밀번호가 틀렸습니다."

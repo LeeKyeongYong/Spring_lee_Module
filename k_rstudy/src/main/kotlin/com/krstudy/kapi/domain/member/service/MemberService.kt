@@ -10,8 +10,7 @@ import com.krstudy.kapi.domain.member.repository.MemberRepository
 import com.krstudy.kapi.domain.post.repository.PostRepository
 import com.krstudy.kapi.domain.post.repository.PostlikeRepository
 import com.krstudy.kapi.global.Security.SecurityUser
-import com.krstudy.kapi.global.exception.CustomException
-import com.krstudy.kapi.global.exception.ErrorCode
+import com.krstudy.kapi.global.exception.MessageCode
 import com.krstudy.kapi.global.exception.GlobalException
 import com.krstudy.kapi.global.https.RespData
 import io.jsonwebtoken.Jwts
@@ -38,10 +37,10 @@ class MemberService(
     @Value("\${security.jwt.secret}")
     private lateinit var secretKey: String
     @Transactional
-    suspend fun join(userid: String, username: String, userEmail: String, password: String, imageType: String?, imageBytes: ByteArray?, roleType: String?): RespData<Member> {
+    suspend fun join(userid: String, username: String,nickname: String, userEmail: String, password: String, imageType: String?, imageBytes: ByteArray?, roleType: String?,profileImgUrl:String?): RespData<Member> {
         val existingMember = findByUserid(userid)
         if (existingMember != null) {
-            return RespData.fromErrorCode(ErrorCode.DUPLICATED_USERID)
+            return RespData.fromErrorCode(MessageCode.DUPLICATED_USERID)
         }
 
         // 역할을 결정하는 로직
@@ -63,6 +62,7 @@ class MemberService(
         val member = Member().apply {
             this.userid = userid
             this.username = username
+            this.nickname = username
             this.userEmail = userEmail
             this.password = passwordEncoder.encode(password)
             this.roleType = finalRoleType
@@ -70,6 +70,7 @@ class MemberService(
             this.jwtToken = token
             this.imageType = imageType
             this.image = imageBytes
+            this.profileImgUrl=profileImgUrl
 
         }
 
@@ -81,7 +82,7 @@ class MemberService(
         }
 
         return RespData.of(
-            ErrorCode.SUCCESS.code,
+            MessageCode.SUCCESS.code,
             "${member.userid}님 환영합니다. 회원가입이 완료되었습니다. 로그인 후 이용해주세요.",
             member
         )
@@ -158,7 +159,7 @@ class MemberService(
         val accessToken = authTokenService.genAccessToken(member)
 
         return RespData.of(
-            ErrorCode.SUCCESS.code,  // resultCode에 SUCCESS 코드 추가
+            MessageCode.SUCCESS.code,  // resultCode에 SUCCESS 코드 추가
             "${member.username}님 안녕하세요.",
             AuthAndMakeTokensResponseBody(member, accessToken, refreshToken) // data에 ResponseBody 추가
         )
@@ -171,13 +172,13 @@ class MemberService(
     fun refreshAccessToken(refreshToken: String): RespData<String> {
         // JWT 토큰으로 멤버 조회, null일 경우 예외 발생
         val member = memberRepository.findByJwtToken(refreshToken)
-            ?: throw GlobalException(ErrorCode.BAD_REQUEST.code, ErrorCode.BAD_REQUEST.message)
+            ?: throw GlobalException(MessageCode.BAD_REQUEST.code, MessageCode.BAD_REQUEST.message)
 
         // 엑세스 토큰 생성
         val accessToken = authTokenService.genAccessToken(member)
 
         // 응답 데이터 반환
-        return RespData.of(ErrorCode.SUCCESS.code, ErrorCode.SUCCESS.message, accessToken)
+        return RespData.of(MessageCode.SUCCESS.code, MessageCode.SUCCESS.message, accessToken)
     }
 
     fun getUserFromAccessToken(accessToken: String): SecurityUser {
@@ -194,6 +195,26 @@ class MemberService(
             authorities.map { SimpleGrantedAuthority(it) } // SimpleGrantedAuthority 객체 생성
         )
     }
+    @Transactional
+    suspend fun modifyOrJoin(username: String, nickname: String, providerTypeCode: String, imageBytes: ByteArray, profileImgUrl: String): RespData<Member> {
+        val member: Member? = findByUserName(username)
 
+        return if (member == null) {
+            // join 메소드 호출 (반환 타입이 RespData<Member>인지 확인)
+            join(username, nickname, username, "guest@localhost.co.kr", "1234", providerTypeCode, imageBytes, M_Role.MEMBER.authority, profileImgUrl)
+        } else {
+            // modify 메소드 호출
+            modify(member, nickname, profileImgUrl)
+        }
+    }
+
+    @Transactional
+    fun modify(member: Member, nickname: String, profileImgUrl: String): RespData<Member> {
+        member.nickname = nickname
+        member.profileImgUrl = profileImgUrl
+
+        // RespData.of를 사용하여 반환
+        return RespData.of(MessageCode.SUCCESS.code, "회원정보가 수정되었습니다: ${member.username ?: "Unknown User"}", member)
+    }
 
 }

@@ -1,16 +1,13 @@
 package com.krstudy.kapi.domain.comment.controller
 
 import com.krstudy.kapi.com.krstudy.kapi.domain.comment.datas.CommentWriteForm
-import com.krstudy.kapi.domain.post.datas.ModifyForm
-import com.krstudy.kapi.domain.post.datas.WriteForm
 import com.krstudy.kapi.global.exception.GlobalException
 import com.krstudy.kapi.global.https.ReqData
 import com.krstudy.kapi.domain.post.service.PostService
-import com.krstudy.kapi.global.exception.ErrorCode
+import com.krstudy.kapi.global.exception.MessageCode
 import jakarta.validation.Valid
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Controller
-import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.*
 
 @Controller
@@ -26,9 +23,9 @@ class PostCommentController(
         @PathVariable id: Long,
         @Valid @ModelAttribute form: CommentWriteForm
     ): String {
-        val member = rq.getMember() ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
-        val post = postService.findById(id).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_POST) }
-        val body = form.body ?: throw GlobalException(ErrorCode.EMPTY_COMMENT_BODY)
+        val member = rq.getMember() ?: throw GlobalException(MessageCode.UNAUTHORIZED)
+        val post = postService.findById(id).orElseThrow { GlobalException(MessageCode.NOT_FOUND_POST) }
+        val body = form.body ?: throw GlobalException(MessageCode.EMPTY_COMMENT_BODY)
 
         val postComment = postService.writeComment(member, post, body)
 
@@ -42,12 +39,12 @@ class PostCommentController(
         @PathVariable id: Long,
         @PathVariable commentId: Long
     ): String {
-        val member = rq.getMember() ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
-        val post = postService.findById(id).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_POST) }
-        val postComment = postService.findCommentById(commentId).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_COMMENT) }
+        val member = rq.getMember() ?: throw GlobalException(MessageCode.UNAUTHORIZED)
+        val post = postService.findById(id).orElseThrow { GlobalException(MessageCode.NOT_FOUND_POST) }
+        val postComment = postService.findCommentById(commentId).orElseThrow { GlobalException(MessageCode.NOT_FOUND_COMMENT) }
 
         if (!postService.canModifyComment(member, postComment)) {
-            throw GlobalException(ErrorCode.FORBIDDEN)
+            throw GlobalException(MessageCode.FORBIDDEN)
         }
 
         rq.setAttribute("post", post)
@@ -63,12 +60,12 @@ class PostCommentController(
         @PathVariable commentId: Long,
         @Valid @ModelAttribute form: CommentWriteForm
     ): String {
-        val member = rq.getMember() ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
-        val postComment = postService.findCommentById(commentId).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_COMMENT) }
-        val body = form.body ?: throw GlobalException(ErrorCode.EMPTY_COMMENT_BODY)
+        val member = rq.getMember() ?: throw GlobalException(MessageCode.UNAUTHORIZED)
+        val postComment = postService.findCommentById(commentId).orElseThrow { GlobalException(MessageCode.NOT_FOUND_COMMENT) }
+        val body = form.body ?: throw GlobalException(MessageCode.EMPTY_COMMENT_BODY)
 
         if (!postService.canModifyComment(member, postComment)) {
-            throw GlobalException(ErrorCode.FORBIDDEN)
+            throw GlobalException(MessageCode.FORBIDDEN)
         }
 
         postService.modifyComment(postComment, body)
@@ -82,11 +79,11 @@ class PostCommentController(
         @PathVariable id: Long,
         @PathVariable commentId: Long
     ): String {
-        val member = rq.getMember() ?: throw GlobalException(ErrorCode.UNAUTHORIZED)
-        val postComment = postService.findCommentById(commentId).orElseThrow { GlobalException(ErrorCode.NOT_FOUND_COMMENT) }
+        val member = rq.getMember() ?: throw GlobalException(MessageCode.UNAUTHORIZED)
+        val postComment = postService.findCommentById(commentId).orElseThrow { GlobalException(MessageCode.NOT_FOUND_COMMENT) }
 
         if (!postService.canDeleteComment(member, postComment)) {
-            throw GlobalException(ErrorCode.FORBIDDEN)
+            throw GlobalException(MessageCode.FORBIDDEN)
         }
 
         postService.deleteComment(postComment)

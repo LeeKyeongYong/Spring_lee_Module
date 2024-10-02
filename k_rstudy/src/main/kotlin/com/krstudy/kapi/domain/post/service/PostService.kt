@@ -8,7 +8,7 @@ import com.krstudy.kapi.domain.post.entity.PostLike
 import com.krstudy.kapi.domain.post.repository.PostRepository
 import com.krstudy.kapi.domain.post.repository.PostlikeRepository
 import com.krstudy.kapi.global.exception.GlobalException
-import com.krstudy.kapi.global.exception.ErrorCode
+import com.krstudy.kapi.global.exception.MessageCode
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -67,7 +67,7 @@ class PostService(
     fun like(member: Member, post: Post) {
         // 이미 좋아요를 눌렀는지 검사
         if (postlikeRepository.existsByPostAndMember(post, member)) {
-            throw GlobalException(ErrorCode.ALREADY_LIKED)
+            throw GlobalException(MessageCode.ALREADY_LIKED)
         }
 
         try {
@@ -83,7 +83,7 @@ class PostService(
         } catch (e: DataIntegrityViolationException) {
             // 경쟁 조건의 경우, 좋아요가 존재하는지 다시 확인
             if (postlikeRepository.existsByPostAndMember(post, member)) {
-                throw GlobalException(ErrorCode.ALREADY_LIKED)
+                throw GlobalException(MessageCode.ALREADY_LIKED)
             } else {
                 throw e // 다른 무결성 위반이라면 예외를 다시 throw
             }

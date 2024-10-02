@@ -1,6 +1,6 @@
 package com.krstudy.kapi.global.exception
 
-enum class ErrorCode(val code: String, val message: String) {
+enum class MessageCode(val code: String, val message: String) {
 
     // 인증 관련 오류
     UNAUTHORIZED("401-1", "인증된 사용자가 아닙니다."),
