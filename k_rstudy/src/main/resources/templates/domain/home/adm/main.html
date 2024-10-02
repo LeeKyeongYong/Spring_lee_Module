@@ -17,7 +17,7 @@
   <hr />
   <ul>
     <li th:each="member : ${members}">
-      <a th:href="@{/member/view.do(id=${member.id})}" th:text="${member.username}"></a>
+      <a th:href="@{/member/view(id=${member.id})}" th:text="${member.username}"></a>
     </li>
   </ul>
   <hr />

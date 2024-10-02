@@ -113,7 +113,13 @@ class MemberController(
         ) // 회원 가입 요청 큐에 추가
 
         redirectAttributes.addFlashAttribute("userid", joinForm.userid) // 가입 성공 후 사용자 ID 저장
-        return "redirect:/member/login" // 로그인 페이지로 리디렉션
+        // 로그인한 사용자의 권한을 확인하여 리디렉션 경로 설정
+        val isAdmin = rq.isAdmin()
+        if (isAdmin) {
+           return "redirect:/adm" // 관리자 홈으로 리디렉션
+        } else {
+            return "redirect:/member/login" // 로그인 페이지로 리디렉션
+        }
     }
 
     // 이미지 파일을 ByteArray로 변환
@@ -147,12 +153,12 @@ class MemberController(
      * @param id 회원 ID
      * @return ModelAndView 객체
      */
-    @GetMapping("/view_pdf.do") // 특정 회원의 PDF 정보를 조회하는 GET 요청
+    @GetMapping("/view_pdf") // 특정 회원의 PDF 정보를 조회하는 GET 요청
     fun viewPdf(@RequestParam(value = "id") id: Long): ModelAndView {
-        val mav = ModelAndView() // ModelAndView 객체 생성
+        val mav = ModelAndView()
         mav.view = MemberPdfView() // PDF 뷰 설정
-        mav.addObject("member",  memberService.getMemberByNo(id)) // 회원 정보를 모델에 추가
-        return mav // ModelAndView 반환
+        mav.addObject("member", memberService.getMemberByNo(id))
+        return mav
     }
 
     /**
@@ -162,18 +168,17 @@ class MemberController(
      */
     @GetMapping("/image/{id}") // 특정 회원의 이미지를 가져오는 GET 요청
     fun getImage(@PathVariable id: Long): ResponseEntity<ByteArray> {
-        val member: Member? = memberService.getMemberByNo(id) // 수정된 메소드 호출
+        val member: Member? = memberService.getMemberByNo(id)
 
-        // member가 null인지 확인
-        if (member == null || member.image == null) { // 회원이 없거나 이미지가 없는 경우
-            return ResponseEntity.notFound().build() // 404 응답 반환
+        if (member == null || member.image == null) {
+            return ResponseEntity.notFound().build()
         }
 
-        val contentType = member.imageType ?: MediaType.APPLICATION_OCTET_STREAM_VALUE // 기본 MIME 타입 설정
+        val contentType = member.imageType ?: MediaType.APPLICATION_OCTET_STREAM_VALUE
 
-        return ResponseEntity.ok() // 200 OK 응답 생성
-            .contentType(MediaType.valueOf(contentType)) // 적절한 콘텐츠 타입 설정
-            .body(member.image) // 이미지 바디 반환
+        return ResponseEntity.ok()
+            .contentType(MediaType.valueOf(contentType))
+            .body(member.image)
     }
 
     /**
@@ -182,7 +187,7 @@ class MemberController(
      * @param model 모델 객체
      * @return 상세 페이지의 뷰 이름
      */
-    @GetMapping("/view.do") // 특정 회원 정보 조회를 위한 GET 요청
+    @GetMapping("/view") // 특정 회원 정보 조회를 위한 GET 요청
     fun viewMemberByNo(@RequestParam(value = "id") id: Long, model: Model): String {
         model.addAttribute("member", memberService.getMemberByNo(id)) // 회원 정보를 모델에 추가
         return "domain/member/view" // 상세 페이지의 뷰 경로 반환
@@ -194,11 +199,11 @@ class MemberController(
      * @param attr 리디렉션 시 사용할 속성
      * @return 리디렉션할 경로
      */
-    @GetMapping("/remove.do") // 특정 회원 삭제를 위한 GET 요청
+    @GetMapping("/remove") // 특정 회원 삭제를 위한 GET 요청
     fun removeMemberByNo(@RequestParam(value = "id") id: Long, attr: RedirectAttributes): String {
         memberService.removeMember(id) // 회원 삭제
         attr.addFlashAttribute("msg", "회원이 삭제되었습니다.") // 삭제 메시지 추가
-        return "redirect:/member/list" // 회원 목록 페이지로 리디렉션
+        return "redirect:/adm" // 회원 목록 페이지로 리디렉션
     }
 
 

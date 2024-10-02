@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import org.springframework.beans.factory.annotation.Value
+
 @Service
 @Transactional(readOnly = true)
 class MemberService(
