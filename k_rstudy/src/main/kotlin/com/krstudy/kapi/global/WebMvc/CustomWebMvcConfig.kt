@@ -13,8 +13,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 class CustomWebMvcConfig : WebMvcConfigurer {
 
     override fun addCorsMappings(registry: CorsRegistry) {
-        registry.addMapping("/v1/**")  // 수정: /v1/**로 수정
+        registry.addMapping("/v1/**")  // v1 경로에 대한 CORS 설정
             .allowedOrigins("http://localhost:8090")  // 개발 서버 URL 추가
+            .allowedMethods("*")
+            .allowedHeaders("*")
+            .allowCredentials(true)
+
+        registry.addMapping("/api/**")  // api 경로에 대한 CORS 설정
+            .allowedOrigins("http://localhost:8090")
             .allowedMethods("*")
             .allowedHeaders("*")
             .allowCredentials(true)

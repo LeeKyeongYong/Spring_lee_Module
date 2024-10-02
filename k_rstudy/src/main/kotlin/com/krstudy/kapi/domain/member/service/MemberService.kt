@@ -9,6 +9,7 @@ import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.repository.MemberRepository
 import com.krstudy.kapi.domain.post.repository.PostRepository
 import com.krstudy.kapi.domain.post.repository.PostlikeRepository
+import com.krstudy.kapi.global.Security.SecurityUser
 import com.krstudy.kapi.global.exception.CustomException
 import com.krstudy.kapi.global.exception.ErrorCode
 import com.krstudy.kapi.global.exception.GlobalException
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 
 @Service
 @Transactional(readOnly = true)
@@ -159,6 +161,37 @@ class MemberService(
             ErrorCode.SUCCESS.code,  // resultCode에 SUCCESS 코드 추가
             "${member.username}님 안녕하세요.",
             AuthAndMakeTokensResponseBody(member, accessToken, refreshToken) // data에 ResponseBody 추가
+        )
+    }
+
+    fun validateToken(token: String): Boolean {
+        return authTokenService.validateToken(token)
+    }
+
+    fun refreshAccessToken(refreshToken: String): RespData<String> {
+        // JWT 토큰으로 멤버 조회, null일 경우 예외 발생
+        val member = memberRepository.findByJwtToken(refreshToken)
+            ?: throw GlobalException(ErrorCode.BAD_REQUEST.code, ErrorCode.BAD_REQUEST.message)
+
+        // 엑세스 토큰 생성
+        val accessToken = authTokenService.genAccessToken(member)
+
+        // 응답 데이터 반환
+        return RespData.of(ErrorCode.SUCCESS.code, ErrorCode.SUCCESS.message, accessToken)
+    }
+
+    fun getUserFromAccessToken(accessToken: String): SecurityUser {
+        val payloadBody = authTokenService.getDataFrom(accessToken)
+
+        val id = (payloadBody["id"] as Int).toLong() // id는 Long으로 변환
+        val username = payloadBody["username"] as String
+        val authorities = payloadBody["authorities"] as List<String>
+
+        return SecurityUser(
+            id,
+            username,
+            "",
+            authorities.map { SimpleGrantedAuthority(it) } // SimpleGrantedAuthority 객체 생성
         )
     }
 
