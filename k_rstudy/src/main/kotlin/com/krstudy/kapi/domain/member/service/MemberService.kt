@@ -3,6 +3,7 @@ package com.krstudy.kapi.domain.member.service
 import com.krstudy.kapi.domain.comment.repository.PostCommentRepository
 import io.jsonwebtoken.SignatureAlgorithm
 import com.krstudy.kapi.domain.member.datas.M_Role
+import com.krstudy.kapi.domain.member.datas.RegistrationData
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.repository.MemberRepository
 import com.krstudy.kapi.domain.post.repository.PostRepository
@@ -84,6 +85,7 @@ class MemberService(
         return memberRepository.findByUserid(userid)
     }
 
+    @Transactional(readOnly = true)
     fun findByUserName(username: String): Member {
         return memberRepository.findByUsername(username)
             ?: throw UsernameNotFoundException("User not found with username: $username")
@@ -100,13 +102,25 @@ class MemberService(
             .compact()
     }
 
-    fun getImageByNo(id: Long): Member? {
-        return getMemberByNo(id)
+    @Transactional(readOnly = true)
+    fun getMemberByNo(id: Long): Member? {
+        return memberRepository.findById(id).orElse(null)
     }
 
     @Transactional(readOnly = true)
-    fun getMemberByNo(id: Long): Member? {
-        return memberRepository.findById(id).orElse(null) // ID 타입이 Long이어야 합니다.
+    fun getRegistrationDataByNo(id: Long): RegistrationData? {
+        val member = memberRepository.findById(id).orElse(null)
+        return member?.let {
+            RegistrationData(
+                userid = it.userid,
+                username = it.username ?: "",
+                password = it.password,
+                userEmail = it.userEmail,
+                imageType = it.imageType,
+                imageBytes = it.image,
+                additionalFields = emptyMap()
+            )
+        }
     }
 
     @Transactional(readOnly = true)

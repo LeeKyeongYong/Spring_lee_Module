@@ -26,8 +26,8 @@ class QRCodeController(private val qrCodeService: QRCodeService) {
 
     @GetMapping("/qr", produces = [MediaType.IMAGE_PNG_VALUE])
     fun createQRCode(): ResponseEntity<ByteArray> {
-        //val url = "https://velog.io/@sleekydevzero86/posts"
-        val url = "010-1234-5678"
+        val url = "https://velog.io/@sleekydevzero86/posts"
+        //val url = "010-1234-5678"
         val width = 200
         val height = 200
 

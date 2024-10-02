@@ -151,7 +151,7 @@ class MemberController(
     fun viewPdf(@RequestParam(value = "id") id: Long): ModelAndView {
         val mav = ModelAndView() // ModelAndView 객체 생성
         mav.view = MemberPdfView() // PDF 뷰 설정
-        mav.addObject("member", memberService.getImageByNo(id)) // 회원 정보를 모델에 추가
+        mav.addObject("member",  memberService.getMemberByNo(id)) // 회원 정보를 모델에 추가
         return mav // ModelAndView 반환
     }
 
@@ -162,7 +162,7 @@ class MemberController(
      */
     @GetMapping("/image/{id}") // 특정 회원의 이미지를 가져오는 GET 요청
     fun getImage(@PathVariable id: Long): ResponseEntity<ByteArray> {
-        val member: Member? = memberService.getImageByNo(id) // 회원 정보 조회
+        val member: Member? = memberService.getMemberByNo(id) // 수정된 메소드 호출
 
         // member가 null인지 확인
         if (member == null || member.image == null) { // 회원이 없거나 이미지가 없는 경우

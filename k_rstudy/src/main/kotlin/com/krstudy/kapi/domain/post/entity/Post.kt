@@ -17,7 +17,7 @@ class Post(
     @OrderBy("id DESC")
     var comments: MutableList<PostComment> = ArrayList(),
 
-    @ManyToOne(fetch = LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     var author: Member? = null,
 
     var title: String? = null,

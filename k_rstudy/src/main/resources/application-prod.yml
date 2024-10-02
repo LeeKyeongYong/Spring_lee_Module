@@ -37,7 +37,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop  # 기존 테이블 유지
-    open-in-view: false
+    open-in-view: true
 
   security:
     oauth2:
