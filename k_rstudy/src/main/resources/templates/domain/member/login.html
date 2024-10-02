@@ -56,15 +56,15 @@
 
         // 로그인 URL 생성
         function getKakaoLoginUrl() {
-            return 'http://localhost:8090/api/v1/member/socialLogin/kakao?redirectUrl=' + encodeURIComponent('http://localhost:8090/api/v1/member/socialLoginCallback?providerTypeCode=kakao');
+            return 'http://localhost:8090/api/v1/members/socialLogin/kakao?redirectUrl=' + encodeURIComponent('http://localhost:8090/api/v1/members/socialLoginCallback?providerTypeCode=kakao');
         }
 
         function getGoogleLoginUrl() {
-            return 'http://localhost:8090/api/v1/member/socialLogin/google?redirectUrl=' + encodeURIComponent('http://localhost:8090/api/v1/member/socialLoginCallback?providerTypeCode=google');
+            return 'http://localhost:8090/api/v1/members/socialLogin/google?redirectUrl=' + encodeURIComponent('http://localhost:8090/api/v1/members/socialLoginCallback?providerTypeCode=google');
         }
 
         function getNaverLoginUrl() {
-            return 'http://localhost:8090/api/v1/member/socialLogin/naver?redirectUrl=' + encodeURIComponent('http://localhost:8090/api/v1/member/socialLoginCallback?providerTypeCode=naver');
+            return 'http://localhost:8090/api/v1/members/socialLogin/naver?redirectUrl=' + encodeURIComponent('http://localhost:8090/api/v1/members/socialLoginCallback?providerTypeCode=naver');
         }
 
 
