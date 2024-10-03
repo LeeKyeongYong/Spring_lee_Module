@@ -225,10 +225,11 @@ class MemberService(
                 username,
                 "guest@localhost.co.kr",
                 "1234",
-                providerTypeCode,
+                "image/jpeg", //providerTypeCode,
                 imageBytes,
                 M_Role.MEMBER.authority,
-                profileImgUrl
+                profileImgUrl,
+               // providerTypeCode //구분코드_account_type
             )
         } else {
             logger.info("Modifying existing member: $username")

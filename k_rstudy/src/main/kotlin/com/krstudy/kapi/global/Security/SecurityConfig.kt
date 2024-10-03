@@ -46,6 +46,7 @@ class SecurityConfig(
                     .requestMatchers("/resource/**").permitAll()
                     .requestMatchers("/v1/qrcode/**").permitAll()
                     .requestMatchers("/v1/**").authenticated()
+                    .requestMatchers("/login/oauth2/**").permitAll()
                     .requestMatchers("/member/login").anonymous()
                     .requestMatchers("/member/join")
                     .access("hasRole('ADMIN') or isAnonymous()")

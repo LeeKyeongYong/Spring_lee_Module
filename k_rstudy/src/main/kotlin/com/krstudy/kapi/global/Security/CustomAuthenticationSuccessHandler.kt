@@ -21,18 +21,22 @@ class CustomAuthenticationSuccessHandler(
 
     @Throws(ServletException::class, IOException::class)
     override fun onAuthenticationSuccess(request: HttpServletRequest, response: HttpServletResponse, authentication: Authentication) {
-        val redirectUrlAfterSocialLogin = rq.getCookieValue("redirectUrlAfterSocialLogin", "") ?: ""
+        try {
+            val member = memberService.getMemberByAuthentication(authentication) ?: run {
+                response.sendRedirect("/member/login?error=memberNotFound")
+                return
+            }
 
-        val member = memberService.getMemberByAuthentication(authentication) ?: run {
-            response.sendRedirect("/member/login?error=memberNotFound")
-            return
+            val token = authTokenService.genAccessToken(member)
+            response.addHeader("Authorization", "Bearer $token")
+
+            val redirectUrl = rq.getCookieValue("redirectUrlAfterSocialLogin", "/")
+            response.sendRedirect(redirectUrl)
+        } catch (e: Exception) {
+            // 상세한 에러 로깅
+            e.printStackTrace()
+            logger.error("Authentication failed: ${e.message}", e)
+            response.sendRedirect("/member/login?error=authenticationFailed")
         }
-
-        // 필요에 따라 member의 정보에 따라 JWT 토큰을 생성, expireSeconds를 설정 (예: 3600초)
-        val token = authTokenService.genToken(member, 3600)
-
-        // 생성된 토큰을 응답에 추가하거나 리다이렉트할 URL에 포함
-        response.addHeader("Authorization", "Bearer $token")
-        super.onAuthenticationSuccess(request, response, authentication)
     }
 }
