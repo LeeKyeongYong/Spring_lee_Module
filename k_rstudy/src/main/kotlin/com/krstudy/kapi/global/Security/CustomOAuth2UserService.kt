@@ -9,10 +9,11 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.io.FileNotFoundException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import org.slf4j.LoggerFactory
+import java.io.FileNotFoundException
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.oauth2.core.OAuth2Error
 
 @Service
 @Transactional(readOnly = true)
@@ -20,70 +21,92 @@ class CustomOAuth2UserService(
     private val memberService: MemberService
 ) : DefaultOAuth2UserService() {
 
+    private val logger = LoggerFactory.getLogger(CustomOAuth2UserService::class.java)
+
     @Transactional
     @Throws(OAuth2AuthenticationException::class)
-    // 여기서 suspend로 메서드를 변경
-    override fun loadUser(userRequest: OAuth2UserRequest): OAuth2User = runBlocking {
-        val oAuth2User = super.loadUser(userRequest)
-        val oauthId = oAuth2User.name
-        val providerTypeCode = userRequest.clientRegistration.registrationId.uppercase()
+    override fun loadUser(userRequest: OAuth2UserRequest): OAuth2User {
+        return runBlocking {
+            try {
+                val oAuth2User = super@CustomOAuth2UserService.loadUser(userRequest)
+                val oauthId = oAuth2User.name
+                val providerTypeCode = userRequest.clientRegistration.registrationId.uppercase()
 
-        var nickname = ""
-        var profileImgUrl = ""
-        var username = ""
-        var attributesProperties: Map<String, Any>? = null
+                logger.debug("Processing OAuth2 user: $oauthId from provider: $providerTypeCode")
 
-        val attributes = oAuth2User.attributes
+                val attributes = oAuth2User.attributes
+                val (username, nickname, profileImgUrl) = extractUserInfo(providerTypeCode, attributes, oauthId)
 
-        when (providerTypeCode) {
-            "KAKAO" -> {
-                attributesProperties = attributes["properties"] as? Map<String, Any>
-                nickname = attributesProperties?.get("nickname") as? String ?: ""
-                username =  attributesProperties?.get("nickname") as? String ?: ""//"${providerTypeCode}__$oauthId"
-                profileImgUrl = attributesProperties?.get("profile_image") as? String ?: ""
-            }
-            "NAVER" -> {
-                attributesProperties = attributes["response"] as? Map<String, Any>
-                username = attributesProperties?.get("name") as? String ?: ""//"${providerTypeCode}__$oauthId"
-                nickname = attributesProperties?.get("nickname") as? String ?: ""
-                profileImgUrl = attributesProperties?.get("profile_image") as? String ?: ""
-            }
-            "GOOGLE" -> {
-                nickname = attributes["name"] as? String ?: ""
-                profileImgUrl = attributes["picture"] as? String ?: ""
-                username = "${providerTypeCode}__$oauthId"
+                logger.info("Extracted user info - Username: $username, Nickname: $nickname")
+
+                val result = memberService.modifyOrJoin(
+                    username = username,
+                    nickname = nickname,
+                    providerTypeCode = providerTypeCode,
+                    imageBytes = getDefaultImageBytes(),
+                    profileImgUrl = profileImgUrl
+                )
+
+                val member = result.data ?: throw IllegalStateException("Failed to create or update member: ${result.msg ?: "Unknown error"}")
+
+                logger.info("Successfully processed member: ${member.id}")
+
+                SecurityUser(
+                    id = member.id ?: throw IllegalStateException("Member ID cannot be null"),
+                    _username = member.username ?: throw IllegalStateException("Username cannot be null"),
+                    _password = member.password ?: "",
+                    authorities = listOf(SimpleGrantedAuthority(member.roleType ?: "ROLE_MEMBER"))
+                )
+            } catch (e: Exception) {
+                logger.error("Error in loadUser", e)
+                throw OAuth2AuthenticationException(OAuth2Error("authentication_failed"), e.message ?: "Authentication failed", e)
             }
         }
+    }
 
-        println("OAuth Provider: $providerTypeCode, Username: $username, Nickname: $nickname, Profile Image URL: $profileImgUrl")
-
-        //OAuth Provider: GOOGLE, Username: GOOGLE__107421080655407978839, Nickname: 이경용,
-        // Profile Image URL: https://lh3.googleusercontent.com/a/ACg8ocLi0VKzgvfkUdnt2r85abhUhI0Iq_prtJwwuSzuEOD1C-qjzg=s96-c
-
-        //OAuth Provider: NAVER, Username: NAVER__{id=NfvKCKanuKnKs_zezuz_t9FTmPuWYXiDnjP3LaKd0R8, nickname=푸차,
-        // profile_image=https://phinf.pstatic.net/contact/20240925_220/1727259165483XvIJh_PNG/profileImage.png, age=30-39,
-        // gender=M, email=sleekydz86@naver.com, mobile=010-3615-4287, mobile_e164=+821036154287, name=이경용, birthday=06-19, birthyear=1986},
-        // Nickname: 푸차, Profile Image URL: https://phinf.pstatic.net/contact/20240925_220/1727259165483XvIJh_PNG/profileImage.png
-
-
-        // 이 부분에서 suspend 함수 호출
-        val member: Member = memberService.modifyOrJoin(
-            username = username,
-            nickname = nickname,
-            providerTypeCode = providerTypeCode,
-            imageBytes = getDefaultImageBytes(),
-            profileImgUrl = profileImgUrl
-        ).data ?: throw IllegalStateException("Failed to create or update member")
-
-        println("Member 저장 완료: ID: ${member.id}, Username: ${member.username}")
-
-        return@runBlocking SecurityUser(member.id!!, member.username!!, member.password!!, member.authorities)
+    private fun extractUserInfo(
+        providerTypeCode: String,
+        attributes: Map<String, Any>,
+        oauthId: String
+    ): Triple<String, String, String> {
+        return when (providerTypeCode) {
+            "KAKAO" -> {
+                val properties = attributes["properties"] as? Map<String, Any>
+                    ?: throw IllegalStateException("Kakao properties not found")
+                Triple(
+                    properties["nickname"] as? String ?: throw IllegalStateException("Kakao nickname not found"),
+                    properties["nickname"] as? String ?: "",
+                    properties["profile_image"] as? String ?: ""
+                )
+            }
+            "NAVER" -> {
+                val response = attributes["response"] as? Map<String, Any>
+                    ?: throw IllegalStateException("Naver response not found")
+                Triple(
+                    response["name"] as? String ?: throw IllegalStateException("Naver name not found"),
+                    response["nickname"] as? String ?: "",
+                    response["profile_image"] as? String ?: ""
+                )
+            }
+            "GOOGLE" -> {
+                Triple(
+                    "${providerTypeCode}__$oauthId",
+                    attributes["name"] as? String ?: "",
+                    attributes["picture"] as? String ?: ""
+                )
+            }
+            else -> throw IllegalArgumentException("Unsupported provider: $providerTypeCode")
+        }
     }
 
     private fun getDefaultImageBytes(): ByteArray {
-        val inputStream = this::class.java.classLoader.getResourceAsStream("gen/images/notphoto.jpg")
-            ?: throw FileNotFoundException("Default image not found in resources")
-
-        return inputStream.use { it.readBytes() }
+        return try {
+            val inputStream = this::class.java.classLoader.getResourceAsStream("gen/images/notphoto.jpg")
+                ?: throw FileNotFoundException("Default image not found in resources")
+            inputStream.use { it.readBytes() }
+        } catch (e: Exception) {
+            logger.error("Error loading default image", e)
+            ByteArray(0) // Return empty array as fallback
+        }
     }
 }

@@ -37,8 +37,6 @@ class AppConfig {
     @Value("\${custom.base.pageSize:10}")
     var basePageSize: Int = 10
 
-    lateinit var objectMapper: ObjectMapper
-
     @PostConstruct
     fun init() {
         instance = this
@@ -67,12 +65,6 @@ class AppConfig {
 
     @Bean
     fun basePageSize(): Int = basePageSize
-
-    @Bean
-    fun configureObjectMapper(objectMapper: ObjectMapper): ObjectMapper {
-        this.objectMapper = objectMapper
-        return objectMapper
-    }
 
     companion object {
         private lateinit var instance: AppConfig

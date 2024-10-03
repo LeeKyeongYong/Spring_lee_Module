@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service
 import java.security.SecureRandom
 import java.util.*
 import javax.crypto.SecretKey
+import java.util.Base64
 
 @Service
 class AuthTokenService(
@@ -18,9 +19,13 @@ class AuthTokenService(
     @Value("\${custom.accessToken.expirationSec}")
     private val accessTokenExpirationSec: Long
 ) {
-    private val secretKey: SecretKey by lazy {
-        Keys.hmacShaKeyFor(jwtSecretKey.toByteArray())
-    }
+    // SecretKey 객체를 생성합니다.
+    private val secretKey: SecretKey
+        get() {
+            // Base64 인코딩된 키를 디코드하여 SecretKey 객체로 변환
+            val decodedKey = Base64.getDecoder().decode(jwtSecretKey)
+            return Keys.hmacShaKeyFor(decodedKey)
+        }
 
     fun genToken(member: Member, expireSeconds: Long): String {
         val claims = Jwts.claims()
@@ -32,11 +37,12 @@ class AuthTokenService(
         val issuedAt = Date()
         val expiration = Date(issuedAt.time + 1000 * expireSeconds)
 
+        // SecretKey를 사용하여 JWT를 서명합니다.
         return Jwts.builder()
             .setClaims(claims)
             .setIssuedAt(issuedAt)
             .setExpiration(expiration)
-            .signWith(secretKey, SignatureAlgorithm.HS256)
+            .signWith(secretKey, SignatureAlgorithm.HS256)  // 수정된 부분
             .compact()
     }
 

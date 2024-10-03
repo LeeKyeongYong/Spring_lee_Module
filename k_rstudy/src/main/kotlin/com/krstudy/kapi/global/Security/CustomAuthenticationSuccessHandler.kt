@@ -11,7 +11,6 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.io.IOException
-
 @Component
 @Transactional(readOnly = true)
 class CustomAuthenticationSuccessHandler(
@@ -29,23 +28,11 @@ class CustomAuthenticationSuccessHandler(
             return
         }
 
-        if (rq.isFrontUrl(redirectUrlAfterSocialLogin)) {
-            val accessToken = authTokenService.genAccessToken(member)
-            val refreshToken = member.jwtToken ?: run {
-                val newRefreshToken = authTokenService.genRefreshToken(member.userid)
-                memberService.updateMemberJwtToken(member.id, newRefreshToken)
-                newRefreshToken
-            }
+        // 필요에 따라 member의 정보에 따라 JWT 토큰을 생성, expireSeconds를 설정 (예: 3600초)
+        val token = authTokenService.genToken(member, 3600)
 
-            rq.destroySession()
-            rq.setCrossDomainCookie("accessToken", accessToken)
-            rq.setCrossDomainCookie("refreshToken", refreshToken)
-            rq.removeCookie("redirectUrlAfterSocialLogin")
-
-            response.sendRedirect(redirectUrlAfterSocialLogin)
-            return
-        }
-
+        // 생성된 토큰을 응답에 추가하거나 리다이렉트할 URL에 포함
+        response.addHeader("Authorization", "Bearer $token")
         super.onAuthenticationSuccess(request, response, authentication)
     }
 }
