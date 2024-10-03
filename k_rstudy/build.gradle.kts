@@ -132,6 +132,7 @@ dependencies {
    // implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
     //log4j
+    //implementation("org.slf4j:slf4j-api:1.7.32")
     implementation("ch.qos.logback:logback-classic:1.4.11")  // logback 최신 버전 사용
 
     //pdf
@@ -158,6 +159,9 @@ dependencies {
     implementation("io.github.resilience4j:resilience4j-bulkhead:2.2.0")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.1.3") // Feign 의존성 추가
 
+    //크롤링 메일발송처리
+    implementation("org.springframework.boot:spring-boot-starter-mail")
+    implementation("org.seleniumhq.selenium:selenium-java:4.10.0")
 
 
 }
