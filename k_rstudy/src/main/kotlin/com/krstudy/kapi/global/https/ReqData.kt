@@ -31,7 +31,7 @@ class ReqData(
     private var user: SecurityUser? = null
     private var member: Member? = null
     private var isLogin: Boolean? = null
-    private var isAdmin: Boolean? = null  // var로 변경
+    private var isAdmin: Boolean? = null
 
     fun setHeader(name: String, value: String) {
         resp.setHeader(name, value)
@@ -45,35 +45,23 @@ class ReqData(
         resp.status = statusCode
     }
 
-
     fun isApi(): Boolean {
         val xRequestedWith = req.getHeader("X-Requested-With")
         return "XMLHttpRequest" == xRequestedWith
     }
 
-    fun setCookie(name: String, value: String) {
-        val cookieDomain = AppConfig.siteCookieDomain
-        if (cookieDomain == null) {
-            // 예외를 던지거나 로그를 남길 수 있습니다.
-            return
-        }
+    fun setCookie(name: String, value: String, maxAgeInSeconds: Int = -1) {
+        val cookieDomain = AppConfig.getSiteCookieDomain()
         val cookie = Cookie(name, value).apply {
             path = "/"
             domain = cookieDomain
-        }
-        resp.addCookie(cookie)
-    }
-
-    fun setCookie(name: String, value: String, maxAge: Int) {
-        val cookie = Cookie(name, value).apply {
-            path = "/"
-            this.maxAge = maxAge
+            maxAge = maxAgeInSeconds
         }
         resp.addCookie(cookie)
     }
 
     private fun getSiteCookieDomain(): String? {
-        val cookieDomain = AppConfig.siteCookieDomain
+        val cookieDomain = AppConfig.getSiteCookieDomain()
         return if (cookieDomain != "localhost") ".$cookieDomain" else null
     }
 
@@ -218,7 +206,7 @@ class ReqData(
     }
 
     fun isFrontUrl(url: String): Boolean {
-        return url.startsWith(AppConfig.siteFrontUrl)
+        return url.startsWith(AppConfig.getSiteFrontUrl())
     }
 
 }

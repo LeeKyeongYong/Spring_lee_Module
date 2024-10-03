@@ -23,6 +23,9 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.Authentication
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 @Service
 @Transactional(readOnly = true)
@@ -34,6 +37,12 @@ class MemberService(
     private val postlikeRepository: PostlikeRepository,
     private val authTokenService: AuthTokenService
 ) {
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(MemberService::class.java)
+    }
+
+
     @Value("\${security.jwt.secret}")
     private lateinit var secretKey: String
     @Transactional
@@ -93,10 +102,11 @@ class MemberService(
     }
 
     @Transactional(readOnly = true)
-    fun findByUserName(username: String): Member {
+    fun findByUserName(username: String): Member? {
         return memberRepository.findByUsername(username)
-            ?: throw UsernameNotFoundException("User not found with username: $username")
+            //?: throw UsernameNotFoundException("User not found with username: $username")
     }
+
     fun count(): Long {
         return memberRepository.count()
     }
@@ -196,14 +206,32 @@ class MemberService(
         )
     }
     @Transactional
-    suspend fun modifyOrJoin(username: String, nickname: String, providerTypeCode: String, imageBytes: ByteArray, profileImgUrl: String): RespData<Member> {
+    suspend fun modifyOrJoin(
+        username: String,
+        nickname: String,
+        providerTypeCode: String,
+        imageBytes: ByteArray,
+        profileImgUrl: String
+    ): RespData<Member> {
+        logger.debug("modifyOrJoin called with username=$username")
         val member: Member? = findByUserName(username)
+        logger.debug("findByUserName result: $member")
 
         return if (member == null) {
-            // join 메소드 호출 (반환 타입이 RespData<Member>인지 확인)
-            join(username, nickname, username, "guest@localhost.co.kr", "1234", providerTypeCode, imageBytes, M_Role.MEMBER.authority, profileImgUrl)
+            logger.info("Creating new member for username: $username")
+            join(
+                username,
+                nickname,
+                username,
+                "guest@localhost.co.kr",
+                "1234",
+                providerTypeCode,
+                imageBytes,
+                M_Role.MEMBER.authority,
+                profileImgUrl
+            )
         } else {
-            // modify 메소드 호출
+            logger.info("Modifying existing member: $username")
             modify(member, nickname, profileImgUrl)
         }
     }
@@ -212,9 +240,21 @@ class MemberService(
     fun modify(member: Member, nickname: String, profileImgUrl: String): RespData<Member> {
         member.nickname = nickname
         member.profileImgUrl = profileImgUrl
-
+        logger.debug("Modifying member with id=${member.id}")
         // RespData.of를 사용하여 반환
         return RespData.of(MessageCode.SUCCESS.code, "회원정보가 수정되었습니다: ${member.username ?: "Unknown User"}", member)
+    }
+
+    fun getMemberByAuthentication(authentication: Authentication): Member? {
+        val username = authentication.name
+        return findByUserName(username)
+    }
+
+    @Transactional
+    fun updateMemberJwtToken(memberId: Long, newToken: String) {
+        val member = memberRepository.findById(memberId).orElseThrow { IllegalArgumentException("Member not found") }
+        member.jwtToken = newToken
+        memberRepository.save(member)
     }
 
 }

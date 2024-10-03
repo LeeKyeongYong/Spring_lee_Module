@@ -1,16 +1,26 @@
 package com.krstudy.kapi.domain.member.service
 
 import com.krstudy.kapi.domain.member.entity.Member
-import com.krstudy.kapi.global.app.AppConfig
-import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
+import io.jsonwebtoken.security.Keys
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.security.SecureRandom
 import java.util.*
+import javax.crypto.SecretKey
 
 @Service
-class AuthTokenService {
+class AuthTokenService(
+    @Value("\${custom.jwt.secretKey}")
+    private val jwtSecretKey: String,
+
+    @Value("\${custom.accessToken.expirationSec}")
+    private val accessTokenExpirationSec: Long
+) {
+    private val secretKey: SecretKey by lazy {
+        Keys.hmacShaKeyFor(jwtSecretKey.toByteArray())
+    }
 
     fun genToken(member: Member, expireSeconds: Long): String {
         val claims = Jwts.claims()
@@ -26,17 +36,17 @@ class AuthTokenService {
             .setClaims(claims)
             .setIssuedAt(issuedAt)
             .setExpiration(expiration)
-            .signWith(SignatureAlgorithm.HS256, AppConfig.getJwtSecretKeyOrThrow())
+            .signWith(secretKey, SignatureAlgorithm.HS256)
             .compact()
     }
 
     fun genAccessToken(member: Member): String {
-        return genToken(member, AppConfig.accessTokenExpirationSec) // 접근 방식 변경
+        return genToken(member, accessTokenExpirationSec)
     }
 
-    fun getDataFrom(token: String): Map<String, Any> {
+    fun getDataFrom(token: String): Map<String, Any?> {
         val payload = Jwts.parser()
-            .setSigningKey(AppConfig.getJwtSecretKeyOrThrow())
+            .setSigningKey(secretKey)
             .build()
             .parseClaimsJws(token)
             .body
@@ -50,7 +60,7 @@ class AuthTokenService {
 
     fun validateToken(token: String): Boolean {
         return try {
-            Jwts.parser().setSigningKey(AppConfig.getJwtSecretKeyOrThrow()).build().parseClaimsJws(token)
+            Jwts.parser().setSigningKey(secretKey).build().parseClaimsJws(token)
             true
         } catch (e: Exception) {
             false
@@ -59,8 +69,8 @@ class AuthTokenService {
 
     fun genRefreshToken(userId: String): String {
         val random = SecureRandom()
-        val bytes = ByteArray(10)
+        val bytes = ByteArray(32)
         random.nextBytes(bytes)
-        return Base64.getUrlEncoder().encodeToString(bytes)
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes)
     }
 }

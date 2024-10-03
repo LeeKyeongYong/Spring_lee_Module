@@ -39,12 +39,12 @@ class CustomOAuth2UserService(
             "KAKAO" -> {
                 attributesProperties = attributes["properties"] as? Map<String, Any>
                 nickname = attributesProperties?.get("nickname") as? String ?: ""
-                username = "${providerTypeCode}__$oauthId"
+                username =  attributesProperties?.get("nickname") as? String ?: ""//"${providerTypeCode}__$oauthId"
                 profileImgUrl = attributesProperties?.get("profile_image") as? String ?: ""
             }
             "NAVER" -> {
                 attributesProperties = attributes["response"] as? Map<String, Any>
-                username = "${providerTypeCode}__$oauthId"
+                username = attributesProperties?.get("name") as? String ?: ""//"${providerTypeCode}__$oauthId"
                 nickname = attributesProperties?.get("nickname") as? String ?: ""
                 profileImgUrl = attributesProperties?.get("profile_image") as? String ?: ""
             }
@@ -55,6 +55,17 @@ class CustomOAuth2UserService(
             }
         }
 
+        println("OAuth Provider: $providerTypeCode, Username: $username, Nickname: $nickname, Profile Image URL: $profileImgUrl")
+
+        //OAuth Provider: GOOGLE, Username: GOOGLE__107421080655407978839, Nickname: 이경용,
+        // Profile Image URL: https://lh3.googleusercontent.com/a/ACg8ocLi0VKzgvfkUdnt2r85abhUhI0Iq_prtJwwuSzuEOD1C-qjzg=s96-c
+
+        //OAuth Provider: NAVER, Username: NAVER__{id=NfvKCKanuKnKs_zezuz_t9FTmPuWYXiDnjP3LaKd0R8, nickname=푸차,
+        // profile_image=https://phinf.pstatic.net/contact/20240925_220/1727259165483XvIJh_PNG/profileImage.png, age=30-39,
+        // gender=M, email=sleekydz86@naver.com, mobile=010-3615-4287, mobile_e164=+821036154287, name=이경용, birthday=06-19, birthyear=1986},
+        // Nickname: 푸차, Profile Image URL: https://phinf.pstatic.net/contact/20240925_220/1727259165483XvIJh_PNG/profileImage.png
+
+
         // 이 부분에서 suspend 함수 호출
         val member: Member = memberService.modifyOrJoin(
             username = username,
@@ -63,6 +74,8 @@ class CustomOAuth2UserService(
             imageBytes = getDefaultImageBytes(),
             profileImgUrl = profileImgUrl
         ).data ?: throw IllegalStateException("Failed to create or update member")
+
+        println("Member 저장 완료: ID: ${member.id}, Username: ${member.username}")
 
         return@runBlocking SecurityUser(member.id!!, member.username!!, member.password!!, member.authorities)
     }

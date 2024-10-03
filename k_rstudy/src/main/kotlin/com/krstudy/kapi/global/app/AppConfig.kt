@@ -1,95 +1,92 @@
 package com.krstudy.kapi.global.app
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.ClassPathResource
 import java.io.IOException
+import jakarta.annotation.PostConstruct
 
 @Configuration
 class AppConfig {
+    @Value("\${custom.jwt.secretKey}")
+    lateinit var jwtSecretKey: String
 
-    var jwt: JwtConfig? = null
+    @Value("\${custom.accessToken.expirationSec}")
+    var accessTokenExpirationSec: Long = 0
 
-    class JwtConfig {
-        var secretKey: String? = null
-        var expirationSec: Long? = null
+    @Value("\${custom.site.backUrl}")
+    lateinit var siteBackUrl: String
+
+    @Value("\${custom.site.cookieDomain}")
+    lateinit var siteCookieDomain: String
+
+    @Value("\${custom.temp.dirPath}")
+    lateinit var tempDirPath: String
+
+    @Value("\${custom.genFile.dirPath}")
+    lateinit var genFileDirPath: String
+
+    @Value("\${custom.site.name}")
+    lateinit var siteName: String
+
+    @Value("\${custom.dev.backUrl}")
+    lateinit var siteFrontUrl: String
+
+    @Value("\${custom.base.pageSize:10}")
+    var basePageSize: Int = 10
+
+    lateinit var objectMapper: ObjectMapper
+
+    @PostConstruct
+    fun init() {
+        instance = this
+    }
+
+    @Bean
+    fun jwtSecretKey(): String = jwtSecretKey
+
+    @Bean
+    fun accessTokenExpirationSec(): Long = accessTokenExpirationSec
+
+    @Bean
+    fun siteCookieDomain(): String = siteCookieDomain
+
+    @Bean
+    fun tempDirPath(): String = tempDirPath
+
+    @Bean
+    fun genFileDirPath(): String = genFileDirPath
+
+    @Bean
+    fun siteName(): String = siteName
+
+    @Bean
+    fun siteFrontUrl(): String = siteFrontUrl
+
+    @Bean
+    fun basePageSize(): Int = basePageSize
+
+    @Bean
+    fun configureObjectMapper(objectMapper: ObjectMapper): ObjectMapper {
+        this.objectMapper = objectMapper
+        return objectMapper
     }
 
     companion object {
-        lateinit var jwtSecretKey: String
-        lateinit var tempDirPath: String
-        lateinit var genFileDirPath: String
-        lateinit var siteName: String
-        lateinit var objectMapper: ObjectMapper
-        var basePageSize: Int = 10
-        var accessTokenExpirationSec: Long = 0
-        lateinit var siteCookieDomain: String
-        private var resourcesStaticDirPath: String? = null
-        private var siteBackUrl: String? = null
-        lateinit var siteFrontUrl: String
-            private set  // private setter를 사용하여 외부에서 직접 수정을 방지
-
-        fun getJwtSecretKeyOrThrow(): String {
-            return jwtSecretKey ?: throw IllegalStateException("JWT secret key is not initialized")
-        }
+        private lateinit var instance: AppConfig
 
         fun getResourcesStaticDirPath(): String {
-            if (resourcesStaticDirPath == null) {
-                val resource = ClassPathResource("static/")
-                resourcesStaticDirPath = try {
-                    resource.file.absolutePath
-                } catch (e: IOException) {
-                    throw RuntimeException(e)
-                }
+            val resource = ClassPathResource("static/")
+            return try {
+                resource.file.absolutePath
+            } catch (e: IOException) {
+                throw RuntimeException(e)
             }
-            return resourcesStaticDirPath!!
         }
-    }
 
-    @Value("\${custom.jwt.secretKey}")
-    fun setJwtSecretKey(jwtSecretKey: String) {
-        Companion.jwtSecretKey = jwtSecretKey
-    }
-
-    @Value("\${custom.accessToken.expirationSec}")
-    fun setAccessTokenExpirationSec(accessTokenExpirationSec: Long) {
-        Companion.accessTokenExpirationSec = accessTokenExpirationSec
-    }
-
-    @Value("\${custom.site.backUrl}")
-    fun setSiteBackUrl(siteBackUrl: String) {
-        Companion.siteBackUrl = siteBackUrl
-    }
-
-    @Value("\${custom.site.cookieDomain}")
-    fun setSiteCookieDomain(siteCookieDomain: String) {
-        Companion.siteCookieDomain = siteCookieDomain
-    }
-
-    @Value("\${custom.temp.dirPath}")
-    fun setTempDirPath(tempDirPath: String) {
-        Companion.tempDirPath = tempDirPath
-    }
-
-    @Value("\${custom.genFile.dirPath}")
-    fun setGenFileDirPath(genFileDirPath: String) {
-        Companion.genFileDirPath = genFileDirPath
-    }
-
-    @Value("\${custom.site.name}")
-    fun setSiteName(siteName: String) {
-        Companion.siteName = siteName
-    }
-
-    @Value("\${custom.dev.backUrl}")
-    fun setSiteFrontUrl(siteFrontUrl: String) {
-        Companion.siteFrontUrl = siteFrontUrl
-    }
-
-    @Autowired
-    fun setObjectMapper(objectMapper: ObjectMapper) {
-        Companion.objectMapper = objectMapper
+        fun getSiteCookieDomain(): String = instance.siteCookieDomain
+        fun getSiteFrontUrl(): String = instance.siteFrontUrl
     }
 }
