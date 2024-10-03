@@ -7,6 +7,8 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stomp-websocket"></script>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 </head>
 <body>
 
@@ -54,20 +56,26 @@
             toastr.error(message);
         }
 
-        // 로그인 URL 생성
-        function getKakaoLoginUrl() {
-            return 'http://localhost:8090/api/v1/members/socialLogin/kakao?redirectUrl=' + encodeURIComponent('http://localhost:8090/api/v1/members/socialLoginCallback?providerTypeCode=kakao');
+        // 소셜 로그인 함수
+        function socialLogin(providerTypeCode) {
+            const redirectUrl = encodeURIComponent(`http://localhost:8090/api/v1/members/socialLoginCallback?providerTypeCode=${providerTypeCode}`);
+            const url = `http://localhost:8090/api/v1/members/socialLogin/${providerTypeCode}?redirectUrl=${redirectUrl}`;
+
+            fetch(url)
+                .then(response => response.text())
+                .then(redirectUrl => {
+                    if (redirectUrl.startsWith('redirect:')) {
+                        window.location.href = redirectUrl.replace('redirect:', '');
+                    } else {
+                        console.error('Unexpected response:', redirectUrl);
+                        msgError('로그인 처리 중 오류가 발생했습니다.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    msgError('로그인 요청 중 오류가 발생했습니다.');
+                });
         }
-
-        function getGoogleLoginUrl() {
-            return 'http://localhost:8090/api/v1/members/socialLogin/google?redirectUrl=' + encodeURIComponent('http://localhost:8090/api/v1/members/socialLoginCallback?providerTypeCode=google');
-        }
-
-        function getNaverLoginUrl() {
-            return 'http://localhost:8090/api/v1/members/socialLogin/naver?redirectUrl=' + encodeURIComponent('http://localhost:8090/api/v1/members/socialLoginCallback?providerTypeCode=naver');
-        }
-
-
     </script>
 
     <form th:action method="POST" onSubmit="submitLoginForm(this); return false;">
@@ -91,29 +99,24 @@
     </div>
     <br/>
     <div class="flex-grow flex items-center justify-center">
-        <a id="kakaoLogin" class="btn" href="#" onclick="window.location.href=getKakaoLoginUrl(); return false;">
+        <a id="kakaoLogin" class="btn" href="#" onclick="socialLogin('kakao'); return false;">
             <i class="fa-solid fa-comment text-[color:#ffe812]"></i>
             카카오로 3초만에 시작하기
         </a>
     </div>
     <div class="flex-grow flex justify-center">
-        <a id="naverLogin" class="btn" href="#" onclick="window.location.href=getNaverLoginUrl(); return false;">
+        <a id="naverLogin" class="btn" href="#" onclick="socialLogin('naver'); return false;">
             <i class="fa-solid fa-comment text-[color:#ffe812]"></i>
             네이버로 3초만에 시작하기
         </a>
     </div>
     <div class="flex-grow flex justify-center">
-        <a id="googleLogin" class="btn" href="#" onclick="window.location.href=getGoogleLoginUrl(); return false;">
+        <a id="googleLogin" class="btn" href="#" onclick="socialLogin('google'); return false;">
             <i class="fa-solid fa-comment text-[color:#ffe812]"></i>
             구글로 3초만에 시작하기
         </a>
     </div>
-
-
 </div>
-    <script>
 
-
-    </script>
 </body>
 </html>

@@ -57,7 +57,7 @@ class AuthTokenService {
         }
     }
 
-    fun genRefreshToken(): String {
+    fun genRefreshToken(userId: String): String {
         val random = SecureRandom()
         val bytes = ByteArray(10)
         random.nextBytes(bytes)

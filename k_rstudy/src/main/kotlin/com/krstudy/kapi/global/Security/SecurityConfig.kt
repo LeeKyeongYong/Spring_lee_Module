@@ -20,18 +20,16 @@ import java.nio.charset.StandardCharsets
 @Configuration
 @EnableMethodSecurity
 class SecurityConfig(
-    private val customAuthenticationFailureHandler: CustomAuthenticationFailureHandler,
-    private val authTokenService: AuthTokenService,  // 추가된 authTokenService
-    private val rq: ReqData                               // 추가된 rq
+    private val authTokenService: AuthTokenService,
+    private val rq: ReqData
 ) {
-
     @Autowired
     @Lazy
     private lateinit var memberService: MemberService
 
     @Bean
     fun customAuthSuccessHandler(): AuthenticationSuccessHandler {
-        return CustomAuthenticationSuccessHandler(memberService, rq, authTokenService)  // 인자 순서 수정
+        return CustomAuthenticationSuccessHandler(memberService, rq, authTokenService)
     }
 
     @Bean
@@ -45,6 +43,7 @@ class SecurityConfig(
             .authorizeRequests { authorizeRequests ->
                 authorizeRequests
                     .requestMatchers("/adm/**").hasRole("ADMIN")
+                    .requestMatchers("/resource/**").permitAll()
                     .requestMatchers("/v1/qrcode/**").permitAll()
                     .requestMatchers("/v1/**").authenticated()
                     .requestMatchers("/member/login").anonymous()
@@ -64,9 +63,9 @@ class SecurityConfig(
             .formLogin { formLogin ->
                 formLogin
                     .loginPage("/member/login")
-                    .successHandler(customAuthSuccessHandler())  // 수정된 부분
+                    .successHandler(customAuthSuccessHandler())
                     .defaultSuccessUrl("/?msg=" + URLEncoder.encode("환영합니다.", StandardCharsets.UTF_8))
-                    .failureHandler(customAuthenticationFailureHandler)
+                // .failureHandler(customAuthenticationFailureHandler) // 이 부분은 주석 처리 또는 제거
             }
             .logout { logout ->
                 logout.logoutRequestMatcher(AntPathRequestMatcher("/member/logout"))
@@ -81,7 +80,7 @@ class SecurityConfig(
                     .expiredUrl("/member/login?failMsg=" + URLEncoder.encode("세션이 만료되었습니다.", StandardCharsets.UTF_8))
             }
             .oauth2Login { oauth2Login ->
-                oauth2Login.successHandler(customAuthSuccessHandler())  // 수정된 부분
+                oauth2Login.successHandler(customAuthSuccessHandler())
             }
 
         return http.build()
