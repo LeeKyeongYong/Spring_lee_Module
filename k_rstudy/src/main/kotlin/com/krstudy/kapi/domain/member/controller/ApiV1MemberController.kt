@@ -12,8 +12,11 @@ import com.krstudy.kapi.global.https.RespData
 import com.krstudy.kapi.standard.base.Empty
 import jakarta.validation.Valid
 import lombok.RequiredArgsConstructor
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
+import java.net.URI
 
 
 @RestController
@@ -26,7 +29,7 @@ class ApiV1MemberController(
 ) {
 
     @GetMapping("/socialLogin/{providerTypeCode}")
-    fun socialLogin(redirectUrl: String?, @PathVariable providerTypeCode: String): String {
+    fun socialLogin(redirectUrl: String?, @PathVariable providerTypeCode: String): ResponseEntity<Void> {
         // redirectUrl이 null이 아닌 경우에만 쿠키를 설정합니다.
         redirectUrl?.let {
             if (rq.isFrontUrl(it)) {
@@ -34,8 +37,11 @@ class ApiV1MemberController(
             }
         }
 
-        return "redirect:/oauth2/authorization/$providerTypeCode"
+        return ResponseEntity.status(HttpStatus.FOUND)
+            .location(URI.create("/"))
+            .build()
     }
+
 
 
     @PostMapping("/login")
