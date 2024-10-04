@@ -101,6 +101,7 @@ class CustomOAuth2UserService(
                 )
             }
             "GOOGLE" -> {
+                println("GOOGLE response: $attributes")
                 Triple(
                     "${providerTypeCode}__$oauthId",
                     attributes["name"] as? String ?: "",
