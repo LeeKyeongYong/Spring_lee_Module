@@ -39,12 +39,22 @@ class CustomOAuth2UserService(
 
                 logger.info("Extracted user info - Username: $username, Nickname: $nickname")
 
+                val emailRegex = Regex("""email=([^,}]+)""")
+                val emailMatchResult = emailRegex.find(oauthId) // userInfo에서 이메일을 찾음
+                val email = emailMatchResult?.groups?.get(1)?.value
+                //val modifiedEmail = if (providerTypeCode == "NAVER") email?.substringBefore('@')?.plus("@") ?: "" else ""
+                val modifiedEmail = when (providerTypeCode) {
+                    "NAVER" -> email?.substringBefore('@') ?: "" // '@' 기호 없이 저장
+                    else -> "" // 기타 경우에 대한 처리
+                }
+
                 val result = memberService.modifyOrJoin(
                     username = username,
                     nickname = nickname,
                     providerTypeCode = providerTypeCode,
                     imageBytes = getDefaultImageBytes(),
-                    profileImgUrl = profileImgUrl
+                    profileImgUrl = profileImgUrl,
+                    userid = modifiedEmail
                 )
 
                 val member = result.data ?: throw IllegalStateException("Failed to create or update member: ${result.msg ?: "Unknown error"}")
@@ -82,10 +92,12 @@ class CustomOAuth2UserService(
             "NAVER" -> {
                 val response = attributes["response"] as? Map<String, Any>
                     ?: throw IllegalStateException("Naver response not found")
+                println("Naver response: $response")
                 Triple(
                     response["name"] as? String ?: throw IllegalStateException("Naver name not found"),
                     response["nickname"] as? String ?: "",
-                    response["profile_image"] as? String ?: ""
+                    response["profile_image"] as? String ?: ""//,
+
                 )
             }
             "GOOGLE" -> {

@@ -23,8 +23,8 @@ class AllInit(private val memberService: MemberService) {
         return ApplicationRunner {
             CoroutineScope(Dispatchers.Default).launch {
                 if (memberService.findByUserid("system") == null) {
-                    memberService.join("system", "시스템관리자", "시스템관리자", "system@example.com", "1234", "image/jpeg", defaultImageBytes, "","")
-                    memberService.join("admin", "관리자","관리자", "admin@example.com", "1234", "image/jpeg", defaultImageBytes, "","")
+                    memberService.join("system", "시스템관리자", "시스템관리자", "system@example.com", "1234", "image/jpeg", defaultImageBytes, "","","WEB")
+                    memberService.join("admin", "관리자","관리자", "admin@example.com", "1234", "image/jpeg", defaultImageBytes, "","","")
                 }
             }
         }

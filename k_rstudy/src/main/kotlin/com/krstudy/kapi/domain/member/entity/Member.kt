@@ -48,6 +48,9 @@ class Member(
     var profileImgUrl: String? = null, // oauth로그인
 
 
+    @Column
+    var accountType: String? = null,  // JWT 토큰 필드 추가
+
     @Transient
     private val roleStrategy: RoleStrategy = DefaultRoleStrategy()
 ) : BaseEntity() {

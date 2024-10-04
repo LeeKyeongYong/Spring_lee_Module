@@ -46,7 +46,7 @@ class MemberService(
     @Value("\${security.jwt.secret}")
     private lateinit var secretKey: String
     @Transactional
-    suspend fun join(userid: String, username: String,nickname: String, userEmail: String, password: String, imageType: String?, imageBytes: ByteArray?, roleType: String?,profileImgUrl:String?): RespData<Member> {
+    suspend fun join(userid: String, username: String,nickname: String, userEmail: String, password: String, imageType: String?, imageBytes: ByteArray?, roleType: String?,profileImgUrl:String?,accountType:String): RespData<Member> {
         val existingMember = findByUserid(userid)
         if (existingMember != null) {
             return RespData.fromErrorCode(MessageCode.DUPLICATED_USERID)
@@ -80,6 +80,7 @@ class MemberService(
             this.imageType = imageType
             this.image = imageBytes
             this.profileImgUrl=profileImgUrl
+            this.accountType = if (accountType.isNullOrBlank()) "WEB" else accountType
 
         }
 
@@ -211,25 +212,28 @@ class MemberService(
         nickname: String,
         providerTypeCode: String,
         imageBytes: ByteArray,
-        profileImgUrl: String
+        profileImgUrl: String,
+        userid:String
     ): RespData<Member> {
         logger.debug("modifyOrJoin called with username=$username")
-        val member: Member? = findByUserName(username)
+        val member: Member? = findByUserid(username)
         logger.debug("findByUserName result: $member")
+        val finalUserid = if (userid.isNullOrEmpty()) username else userid
+        logger.debug("finalUserid result: $finalUserid")
 
         return if (member == null) {
             logger.info("Creating new member for username: $username")
             join(
-                username,
+                finalUserid, //userid가 존재하면 userid 존재하지않으면 username
                 nickname,
                 username,
                 "guest@localhost.co.kr",
-                "1234",
+                passwordEncoder.encode(username),
                 "image/jpeg", //providerTypeCode,
                 imageBytes,
                 M_Role.MEMBER.authority,
                 profileImgUrl,
-               // providerTypeCode //구분코드_account_type
+               providerTypeCode //구분코드_account_type
             )
         } else {
             logger.info("Modifying existing member: $username")

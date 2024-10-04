@@ -16,12 +16,12 @@ class RegistrationQueue(private val memberService: MemberService) {
         scope.launch {
             while (true) {
                 queue.poll()?.let { registrationData ->
-                    val (userid, username, password, userEmail, imageType, imageBytes, social) = registrationData
+                    val (userid, username, password, userEmail, imageType, imageBytes) = registrationData
 
                     val finalImageBytes = imageBytes ?: getDefaultImageBytes()
                     // roleType의 기본값 설정
                     val roleType = "ROLE_MEMBER"
-
+                    val accountType="WEB"
 
                     memberService.join(
                         userid,
@@ -32,14 +32,15 @@ class RegistrationQueue(private val memberService: MemberService) {
                         imageType ?: "image/jpeg",
                         finalImageBytes,
                         roleType,
-                        ""
+                        "",
+                        accountType,
                     )
                 }
             }
         }
     }
 
-    fun enqueue(userid: String, username: String, password: String, userEmail: String, imageType: String? = null, imageBytes: ByteArray? = null,) {
+    fun enqueue(userid: String, username: String, password: String, userEmail: String, imageType: String? = null, imageBytes: ByteArray? = null) {
         queue.add(RegistrationData(userid, username, password, userEmail, imageType, imageBytes))
     }
 

@@ -66,6 +66,7 @@ open class NotProd(
                 "image/jpeg",
                 defaultImageBytes, // 기본 이미지 바이트 전달
                 memberInfo.authority,// 각 사용자에 맞는 권한 전달
+                "",
                 ""
             )?.data
         }
