@@ -66,7 +66,6 @@ class SecurityConfig(
                     .loginPage("/member/login")
                     .successHandler(customAuthSuccessHandler())
                     .defaultSuccessUrl("/?msg=" + URLEncoder.encode("환영합니다.", StandardCharsets.UTF_8))
-                // .failureHandler(customAuthenticationFailureHandler) // 이 부분은 주석 처리 또는 제거
             }
             .logout { logout ->
                 logout.logoutRequestMatcher(AntPathRequestMatcher("/member/logout"))
@@ -81,7 +80,9 @@ class SecurityConfig(
                     .expiredUrl("/member/login?failMsg=" + URLEncoder.encode("세션이 만료되었습니다.", StandardCharsets.UTF_8))
             }
             .oauth2Login { oauth2Login ->
-                oauth2Login.successHandler(customAuthSuccessHandler())
+                oauth2Login
+                    .successHandler(customAuthSuccessHandler())
+                    .defaultSuccessUrl("/", true)  // 성공 시 무조건 메인 페이지로 리다이렉트
             }
 
         return http.build()

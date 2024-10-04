@@ -1,23 +1,16 @@
 package com.krstudy.kapi.domain.member.controller
 
-import com.krstudy.kapi.domain.member.datas.LoginRequestBody
-import com.krstudy.kapi.domain.member.datas.LoginResponseBody
-import com.krstudy.kapi.domain.member.datas.MeResponseBody
-import com.krstudy.kapi.domain.member.dto.MemberDto
 import com.krstudy.kapi.domain.member.service.MemberService
-import com.krstudy.kapi.global.exception.GlobalException
-import com.krstudy.kapi.global.exception.MessageCode
 import com.krstudy.kapi.global.https.ReqData
-import com.krstudy.kapi.global.https.RespData
-import com.krstudy.kapi.standard.base.Empty
-import jakarta.validation.Valid
 import lombok.RequiredArgsConstructor
+import org.slf4j.LoggerFactory
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken
+import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
-import java.net.URI
-
 
 @RestController
 @RequestMapping("/api/v1/members")
@@ -28,23 +21,27 @@ class ApiV1MemberController(
     private val rq: ReqData
 ) {
 
-    @GetMapping("/socialLogin/{providerTypeCode}")
-    fun socialLogin(redirectUrl: String?, @PathVariable providerTypeCode: String): ResponseEntity<Void> {
-        // redirectUrl이 null이 아닌 경우에만 쿠키를 설정합니다.
-        redirectUrl?.let {
-            if (rq.isFrontUrl(it)) {
-                rq.setCookie("redirectUrlAfterSocialLogin", it, 60 * 10)
-            }
-        }
+    private val logger = LoggerFactory.getLogger(ApiV1MemberController::class.java)
 
-        return ResponseEntity.status(HttpStatus.FOUND)
-            .location(URI.create("/"))
-            .build()
+    companion object {
+        private const val DEFAULT_REDIRECT_URL = "/"
+    }
+
+    @GetMapping("/socialLogin/{providerTypeCode}")
+    fun socialLogin(@RequestParam(required = false) redirectUrl: String?, @PathVariable providerTypeCode: String): String {
+        redirectUrl?.takeIf { rq.isFrontUrl(it) }?.let {
+            rq.setCookie("redirectUrlAfterSocialLogin", it, 60 * 10)
+        }
+        return "redirect:/oauth2/authorization/$providerTypeCode"
     }
 
 
+}
 
-    @PostMapping("/login")
+
+/*
+
+@PostMapping("/login")
     fun login(@Valid @RequestBody body: LoginRequestBody): RespData<LoginResponseBody> {
         val authAndMakeTokensRs = memberService.authAndMakeTokens(
             body.username,
@@ -84,4 +81,5 @@ class ApiV1MemberController(
 
         return RespData.of(MessageCode.SUCCESS.code, "로그아웃 성공") // ErrorCode.SUCCESS 사용
     }
-}
+
+ */
