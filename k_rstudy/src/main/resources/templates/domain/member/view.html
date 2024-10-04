@@ -13,7 +13,14 @@
     <table border="1">
         <tr>
             <td width="100">
-                <img alt="사진" th:src="@{/member/image/{id}(id=${member.id})}" class="image">
+                <img alt="사진"
+                     th:if="${member.accountType != 'WEB'}"
+                     th:src="${member.profileImgUrl}"
+                     class="image" />
+                <img alt="사진"
+                     th:if="${member.accountType == 'WEB'}"
+                     th:src="@{/member/image/{id}(id=${member.id})}"
+                     class="image" />
             </td>
             <td width="200" valign="top">
                 <ul>
