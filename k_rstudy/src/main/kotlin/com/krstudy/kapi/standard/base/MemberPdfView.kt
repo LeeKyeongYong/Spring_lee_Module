@@ -56,16 +56,22 @@ class MemberPdfView : AbstractPdfView() {
 
         table.addCell(encoding("사진"))
 
-        // member.image가 null인 경우 기본 이미지 경로를 사용
-        val image: Image = if (member.image != null) {
-            Image.getInstance(member.image)
+        // accountType이 WEB이 아니면 profileImgUrl 사용, 그렇지 않으면 image 컬럼 값 사용
+        val image: Image = if (member.accountType != "WEB") {
+            if (member.profileImgUrl != null) {
+                Image.getInstance(member.profileImgUrl)
+            } else {
+                val defaultImageUrl = "https://placehold.co/640x640?text=No+Image"
+                Image.getInstance(defaultImageUrl)
+            }
         } else {
-            val imagePath = "images/default.png"
-            val imageFile = ClassPathResource(imagePath).file
-            Image.getInstance(imageFile.absolutePath)
+            if (member.image != null) {
+                Image.getInstance(member.image)
+            } else {
+                val defaultImageUrl = "https://placehold.co/640x640?text=No+Image"
+                Image.getInstance(defaultImageUrl)
+            }
         }
-
-
 
         // Image를 Cell에 직접 추가
         val imageCell = Cell(image)
