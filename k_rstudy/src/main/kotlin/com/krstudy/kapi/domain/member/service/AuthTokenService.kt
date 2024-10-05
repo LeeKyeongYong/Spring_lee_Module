@@ -21,11 +21,6 @@ class AuthTokenService(
 ) {
     // SecretKey 객체를 생성합니다.
     private val secretKey: SecretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256)
-//    private val secretKey: SecretKey
-//        get() {
-//            val decodedKey = Base64.getUrlDecoder().decode(jwtSecretKey)
-//            return Keys.hmacShaKeyFor(decodedKey)
-//        }
 
     fun genToken(member: Member, expireSeconds: Long): String {
         val claims = Jwts.claims()
