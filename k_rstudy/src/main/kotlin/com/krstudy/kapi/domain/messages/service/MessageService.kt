@@ -9,6 +9,8 @@ import com.krstudy.kapi.domain.messages.repository.MessageRepository
 import org.springframework.stereotype.Service
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 
 @Service
 class MessageService(
@@ -48,4 +50,17 @@ class MessageService(
         return memberService.searchMembersByUsername(searchTerm)
             .map { MemberDto.from(it) }
     }
+
+    suspend fun getCurrentUser(): Member {
+        return memberService.getCurrentUser()
+    }
+
+    suspend fun getMessagesForUser(userId: Long, pageable: Pageable): Page<Message> {
+        return messageRepository.findMessagesByUserId(userId, pageable)
+    }
+
+    suspend fun searchMessages(userId: Long, searchTerm: String, pageable: Pageable): Page<Message> {
+        return messageRepository.searchMessages(userId, searchTerm, pageable)
+    }
+
 }

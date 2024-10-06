@@ -9,7 +9,7 @@ import com.krstudy.kapi.domain.member.dto.MemberDto
 import com.krstudy.kapi.domain.member.service.MemberService
 
 @RestController
-@RequestMapping("/api/messages")
+@RequestMapping("/api/messages", produces = "application/json")
 class ApiMessageController(
     private val messageService: MessageService,
     private val memberService: MemberService

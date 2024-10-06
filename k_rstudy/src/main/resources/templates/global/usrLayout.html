@@ -7,55 +7,53 @@
 
 <body>
 
-<header layout:fragment="header">
+    <header layout:fragment="header">
 
-    <div th:if="${@reqData.login}">
-        <h1>Hello, <span th:text="${@reqData.getMember().username}">User</span>!</h1>
-        <p th:if="${@reqData.getMember() != null and @reqData.getMember().createDate != null}"
-           th:text="${#strings.replace(@reqData.getMember().createDate.toString(), 'T', ' ')}">You are an 등록일.</p>
+        <div th:if="${@reqData.login}">
+            <!--        <h1>Hello, <span th:text="${@reqData.getMember().username}">User</span>!</h1>-->
+            <h1>Hello, <span th:text="${@reqData.getMember() != null ? @reqData.getMember().username : 'Guest'}">User</span>!</h1>
+            <div th:if="${@reqData.getMember() != null}">
+                <img th:if="${@reqData.getMember().accountType != 'WEB'}"
+                     th:src="${#strings.startsWith(@reqData.getMember().profileImgUrl, 'http') ? @reqData.getMember().profileImgUrl : '/member/image/' + @reqData.getMember().id}"
+                     alt="Member Image" />
+                <img th:if="${@reqData.getMember().accountType == 'WEB'}"
+                     th:src="@{/member/image/{id}(id=${@reqData.getMember().id})}"
+                     alt="Default Member Image" />
+            </div>
 
-          <!--
-        LocalDateTime을 Date로 변환 하기위해서 만약 #dates 유틸리티를 계속 사용해야 한다면 Date 객체로 변환 처리해야한다
+            <br/>
+            <h1>번호는<span th:text="${@reqData.getMember() != null ? @reqData.getMember().id : '없엉'}"> 입니다</span>!</h1>
+
             <p th:if="${@reqData.getMember() != null and @reqData.getMember().createDate != null}"
-          th:text="${#dates.format(@reqData.getMember().createDate, 'yyyy-MM-dd HH:mm:ss')}">You are an 등록일.</p>
+               th:text="${#strings.replace(@reqData.getMember().createDate.toString(), 'T', ' ')}">You are an 등록일.</p>
 
-          -->
-        <p th:if="${@reqData.getMember() != null and @reqData.getMember().createDate != null}"
-           th:text="${#temporals.format(@reqData.getMember().createDate, 'yyyy-MM-dd HH:mm:ss')}">
-            등록일
-        </p>
+            <p th:if="${@reqData.getMember() != null and @reqData.getMember().createDate != null}"
+               th:text="${#temporals.format(@reqData.getMember().createDate, 'yyyy-MM-dd HH:mm:ss')}">
+                등록일
+            </p>
 
+            <p th:if="${@reqData.getMember().userid}">You are an userId.</p>
+            <p th:if="${@reqData.getMember().roleType}">You are an RoleType.</p>
+            <p th:if="${@reqData.getMember().useYn}">You are an useYn.</p>
+        </div>
 
-        <p th:if="${@reqData.getMember().userid}">You are an userId.</p>
-        <p th:if="${@reqData.getMember().roleType}">You are an RoleType.</p>
-        <p th:if="${@reqData.getMember().useYn}">You are an useYn.</p>
-    </div>
+        <h1 th:text="|${@appConfig.siteName}|"></h1>
 
-    <h1 th:text="|${@appConfig.siteName}|"></h1>
-
-    <a href="/">홈</a>
-    <a href="/post/list">글 목록</a>
-    <a th:if="${@reqData.admin}" href="/adm">관리자 홈</a>
-    <a th:if="${@reqData.login}" href="/post/write">글 쓰기</a>
-    <a th:if="${@reqData.login}" href="/post/myList">내글 목록</a>
-    <a th:if="${@reqData.login}" href="/member/logout">로그아웃</a>
-    <a th:if="${@reqData.logout}" href="/member/login">로그인</a>
-    <a th:if="${@reqData.logout}" href="/member/join">회원가입</a>
-    <a th:if="${@reqData.login}" href="/calendar">일정관리</a>
-    <a th:if="${@reqData.login}" href="/member/logout">회원 엑셀다운로드</a>
-    <a th:if="${@reqData.login}" href="/member/logout">게시글 엑셀다운로드</a>
-    <br/>
-    <a th:if="${@reqData.login}" href="/calednar">결제하기</a>
-    <a th:if="${@reqData.login}" href="/calednar">크롤링</a>
-    <a th:if="${@reqData.login}" href="/calednar">Qr코드</a>
-    <a th:if="${@reqData.login}" href="/calednar">배치프로그램</a>
-    <a th:if="${@reqData.login}" href="/calednar">채팅</a>
-    <a th:if="${@reqData.login}" href="/calednar">통계</a>
-    <br/>
-
-
-</header>
-
-</body>
-
+        <a href="/">홈</a>
+        <a href="/post/list">글 목록</a>
+        <a th:if="${@reqData.admin}" href="/adm">관리자 홈</a>
+        <a th:if="${@reqData.login}" href="/post/write">글 쓰기</a>
+        <a th:if="${@reqData.login}" href="/post/myList">내글 목록</a>
+        <a th:if="${@reqData.login}" href="/member/logout">로그아웃</a>
+        <a th:if="${@reqData.logout}" href="/member/login">로그인</a>
+        <a th:if="${@reqData.logout}" href="/member/join">회원가입</a>
+        <a th:if="${@reqData.login}" href="/calendar">일정관리</a>
+        <a th:if="${@reqData.login}" href="/excel">엑셀다운로드</a>
+        <a th:if="${@reqData.login}" href="/swagger-ui/index.html">스웨거</a>
+        <a th:if="${@reqData.login}" href="/v1/qrcode/qr">Qr코드1</a>
+        <br/>
+        <a th:if="${@reqData.login}" href="/messages">장외</a>
+        <br/>
+    </header>
+  </body>
 </html>

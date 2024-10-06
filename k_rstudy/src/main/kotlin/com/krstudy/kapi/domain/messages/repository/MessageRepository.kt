@@ -30,4 +30,16 @@ interface MessageRepository : JpaRepository<Message, Long> {
         OR mr.recipientId = :userId
     """)
     fun findMessagesByUserId(userId: Long, pageable: Pageable): Page<Message>
+
+    @Query("""
+        SELECT DISTINCT m 
+        FROM Message m 
+        LEFT JOIN MessageRecipient mr ON mr.message = m 
+        LEFT JOIN Member sender ON m.senderId = sender.id
+        WHERE (m.senderId = :userId OR mr.recipientId = :userId)
+        AND (LOWER(m.content) LIKE LOWER(CONCAT('%', :searchTerm, '%'))
+        OR LOWER(sender.username) LIKE LOWER(CONCAT('%', :searchTerm, '%'))
+        OR LOWER(mr.recipientName) LIKE LOWER(CONCAT('%', :searchTerm, '%')))
+    """)
+    fun searchMessages(userId: Long, searchTerm: String, pageable: Pageable): Page<Message>
 }
