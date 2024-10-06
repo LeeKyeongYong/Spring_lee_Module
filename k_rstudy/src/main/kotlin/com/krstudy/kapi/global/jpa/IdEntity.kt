@@ -12,7 +12,7 @@ abstract class IdEntity : Serializable {
     @Schema(description = "게시물 및 사용자 정보 아이디(공용)", example = "id")
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    open val id: Long = 0
+    open val id: Long = 0L
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

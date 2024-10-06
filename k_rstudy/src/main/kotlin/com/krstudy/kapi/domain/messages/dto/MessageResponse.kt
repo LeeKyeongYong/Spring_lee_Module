@@ -8,7 +8,7 @@ data class MessageResponse(
     val id: Long,
     val content: String,
     val senderId: Long,
-    val recipients: List<RecipientInfo>,
+    val recipients: List<RecipientDto>,
     val sentAt: LocalDateTime,
     val readAt: LocalDateTime?
 ) {
@@ -18,9 +18,11 @@ data class MessageResponse(
                 id = message.id,
                 content = message.content,
                 senderId = message.senderId,
-                recipients = message.recipients.map { RecipientInfo(it.recipientId, it.recipientName, it.readAt) },
-                sentAt = message.sentAt,
-                readAt = message.readAt
+                recipients = message.recipients.map {
+                    RecipientDto(it.recipientId, it.recipientName, it.readAt)
+                },
+                sentAt = message.getCreateDate() ?: LocalDateTime.now(),
+                readAt = message.getModifyDate()
             )
         }
     }

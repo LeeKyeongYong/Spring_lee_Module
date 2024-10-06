@@ -262,4 +262,15 @@ class MemberService(
         memberRepository.save(member)
     }
 
+    fun searchMembersByUsername(searchTerm: String): List<Member> {
+        return memberRepository.findByUsernameContaining(searchTerm)
+    }
+
+    fun getCurrentUser(): Member {
+        // Implement the logic to get the current authenticated user
+        // This is just a placeholder implementation
+        return memberRepository.findAll().firstOrNull()
+            ?: throw IllegalStateException("No users found in the system")
+    }
+
 }

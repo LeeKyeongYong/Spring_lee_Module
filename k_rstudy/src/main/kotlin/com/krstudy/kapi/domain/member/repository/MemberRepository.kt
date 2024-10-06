@@ -9,5 +9,5 @@ interface MemberRepository : JpaRepository<Member, Long> {
     fun findByUsername(username: String): Member?
     fun findByUserid(userid: String): Member?
     fun findByJwtToken(jwtToken: String): Member? // JWT 토큰으로 멤버 조회
-
+    fun findByUsernameContaining(username: String): List<Member>
 }

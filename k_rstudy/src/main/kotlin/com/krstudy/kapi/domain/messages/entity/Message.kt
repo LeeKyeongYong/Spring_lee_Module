@@ -1,26 +1,22 @@
 package com.krstudy.kapi.domain.messages.entity
 
-
 import com.krstudy.kapi.global.jpa.BaseEntity
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
-data class Message(
-    @Column(nullable = false)
-    val senderId: Long,
-
+class Message(
     @Column(nullable = false)
     val content: String,
 
-    @OneToMany(mappedBy = "message", cascade = [CascadeType.ALL])
+    val senderId: Long,
+
+    val sentAt: LocalDateTime = LocalDateTime.now(),
+
+    @OneToMany(mappedBy = "message", cascade = [CascadeType.ALL], orphanRemoval = true)
     val recipients: MutableList<MessageRecipient> = mutableListOf()
 ) : BaseEntity() {
-    @Column(name = "created_at")
-    lateinit var createdAt: LocalDateTime
-
-    @PrePersist
-    fun prePersist() {
-        createdAt = LocalDateTime.now()
+    override fun toString(): String {
+        return "Message(id=$id, content='$content', senderId=$senderId, sentAt=$sentAt, recipients=$recipients)"
     }
 }
