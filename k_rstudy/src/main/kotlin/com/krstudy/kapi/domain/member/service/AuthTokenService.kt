@@ -12,7 +12,7 @@ import javax.crypto.SecretKey
 import java.util.Base64
 
 @Service
-class AuthTokenService(
+class AuthTokenService (
     @Value("\${custom.jwt.secretKey}")
     private val jwtSecretKey: String,
 
@@ -28,16 +28,13 @@ class AuthTokenService(
             .add("username", member.username)
             .add("authorities", member.getAuthoritiesAsStringList())
             .build()
-
         val issuedAt = Date()
         val expiration = Date(issuedAt.time + 1000 * expireSeconds)
-
-        // SecretKey를 사용하여 JWT를 서명합니다.
         return Jwts.builder()
             .setClaims(claims)
             .setIssuedAt(issuedAt)
             .setExpiration(expiration)
-            .signWith(secretKey, SignatureAlgorithm.HS256)  // 수정된 부분
+            .signWith(secretKey)
             .compact()
     }
 

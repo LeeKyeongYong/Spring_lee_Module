@@ -61,4 +61,9 @@ class GlobalExceptionHandler(private val rq: ReqData){
         return ResponseEntity(ex.rsData, status)
     }
 
+    // 로깅 시 민감한 정보 마스킹
+    private fun maskSensitiveInfo(info: String): String {
+        return info.take(3) + "*".repeat(info.length - 3)
+    }
+
 }

@@ -163,6 +163,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.seleniumhq.selenium:selenium-java:4.10.0")
 
+    implementation("jakarta.validation:jakarta.validation-api:3.0.2")
+
 
 }
 
