@@ -16,7 +16,7 @@ import java.io.StringWriter
 
 @ControllerAdvice
 @RequiredArgsConstructor
-class GlobalExceptionHandler(private val rq: ReqData){
+class GlobalExceptionHandler (private val rq: ReqData){
 
     @ExceptionHandler(CustomException::class)
     fun handleCustomException(ex: CustomException): ResponseEntity<Map<String, Any>> {

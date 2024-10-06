@@ -35,6 +35,8 @@ spring:
     schema: classpath:db/migration/k_db.sql  # 스키마 파일 경로
     initialization-mode: always     # 초기화 모드 설정
   jpa:
+    properties.hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
+    show-sql: true
     hibernate:
       ddl-auto: create-drop  # 기존 테이블 유지
     open-in-view: true
@@ -63,6 +65,7 @@ logging:
     org.hibernate.orm.jdbc.extract: INFO # Hibernate JDBC 추출 로그 레벨
     org.springframework.transaction.interceptor: DEBUG # 트랜잭션 인터셉터 로그 레벨
     org.hibernate.type.descriptor.sql.BasicBinder: DEBUG # Hibernate 기본 바인더 로그 레벨
+    org.springframework.web: DEBUG
 
 custom:
   dev:

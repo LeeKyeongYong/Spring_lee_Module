@@ -122,6 +122,7 @@ dependencies {
 
     //qrcode
     implementation ("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.15.2")
     implementation ("org.jetbrains.kotlin:kotlin-reflect")
     implementation("com.google.zxing:core:3.5.0")
     implementation("com.google.zxing:javase:3.5.0")
