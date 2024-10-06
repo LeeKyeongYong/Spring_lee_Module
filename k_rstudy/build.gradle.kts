@@ -164,6 +164,7 @@ dependencies {
     implementation("org.seleniumhq.selenium:selenium-java:4.10.0")
 
     implementation("jakarta.validation:jakarta.validation-api:3.0.2")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.5")
 
 
 }
