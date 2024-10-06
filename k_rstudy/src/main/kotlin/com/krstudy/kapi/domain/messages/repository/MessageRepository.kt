@@ -9,11 +9,25 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface MessageRepository : JpaRepository<Message, Long> {
-    fun findByRecipientsRecipientIdOrderByCreatedAtDesc(recipientId: Long, pageable: Pageable): Page<Message>
+    // createDate는 BaseEntity에서 상속받은 필드이므로 이를 사용
+    fun findByRecipientsRecipientIdOrderByCreateDateDesc(recipientId: Long, pageable: Pageable): Page<Message>
 
-    @Query("SELECT COUNT(m) FROM Message m JOIN m.recipients r WHERE r.recipientId = :recipientId AND r.readAt IS NULL")
+    // MessageRecipient의 readAt 필드를 참조하도록 수정
+    @Query("""
+        SELECT COUNT(DISTINCT m) 
+        FROM Message m 
+        JOIN MessageRecipient mr ON mr.message = m 
+        WHERE mr.recipientId = :recipientId 
+        AND mr.readAt IS NULL
+    """)
     fun countUnreadMessagesByRecipientId(recipientId: Long): Long
 
-    @Query("SELECT m FROM Message m WHERE m.senderId = :userId OR :userId IN (SELECT r.recipientId FROM m.recipients r)")
+    @Query("""
+        SELECT DISTINCT m 
+        FROM Message m 
+        LEFT JOIN MessageRecipient mr ON mr.message = m 
+        WHERE m.senderId = :userId 
+        OR mr.recipientId = :userId
+    """)
     fun findMessagesByUserId(userId: Long, pageable: Pageable): Page<Message>
 }

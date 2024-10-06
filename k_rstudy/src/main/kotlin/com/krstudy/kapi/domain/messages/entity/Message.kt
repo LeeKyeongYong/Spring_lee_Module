@@ -16,6 +16,7 @@ class Message(
     @OneToMany(mappedBy = "message", cascade = [CascadeType.ALL], orphanRemoval = true)
     val recipients: MutableList<MessageRecipient> = mutableListOf()
 ) : BaseEntity() {
+    // BaseEntity에서 상속받은 createDate를 사용
     override fun toString(): String {
         return "Message(id=$id, content='$content', senderId=$senderId, sentAt=$sentAt, recipients=$recipients)"
     }
