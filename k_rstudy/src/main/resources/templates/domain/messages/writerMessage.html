@@ -317,6 +317,13 @@
             margin-top: 20px;
         }
 
+        .no-messages {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+
     </style>
     <script>
         let selectedRecipients = new Set();
@@ -432,28 +439,28 @@
 
         // 메시지 데이터 예시 (실제로는 서버에서 가져와야 함)
         const messageData = {
-            1: {
-                id: 1,
-                sender: "홍길동",
-                time: "10:30",
-                preview: "안녕하세요. 프로젝트 관련해서 문의드립니다.",
-                content: `안녕하세요. 프로젝트 관련해서 문의드립니다.
-
-프로젝트 일정에 대해 조율이 필요할 것 같습니다.
-가능하시다면 미팅 시간을 잡았으면 합니다.
-
-감사합니다.`,
-                isUnread: true
-            },
-            // 다른 메시지 데이터...
-            2: {
-                id: 1,
-                sender: "이순신",
-                time: "10:30",
-                preview: "테스트입니다.",
-                content: `구아봐구와봐`,
-                isUnread: false
-            }
+//             1: {
+//                 id: 1,
+//                 sender: "홍길동",
+//                 time: "10:30",
+//                 preview: "안녕하세요. 프로젝트 관련해서 문의드립니다.",
+//                 content: `안녕하세요. 프로젝트 관련해서 문의드립니다.
+//
+// 프로젝트 일정에 대해 조율이 필요할 것 같습니다.
+// 가능하시다면 미팅 시간을 잡았으면 합니다.
+//
+// 감사합니다.`,
+//                 isUnread: true
+//             },
+//             // 다른 메시지 데이터...
+//             2: {
+//                 id: 2,
+//                 sender: "이순신",
+//                 time: "10:30",
+//                 preview: "테스트입니다.",
+//                 content: `구아봐구와봐`,
+//                 isUnread: false
+//             }
 
         };
 
@@ -473,7 +480,7 @@
             updateUnreadCount();
 
             // 초기 수신자 목록 표시 (비어있음)
-            updateRecipientDisplay();
+            //updateRecipientDisplay();
 
             // 이벤트 위임을 사용하여 수신자 태그 삭제 처리
             document.querySelector('.recipient-container').addEventListener('click', function(e) {
@@ -492,20 +499,29 @@
             const messageList = document.querySelector('.message-list');
             messageList.innerHTML = '';
 
-            for (const [id, message] of Object.entries(messageData)) {
-                const messageItem = document.createElement('div');
-                messageItem.className = `message-item ${message.isUnread ? 'unread' : ''}`;
-                messageItem.setAttribute('data-message-id', id);
-                messageItem.innerHTML = `
-                    <div class="message-item-header">
-                        <span class="sender-name">${message.sender}</span>
-                        <span class="message-time">${message.time}</span>
-                    </div>
-                    <div class="message-preview">${message.preview}</div>
-                `;
-                messageItem.addEventListener('click', () => handleMessageClick(id));
-                messageList.appendChild(messageItem);
+            if (Object.keys(messageData).length === 0) {
+                // 메시지가 없을 때
+                const noMessageElement = document.createElement('div');
+                noMessageElement.className = 'no-messages';
+                noMessageElement.textContent = '받은 메시지가 존재하지 않습니다.';
+                messageList.appendChild(noMessageElement);
+            } else {
+                for (const [id, message] of Object.entries(messageData)) {
+                    const messageItem = document.createElement('div');
+                    messageItem.className = `message-item ${message.isUnread ? 'unread' : ''}`;
+                    messageItem.setAttribute('data-message-id', id);
+                    messageItem.innerHTML = `
+                        <div class="message-item-header">
+                            <span class="sender-name">${message.sender}</span>
+                            <span class="message-time">${message.time}</span>
+                        </div>
+                        <div class="message-preview">${message.preview}</div>
+                    `;
+                    messageItem.addEventListener('click', () => handleMessageClick(id));
+                    messageList.appendChild(messageItem);
+                }
             }
+            updateUnreadCount();
         }
 
         function handleMessageClick(messageId) {
@@ -532,6 +548,7 @@
 
         function updateUnreadCount() {
             const unreadCountElement = document.querySelector('.unread-count');
+            unreadCount = Object.values(messageData).filter(message => message.isUnread).length;
             unreadCountElement.textContent = unreadCount;
             unreadCountElement.style.display = unreadCount > 0 ? 'inline-block' : 'none';
         }
