@@ -1,5 +1,4 @@
 <html layout:decorate="~{global/msgLayout}">
-
 <head>
     <title>메세지 리스트</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -37,25 +36,49 @@
             color: #888;
             font-size: 0.85em;
         }
+        .search-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .search-type {
+            width: 150px;
+        }
+        .btn-warning {
+            color: #000;
+        }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            document.querySelector('select[name="searchType"]').value = 'all';
+            // 폼 제출
+            document.getElementById('searchForm').submit();
+        }
+    </script>
 </head>
 
 <body>
-
 <div layout:fragment="content">
     <div class="container message-container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>메시지 목록</h2>
-            <button class="btn btn-primary" onclick="location.href='/messages/new'">새 메시지 작성</button>
+            <h2>보낸 메세지 함</h2>
         </div>
 
         <!-- 검색 폼 -->
         <div class="row mb-4">
-            <div class="col-md-6">
-                <form th:action="@{/messages}" method="get" class="d-flex">
-                    <input type="text" name="search" class="form-control me-2"
-                           placeholder="메시지 검색..." th:value="${param.search}">
+            <div class="col-12">
+                <form id="searchForm" th:action="@{/messages}" method="get" class="search-container">
+                    <select name="searchType" class="form-select search-type" th:value="${param.searchType}">
+                        <option value="all">전체검색</option>
+                        <option value="name">이름</option>
+                        <option value="team">팀</option>
+                        <option value="department">부서</option>
+                    </select>
+                    <input type="text" id="searchInput" name="search" class="form-control" placeholder="메시지 검색..." th:value="${param.search}">
                     <button type="submit" class="btn btn-outline-primary">검색</button>
+                    <button type="button" class="btn btn-warning" onclick="resetSearch()">초기화</button>
                 </form>
             </div>
         </div>
@@ -65,7 +88,7 @@
             메시지가 없습니다.
         </div>
 
-        <div th:each="message : ${messages}" class="message-card">
+        <div th:if="${!#lists.isEmpty(messages)}" th:each="message : ${messages}" class="message-card">
             <div class="message-header">
                 <div>
                     <strong th:text="${message.senderName}">발신자</strong>
@@ -92,26 +115,20 @@
         </div>
 
         <!-- 페이징 -->
-        <nav th:if="${totalPages > 1}" aria-label="Page navigation" class="mt-4">
+        <nav aria-label="Page navigation" class="mt-4">
             <ul class="pagination justify-content-center">
-                <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
-                    <a class="page-link" th:href="@{/messages(page=${currentPage - 1})}">이전</a>
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">이전</a>
                 </li>
-
-                <li class="page-item" th:each="pageNum : ${#numbers.sequence(1, totalPages)}"
-                    th:classappend="${pageNum == currentPage} ? 'active'">
-                    <a class="page-link" th:href="@{/messages(page=${pageNum})}"
-                       th:text="${pageNum}">1</a>
+                <li class="page-item active">
+                    <a class="page-link" href="#">1</a>
                 </li>
-
-                <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
-                    <a class="page-link" th:href="@{/messages(page=${currentPage + 1})}">다음</a>
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">다음</a>
                 </li>
             </ul>
         </nav>
     </div>
-    <a th:href="@{/messages/writer}">메세지 작성</a>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

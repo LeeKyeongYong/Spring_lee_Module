@@ -13,17 +13,16 @@ import org.springframework.http.MediaType
 @Controller
 @RequestMapping("/messages")
 class MessageController(
-    private val messageService: MessageService,
-    private val memberService: MemberService
+    private val messageService: MessageService
 ) {
     @GetMapping(produces = [MediaType.TEXT_HTML_VALUE])
-    suspend fun showMessageList(
+    suspend fun showMessageList(// 보낸 메세지함.
         @RequestParam(defaultValue = "1") page: Int,
         @RequestParam(defaultValue = "10") size: Int,
         @RequestParam(required = false) search: String?
     ): String {
         val pageable = PageRequest.of(page - 1, size, Sort.by("sentAt").descending())
-        val currentUser = memberService.getCurrentUser()
+        val currentUser = messageService.getCurrentUser()
 
         val messagesPage = if (search.isNullOrBlank()) {
             messageService.getMessagesForUser(currentUser.id, pageable)
@@ -42,16 +41,21 @@ class MessageController(
     }
 
 //    @GetMapping("/new", produces = [MediaType.TEXT_HTML_VALUE])
- @GetMapping("/new")
-    suspend fun showNewMessageForm(): String {
-        return "domain/messages/newMessage"
+ @GetMapping("/writerForm")
+    suspend fun showNewMessageForm(): String {//메세지 작성하기
+        return "domain/messages/writerMessage"
     }
 
-    @PostMapping("/new")
-    suspend fun sendNewMessage(@ModelAttribute messageRequest: MessageRequest): String {
-        val currentUser = memberService.getCurrentUser()
-        val message = messageRequest.toMessage(currentUser)
-        messageService.sendMessage(message)
-        return "redirect:/messages"
-    }
+    //메세지 상세보기
+
+    //메세지 리스트
+
+
+//    @PostMapping("/save")
+//    suspend fun sendNewMessage(@ModelAttribute messageRequest: MessageRequest): String {//메세지 읽기
+//        val currentUser = memberService.getCurrentUser()
+//        val message = messageRequest.toMessage(currentUser)
+//        messageService.sendMessage(message)
+//        return "redirect:/messages"
+//    }
 }
