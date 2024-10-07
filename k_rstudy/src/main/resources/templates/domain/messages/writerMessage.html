@@ -281,9 +281,48 @@
                 grid-template-columns: 1fr; /* 모바일 환경에서 열을 하나로 변경 */
             }
         }
+
+        /* 메시지 항목 선택 상태 스타일 */
+        .message-item.selected {
+            background-color: #ffffff;
+            border-left: 3px solid #1976d2;
+        }
+
+        /* 메시지 상세 내용 스타일 */
+        .message-detail {
+            padding: 20px;
+        }
+
+        .message-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .message-detail-header h4 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .message-body {
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .pagination {
+            justify-content: center !important; /* 페이징 가운데 정렬 */
+            margin-top: 20px;
+        }
+
     </style>
     <script>
         let selectedRecipients = new Set();
+
+        // 전역 변수로 현재 읽지 않은 메시지 수를 관리
+        let unreadCount = 3;
 
         function openRecipientModal() {
             document.getElementById('recipientModal').style.display = 'block';
@@ -296,11 +335,11 @@
 
         function searchRecipients() {
             const searchValue = document.getElementById('searchInput').value;
-            // 여기서 실제 검색 API를 호출해야 합니다
-            // 예시 데이터로 대체
+            // 예시 데이터 (실제로는 서버에서 가져와야 함)
             const results = [
                 { id: 1, name: '홍길동' },
-                { id: 2, name: '김철수' }
+                { id: 2, name: '김철수' },
+                { id: 3, name: '이영희' }
             ];
 
             const tbody = document.getElementById('recipientList');
@@ -315,41 +354,58 @@
 
                 results.forEach((user, index) => {
                     const row = `
-                        <tr>
-                            <td>${index + 1}</td>
-                            <td>${user.name}</td>
-                            <td><button class="btn btn-sm btn-primary" onclick="selectRecipient('${user.id}', '${user.name}')">선택</button></td>
-                        </tr>
-                    `;
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${user.name}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary"
+                            onclick="selectRecipient('${user.id}', '${user.name}')">
+                            선택
+                        </button>
+                    </td>
+                </tr>
+            `;
                     tbody.insertAdjacentHTML('beforeend', row);
                 });
             }
         }
 
         function selectRecipient(id, name) {
+            // 새로운 수신자를 Set에 추가
             selectedRecipients.add({ id, name });
+
+            // 화면 업데이트
             updateRecipientDisplay();
+
+            // 모달 닫기
             closeRecipientModal();
         }
 
         function removeRecipient(id) {
+            // Set에서 해당 수신자 제거
             selectedRecipients.delete([...selectedRecipients].find(r => r.id === id));
+
+            // 화면 업데이트
             updateRecipientDisplay();
         }
 
         function updateRecipientDisplay() {
-            const container = document.getElementById('recipient-container');
+            // recipient-container 요소 가져오기
+            const container = document.querySelector('.recipient-container');
+
+            // 컨테이너 내용 초기화
             container.innerHTML = '';
+
+            // 선택된 각 수신자에 대해 태그 생성
             selectedRecipients.forEach(recipient => {
-                const tag = `
-                    <span class="recipient-tag">
-                        ${recipient.name}
-                        <span class="remove" onclick="removeRecipient('${recipient.id}')">&times;</span>
-                    </span>
-                `;
-                container.insertAdjacentHTML('beforeend', tag);
+                const tagHtml = `
+            <div class="recipient-tag">
+                ${recipient.name}
+                <span class="remove" onclick="removeRecipient('${recipient.id}')">×</span>
+            </div>
+        `;
+                container.insertAdjacentHTML('beforeend', tagHtml);
             });
-            document.getElementById('compose-header').value = JSON.stringify([...selectedRecipients]);
         }
 
         function validateAndSubmit() {
@@ -372,8 +428,131 @@
             document.getElementById('messageForm').submit();
         }
 
-        // 검색어 입력 시 자동 검색
-        document.getElementById('searchInput').addEventListener('input', searchRecipients);
+
+
+        // 메시지 데이터 예시 (실제로는 서버에서 가져와야 함)
+        const messageData = {
+            1: {
+                id: 1,
+                sender: "홍길동",
+                time: "10:30",
+                preview: "안녕하세요. 프로젝트 관련해서 문의드립니다.",
+                content: `안녕하세요. 프로젝트 관련해서 문의드립니다.
+
+프로젝트 일정에 대해 조율이 필요할 것 같습니다.
+가능하시다면 미팅 시간을 잡았으면 합니다.
+
+감사합니다.`,
+                isUnread: true
+            },
+            // 다른 메시지 데이터...
+            2: {
+                id: 1,
+                sender: "이순신",
+                time: "10:30",
+                preview: "테스트입니다.",
+                content: `구아봐구와봐`,
+                isUnread: false
+            }
+
+        };
+
+        // DOM이 로드된 후 이벤트 리스너 설정
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // searchInput 요소가 있을 때만 이벤트 리스너 추가
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', searchRecipients);
+            }
+
+            // 초기 메시지 목록 표시
+            displayMessageList();
+
+            // 초기 읽지 않은 메시지 수 표시
+            updateUnreadCount();
+
+            // 초기 수신자 목록 표시 (비어있음)
+            updateRecipientDisplay();
+
+            // 이벤트 위임을 사용하여 수신자 태그 삭제 처리
+            document.querySelector('.recipient-container').addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove')) {
+                    const recipientTag = e.target.closest('.recipient-tag');
+                    if (recipientTag) {
+                        const recipientId = recipientTag.dataset.id;
+                        removeRecipient(recipientId);
+                    }
+                }
+            });
+
+        });
+
+        function displayMessageList() {
+            const messageList = document.querySelector('.message-list');
+            messageList.innerHTML = '';
+
+            for (const [id, message] of Object.entries(messageData)) {
+                const messageItem = document.createElement('div');
+                messageItem.className = `message-item ${message.isUnread ? 'unread' : ''}`;
+                messageItem.setAttribute('data-message-id', id);
+                messageItem.innerHTML = `
+                    <div class="message-item-header">
+                        <span class="sender-name">${message.sender}</span>
+                        <span class="message-time">${message.time}</span>
+                    </div>
+                    <div class="message-preview">${message.preview}</div>
+                `;
+                messageItem.addEventListener('click', () => handleMessageClick(id));
+                messageList.appendChild(messageItem);
+            }
+        }
+
+        function handleMessageClick(messageId) {
+            const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
+            const message = messageData[messageId];
+
+            if (message.isUnread) {
+                message.isUnread = false;
+                messageItem.classList.remove('unread');
+                unreadCount--;
+                updateUnreadCount();
+            }
+
+            // 모든 메시지 항목의 선택 상태 제거
+            document.querySelectorAll('.message-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+
+            // 클릭된 메시지 항목 선택 상태로 변경
+            messageItem.classList.add('selected');
+
+            showMessageDetail(messageId);
+        }
+
+        function updateUnreadCount() {
+            const unreadCountElement = document.querySelector('.unread-count');
+            unreadCountElement.textContent = unreadCount;
+            unreadCountElement.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+        }
+
+        function showMessageDetail(messageId) {
+            const message = messageData[messageId];
+            const detailContent = document.querySelector('.message-detail-content');
+
+            // 새 메시지 작성 폼을 메시지 상세 내용으로 교체
+            detailContent.innerHTML = `
+        <div class="message-detail">
+            <div class="message-detail-header">
+                <h4>${message.sender}</h4>
+                <span class="message-time">${message.time}</span>
+            </div>
+            <div class="message-body">
+                <pre style="white-space: pre-wrap; font-family: inherit;">${message.content}</pre>
+            </div>
+        </div>
+    `;
+        }
     </script>
 </head>
 
