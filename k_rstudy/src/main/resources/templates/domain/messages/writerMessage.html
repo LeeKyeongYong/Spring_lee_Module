@@ -328,6 +328,9 @@
     <script>
         let selectedRecipients = new Set();
 
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
         // 전역 변수로 현재 읽지 않은 메시지 수를 관리
         let unreadCount = 3;
 
@@ -343,41 +346,79 @@
             document.getElementById('recipientModal').style.display = 'none';
         }
 
-        function searchRecipients() {
+        async function searchRecipients() {
             const searchValue = document.getElementById('searchInput').value;
-            // 예시 데이터 (실제로는 서버에서 가져와야 함)
-            const results = [
-                { id: 1, name: '홍길동' },
-                { id: 2, name: '김철수' },
-                { id: 3, name: '이영희' }
-            ];
-
             const tbody = document.getElementById('recipientList');
-            tbody.innerHTML = '';
 
-            if (results.length === 0) {
+            try {
+                const response = await fetch(`/api/messages/search-users?searchUsername=${encodeURIComponent(searchValue)}`, {
+                //const response = await fetch(`/search-users?searchUsername=${encodeURIComponent(searchValue)}&page=${currentPage}&size=${itemsPerPage}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+
+                // Check if data and data.content exist before accessing them
+                const users = data && data.content ? data.content : [];
+                const totalPages = data && data.totalPages ? data.totalPages : 1;
+
+                tbody.innerHTML = '';
+
+                if (users.length === 0) {
+                    document.querySelector('.no-results').style.display = 'block';
+                    document.querySelector('.pagination').style.display = 'none';
+                } else {
+                    document.querySelector('.no-results').style.display = 'none';
+                    document.querySelector('.pagination').style.display = 'flex';
+
+                    users.forEach((user, index) => {
+                        const row = `
+                    <tr>
+                        <td>${(currentPage - 1) * itemsPerPage + index + 1}</td>
+                        <td>${user.name}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary"
+                                onclick="selectRecipient('${user.id}', '${user.name}', '${user.userid}')">
+                                선택
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                        tbody.insertAdjacentHTML('beforeend', row);
+                    });
+
+                    updatePagination(totalPages);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.querySelector('.no-results').textContent = '사용자 검색 중 오류가 발생했습니다.';
                 document.querySelector('.no-results').style.display = 'block';
                 document.querySelector('.pagination').style.display = 'none';
-            } else {
-                document.querySelector('.no-results').style.display = 'none';
-                document.querySelector('.pagination').style.display = 'flex';
-
-                results.forEach((user, index) => {
-                    const row = `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${user.name}</td>
-                    <td>
-                        <button class="btn btn-sm btn-primary"
-                            onclick="selectRecipient('${user.id}', '${user.name}')">
-                            선택
-                        </button>
-                    </td>
-                </tr>
-            `;
-                    tbody.insertAdjacentHTML('beforeend', row);
-                });
             }
+        }
+
+        function updatePagination(totalPages) {
+            const paginationElement = document.querySelector('.pagination');
+            paginationElement.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const li = document.createElement('li');
+                li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                li.innerHTML = `<a class="page-link" href="#" onclick="changePage(${i})">${i}</a>`;
+                paginationElement.appendChild(li);
+            }
+        }
+
+        async function changePage(page) {
+            currentPage = page;
+            await searchRecipients();
         }
 
         function selectRecipient(id, name) {
@@ -400,17 +441,13 @@
         }
 
         function updateRecipientDisplay() {
-            // recipient-container 요소 가져오기
             const container = document.querySelector('.recipient-container');
-
-            // 컨테이너 내용 초기화
             container.innerHTML = '';
 
-            // 선택된 각 수신자에 대해 태그 생성
             selectedRecipients.forEach(recipient => {
                 const tagHtml = `
-            <div class="recipient-tag">
-                ${recipient.name}
+            <div class="recipient-tag" data-id="${recipient.id}">
+                ${recipient.name} (${recipient.userid})
                 <span class="remove" onclick="removeRecipient('${recipient.id}')">×</span>
             </div>
         `;
@@ -493,7 +530,7 @@
             // searchInput 요소가 있을 때만 이벤트 리스너 추가
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
-                searchInput.addEventListener('input', searchRecipients);
+                searchInput.addEventListener('input', debounce(searchRecipients, 300));
             }
 
             // 초기 메시지 목록 표시
@@ -516,7 +553,25 @@
                 }
             });
 
+            // 폼 제출 이벤트 처리
+            document.getElementById('messageForm').addEventListener('submit', function(e) {
+                e.preventDefault(); // 기본 제출 동작 방지
+                if (validateAndSubmit()) {
+                    // 여기에 메시지 전송 로직 구현
+                    console.log('메시지 전송 성공');
+                    // 성공 후 필요한 처리 (예: 폼 리셋, 성공 메시지 표시 등)
+                }
+            });
+
         });
+
+        function debounce(func, delay) {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
 
         function displayMessageList() {
             const messageList = document.querySelector('.message-list');

@@ -46,9 +46,17 @@ class MessageService(
         return messageRepository.countUnreadMessagesByRecipientId(memberId)
     }
 
-    suspend fun searchUsers(searchTerm: String): List<MemberDto> {
-        return memberService.searchMembersByUsername(searchTerm)
-            .map { MemberDto.from(it) }
+    suspend fun searchUsers(searchUsername: String): List<MemberDto> {
+        val members = memberService.searchMembersByUsername(searchUsername)
+        return if (members.isNotEmpty()) {
+            members.map { MemberDto.from(it) }
+        } else {
+            emptyList() // 검색 결과 없으면 빈 리스트 반환
+        }
+    }
+
+    suspend fun getAllUsers(): List<MemberDto> {
+        return memberService.getAllMembers().map { MemberDto.from(it) }
     }
 
     suspend fun getCurrentUser(): Member {

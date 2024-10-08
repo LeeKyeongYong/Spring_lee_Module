@@ -262,8 +262,9 @@ class MemberService(
         memberRepository.save(member)
     }
 
-    fun searchMembersByUsername(searchTerm: String): List<Member> {
-        return memberRepository.findByUsernameContaining(searchTerm)
+    @Transactional(readOnly = true)
+    fun searchMembersByUsername(searchUserName: String): List<Member> {
+        return memberRepository.findByUsernameContaining(searchUserName) // 키워드를 포함하는 사용자 조회
     }
 
     fun getCurrentUser(): Member {

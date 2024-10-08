@@ -51,9 +51,21 @@ class ApiMessageController(
     }
 
     @GetMapping("/search-users")
-    suspend fun searchUsers(@RequestParam searchTerm: String): ResponseEntity<List<MemberDto>> {
+    suspend fun searchUsers(@RequestParam(required = false, defaultValue = "") searchUsername: String): ResponseEntity<List<MemberDto>> {
+        val users = if (searchUsername.isNullOrBlank()) {
+            messageService.getAllUsers()  // 검색어 없으면 전체 유저 반환
+
+        } else {
+            messageService.searchUsers(searchUsername) // 검색어 있을 때 해당 유저 검색
+        }
         return ResponseEntity.ok()
             .contentType(MediaType.APPLICATION_JSON)
-            .body(messageService.searchUsers(searchTerm))
+            .body(users)
     }
+//    @GetMapping("/search-users")
+//    suspend fun searchUsers(@RequestParam searchTerm: String): ResponseEntity<List<MemberDto>> {
+//        return ResponseEntity.ok()
+//            .contentType(MediaType.APPLICATION_JSON)
+//            .body(messageService.searchUsers(searchTerm))
+//    }
 }
