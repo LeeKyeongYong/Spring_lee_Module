@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.reactive.result.view.Rendering
 import org.springframework.http.MediaType
+import org.springframework.web.reactive.result.view.RedirectView
 
 @Controller
 @RequestMapping("/messages")
@@ -40,22 +41,15 @@ class MessageController(
         return "domain/messages/messagesList"
     }
 
-//    @GetMapping("/new", produces = [MediaType.TEXT_HTML_VALUE])
  @GetMapping("/writerForm")
     suspend fun showNewMessageForm(): String {//메세지 작성하기
         return "domain/messages/writerMessage"
     }
 
-    //메세지 상세보기
-
-    //메세지 리스트
-
-
-//    @PostMapping("/save")
-//    suspend fun sendNewMessage(@ModelAttribute messageRequest: MessageRequest): String {//메세지 읽기
-//        val currentUser = memberService.getCurrentUser()
-//        val message = messageRequest.toMessage(currentUser)
-//        messageService.sendMessage(message)
-//        return "redirect:/messages"
-//    }
+    //메세지  저장하기 임시페이지
+    @RequestMapping("/save",method = [RequestMethod.GET, RequestMethod.POST])
+    suspend fun sendNewMessage() : String   {//메세지 읽기
+        println("MessageRequest: 들어오다")
+        return "redirect:/messages"
+    }
 }

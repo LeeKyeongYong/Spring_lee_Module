@@ -37,7 +37,7 @@
         }
 
         .message-list-header {
-            padding: 20px;
+            padding: 15px;
             border-bottom: 1px solid #e0e0e0; /* 경계선 */
             display: flex;
             justify-content: space-between;
@@ -331,7 +331,10 @@
         // 전역 변수로 현재 읽지 않은 메시지 수를 관리
         let unreadCount = 3;
 
-        function openRecipientModal() {
+        function openRecipientModal(event) {
+            if (event) {
+                event.preventDefault();
+            }
             document.getElementById('recipientModal').style.display = 'block';
             searchRecipients();
         }
@@ -418,24 +421,44 @@
         function validateAndSubmit() {
             if (selectedRecipients.size === 0) {
                 alert('받는 사람을 선택해주세요.');
-                return;
+                return false;
             }
-            if (!document.getElementById('department').value) {
-                alert('소속부서를 입력해주세요.');
-                return;
-            }
-            if (!document.getElementById('team').value) {
-                alert('팀을 입력해주세요.');
-                return;
-            }
-            if (!document.getElementById('content').value.trim()) {
+
+            const contentElement = document.querySelector('.message-input');
+            if (!contentElement || !contentElement.value.trim()) {
                 alert('내용을 입력해주세요.');
-                return;
+                return false;
             }
-            document.getElementById('messageForm').submit();
+            document.getElementById('recipientsInput').value = JSON.stringify(Array.from(selectedRecipients));
+            return true;
+
         }
+            /*
+            const messageData = {
+        recipients: Array.from(selectedRecipients),
+        content: contentElement.value
+    };
 
-
+    fetch('http://localhost:8090/messages', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(messageData)
+    })
+    .then(response => {
+        if (response.ok) {
+            // 성공적으로 전송되면 지정된 URL로 이동
+            window.location.href = 'http://localhost:8090/messages';
+        } else {
+            throw new Error('메시지 전송에 실패했습니다.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('메시지 전송에 실패했습니다.');
+    });
+             */
 
         // 메시지 데이터 예시 (실제로는 서버에서 가져와야 함)
         const messageData = {
@@ -579,7 +602,7 @@
             <!-- 좌측 메시지 목록 패널 -->
             <div class="message-list-panel">
                 <div class="message-list-header">
-                    <h2>메시지</h2>
+                    <h2>받은 메세지함.</h2>
                     <span class="unread-count">3</span>
                 </div>
                 <div class="message-list">
@@ -606,23 +629,30 @@
             <!-- 우측 메시지 상세 패널 -->
             <div class="message-detail-panel">
                 <div class="message-detail-header">
-                    <h2>새 메시지 작성</h2>
+                    <h2>메세지 상세보기</h2>
                 </div>
                 <div class="message-detail-content">
                     <!-- 선택된 메시지 내용이 여기에 표시됩니다 -->
                 </div>
-                <div class="message-compose">
-                    <div class="compose-header">
-                        <div class="recipient-container">
-                            <div class="recipient-tag">
-                                홍길동 <span class="remove">×</span>
+
+                <form id="messageForm" method="POST" action="/messages/save" onsubmit="return validateAndSubmit()">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <input type="hidden" id="recipientsInput" name="recipients" />
+                    <div class="message-compose">
+                        <div class="compose-header">
+                            <div class="recipient-container">
+                                <!--
+                                <div class="recipient-tag">
+                                    홍길동 <span class="remove">×</span>
+                                </div>
+                                -->
                             </div>
+                            <button class="search-recipient-btn" onclick="openRecipientModal(event)">받는 사람 검색</button>
                         </div>
-                        <button class="search-recipient-btn" onclick="openRecipientModal()">받는 사람 검색</button>
+                        <textarea class="message-input" placeholder="메시지를 입력하세요..."></textarea>
+                        <button class="send-button">보내기</button>
                     </div>
-                    <textarea class="message-input" placeholder="메시지를 입력하세요..."></textarea>
-                    <button class="send-button">보내기</button>
-                </div>
+                </form>
             </div>
         </div>
 
