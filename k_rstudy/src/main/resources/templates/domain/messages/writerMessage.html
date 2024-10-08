@@ -430,9 +430,9 @@
             await searchRecipients();
         }
 
-        function selectRecipient(id, name) {
+        function selectRecipient(id, name,userid) {
             // 새로운 수신자를 Set에 추가
-            selectedRecipients.add({ id, name });
+            selectedRecipients.add({ id, name,userid });
 
             // 화면 업데이트
             updateRecipientDisplay();
