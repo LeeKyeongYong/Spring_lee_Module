@@ -352,7 +352,6 @@
 
             try {
                 const response = await fetch(`/api/messages/search-users?searchUsername=${encodeURIComponent(searchValue)}`, {
-                //const response = await fetch(`/search-users?searchUsername=${encodeURIComponent(searchValue)}&page=${currentPage}&size=${itemsPerPage}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -364,37 +363,47 @@
                 }
 
                 const data = await response.json();
+                console.log(data); // API 응답 구조 확인
 
-                // Check if data and data.content exist before accessing them
-                const users = data && data.content ? data.content : [];
-                const totalPages = data && data.totalPages ? data.totalPages : 1;
+                if (!Array.isArray(data)) {
+                    throw new Error('Invalid data structure');
+                }
 
-                tbody.innerHTML = '';
+                const users = data;
+                const totalPages = Math.ceil(users.length / itemsPerPage) || 1;
 
-                if (users.length === 0) {
+                // 페이지에 맞는 데이터 슬라이싱
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const usersToDisplay = users.slice(startIndex, endIndex); // 페이지에 맞는 데이터 슬라이싱
+
+                tbody.innerHTML = ''; // 이전 검색 결과 초기화
+
+                if (usersToDisplay.length === 0) {
                     document.querySelector('.no-results').style.display = 'block';
                     document.querySelector('.pagination').style.display = 'none';
                 } else {
                     document.querySelector('.no-results').style.display = 'none';
                     document.querySelector('.pagination').style.display = 'flex';
 
-                    users.forEach((user, index) => {
+                    // 잘라낸 데이터를 화면에 출력
+                    usersToDisplay.forEach((user, index) => {
                         const row = `
-                    <tr>
-                        <td>${(currentPage - 1) * itemsPerPage + index + 1}</td>
-                        <td>${user.name}</td>
-                        <td>
-                            <button class="btn btn-sm btn-primary"
-                                onclick="selectRecipient('${user.id}', '${user.name}', '${user.userid}')">
-                                선택
-                            </button>
-                        </td>
-                    </tr>
+                <tr>
+                    <td>${startIndex + index + 1}</td>
+                    <td>${user.name}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary"
+                            onclick="selectRecipient('${user.id}', '${user.name}', '${user.userid}')">
+                            선택
+                        </button>
+                    </td>
+                </tr>
                 `;
                         tbody.insertAdjacentHTML('beforeend', row);
                     });
 
-                    updatePagination(totalPages);
+                    updatePagination(totalPages); // 페이지네이션 업데이트
                 }
             } catch (error) {
                 console.error('Error:', error);

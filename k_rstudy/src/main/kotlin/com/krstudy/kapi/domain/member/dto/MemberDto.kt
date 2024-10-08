@@ -8,6 +8,7 @@ data class MemberDto(
     val createDate: LocalDateTime,
     val modifyDate: LocalDateTime,
     val name: String,
+    val userid: String,
     val profileImgUrl: String,
     val authorities: List<String>
 ) {
@@ -15,6 +16,7 @@ data class MemberDto(
         fun from(member: Member): MemberDto {
             return MemberDto(
                 id = member.id,
+                userid = member.userid,
                 createDate = member.getCreateDate() ?: LocalDateTime.now(), // 기본값 설정
                 modifyDate = member.getModifyDate() ?: LocalDateTime.now(), // 기본값 설정
                 name = member.username ?: "", // 기본값 설정
