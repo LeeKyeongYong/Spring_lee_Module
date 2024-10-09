@@ -11,6 +11,7 @@ import com.krstudy.kapi.domain.member.dto.MemberDto
 import com.krstudy.kapi.domain.member.service.MemberService
 import com.krstudy.kapi.domain.messages.entity.Message
 import com.krstudy.kapi.domain.messages.entity.MessageRecipient
+import kotlinx.coroutines.runBlocking
 import org.springframework.data.domain.PageRequest
 import java.time.LocalDateTime
 
@@ -25,32 +26,44 @@ class ApiMessageController(
         @RequestParam(defaultValue = "1") page: Int,
         @RequestParam(defaultValue = "10") size: Int,
         @RequestParam(required = false) search: String?
-    ): ResponseEntity<Map<String, Any>> { // ResponseEntity로 감싸기
-        val pageable = PageRequest.of(page - 1, size, Sort.by("sentAt").descending())
+    ): ResponseEntity<Map<String, Any>> {
+        val pageable = PageRequest.of(page - 1, size, Sort.by("createDate").descending())
         val currentUser = messageService.getCurrentUser()
 
+        // 로그인한 유저가 보낸 메시지만 가져오도록 수정
         val messagesPage = if (search.isNullOrBlank()) {
-            messageService.getMessagesForUser(currentUser.id, pageable)
+            messageService.getSentMessages(currentUser.id, pageable)
         } else {
-            messageService.searchMessages(currentUser.id, search, pageable)
+            messageService.searchSentMessages(currentUser.id, search, pageable)
+        }
+
+        // 수신자 이름 포맷 변경
+        val formattedMessages = messagesPage.content.map { message ->
+            MessageResponse(
+                id = message.id,
+                content = message.content,
+                title = message.title,
+                senderId = message.senderId,
+                recipients = message.recipients.map {
+                    RecipientDto(
+                        recipientId = it.recipientId,
+                        recipientName = "${it.recipientName} (${it.recipientUserId})", // 형식 수정
+                        recipientUserId = it.recipientUserId
+                    )
+                },
+                sentAt = message.sentAt,
+                readAt = message.getModifyDate()
+            )
         }
 
         val response = mapOf(
-            "messages" to messagesPage.content,
+            "messages" to formattedMessages,
             "currentPage" to messagesPage.number + 1,
             "totalPages" to messagesPage.totalPages,
             "totalItems" to messagesPage.totalElements
         )
 
-        return ResponseEntity.ok(response) // 200 OK 응답
-    }
-
-    @GetMapping("/unread/{memberId}")
-    suspend fun getUnreadCount(@PathVariable memberId: Long): ResponseEntity<UnreadCountResponse> {
-        val count = messageService.getUnreadMessagesCount(memberId)
-        return ResponseEntity.ok()
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(UnreadCountResponse(count))
+        return ResponseEntity.ok(response)
     }
 
     @GetMapping("/search-users")
@@ -71,6 +84,7 @@ class ApiMessageController(
             .contentType(MediaType.APPLICATION_JSON)
             .body(users)
     }
+
     @PostMapping("/save")
     suspend fun saveMessage(@RequestBody request: MessageSaveRequest): ResponseEntity<Message> {
         val currentUser = messageService.getCurrentUser()
@@ -78,7 +92,8 @@ class ApiMessageController(
         val message = Message(
             content = request.content,
             senderId = currentUser.id,
-            sentAt = LocalDateTime.now()
+            sentAt = LocalDateTime.now(),
+            title = request.title
         )
 
         // 수신자 정보 설정
@@ -87,7 +102,8 @@ class ApiMessageController(
                 MessageRecipient(
                     message = message,
                     recipientId = recipientDto.recipientId, // 수정된 부분
-                    recipientName = recipientDto.recipientName // 수정된 부분
+                    recipientName = recipientDto.recipientName, // 수정된 부분
+                    recipientUserId = recipientDto.recipientUserId // 추가된 부분
                 )
             )
         }
@@ -96,14 +112,77 @@ class ApiMessageController(
         return ResponseEntity.ok(savedMessage)
     }
 
+    @GetMapping("/unread-count")
+    fun getUnreadCount(): ResponseEntity<UnreadCountResponse> = runBlocking {
+        val currentUser = messageService.getCurrentUser()
+        val count = messageService.getUnreadMessagesCount(currentUser.id)
+        ResponseEntity.ok(UnreadCountResponse(count))
+    }
 
-    //4. 받은 페이지 counting
-    //5. 받은 페이지함 불러오기..(로그인한 사람..)
-    
-    //6. 선택하면 읽음처리와 카운팅 처리..
-    //7. 상세보기 기능추가
-    //8. 슬라이드식 팝업 5개 보여주고 6개만
-    //9. 잔처리..
-    //10. 상세보기..누가 읽었는지.. 등등
+    // 받은 메시지 목록 조회
+    @GetMapping("/received", produces = [MediaType.APPLICATION_JSON_VALUE])
+    suspend fun showReceivedMessageList(
+        @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "10") size: Int,
+        @RequestParam(required = false) search: String?
+    ): ResponseEntity<Map<String, Any>> {
+        val pageable = PageRequest.of(page - 1, size, Sort.by("createDate").descending())
+        val currentUser = messageService.getCurrentUser()
+
+        val messagesPage = if (search.isNullOrBlank()) {
+            messageService.getMessagesForUser(currentUser.id, pageable)
+        } else {
+            messageService.searchMessages(currentUser.id, search, pageable)
+        }
+
+        val formattedMessages = messagesPage.content.map { message ->
+            MessageResponse(
+                id = message.id,
+                content = message.content,
+                title = message.title,
+                senderId = message.senderId,
+                recipients = message.recipients.map {
+                    RecipientDto(
+                        recipientId = it.recipientId,
+                        recipientName = "${it.recipientName} (${it.recipientUserId})",
+                        recipientUserId = it.recipientUserId
+                    )
+                },
+                sentAt = message.sentAt,
+                readAt = message.getModifyDate()
+            )
+        }
+
+        val response = mapOf(
+            "messages" to formattedMessages,
+            "currentPage" to messagesPage.number + 1,
+            "totalPages" to messagesPage.totalPages,
+            "totalItems" to messagesPage.totalElements
+        )
+
+        return ResponseEntity.ok(response)
+    }
+
+
+    // 메시지 읽음 처리
+    @PostMapping("/{messageId}/read")
+    suspend fun markMessageAsRead(@PathVariable messageId: Long): ResponseEntity<UnreadCountResponse> {
+        val currentUser = messageService.getCurrentUser()
+        messageService.markAsRead(messageId, currentUser.id)
+
+        // 읽음 처리 후 새로운 안 읽은 메시지 수 반환
+        val newUnreadCount = messageService.getUnreadMessagesCount(currentUser.id)
+        return ResponseEntity.ok(UnreadCountResponse(newUnreadCount))
+    }
+
+
+    @GetMapping("/unread/{memberId}")
+    suspend fun getUnreadCount(@PathVariable memberId: Long): ResponseEntity<UnreadCountResponse> {
+        val currentUser = messageService.getCurrentUser()
+        val count = messageService.getUnreadMessagesCount(currentUser.id)
+        return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(UnreadCountResponse(count))
+    }
 
 }

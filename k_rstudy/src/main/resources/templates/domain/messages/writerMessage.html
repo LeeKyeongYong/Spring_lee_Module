@@ -336,12 +336,19 @@
             font-style: italic;
         }
 
+        .message-meta {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+        }
+
     </style>
     <script>
         let selectedRecipients = new Set();
         let allSearchResults = [];
         let currentPage = 1;
         const itemsPerPage = 10;
+        const pageSize = 10;
 
         // 전역 변수로 현재 읽지 않은 메시지 수를 관리
         let unreadCount = 3;
@@ -555,6 +562,9 @@
                 }, 300));
             }
 
+            //메시지 목록 불러오기
+            loadReceivedMessages(currentPage, pageSize);
+
             // 초기 메시지 목록 표시
             displayMessageList();
 
@@ -720,6 +730,82 @@
             return Object.fromEntries(params);
         }
 
+        // 메시지 읽음 처리 및 카운트 업데이트
+        async function markMessageAsRead(messageId) {
+            try {
+                const response = await fetch(`/api/messages/${messageId}/read`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    // 안 읽은 메시지 카운트 업데이트
+                    const unreadCountSpan = document.getElementById('unreadCountSpan');
+                    unreadCountSpan.textContent = data.count;
+
+                    // 카운트가 0이면 span 숨기기
+                    if (data.count === 0) {
+                        unreadCountSpan.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('메시지 읽음 처리 중 오류 발생:', error);
+            }
+        }
+
+        // 메시지 검색
+        function searchMessages() {
+            const searchTerm = document.getElementById('messageSearch').value;
+            loadReceivedMessages(1, pageSize, searchTerm);
+        }
+
+        // 이전 페이지 로드
+        function loadPreviousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                loadReceivedMessages(currentPage, pageSize);
+            }
+        }
+
+        // 다음 페이지 로드
+        function loadNextPage() {
+            currentPage++;
+            loadReceivedMessages(currentPage, pageSize);
+        }
+
+        // 받은 메시지함 로드
+        async function loadReceivedMessages(page = 1, size = 10, search = '') {
+            try {
+                const response = await fetch(`/api/messages/received?page=${page}&size=${size}&search=${search}`);
+                const data = await response.json();
+
+                const messageListDiv = document.querySelector('.message-list');
+
+                if (data.messages.length === 0) {
+                    messageListDiv.innerHTML = '<div class="no-messages">받은 메시지가 존재하지 않습니다.</div>';
+                    return;
+                }
+
+                const messagesHtml = data.messages.map(message => `
+            <div class="message-item" onclick="markMessageAsRead(${message.id})">
+                <h3>${message.title}</h3>
+                <p>${message.content}</p>
+                <div class="message-meta">
+                    <span>보낸사람: ${message.senderName}</span>
+                    <span>보낸시간: ${new Date(message.sentAt).toLocaleString()}</span>
+                </div>
+            </div>
+        `).join('');
+
+                messageListDiv.innerHTML = messagesHtml;
+            } catch (error) {
+                console.error('메시지 로드 중 오류 발생:', error);
+            }
+        }
+
     </script>
 </head>
 
@@ -732,6 +818,15 @@
                     <h2>받은 메세지함.</h2>
                     <span class="unread-count" id="unreadCountSpan">3</span>
                 </div>
+
+                <!-- 메시지 검색 -->
+                <div class="search-box">
+                    <input type="text" id="messageSearch" placeholder="메시지 검색...">
+                    <button onclick="searchMessages()">검색</button>
+                </div>
+
+
+
                 <div class="message-list">
                     <div class="message-item unread">
                         <div class="message-item-header">
@@ -751,6 +846,14 @@
                     </div>
                     <!-- 추가 메시지 아이템들 -->
                 </div>
+
+                <!-- 페이지네이션 -->
+                <div class="pagination">
+                    <button onclick="loadPreviousPage()">이전</button>
+                    <span id="currentPage">1</span>
+                    <button onclick="loadNextPage()">다음</button>
+                </div>
+
             </div>
 
             <!-- 우측 메시지 상세 패널 -->
