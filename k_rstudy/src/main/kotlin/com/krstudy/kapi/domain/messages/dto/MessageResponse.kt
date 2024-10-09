@@ -19,9 +19,13 @@ data class MessageResponse(
                 content = message.content,
                 senderId = message.senderId,
                 recipients = message.recipients.map {
-                    RecipientDto(it.recipientId, it.recipientName, it.readAt)
+                    RecipientDto(
+                        recipientId = it.recipientId,
+                        recipientName = it.recipientName,
+                        recipientUserId = it.recipientUserId // 추가
+                    )
                 },
-                sentAt = message.getCreateDate() ?: LocalDateTime.now(),
+                sentAt = message.sentAt,
                 readAt = message.getModifyDate()
             )
         }

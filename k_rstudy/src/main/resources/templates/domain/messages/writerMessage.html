@@ -462,7 +462,17 @@
 
         function selectRecipient(id, name,userid) {
             // 새로운 수신자를 Set에 추가
-            selectedRecipients.add({ id, name,userid });
+            const recipientId = parseInt(id, 10);
+            if (isNaN(recipientId)) {
+                console.error('Invalid ID format');
+                return;
+            }
+
+            selectedRecipients.add({
+                id: recipientId,  // 숫자로 변환된 ID 사용
+                name: name,
+                userid: userid
+            });
 
             // 화면 업데이트
             updateRecipientDisplay();
@@ -574,14 +584,17 @@
                 e.preventDefault();
                 if (validateAndSubmit()) {
                     const content = document.querySelector('.message-input').value;
-                    const recipients = Array.from(selectedRecipients);
+                    const recipients = Array.from(selectedRecipients).map(recipient => ({
+                        recipientId: recipient.id, // 이미 숫자 타입
+                        recipientName: recipient.name,
+                        recipientUserId: recipient.userid
+                    }));
 
                     try {
                         const response = await fetch('/api/messages/save', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                // CSRF 토큰 추가
                                 'X-CSRF-TOKEN': document.querySelector('[name="_csrf"]').value
                             },
                             body: JSON.stringify({
@@ -594,13 +607,10 @@
                             throw new Error('메시지 전송 실패');
                         }
 
-                        // 성공 시 처리
                         alert('메시지가 성공적으로 전송되었습니다.');
                         document.querySelector('.message-input').value = '';
                         selectedRecipients.clear();
                         updateRecipientDisplay();
-
-                        // 메시지 목록 갱신
                         displayMessageList();
 
                     } catch (error) {
@@ -609,7 +619,6 @@
                     }
                 }
             });
-
 
 
         });
@@ -675,11 +684,16 @@
 
         function updateUnreadCount() {
             fetch('/api/messages/unread-count')
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     const unreadCountSpan = document.getElementById('unreadCountSpan');
-                    unreadCountSpan.textContent = data.unreadCount;
-                    unreadCountSpan.style.display = data.unreadCount > 0 ? 'inline-block' : 'none';
+                    unreadCountSpan.textContent = data.count;
+                    unreadCountSpan.style.display = data.count > 0 ? 'inline-block' : 'none';
                 })
                 .catch(error => console.error('안 읽은 메시지 수 가져오기 오류:', error));
             // const unreadCountElement = document.querySelector('.unread-count');
@@ -705,6 +719,12 @@
         </div>
     `;
         }
+
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return Object.fromEntries(params);
+        }
+
     </script>
 </head>
 

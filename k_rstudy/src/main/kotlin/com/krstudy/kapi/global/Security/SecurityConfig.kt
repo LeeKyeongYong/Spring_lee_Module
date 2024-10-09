@@ -50,6 +50,7 @@ class SecurityConfig(
                     .requestMatchers("/member/login").anonymous()
                     .requestMatchers("/member/join").hasAnyRole("ADMIN") // ADMIN 권한이 있는 사용자만 허용
                     .requestMatchers("/image/**").permitAll()
+                    .requestMatchers("/api/messages/**").authenticated()
                     .anyRequest().permitAll()
             }
             .headers { headers ->

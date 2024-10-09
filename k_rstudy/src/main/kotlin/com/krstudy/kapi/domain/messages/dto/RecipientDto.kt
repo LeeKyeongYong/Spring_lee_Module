@@ -1,9 +1,7 @@
 package com.krstudy.kapi.domain.messages.dto
 
-import java.time.LocalDateTime
-
 data class RecipientDto(
     val recipientId: Long,
     val recipientName: String,
-    val readAt: LocalDateTime?,
+    val recipientUserId: String? // nullable로 변경
 )

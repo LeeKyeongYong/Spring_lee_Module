@@ -6,7 +6,8 @@ import com.krstudy.kapi.domain.messages.entity.MessageRecipient
 
 data class MessageRequest(
     val content: String,
-    val recipientId: Long
+    val recipientId: Long,
+    val recipientUserId: String? // nullable로 변경
 ) {
     fun toMessage(currentUser: Member): Message {
         val message = Message(
@@ -14,13 +15,16 @@ data class MessageRequest(
             senderId = currentUser.id,
             recipients = mutableListOf()
         )
+
         message.recipients.add(
             MessageRecipient(
                 message = message,
                 recipientId = recipientId,
-                recipientName = "" // will be filled by service
+                recipientName = currentUser.username ?: "사용자이름없어요!", // username이 null인 경우 기본값 설정
+                recipientUserId = recipientUserId ?: "아이디가 누락되었어요!" // recipientUserId가 null인 경우 기본값 설정
             )
         )
+
         return message
     }
 }

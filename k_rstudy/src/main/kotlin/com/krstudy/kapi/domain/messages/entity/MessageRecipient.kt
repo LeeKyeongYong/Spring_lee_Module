@@ -14,30 +14,6 @@ class MessageRecipient(
 
     val recipientId: Long,
     var recipientName: String,
+    var recipientUserId: String?, // nullable로 변경
     var readAt: LocalDateTime? = null
 ) : BaseEntity()
-
-// MessageResponse 수정
-data class MessageResponse(
-    val id: Long,
-    val content: String,
-    val senderId: Long,
-    val recipients: List<RecipientDto>,
-    val sentAt: LocalDateTime,
-    val readAt: LocalDateTime?
-) {
-    companion object {
-        fun fromMessage(message: Message): MessageResponse {
-            return MessageResponse(
-                id = message.id,
-                content = message.content,
-                senderId = message.senderId,
-                recipients = message.recipients.map {
-                    RecipientDto(it.recipientId, it.recipientName, it.readAt)
-                },
-                sentAt = message.sentAt,
-                readAt = message.getModifyDate() // nullable
-            )
-        }
-    }
-}
