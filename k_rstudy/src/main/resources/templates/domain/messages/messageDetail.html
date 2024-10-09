@@ -3,6 +3,7 @@
 <head>
     <title>메시지 상세보기</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
         .message-detail-container {
             max-width: 800px;
@@ -28,6 +29,25 @@
         .go-back {
             margin-top: 2rem;
         }
+        .recipient-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .recipient-item {
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .read-status {
+            margin-left: 0.5rem;
+        }
+        .read {
+            color: #28a745;
+        }
+        .unread {
+            color: #dc3545;
+        }
     </style>
 </head>
 <body>
@@ -41,10 +61,18 @@
                     <span th:text="${sender.username + ' (' + sender.userId + ')'}">보내는 사람 이름 (ID)</span>
                 </div>
                 <div>
-                    <strong>받는 사람:</strong>
-                    <span th:each="recipient : ${message.recipients}" th:text="${recipient.recipientName + ' (' + recipient.recipientUserId + ')' + (recipientStat.last ? '' : ', ')}">
-                        받는 사람 이름 (ID)
-                    </span>
+                    <strong>받는 사람 ([[${message.recipients.size()}]]):</strong>
+                    <ul class="recipient-list">
+                        <li th:each="recipient : ${message.recipients}" class="recipient-item">
+                            <span th:text="${recipient.recipientName + ' (' + recipient.recipientUserId + ')'}">
+                                받는 사람 이름 (ID)
+                            </span>
+                            <span class="read-status" th:classappend="${recipient.readAt != null ? 'read' : 'unread'}">
+                                <i class="fas" th:classappend="${recipient.readAt != null ? 'fa-check-circle' : 'fa-circle'}"
+                                   th:title="${recipient.readAt != null ? '읽음 - ' + #temporals.format(recipient.readAt, 'yyyy-MM-dd HH:mm:ss') : '안읽음'}"></i>
+                            </span>
+                        </li>
+                    </ul>
                 </div>
                 <div>
                     <strong>보낸 시간:</strong>
