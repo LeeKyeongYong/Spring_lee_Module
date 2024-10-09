@@ -74,4 +74,14 @@ class MessageService(
         return messageRepository.searchMessages(userId, searchTerm, pageable)
     }
 
+    // MessageService에서 유저가 보낸 메시지를 가져오는 메서드 추가
+    suspend fun getSentMessages(userId: Long, pageable: Pageable): Page<Message> {
+        return messageRepository.findBySenderId(userId, pageable)
+    }
+
+    // 검색 기능을 위한 메서드 추가
+    suspend fun searchSentMessages(userId: Long, searchTerm: String, pageable: Pageable): Page<Message> {
+        return messageRepository.searchSentMessages(userId, searchTerm, pageable)
+    }
+
 }

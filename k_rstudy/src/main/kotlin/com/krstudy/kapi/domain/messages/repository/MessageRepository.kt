@@ -42,4 +42,20 @@ interface MessageRepository : JpaRepository<Message, Long> {
         OR LOWER(mr.recipientName) LIKE LOWER(CONCAT('%', :searchTerm, '%')))
     """)
     fun searchMessages(userId: Long, searchTerm: String, pageable: Pageable): Page<Message>
+
+    @Query("""
+    SELECT DISTINCT m 
+    FROM Message m 
+    WHERE m.senderId = :userId
+""")
+    fun findBySenderId(userId: Long, pageable: Pageable): Page<Message>
+
+    // 검색 기능을 위한 쿼리 추가
+    @Query("""
+    SELECT DISTINCT m 
+    FROM Message m 
+    WHERE m.senderId = :userId
+    AND LOWER(m.content) LIKE LOWER(CONCAT('%', :searchTerm, '%'))
+""")
+    fun searchSentMessages(userId: Long, searchTerm: String, pageable: Pageable): Page<Message>
 }

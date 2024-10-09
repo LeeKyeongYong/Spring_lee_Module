@@ -16,28 +16,8 @@ import org.springframework.web.reactive.result.view.RedirectView
 class MessageController(
     private val messageService: MessageService
 ) {
-    @GetMapping(produces = [MediaType.TEXT_HTML_VALUE])
-    suspend fun showMessageList(// 보낸 메세지함.
-        @RequestParam(defaultValue = "1") page: Int,
-        @RequestParam(defaultValue = "10") size: Int,
-        @RequestParam(required = false) search: String?
-    ): String {
-        val pageable = PageRequest.of(page - 1, size, Sort.by("sentAt").descending())
-        val currentUser = messageService.getCurrentUser()
-
-        val messagesPage = if (search.isNullOrBlank()) {
-            messageService.getMessagesForUser(currentUser.id, pageable)
-        } else {
-            messageService.searchMessages(currentUser.id, search, pageable)
-        }
-
-        val model = mapOf(
-            "messages" to messagesPage.content,
-            "currentPage" to messagesPage.number + 1,
-            "totalPages" to messagesPage.totalPages,
-            "totalItems" to messagesPage.totalElements
-        )
-
+    @GetMapping
+    suspend fun showMessageList(): String {
         return "domain/messages/messagesList"
     }
 
