@@ -327,7 +327,7 @@
     </style>
     <script>
         let selectedRecipients = new Set();
-
+        let allSearchResults = [];
         let currentPage = 1;
         const itemsPerPage = 10;
 
@@ -346,11 +346,15 @@
             document.getElementById('recipientModal').style.display = 'none';
         }
 
+
+
         async function searchRecipients() {
             const searchValue = document.getElementById('searchInput').value;
-            const tbody = document.getElementById('recipientList');
 
             try {
+                // 검색 시 항상 첫 페이지로 리셋
+                currentPage = 1;
+
                 const response = await fetch(`/api/messages/search-users?searchUsername=${encodeURIComponent(searchValue)}`, {
                     method: 'GET',
                     headers: {
@@ -363,32 +367,43 @@
                 }
 
                 const data = await response.json();
-                console.log(data); // API 응답 구조 확인
+                console.log('Search results:', data);
 
                 if (!Array.isArray(data)) {
                     throw new Error('Invalid data structure');
                 }
 
-                const users = data;
-                const totalPages = Math.ceil(users.length / itemsPerPage) || 1;
+                allSearchResults = data; // 전체 검색 결과 저장
+                const totalPages = Math.ceil(allSearchResults.length / itemsPerPage) || 1;
 
-                // 페이지에 맞는 데이터 슬라이싱
-                const startIndex = (currentPage - 1) * itemsPerPage;
-                const endIndex = startIndex + itemsPerPage;
-                const usersToDisplay = users.slice(startIndex, endIndex); // 페이지에 맞는 데이터 슬라이싱
+                displaySearchResults(currentPage);
+                updatePagination(totalPages);
 
-                tbody.innerHTML = ''; // 이전 검색 결과 초기화
+            } catch (error) {
+                console.error('Error:', error);
+                document.querySelector('.no-results').textContent = '사용자 검색 중 오류가 발생했습니다.';
+                document.querySelector('.no-results').style.display = 'block';
+                document.querySelector('.pagination').style.display = 'none';
+            }
+        }
 
-                if (usersToDisplay.length === 0) {
-                    document.querySelector('.no-results').style.display = 'block';
-                    document.querySelector('.pagination').style.display = 'none';
-                } else {
-                    document.querySelector('.no-results').style.display = 'none';
-                    document.querySelector('.pagination').style.display = 'flex';
+        function displaySearchResults(page) {
+            const tbody = document.getElementById('recipientList');
+            tbody.innerHTML = ''; // 이전 검색 결과 초기화
 
-                    // 잘라낸 데이터를 화면에 출력
-                    usersToDisplay.forEach((user, index) => {
-                        const row = `
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const usersToDisplay = allSearchResults.slice(startIndex, endIndex);
+
+            if (usersToDisplay.length === 0) {
+                document.querySelector('.no-results').style.display = 'block';
+                document.querySelector('.pagination').style.display = 'none';
+            } else {
+                document.querySelector('.no-results').style.display = 'none';
+                document.querySelector('.pagination').style.display = 'flex';
+
+                usersToDisplay.forEach((user, index) => {
+                    const row = `
                 <tr>
                     <td>${startIndex + index + 1}</td>
                     <td>${user.name}</td>
@@ -399,17 +414,9 @@
                         </button>
                     </td>
                 </tr>
-                `;
-                        tbody.insertAdjacentHTML('beforeend', row);
-                    });
-
-                    updatePagination(totalPages); // 페이지네이션 업데이트
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                document.querySelector('.no-results').textContent = '사용자 검색 중 오류가 발생했습니다.';
-                document.querySelector('.no-results').style.display = 'block';
-                document.querySelector('.pagination').style.display = 'none';
+            `;
+                    tbody.insertAdjacentHTML('beforeend', row);
+                });
             }
         }
 
@@ -417,17 +424,40 @@
             const paginationElement = document.querySelector('.pagination');
             paginationElement.innerHTML = '';
 
+            // 이전 페이지 버튼
+            if (currentPage > 1) {
+                paginationElement.innerHTML += `
+            <li class="page-item">
+                <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">이전</a>
+            </li>
+        `;
+            }
+
+            // 페이지 번호
             for (let i = 1; i <= totalPages; i++) {
-                const li = document.createElement('li');
-                li.className = `page-item ${i === currentPage ? 'active' : ''}`;
-                li.innerHTML = `<a class="page-link" href="#" onclick="changePage(${i})">${i}</a>`;
-                paginationElement.appendChild(li);
+                paginationElement.innerHTML += `
+            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+            </li>
+        `;
+            }
+
+            // 다음 페이지 버튼
+            if (currentPage < totalPages) {
+                paginationElement.innerHTML += `
+            <li class="page-item">
+                <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">다음</a>
+            </li>
+        `;
             }
         }
 
-        async function changePage(page) {
+
+        function changePage(page) {
             currentPage = page;
-            await searchRecipients();
+            displaySearchResults(page);
+            updatePagination(Math.ceil(allSearchResults.length / itemsPerPage));
+            return false; // 이벤트 기본 동작 방지
         }
 
         function selectRecipient(id, name,userid) {
@@ -479,32 +509,6 @@
             return true;
 
         }
-            /*
-            const messageData = {
-        recipients: Array.from(selectedRecipients),
-        content: contentElement.value
-    };
-
-    fetch('http://localhost:8090/messages', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(messageData)
-    })
-    .then(response => {
-        if (response.ok) {
-            // 성공적으로 전송되면 지정된 URL로 이동
-            window.location.href = 'http://localhost:8090/messages';
-        } else {
-            throw new Error('메시지 전송에 실패했습니다.');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('메시지 전송에 실패했습니다.');
-    });
-             */
 
         // 메시지 데이터 예시 (실제로는 서버에서 가져와야 함)
         const messageData = {
@@ -539,7 +543,10 @@
             // searchInput 요소가 있을 때만 이벤트 리스너 추가
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
-                searchInput.addEventListener('input', debounce(searchRecipients, 300));
+                // 디바운스 적용하여 검색 수행
+                searchInput.addEventListener('input', debounce(() => {
+                    searchRecipients();
+                }, 300));
             }
 
             // 초기 메시지 목록 표시
@@ -563,14 +570,47 @@
             });
 
             // 폼 제출 이벤트 처리
-            document.getElementById('messageForm').addEventListener('submit', function(e) {
-                e.preventDefault(); // 기본 제출 동작 방지
+            document.getElementById('messageForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
                 if (validateAndSubmit()) {
-                    // 여기에 메시지 전송 로직 구현
-                    console.log('메시지 전송 성공');
-                    // 성공 후 필요한 처리 (예: 폼 리셋, 성공 메시지 표시 등)
+                    const content = document.querySelector('.message-input').value;
+                    const recipients = Array.from(selectedRecipients);
+
+                    try {
+                        const response = await fetch('/api/messages/save', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                // CSRF 토큰 추가
+                                'X-CSRF-TOKEN': document.querySelector('[name="_csrf"]').value
+                            },
+                            body: JSON.stringify({
+                                content: content,
+                                recipients: recipients
+                            })
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('메시지 전송 실패');
+                        }
+
+                        // 성공 시 처리
+                        alert('메시지가 성공적으로 전송되었습니다.');
+                        document.querySelector('.message-input').value = '';
+                        selectedRecipients.clear();
+                        updateRecipientDisplay();
+
+                        // 메시지 목록 갱신
+                        displayMessageList();
+
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('메시지 전송 중 오류가 발생했습니다.');
+                    }
                 }
             });
+
+
 
         });
 
@@ -634,10 +674,18 @@
         }
 
         function updateUnreadCount() {
-            const unreadCountElement = document.querySelector('.unread-count');
-            unreadCount = Object.values(messageData).filter(message => message.isUnread).length;
-            unreadCountElement.textContent = unreadCount;
-            unreadCountElement.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+            fetch('/api/messages/unread-count')
+                .then(response => response.json())
+                .then(data => {
+                    const unreadCountSpan = document.getElementById('unreadCountSpan');
+                    unreadCountSpan.textContent = data.unreadCount;
+                    unreadCountSpan.style.display = data.unreadCount > 0 ? 'inline-block' : 'none';
+                })
+                .catch(error => console.error('안 읽은 메시지 수 가져오기 오류:', error));
+            // const unreadCountElement = document.querySelector('.unread-count');
+            // unreadCount = Object.values(messageData).filter(message => message.isUnread).length;
+            // unreadCountElement.textContent = unreadCount;
+            // unreadCountElement.style.display = unreadCount > 0 ? 'inline-block' : 'none';
         }
 
         function showMessageDetail(messageId) {
@@ -667,7 +715,7 @@
             <div class="message-list-panel">
                 <div class="message-list-header">
                     <h2>받은 메세지함.</h2>
-                    <span class="unread-count">3</span>
+                    <span class="unread-count" id="unreadCountSpan">3</span>
                 </div>
                 <div class="message-list">
                     <div class="message-item unread">
@@ -699,18 +747,12 @@
                     <!-- 선택된 메시지 내용이 여기에 표시됩니다 -->
                 </div>
 
-                <form id="messageForm" method="POST" action="/messages/save" onsubmit="return validateAndSubmit()">
+                <form id="messageForm" method="POST" onsubmit="return validateAndSubmit()">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <input type="hidden" id="recipientsInput" name="recipients" />
                     <div class="message-compose">
                         <div class="compose-header">
-                            <div class="recipient-container">
-                                <!--
-                                <div class="recipient-tag">
-                                    홍길동 <span class="remove">×</span>
-                                </div>
-                                -->
-                            </div>
+                            <div class="recipient-container"></div>
                             <button class="search-recipient-btn" onclick="openRecipientModal(event)">받는 사람 검색</button>
                         </div>
                         <textarea class="message-input" placeholder="메시지를 입력하세요..."></textarea>
@@ -736,9 +778,7 @@
                             <th>선택</th>
                         </tr>
                         </thead>
-                        <tbody id="recipientList">
-                        <!-- 검색 결과가 여기에 동적으로 추가됩니다 -->
-                        </tbody>
+                        <tbody id="recipientList"></tbody>
                     </table>
                     <div class="no-results" style="display: none;">사용자가 없습니다.</div>
                     <nav>

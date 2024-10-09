@@ -40,16 +40,15 @@ class SecurityConfig(
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http
-            .authorizeRequests { authorizeRequests ->
+            .authorizeHttpRequests { authorizeRequests ->
                 authorizeRequests
-                    .requestMatchers("/adm/**").hasRole("ADMIN")
+                    .requestMatchers("/adm/**").hasAuthority("ROLE_ADMIN")
                     .requestMatchers("/resource/**").permitAll()
                     .requestMatchers("/v1/qrcode/**").permitAll()
                     .requestMatchers("/v1/**").authenticated()
                     .requestMatchers("/login/oauth2/**").permitAll()
                     .requestMatchers("/member/login").anonymous()
-                    .requestMatchers("/member/join")
-                    .access("hasRole('ADMIN') or isAnonymous()")
+                    .requestMatchers("/member/join").hasAnyRole("ADMIN") // ADMIN 권한이 있는 사용자만 허용
                     .requestMatchers("/image/**").permitAll()
                     .anyRequest().permitAll()
             }
@@ -59,11 +58,12 @@ class SecurityConfig(
                 }
             }
             .csrf { csrf ->
-                csrf.ignoringRequestMatchers("/v1/**")
+                csrf.ignoringRequestMatchers("/v1/**", "/api/**")
             }
             .formLogin { formLogin ->
                 formLogin
                     .loginPage("/member/login")
+                    .failureUrl("/member/login?failMsg=" + URLEncoder.encode("로그인에 실패하였습니다.", StandardCharsets.UTF_8))
                     .successHandler(customAuthSuccessHandler())
                     .defaultSuccessUrl("/?msg=" + URLEncoder.encode("환영합니다.", StandardCharsets.UTF_8))
             }
@@ -75,14 +75,14 @@ class SecurityConfig(
             }
             .sessionManagement { sessionManagement ->
                 sessionManagement
-                    .invalidSessionUrl("/member/login?failMsg=" + URLEncoder.encode("세션이 만료되었습니다.", StandardCharsets.UTF_8))
+                    .invalidSessionUrl("/")
                     .maximumSessions(1)
                     .expiredUrl("/member/login?failMsg=" + URLEncoder.encode("세션이 만료되었습니다.", StandardCharsets.UTF_8))
             }
             .oauth2Login { oauth2Login ->
                 oauth2Login
                     .successHandler(customAuthSuccessHandler())
-                    .defaultSuccessUrl("/", true)  // 성공 시 무조건 메인 페이지로 리다이렉트
+                    .defaultSuccessUrl("/", true)
             }
 
         return http.build()

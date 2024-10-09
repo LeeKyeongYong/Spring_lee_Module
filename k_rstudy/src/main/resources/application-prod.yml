@@ -9,6 +9,8 @@ server:
       timeout: 30m                 # 세션 타임아웃 설정
 
 spring:
+  thymeleaf:
+    cache: false
   main:
     banner-mode: "off"            # 배너 비활성화
     allow-circular-references: true # 순환 참조 허용
