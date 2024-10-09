@@ -25,6 +25,7 @@ class AsyncMessageHandler(
                     message = MessageNotification(
                         messageId = saved.id,
                         content = message.content,
+                        title = message.title,
                         senderId = message.senderId
                     )
                 )

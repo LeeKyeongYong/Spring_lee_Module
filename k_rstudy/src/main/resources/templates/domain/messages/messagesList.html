@@ -53,7 +53,7 @@
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!--    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
     <script>
         $(document).ready(function() {
             console.log("Document is ready");
@@ -125,16 +125,19 @@
             }
 
             data.messages.forEach(message => {
+
+                const truncatedContent = message.content.length > 30 ? message.content.substring(0, 30) + '...' : message.content;
+
                 const messageCard = `
                     <div class="message-card">
                         <div class="message-header">
                             <div>
-                                <strong>${message.senderName}</strong>
+                                <strong>${message.title}</strong>
                                 ${message.readAt == null ? '<span class="unread-badge ms-2">읽지 않음</span>' : '<span class="unread-badge ms-2">읽음</span>'}
                             </div>
                             <span class="timestamp">${new Date(message.sentAt).toLocaleString()}</span>
                         </div>
-                        <div class="message-content">${message.content}</div>
+                        <div class="message-content">${truncatedContent}</div>
                         <div class="recipient-list">
                             <small>수신자: ${message.recipients.map(recipient => recipient.recipientName).join(', ')}</small>
                         </div>

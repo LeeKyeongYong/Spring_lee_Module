@@ -510,6 +510,14 @@
                 return false;
             }
 
+
+
+            const titleInput = document.getElementById('titleInput');
+            if (!titleInput || !titleInput.value.trim()) {
+                alert('제목을 입력해주세요.');
+                return false;
+            }
+
             const contentElement = document.querySelector('.message-input');
             if (!contentElement || !contentElement.value.trim()) {
                 alert('내용을 입력해주세요.');
@@ -521,31 +529,7 @@
         }
 
         // 메시지 데이터 예시 (실제로는 서버에서 가져와야 함)
-        const messageData = {
-//             1: {
-//                 id: 1,
-//                 sender: "홍길동",
-//                 time: "10:30",
-//                 preview: "안녕하세요. 프로젝트 관련해서 문의드립니다.",
-//                 content: `안녕하세요. 프로젝트 관련해서 문의드립니다.
-//
-// 프로젝트 일정에 대해 조율이 필요할 것 같습니다.
-// 가능하시다면 미팅 시간을 잡았으면 합니다.
-//
-// 감사합니다.`,
-//                 isUnread: true
-//             },
-//             // 다른 메시지 데이터...
-//             2: {
-//                 id: 2,
-//                 sender: "이순신",
-//                 time: "10:30",
-//                 preview: "테스트입니다.",
-//                 content: `구아봐구와봐`,
-//                 isUnread: false
-//             }
-
-        };
+        const messageData = {};
 
         // DOM이 로드된 후 이벤트 리스너 설정
         document.addEventListener('DOMContentLoaded', () => {
@@ -584,6 +568,7 @@
                 e.preventDefault();
                 if (validateAndSubmit()) {
                     const content = document.querySelector('.message-input').value;
+                    const titleInput = document.getElementById('titleInput').value;
                     const recipients = Array.from(selectedRecipients).map(recipient => ({
                         recipientId: recipient.id, // 이미 숫자 타입
                         recipientName: recipient.name,
@@ -599,6 +584,7 @@
                             },
                             body: JSON.stringify({
                                 content: content,
+                                title:titleInput,
                                 recipients: recipients
                             })
                         });
@@ -609,6 +595,7 @@
 
                         alert('메시지가 성공적으로 전송되었습니다.');
                         document.querySelector('.message-input').value = '';
+                        document.getElementById('titleInput').value='';
                         selectedRecipients.clear();
                         updateRecipientDisplay();
                         displayMessageList();
@@ -696,10 +683,6 @@
                     unreadCountSpan.style.display = data.count > 0 ? 'inline-block' : 'none';
                 })
                 .catch(error => console.error('안 읽은 메시지 수 가져오기 오류:', error));
-            // const unreadCountElement = document.querySelector('.unread-count');
-            // unreadCount = Object.values(messageData).filter(message => message.isUnread).length;
-            // unreadCountElement.textContent = unreadCount;
-            // unreadCountElement.style.display = unreadCount > 0 ? 'inline-block' : 'none';
         }
 
         function showMessageDetail(messageId) {
@@ -775,6 +758,7 @@
                             <div class="recipient-container"></div>
                             <button class="search-recipient-btn" onclick="openRecipientModal(event)">받는 사람 검색</button>
                         </div>
+                        <input type="text" class="message-input" id="titleInput" name="title"  placeholder="메시지 제목을 입력하세요..."/>
                         <textarea class="message-input" placeholder="메시지를 입력하세요..."></textarea>
                         <button class="send-button">보내기</button>
                     </div>

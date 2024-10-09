@@ -7,6 +7,7 @@ import java.time.LocalDateTime
 data class MessageResponse(
     val id: Long,
     val content: String,
+    val title: String,
     val senderId: Long,
     val recipients: List<RecipientDto>,
     val sentAt: LocalDateTime,
@@ -17,6 +18,7 @@ data class MessageResponse(
             return MessageResponse(
                 id = message.id,
                 content = message.content,
+                title = message.title,
                 senderId = message.senderId,
                 recipients = message.recipients.map {
                     RecipientDto(

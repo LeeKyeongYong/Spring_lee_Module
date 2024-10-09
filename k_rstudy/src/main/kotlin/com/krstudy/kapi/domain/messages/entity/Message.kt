@@ -6,6 +6,10 @@ import java.time.LocalDateTime
 
 @Entity
 class Message(
+
+    @Column(nullable = false)
+    val title: String,  // 제목 추가
+
     @Column(nullable = false)
     val content: String,
 

@@ -7,13 +7,15 @@ import com.krstudy.kapi.domain.messages.entity.MessageRecipient
 data class MessageRequest(
     val content: String,
     val recipientId: Long,
-    val recipientUserId: String? // nullable로 변경
+    val recipientUserId: String?, // nullable로 변경
+    var title: String
 ) {
     fun toMessage(currentUser: Member): Message {
         val message = Message(
             content = content,
             senderId = currentUser.id,
-            recipients = mutableListOf()
+            recipients = mutableListOf(),
+            title = title
         )
 
         message.recipients.add(
