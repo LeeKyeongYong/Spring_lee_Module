@@ -1,15 +1,9 @@
 package com.krstudy.kapi.domain.messages.controller
 
-import com.krstudy.kapi.domain.member.service.MemberService
-import com.krstudy.kapi.domain.messages.dto.MessageRequest
 import com.krstudy.kapi.domain.messages.service.MessageService
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.reactive.result.view.Rendering
-import org.springframework.http.MediaType
-import org.springframework.web.reactive.result.view.RedirectView
+import org.springframework.ui.Model
 
 @Controller
 @RequestMapping("/messages")
@@ -26,10 +20,23 @@ class MessageController(
         return "domain/messages/writerMessage"
     }
 
-    //메세지  저장하기 임시페이지
-    @RequestMapping("/save",method = [RequestMethod.GET, RequestMethod.POST])
-    suspend fun sendNewMessage() : String   {//메세지 읽기
-        println("MessageRequest: 들어오다")
-        return "redirect:/messages"
+    //메세지  상세보기페이지
+    @GetMapping("/{id}")
+    suspend fun showMessageDetail(@PathVariable id: Long, model: Model): String {
+        val message = messageService.getMessageById(id)
+        val sender = messageService.getMemberById(message.senderId)
+
+        // 메시지를 읽은 것으로 표시 (현재 사용자가 수신자인 경우)
+        val currentUser = messageService.getCurrentUser()
+        message.recipients.find { it.recipientId == currentUser.id }?.let { recipient ->
+            if (recipient.readAt == null) {
+                messageService.markAsRead(message.id, currentUser.id)
+            }
+        }
+
+        model.addAttribute("message", message)
+        model.addAttribute("sender", sender)
+
+        return "domain/messages/messageDetail"
     }
 }

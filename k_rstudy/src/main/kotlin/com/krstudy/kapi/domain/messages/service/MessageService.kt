@@ -7,11 +7,15 @@ import com.krstudy.kapi.domain.member.service.MemberService
 import com.krstudy.kapi.domain.messages.entity.Message
 import com.krstudy.kapi.domain.messages.repository.MessageRepository
 import com.krstudy.kapi.global.https.ReqData
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.http.HttpStatus
+import org.springframework.web.server.ResponseStatusException
+import java.time.LocalDateTime
 
 @Service
 class MessageService(
@@ -83,5 +87,25 @@ class MessageService(
     suspend fun searchSentMessages(userId: Long, searchTerm: String, pageable: Pageable): Page<Message> {
         return messageRepository.searchSentMessages(userId, searchTerm, pageable)
     }
+
+    suspend fun getMessageById(id: Long): Message {
+        return messageRepository.findById(id).orElseThrow {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Message not found")
+        }
+    }
+
+    suspend fun getMemberById(id: Long): Member {
+        return memberService.getMemberByNo(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found")
+    }
+
+    @Transactional
+    suspend fun markAsRead(messageId: Long, recipientId: Long) {
+        val message = getMessageById(messageId)
+        message.recipients.find { it.recipientId == recipientId }?.let { recipient ->
+            recipient.readAt = LocalDateTime.now()
+            messageRepository.save(message)
+        }
+    }
+
 
 }

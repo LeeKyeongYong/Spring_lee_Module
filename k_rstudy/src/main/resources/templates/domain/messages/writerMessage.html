@@ -172,6 +172,18 @@
             resize: vertical; /* 수직으로 크기 조절 가능 */
             margin-bottom: 10px;
         }
+        /* 제목 입력 필드의 높이를 조정 */
+        .message-input#titleInput {
+            min-height: 50px; /* textarea의 절반 높이로 설정 */
+            height: 50px; /* 고정 높이 설정 */
+            resize: none; /* 크기 조절 비활성화 */
+        }
+
+        /* 기존 메시지 입력 textarea 스타일 유지 */
+        textarea.message-input {
+            min-height: 100px;
+            resize: vertical;
+        }
 
         .send-button {
             padding: 10px 20px;
@@ -567,10 +579,10 @@
             document.getElementById('messageForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 if (validateAndSubmit()) {
-                    const content = document.querySelector('.message-input').value;
-                    const titleInput = document.getElementById('titleInput').value;
+                    const contentTextarea = document.querySelector('textarea.message-input');
+                    const titleInput = document.getElementById('titleInput');
                     const recipients = Array.from(selectedRecipients).map(recipient => ({
-                        recipientId: recipient.id, // 이미 숫자 타입
+                        recipientId: recipient.id,
                         recipientName: recipient.name,
                         recipientUserId: recipient.userid
                     }));
@@ -583,8 +595,8 @@
                                 'X-CSRF-TOKEN': document.querySelector('[name="_csrf"]').value
                             },
                             body: JSON.stringify({
-                                content: content,
-                                title:titleInput,
+                                content: contentTextarea.value,
+                                title: titleInput.value,
                                 recipients: recipients
                             })
                         });
@@ -594,8 +606,8 @@
                         }
 
                         alert('메시지가 성공적으로 전송되었습니다.');
-                        document.querySelector('.message-input').value = '';
-                        document.getElementById('titleInput').value='';
+                        contentTextarea.value = ''; // textarea 내용 초기화
+                        titleInput.value = ''; // 제목 입력 필드 초기화
                         selectedRecipients.clear();
                         updateRecipientDisplay();
                         displayMessageList();

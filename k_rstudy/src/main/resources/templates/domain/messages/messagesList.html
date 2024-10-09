@@ -125,24 +125,25 @@
             }
 
             data.messages.forEach(message => {
-
                 const truncatedContent = message.content.length > 30 ? message.content.substring(0, 30) + '...' : message.content;
 
                 const messageCard = `
-                    <div class="message-card">
-                        <div class="message-header">
-                            <div>
-                                <strong>${message.title}</strong>
-                                ${message.readAt == null ? '<span class="unread-badge ms-2">읽지 않음</span>' : '<span class="unread-badge ms-2">읽음</span>'}
-                            </div>
-                            <span class="timestamp">${new Date(message.sentAt).toLocaleString()}</span>
-                        </div>
-                        <div class="message-content">${truncatedContent}</div>
-                        <div class="recipient-list">
-                            <small>수신자: ${message.recipients.map(recipient => recipient.recipientName).join(', ')}</small>
-                        </div>
+            <div class="message-card">
+                <div class="message-header">
+                    <div>
+                        <a href="/messages/${message.id}" class="text-decoration-none">
+                            <strong>${message.title}</strong>
+                        </a>
+                        ${message.readAt == null ? '<span class="unread-badge ms-2">읽지 않음</span>' : '<span class="read-badge ms-2">읽음</span>'}
                     </div>
-                `;
+                    <span class="timestamp">${new Date(message.sentAt).toLocaleString()}</span>
+                </div>
+                <div class="message-content">${truncatedContent}</div>
+                <div class="recipient-list">
+                    <small>수신자: ${message.recipients.map(recipient => recipient.recipientName).join(', ')}</small>
+                </div>
+            </div>
+        `;
                 messageContainer.append(messageCard);
             });
         }
