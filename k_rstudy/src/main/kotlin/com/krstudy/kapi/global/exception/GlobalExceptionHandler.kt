@@ -11,8 +11,11 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
+import org.springframework.web.servlet.ModelAndView
+import org.springframework.web.servlet.NoHandlerFoundException
 import java.io.PrintWriter
 import java.io.StringWriter
+
 
 @ControllerAdvice
 @RequiredArgsConstructor
@@ -64,6 +67,11 @@ class GlobalExceptionHandler (private val rq: ReqData){
     // 로깅 시 민감한 정보 마스킹
     private fun maskSensitiveInfo(info: String): String {
         return info.take(3) + "*".repeat(info.length - 3)
+    }
+
+    @ExceptionHandler(NoHandlerFoundException::class)
+    fun handleNotFound(): ModelAndView {
+        return ModelAndView("redirect:/") // 루트 페이지로 리디렉션
     }
 
 }
