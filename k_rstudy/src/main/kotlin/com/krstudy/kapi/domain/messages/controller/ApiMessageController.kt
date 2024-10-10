@@ -124,7 +124,6 @@ class ApiMessageController(
         ResponseEntity.ok(UnreadCountResponse(count))
     }
 
-    // 받은 메시지 목록 조회
     @GetMapping("/received", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun showReceivedMessageList(
         @RequestParam(defaultValue = "1") page: Int,
@@ -135,27 +134,13 @@ class ApiMessageController(
         val currentUser = messageService.getCurrentUser()
 
         val messagesPage = if (search.isNullOrBlank()) {
-            messageService.getMessagesForUser(currentUser.id, pageable)
+            messageService.getMessagesForRecipientUserId(currentUser.userid, pageable) // 변경된 메서드 호출
         } else {
-            messageService.searchMessages(currentUser.id, search, pageable)
+            messageService.searchMessagesForRecipientUserId(currentUser.id, search, pageable) // 검색 메서드도 수정
         }
 
         val formattedMessages = messagesPage.content.map { message ->
-            MessageResponse(
-                id = message.id,
-                content = message.content,
-                title = message.title,
-                senderId = message.senderId,
-                recipients = message.recipients.map {
-                    RecipientDto(
-                        recipientId = it.recipientId,
-                        recipientName = "${it.recipientName} (${it.recipientUserId})",
-                        recipientUserId = it.recipientUserId
-                    )
-                },
-                sentAt = message.sentAt,
-                readAt = message.getModifyDate()
-            )
+            MessageResponse.fromMessage(message) // 메시지 응답 형식으로 변환
         }
 
         val response = mapOf(
@@ -167,6 +152,7 @@ class ApiMessageController(
 
         return ResponseEntity.ok(response)
     }
+
 
 
     // 메시지 읽음 처리
@@ -191,7 +177,3 @@ class ApiMessageController(
     }
 
 }
-
-//9. 보낸사람 Undefined로 나옴 처리.
-//10. 받는사람 로그인한 본인 안나오게..
-//6. 슬라이드식 팝업 5개 보여주고 6개만

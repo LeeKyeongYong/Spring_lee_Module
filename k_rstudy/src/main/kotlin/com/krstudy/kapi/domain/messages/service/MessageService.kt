@@ -107,5 +107,13 @@ class MessageService(
         }
     }
 
+    suspend fun getMessagesForRecipientUserId(recipientUserId: String, pageable: Pageable): Page<Message> {
+        return messageRepository.findMessagesByRecipientUserId(recipientUserId, pageable)
+    }
+
+    suspend fun searchMessagesForRecipientUserId(recipientUserId: Long, searchTerm: String, pageable: Pageable): Page<Message> {
+        return messageRepository.searchMessages(recipientUserId, searchTerm, pageable)
+    }
+
 
 }
