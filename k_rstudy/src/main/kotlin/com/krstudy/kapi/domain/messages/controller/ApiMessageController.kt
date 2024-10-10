@@ -49,6 +49,8 @@ class ApiMessageController(
                 content = message.content,
                 title = message.title,
                 senderId = message.senderId,
+                senderName = currentUser.username, // 현재 사용자의 이름
+                senderUserId = currentUser.userid, // 현재 사용자의 ID
                 recipients = message.recipients.map {
                     RecipientDto(
                         recipientId = it.recipientId,
@@ -57,7 +59,7 @@ class ApiMessageController(
                     )
                 },
                 sentAt = message.sentAt,
-                readAt = message.recipients.find { it.recipientId == currentUser.id }?.readAt // 현재 사용자 기준으로 읽음 상태 처리
+                readAt = message.recipients.find { it.recipientId != currentUser.id }?.readAt // 현재 사용자 기준으로 읽음 상태 처리
             )
         }
 

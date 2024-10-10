@@ -60,8 +60,9 @@ interface MessageRepository : JpaRepository<Message, Long> {
     fun searchSentMessages(userId: Long, searchTerm: String, pageable: Pageable): Page<Message>
 
     @Query("""
-    SELECT DISTINCT m 
+     SELECT DISTINCT m 
     FROM Message m 
+    LEFT JOIN FETCH m.sender 
     LEFT JOIN MessageRecipient mr ON mr.message = m 
     WHERE mr.recipientUserId = :recipientUserId
 """)

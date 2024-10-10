@@ -58,7 +58,7 @@
             <div class="message-meta">
                 <div>
                     <strong>보내는 사람:</strong>
-                    <span th:text="${sender.username + ' (' + sender.userId + ')'}">보내는 사람 이름 (ID)</span>
+                    <span th:text="${sender.username} + ' (' + ${sender.userid} + ')'">보내는 사람 이름 (ID)</span>
                 </div>
                 <div>
                     <strong>받는 사람 ([[${message.recipients.size()}]]):</strong>
