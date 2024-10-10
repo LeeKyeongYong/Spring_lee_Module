@@ -572,7 +572,7 @@
                     <button class="btn btn-sm btn-primary"
                             onclick="selectRecipient('${user.id}', '${user.name}', '${user.userid}', this)"
                             ${isSelected ? 'disabled' : ''}>
-                        ${isSelected ? '선택됨' : '선택'}
+                        ${isSelected ? '선택' : '선택'}
                     </button>
                 </td>
             </tr>
@@ -674,7 +674,7 @@
             }
 
             button.disabled = true;
-            button.textContent = '선택됨';
+            button.textContent = '선택';
 
             selectedRecipients.add({
                 id: recipientId,
@@ -891,7 +891,12 @@
 
             // 아직 읽지 않은 메시지인 경우에만 처리
             if (!message.readAt) {
+
+                const csrfToken = document.querySelector('[name="_csrf"]').value;
+                console.log('CSRF 토큰:', csrfToken);
+
                 try {
+                    console.log('API 호출 시도');
                     const response = await fetch(`/api/messages/${messageId}/read`, {
                         method: 'POST',
                         headers: {
@@ -913,6 +918,7 @@
                     // 메시지 상태 업데이트
                     message.readAt = new Date();
                     messageItem.classList.remove('unread');
+                    console.log('API 응답:', response);
                 } catch (error) {
                     console.error('메시지 읽음 처리 중 오류 발생:', error);
                 }

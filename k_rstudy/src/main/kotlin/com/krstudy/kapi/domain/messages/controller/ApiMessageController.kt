@@ -147,7 +147,7 @@ class ApiMessageController(
         }
 
         val formattedMessages = messagesPage.content.map { message ->
-            MessageResponse.fromMessage(message)
+            MessageResponse.fromMessage(message, currentUser.id)
         }
 
         // 안읽은 메시지 수 가져오기
@@ -167,11 +167,20 @@ class ApiMessageController(
     @PostMapping("/{messageId}/read")
     suspend fun markMessageAsRead(@PathVariable messageId: Long): ResponseEntity<UnreadCountResponse> {
         logger.info("Start: markMessageAsRead - messageId: $messageId")
-        val currentUser = messageService.getCurrentUser()
-        logger.info("Current user: ${currentUser.id}")
-        val unreadCount = messageService.markMessageAsReadAndGetUnreadCount(messageId, currentUser.id)
-        logger.info("Unread count after marking as read: $unreadCount")
-        return ResponseEntity.ok(UnreadCountResponse(unreadCount))
+
+        try {
+            val currentUser = messageService.getCurrentUser()
+            logger.info("Current user: ${currentUser.id}")
+
+            // 새로운 suspend 함수 사용
+            val unreadCount = messageService.markMessageAsReadAndGetUnreadCountSuspend(messageId, currentUser.id)
+            logger.info("Unread count after marking as read: $unreadCount")
+
+            return ResponseEntity.ok(UnreadCountResponse(unreadCount))
+        } catch (e: Exception) {
+            logger.error("Error in markMessageAsRead: ${e.message}", e)
+            throw e
+        }
     }
 }
 

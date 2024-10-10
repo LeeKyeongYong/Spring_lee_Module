@@ -8,6 +8,8 @@ import com.krstudy.kapi.domain.messages.entity.Message
 import com.krstudy.kapi.domain.messages.repository.MessageRepository
 import com.krstudy.kapi.global.https.ReqData
 import jakarta.transaction.Transactional
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.springframework.stereotype.Service
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
@@ -129,6 +131,12 @@ class MessageService(
         logger.info("Unread count for recipient $recipientId: $unreadCount")
 
         return unreadCount
+    }
+    // 코루틴 래퍼 메소드 추가
+    suspend fun markMessageAsReadAndGetUnreadCountSuspend(messageId: Long, recipientId: Long): Long {
+        return withContext(Dispatchers.IO) {
+            markMessageAsReadAndGetUnreadCount(messageId, recipientId)
+        }
     }
 
     suspend fun getReceivedMessagesWithUnreadCount(recipientId: Long, pageable: Pageable): Pair<Page<Message>, Long> {

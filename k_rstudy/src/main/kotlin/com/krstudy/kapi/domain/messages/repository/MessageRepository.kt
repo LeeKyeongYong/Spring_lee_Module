@@ -1,6 +1,7 @@
 package com.krstudy.kapi.domain.messages.repository
 
 import com.krstudy.kapi.domain.messages.entity.Message
+import jakarta.transaction.Transactional
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -75,6 +76,7 @@ interface MessageRepository : JpaRepository<Message, Long> {
         SET mr.readAt = CURRENT_TIMESTAMP 
         WHERE mr.message.id = :messageId AND mr.recipientId = :recipientId
     """)
+    @Transactional  // 여기에도 @Transactional 추가
     fun markMessageAsRead(messageId: Long, recipientId: Long)
 
 }
