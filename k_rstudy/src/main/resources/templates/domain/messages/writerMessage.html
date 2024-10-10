@@ -325,7 +325,9 @@
         }
 
         .pagination {
-            justify-content: center !important; /* 페이징 가운데 정렬 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
             margin-top: 20px;
         }
 
@@ -340,6 +342,66 @@
             font-size: 0.9em;
             color: #666;
             margin-top: 10px;
+        }
+
+        /* 버튼 스타일 개선 */
+        .btn-primary {
+            background-color: #1976d2;
+            border-color: #1976d2;
+        }
+
+        .btn-primary:hover {
+            background-color: #1565c0;
+            border-color: #1565c0;
+        }
+
+        /* 페이징 스타일 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .pagination button, .pagination span {
+            margin: 0 5px;
+            padding: 5px 10px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .pagination button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .pagination span {
+            background-color: #1976d2;
+            color: white;
+        }
+
+        /* 메시지 검색 버튼 스타일 */
+        #searchButton {
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #searchButton:hover {
+            background-color: #1565c0;
         }
 
     </style>
@@ -365,15 +427,13 @@
             document.getElementById('recipientModal').style.display = 'none';
         }
 
-
-
+        // 검색 함수 수정
         async function searchRecipients() {
             const searchValue = document.getElementById('searchInput').value;
+            const searchResults = document.querySelector('#searchResults');
+            const noResults = document.querySelector('.no-results');
 
             try {
-                // 검색 시 항상 첫 페이지로 리셋
-                currentPage = 1;
-
                 const response = await fetch(`/api/messages/search-users?searchUsername=${encodeURIComponent(searchValue)}`, {
                     method: 'GET',
                     headers: {
@@ -386,125 +446,138 @@
                 }
 
                 const data = await response.json();
-                console.log('Search results:', data);
 
-                if (!Array.isArray(data)) {
-                    throw new Error('Invalid data structure');
+                // 검색 결과 처리
+                if (Array.isArray(data) && data.length > 0) {
+                    allSearchResults = data;
+                    currentPage = 1;
+                    displaySearchResults();
+                    noResults.style.display = 'none';
+                } else {
+                    allSearchResults = [];
+                    noResults.style.display = 'block';
+                    document.querySelector('.pagination').style.display = 'none';
                 }
-
-                allSearchResults = data; // 전체 검색 결과 저장
-                const totalPages = Math.ceil(allSearchResults.length / itemsPerPage) || 1;
-
-                displaySearchResults(currentPage);
-                updatePagination(totalPages);
 
             } catch (error) {
                 console.error('Error:', error);
-                document.querySelector('.no-results').textContent = '사용자 검색 중 오류가 발생했습니다.';
-                document.querySelector('.no-results').style.display = 'block';
+                noResults.textContent = '사용자 검색 중 오류가 발생했습니다: ' + error.message;
+                noResults.style.display = 'block';
                 document.querySelector('.pagination').style.display = 'none';
             }
         }
 
-        function displaySearchResults(page) {
+        // 검색 결과 표시 함수 수정
+        function displaySearchResults() {
             const tbody = document.getElementById('recipientList');
-            tbody.innerHTML = ''; // 이전 검색 결과 초기화
+            tbody.innerHTML = '';
 
-            const startIndex = (page - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const usersToDisplay = allSearchResults.slice(startIndex, endIndex);
-
-            if (usersToDisplay.length === 0) {
+            if (allSearchResults.length === 0) {
                 document.querySelector('.no-results').style.display = 'block';
                 document.querySelector('.pagination').style.display = 'none';
-            } else {
-                document.querySelector('.no-results').style.display = 'none';
-                document.querySelector('.pagination').style.display = 'flex';
-
-                usersToDisplay.forEach((user, index) => {
-                    const row = `
-                <tr>
-                    <td>${startIndex + index + 1}</td>
-                    <td>${user.name}</td>
-                    <td>
-                        <button class="btn btn-sm btn-primary"
-                            onclick="selectRecipient('${user.id}', '${user.name}', '${user.userid}')">
-                            선택
-                        </button>
-                    </td>
-                </tr>
-            `;
-                    tbody.insertAdjacentHTML('beforeend', row);
-                });
+                return;
             }
+
+            document.querySelector('.no-results').style.display = 'none';
+            document.querySelector('.pagination').style.display = 'flex';
+
+            // 현재 페이지의 결과만 표시
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, allSearchResults.length);
+            const pageResults = allSearchResults.slice(startIndex, endIndex);
+
+            pageResults.forEach((user, index) => {
+                const row = `
+            <tr>
+                <td>${startIndex + index + 1}</td>
+                <td>${user.name} (${user.userid})</td>
+                <td>
+                    <button class="btn btn-sm btn-primary"
+                            onclick="selectRecipient('${user.id}', '${user.name}', '${user.userid}')">
+                        선택
+                    </button>
+                </td>
+            </tr>
+        `;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+
+            updatePagination();
         }
 
-        function updatePagination(totalPages) {
+
+        // 페이지네이션 UI 업데이트 함수 수정
+        function updatePagination(currentPage, totalPages) {
             const paginationElement = document.querySelector('.pagination');
             paginationElement.innerHTML = '';
 
             // 이전 페이지 버튼
             if (currentPage > 1) {
-                paginationElement.innerHTML += `
-            <li class="page-item">
-                <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">이전</a>
-            </li>
-        `;
+                paginationElement.insertAdjacentHTML('beforeend', `
+            <button onclick="loadPreviousPage()" class="page-btn">이전</button>
+        `);
             }
 
-            // 페이지 번호
+            // 페이지 번호들
             for (let i = 1; i <= totalPages; i++) {
-                paginationElement.innerHTML += `
-            <li class="page-item ${i === currentPage ? 'active' : ''}">
-                <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
-            </li>
-        `;
+                if (
+                    i === 1 || // 첫 페이지
+                    i === totalPages || // 마지막 페이지
+                    (i >= currentPage - 1 && i <= currentPage + 1) // 현재 페이지 주변
+                ) {
+                    paginationElement.insertAdjacentHTML('beforeend', `
+                <button onclick="changePage(${i})"
+                        class="page-btn ${i === currentPage ? 'active' : ''}"
+                        ${i === currentPage ? 'disabled' : ''}>
+                    ${i}
+                </button>
+            `);
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    paginationElement.insertAdjacentHTML('beforeend', `
+                <span class="page-ellipsis">...</span>
+            `);
+                }
             }
 
             // 다음 페이지 버튼
             if (currentPage < totalPages) {
-                paginationElement.innerHTML += `
-            <li class="page-item">
-                <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">다음</a>
-            </li>
-        `;
+                paginationElement.insertAdjacentHTML('beforeend', `
+            <button onclick="loadNextPage()" class="page-btn">다음</button>
+        `);
             }
         }
 
-
+        // 페이지 변경 함수 수정
         function changePage(page) {
             currentPage = page;
-            displaySearchResults(page);
-            updatePagination(Math.ceil(allSearchResults.length / itemsPerPage));
-            return false; // 이벤트 기본 동작 방지
+            loadReceivedMessages(page, pageSize);
         }
 
-        function selectRecipient(id, name,userid) {
-            // 새로운 수신자를 Set에 추가
+        // 수신자 선택 함수 수정
+        function selectRecipient(id, name, userid) {
             const recipientId = parseInt(id, 10);
             if (isNaN(recipientId)) {
                 console.error('Invalid ID format');
                 return;
             }
 
+            if (selectedRecipients.size >= 10) {
+                alert('최대 10명까지만 선택할 수 있습니다.');
+                return;
+            }
+
             selectedRecipients.add({
-                id: recipientId,  // 숫자로 변환된 ID 사용
+                id: recipientId,
                 name: name,
                 userid: userid
             });
 
-            // 화면 업데이트
             updateRecipientDisplay();
-
-            // 모달 닫기
-            closeRecipientModal();
         }
 
+        // 수신자 제거 함수 수정
         function removeRecipient(id) {
-            // Set에서 해당 수신자 제거
-            selectedRecipients.delete([...selectedRecipients].find(r => r.id === id));
-
-            // 화면 업데이트
+            selectedRecipients = new Set([...selectedRecipients].filter(r => r.id !== parseInt(id, 10)));
             updateRecipientDisplay();
         }
 
@@ -553,17 +626,20 @@
         // DOM이 로드된 후 이벤트 리스너 설정
         document.addEventListener('DOMContentLoaded', () => {
 
-            // searchInput 요소가 있을 때만 이벤트 리스너 추가
+            // 검색 입력 필드에 이벤트 리스너 추가
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
-                // 디바운스 적용하여 검색 수행
                 searchInput.addEventListener('input', debounce(() => {
                     searchRecipients();
                 }, 300));
             }
 
             //메시지 목록 불러오기
-            loadReceivedMessages(currentPage, pageSize);
+            loadReceivedMessages(currentPage, itemsPerPage);
+            // loadReceivedMessages(currentPage, pageSize).catch(error => {
+            //     console.error('Initial message load failed:', error);
+            //     displayMessageList([]); // 초기 로딩 실패 시 빈 목록 표시
+            // });
 
             // 초기 메시지 목록 표시
             displayMessageList();
@@ -640,33 +716,32 @@
             };
         }
 
-        function displayMessageList() {
+        // 메시지 표시 함수 수정
+        function displayMessageList(messages = []) {
             const messageList = document.querySelector('.message-list');
             messageList.innerHTML = '';
 
-            if (Object.keys(messageData).length === 0) {
-                // 메시지가 없을 때
+            if (!messages || messages.length === 0) {
                 const noMessageElement = document.createElement('div');
                 noMessageElement.className = 'no-messages';
                 noMessageElement.textContent = '받은 메시지가 존재하지 않습니다.';
                 messageList.appendChild(noMessageElement);
             } else {
-                for (const [id, message] of Object.entries(messageData)) {
+                messages.forEach(message => {
                     const messageItem = document.createElement('div');
                     messageItem.className = `message-item ${message.isUnread ? 'unread' : ''}`;
-                    messageItem.setAttribute('data-message-id', id);
+                    messageItem.setAttribute('data-message-id', message.id);
                     messageItem.innerHTML = `
-                        <div class="message-item-header">
-                            <span class="sender-name">${message.sender}</span>
-                            <span class="message-time">${message.time}</span>
-                        </div>
-                        <div class="message-preview">${message.preview}</div>
-                    `;
-                    messageItem.addEventListener('click', () => handleMessageClick(id));
+                <div class="message-item-header">
+                    <span class="sender-name">${message.senderName} (${message.senderUserId})</span>
+                    <span class="message-time">${new Date(message.sentAt).toLocaleString()}</span>
+                </div>
+                <div class="message-preview">${message.title}</div>
+            `;
+                    messageItem.addEventListener('click', () => handleMessageClick(message.id));
                     messageList.appendChild(messageItem);
-                }
+                });
             }
-            updateUnreadCount();
         }
 
         function handleMessageClick(messageId) {
@@ -776,35 +851,72 @@
             loadReceivedMessages(currentPage, pageSize);
         }
 
-        // 받은 메시지함 로드
+        // 받은 메시지 로드 함수 수정
         async function loadReceivedMessages(page = 1, size = 10, search = '') {
             try {
                 const response = await fetch(`/api/messages/received?page=${page}&size=${size}&search=${search}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch messages');
+                }
                 const data = await response.json();
 
-                const messageListDiv = document.querySelector('.message-list');
+                if (data && Array.isArray(data.messages)) {
+                    displayMessageList(data.messages);
 
-                if (data.messages.length === 0) {
-                    messageListDiv.innerHTML = '<div class="no-messages">받은 메시지가 존재하지 않습니다.</div>';
-                    return;
+                    // 총 페이지 수 계산 (올림)
+                    const totalPages = Math.ceil(data.totalCount / size);
+                    updatePagination(page, totalPages);
+                } else {
+                    console.error('Invalid data structure received:', data);
+                    displayMessageList([]);
                 }
-
-                const messagesHtml = data.messages.map(message => `
-            <div class="message-item" onclick="markMessageAsRead(${message.id})">
-                <h3>${message.title}</h3>
-                <p>${message.content}</p>
-                <div class="message-meta">
-                    <span>보낸사람: ${message.senderName}</span>
-                    <span>보낸시간: ${new Date(message.sentAt).toLocaleString()}</span>
-                </div>
-            </div>
-        `).join('');
-
-                messageListDiv.innerHTML = messagesHtml;
+                updateUnreadCount();
             } catch (error) {
                 console.error('메시지 로드 중 오류 발생:', error);
+                displayMessageList([]);
             }
         }
+
+        // 초기 로드 시 메시지 목록 가져오기
+        document.addEventListener('DOMContentLoaded', () => {
+            loadReceivedMessages();
+
+            // CSS 스타일 추가
+            const style = document.createElement('style');
+            style.textContent = `
+    .pagination {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+        margin-top: 15px;
+    }
+
+    .page-btn {
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+        background-color: #fff;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .page-btn:hover {
+        background-color: #f0f0f0;
+    }
+
+    .page-btn.active {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+
+    .page-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+`;
+            document.head.appendChild(style);
+
+        });
 
     </script>
 </head>
@@ -822,7 +934,7 @@
                 <!-- 메시지 검색 -->
                 <div class="search-box">
                     <input type="text" id="messageSearch" placeholder="메시지 검색...">
-                    <button onclick="searchMessages()">검색</button>
+                    <button id="searchButton" onclick="searchMessages()">검색</button>
                 </div>
 
 
@@ -849,9 +961,7 @@
 
                 <!-- 페이지네이션 -->
                 <div class="pagination">
-                    <button onclick="loadPreviousPage()">이전</button>
-                    <span id="currentPage">1</span>
-                    <button onclick="loadNextPage()">다음</button>
+                    <!-- 페이지네이션 버튼이 여기에 동적으로 추가됩니다 -->
                 </div>
 
             </div>
