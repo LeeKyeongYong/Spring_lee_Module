@@ -16,6 +16,8 @@ import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDateTime
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 @Service
 class MessageService(
@@ -23,6 +25,9 @@ class MessageService(
     private val memberService: MemberService,
     private val reqData: ReqData // ReqData 주입
 ) {
+
+    private val logger: Logger = LoggerFactory.getLogger(MessageService::class.java)
+
     private val messageCache = Caffeine.newBuilder()
         .maximumSize(10000)
         .expireAfterWrite(10, TimeUnit.MINUTES)
@@ -117,8 +122,13 @@ class MessageService(
 
     @Transactional
     suspend fun markMessageAsReadAndGetUnreadCount(messageId: Long, recipientId: Long): Long {
+        logger.info("Marking message $messageId as read for recipient $recipientId")
         messageRepository.markMessageAsRead(messageId, recipientId)
-        return messageRepository.countUnreadMessagesByRecipientId(recipientId)
+
+        val unreadCount = messageRepository.countUnreadMessagesByRecipientId(recipientId)
+        logger.info("Unread count for recipient $recipientId: $unreadCount")
+
+        return unreadCount
     }
 
     suspend fun getReceivedMessagesWithUnreadCount(recipientId: Long, pageable: Pageable): Pair<Page<Message>, Long> {

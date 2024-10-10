@@ -482,11 +482,20 @@
         // 전역 변수로 현재 읽지 않은 메시지 수를 관리
         let unreadCount = 0;
 
+        // 모달 열기 함수 수정
         function openRecipientModal(event) {
             if (event) {
                 event.preventDefault();
             }
             document.getElementById('recipientModal').style.display = 'block';
+
+            // 검색 입력 필드 초기화
+            document.getElementById('searchInput').value = '';
+
+            // 검색 실행 전에 이전 검색 결과 초기화
+            document.getElementById('recipientList').innerHTML = '';
+
+            // 새로운 검색 실행
             searchRecipients();
         }
 
@@ -552,14 +561,18 @@
             const pageResults = allSearchResults.slice(startIndex, endIndex);
 
             pageResults.forEach((user, index) => {
+                // 이미 선택된 사용자인지 확인
+                const isSelected = Array.from(selectedRecipients).some(recipient => recipient.id === user.id);
+
                 const row = `
             <tr>
                 <td>${startIndex + index + 1}</td>
                 <td>${user.name} (${user.userid})</td>
                 <td>
                     <button class="btn btn-sm btn-primary"
-                            onclick="selectRecipient('${user.id}', '${user.name}', '${user.userid}', this)">
-                        선택
+                            onclick="selectRecipient('${user.id}', '${user.name}', '${user.userid}', this)"
+                            ${isSelected ? 'disabled' : ''}>
+                        ${isSelected ? '선택됨' : '선택'}
                     </button>
                 </td>
             </tr>
@@ -569,6 +582,7 @@
 
             updateRecipientPagination();
         }
+
 
         // 받는 사람 검색 페이지네이션 UI 업데이트 함수
         function updateRecipientPagination() {
@@ -648,19 +662,9 @@
 
         // 수신자 선택 함수 수정
         function selectRecipient(id, name, userid, button) {
-
-            if (button.disabled) {
-                return;
-            }
-
-            // 버튼 비활성화
-            button.disabled = true;
-            // 나머지 로직 추가
-            console.log(`선택된 사용자: ${name} (${userid})`);
-
             const recipientId = parseInt(id, 10);
-            if (isNaN(recipientId)) {
-                console.error('Invalid ID format');
+
+            if (button.disabled || [...selectedRecipients].some(r => r.id === recipientId)) {
                 return;
             }
 
@@ -668,6 +672,9 @@
                 alert('최대 10명까지만 선택할 수 있습니다.');
                 return;
             }
+
+            button.disabled = true;
+            button.textContent = '선택됨';
 
             selectedRecipients.add({
                 id: recipientId,
@@ -679,12 +686,33 @@
         }
 
         // 수신자 제거 함수 수정
+        // 수신자 제거 함수 수정
         function removeRecipient(id) {
-            selectedRecipients = new Set([...selectedRecipients].filter(r => r.id !== parseInt(id, 10)));
+            const numId = parseInt(id, 10);
+            selectedRecipients = new Set([...selectedRecipients].filter(r => r.id !== numId));
             updateRecipientDisplay();
-        }
 
+            // 현재 모달이 열려있는 경우, 해당 사용자의 버튼 상태 업데이트
+            if (document.getElementById('recipientModal').style.display === 'block') {
+                const button = document.querySelector(`button[onclick*="'${id}'"]`);
+                if (button) {
+                    button.disabled = false;
+                    button.textContent = '선택';
+                }
+            }
+        }
         function updateRecipientDisplay() {
+
+            const buttons = document.querySelectorAll('.btn-primary');
+            buttons.forEach((button) => {
+                const userId = button.getAttribute('data-userid'); // 버튼에 userid를 data 속성으로 저장해두기
+                if (selectedRecipients.has(userId)) {
+                    button.disabled = true; // 이미 선택된 사용자의 버튼 비활성화
+                } else {
+                    button.disabled = false; // 선택되지 않은 경우 활성화
+                }
+            });
+
             const container = document.querySelector('.recipient-container');
             container.innerHTML = '';
 
@@ -851,7 +879,7 @@
             updateUnreadCount();
         }
 
-
+        // 메시지 클릭 핸들러 함수 수정
         async function handleMessageClick(messageId) {
             const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
             const message = messageData[messageId];
@@ -861,26 +889,52 @@
                 return;
             }
 
+            // 아직 읽지 않은 메시지인 경우에만 처리
             if (!message.readAt) {
-                await markMessageAsRead(messageId);
-                message.readAt = new Date();
-                messageItem.classList.remove('unread');
-                updateUnreadCount();
+                try {
+                    const response = await fetch(`/api/messages/${messageId}/read`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('[name="_csrf"]').value
+                        }
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json(); // 응답 데이터 가져오기
+                        console.error('메시지 읽음 처리 실패:', errorData);
+                        throw new Error('메시지 읽음 처리 실패');
+                    }
+
+                    const data = await response.json();
+                    unreadCount = data.unreadCount; // 서버에서 반환된 새로운 읽지 않은 메시지 수로 업데이트
+                    updateUnreadCount(); // UI 업데이트
+
+                    // 메시지 상태 업데이트
+                    message.readAt = new Date();
+                    messageItem.classList.remove('unread');
+                } catch (error) {
+                    console.error('메시지 읽음 처리 중 오류 발생:', error);
+                }
             }
 
+            // 선택된 메시지 스타일 적용
             document.querySelectorAll('.message-item').forEach(item => {
                 item.classList.remove('selected');
             });
-
             messageItem.classList.add('selected');
+
+            // 메시지 상세 내용 표시
             showMessageDetail(messageId);
         }
 
         // 읽지 않은 메시지 수 업데이트 함수
         function updateUnreadCount() {
             const unreadCountSpan = document.getElementById('unreadCountSpan');
-            unreadCountSpan.textContent = unreadCount;
-            unreadCountSpan.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+            if (unreadCountSpan) {
+                unreadCountSpan.textContent = unreadCount;
+                unreadCountSpan.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+            }
         }
 
 
@@ -943,9 +997,10 @@
             return Object.fromEntries(params);
         }
 
-        // 메시지 읽음 처리 및 카운트 업데이트
+        // 메시지 읽음 처리 함수 구현
         async function markMessageAsRead(messageId) {
             try {
+
                 const response = await fetch(`/api/messages/${messageId}/read`, {
                     method: 'POST',
                     headers: {
@@ -963,6 +1018,7 @@
                 updateUnreadCount();
             } catch (error) {
                 console.error('메시지 읽음 처리 중 오류 발생:', error);
+                throw error;
             }
         }
 
@@ -1010,10 +1066,11 @@
 
                     displayMessageList(data.messages);
 
-                    const totalPages = Math.max(1, Math.ceil(data.totalCount / size));
+                    const totalPages = Math.max(1, Math.ceil(data.totalItems / size));
                     updateMessagePagination(page, totalPages);
 
-                    unreadCount = data.unreadCount; // 서버에서 반환된 읽지 않은 메시지 수로 업데이트
+                    // 서버에서 받은 안읽은 메시지 수로 업데이트
+                    unreadCount = data.unreadCount;
                     updateUnreadCount();
                 } else {
                     console.error('Invalid data structure received:', data);

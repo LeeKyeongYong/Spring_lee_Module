@@ -141,40 +141,40 @@ class ApiMessageController(
         val currentUser = messageService.getCurrentUser()
 
         val messagesPage = if (search.isNullOrBlank()) {
-            messageService.getMessagesForRecipientUserId(currentUser.userid, pageable) // 변경된 메서드 호출
+            messageService.getMessagesForRecipientUserId(currentUser.userid, pageable)
         } else {
-            messageService.searchMessagesForRecipientUserId(currentUser.id, search, pageable) // 검색 메서드도 수정
+            messageService.searchMessagesForRecipientUserId(currentUser.id, search, pageable)
         }
 
         val formattedMessages = messagesPage.content.map { message ->
-            MessageResponse.fromMessage(message) // 메시지 응답 형식으로 변환
+            MessageResponse.fromMessage(message)
         }
+
+        // 안읽은 메시지 수 가져오기
+        val unreadCount = messageService.getUnreadMessagesCount(currentUser.id)
 
         val response = mapOf(
             "messages" to formattedMessages,
             "currentPage" to messagesPage.number + 1,
             "totalPages" to messagesPage.totalPages,
-            "totalItems" to messagesPage.totalElements
+            "totalItems" to messagesPage.totalElements,
+            "unreadCount" to unreadCount  // 안읽은 메시지 수 추가
         )
 
         return ResponseEntity.ok(response)
     }
 
-    // 메시지 읽음 처리
-//    @PostMapping("/{messageId}/read")
-//    suspend fun markMessageAsRead(@PathVariable messageId: Long): ResponseEntity<UnreadCountResponse> {
-//        val currentUser = messageService.getCurrentUser()
-//        messageService.markAsRead(messageId, currentUser.id)
-//        // 읽음 처리 후 새로운 안 읽은 메시지 수 반환
-//        val newUnreadCount = messageService.getUnreadMessagesCount(currentUser.id)
-//        return ResponseEntity.ok(UnreadCountResponse(newUnreadCount))
-//    }
-
     @PostMapping("/{messageId}/read")
     suspend fun markMessageAsRead(@PathVariable messageId: Long): ResponseEntity<UnreadCountResponse> {
+        logger.info("Start: markMessageAsRead - messageId: $messageId")
         val currentUser = messageService.getCurrentUser()
+        logger.info("Current user: ${currentUser.id}")
         val unreadCount = messageService.markMessageAsReadAndGetUnreadCount(messageId, currentUser.id)
+        logger.info("Unread count after marking as read: $unreadCount")
         return ResponseEntity.ok(UnreadCountResponse(unreadCount))
     }
 }
+
+//11. 슬라이드식 15초 간격으로 팝업 5개 저장순서대로  보여주고 6개만
+//12. 카운팅 처리..
 
