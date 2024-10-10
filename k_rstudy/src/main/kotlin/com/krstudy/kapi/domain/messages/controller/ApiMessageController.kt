@@ -75,7 +75,9 @@ class ApiMessageController(
 
     @GetMapping("/search-users", consumes = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun searchUsers(@RequestParam(required = false, defaultValue = "") searchUsername: String): ResponseEntity<List<MemberDto>> {
-        println("검색어: $searchUsername") // 검색어 출력
+
+        // 현재 로그인한 사용자 정보 가져오기
+        val currentUser = messageService.getCurrentUser()
 
         val users = if (searchUsername.isNullOrBlank()) {
             messageService.getAllUsers()  // 검색어 없으면 전체 유저 반환
@@ -84,12 +86,15 @@ class ApiMessageController(
             messageService.searchUsers(searchUsername) // 검색어 있을 때 해당 유저 검색
         }
 
+        // 로그인한 사용자를 목록에서 제외
+        val filteredUsers = users.filter { it.userid != currentUser.userid }
+
         println("검색된 사용자 수: ${users.size}") // 검색된 사용자 수 출력
         println("검색된 사용자 목록: $users") // 전체 사용자 목록 출력
 
         return ResponseEntity.ok()
             .contentType(MediaType.APPLICATION_JSON)
-            .body(users)
+            .body(filteredUsers)
     }
 
     @PostMapping("/save")
@@ -171,5 +176,5 @@ class ApiMessageController(
         val unreadCount = messageService.markMessageAsReadAndGetUnreadCount(messageId, currentUser.id)
         return ResponseEntity.ok(UnreadCountResponse(unreadCount))
     }
-
 }
+

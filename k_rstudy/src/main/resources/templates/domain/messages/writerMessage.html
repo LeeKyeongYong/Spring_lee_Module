@@ -558,7 +558,7 @@
                 <td>${user.name} (${user.userid})</td>
                 <td>
                     <button class="btn btn-sm btn-primary"
-                            onclick="selectRecipient('${user.id}', '${user.name}', '${user.userid}')">
+                            onclick="selectRecipient('${user.id}', '${user.name}', '${user.userid}', this)">
                         선택
                     </button>
                 </td>
@@ -647,7 +647,17 @@
         }
 
         // 수신자 선택 함수 수정
-        function selectRecipient(id, name, userid) {
+        function selectRecipient(id, name, userid, button) {
+
+            if (button.disabled) {
+                return;
+            }
+
+            // 버튼 비활성화
+            button.disabled = true;
+            // 나머지 로직 추가
+            console.log(`선택된 사용자: ${name} (${userid})`);
+
             const recipientId = parseInt(id, 10);
             if (isNaN(recipientId)) {
                 console.error('Invalid ID format');
