@@ -11,22 +11,27 @@ import com.krstudy.kapi.domain.member.dto.MemberDto
 import com.krstudy.kapi.domain.member.service.MemberService
 import com.krstudy.kapi.domain.messages.entity.Message
 import com.krstudy.kapi.domain.messages.entity.MessageRecipient
+import jakarta.servlet.http.HttpServletRequest
 import kotlinx.coroutines.runBlocking
+import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("/api/messages")
 class ApiMessageController(
-    private val messageService: MessageService,
-    private val memberService: MemberService
+    private val messageService: MessageService
+
 ) {
+    private val logger = LoggerFactory.getLogger(ApiMessageController::class.java)
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun showMessageList(
         @RequestParam(defaultValue = "1") page: Int,
         @RequestParam(defaultValue = "10") size: Int,
         @RequestParam(required = false) search: String?
+        , httpServletRequest: HttpServletRequest
     ): ResponseEntity<Map<String, Any>> {
+        logger.info("Received request with Content-Type: ${httpServletRequest.contentType}")
         val pageable = PageRequest.of(page - 1, size, Sort.by("createDate").descending())
         val currentUser = messageService.getCurrentUser()
 
@@ -47,12 +52,12 @@ class ApiMessageController(
                 recipients = message.recipients.map {
                     RecipientDto(
                         recipientId = it.recipientId,
-                        recipientName = "${it.recipientName} (${it.recipientUserId})", // 형식 수정
+                        recipientName = "${it.recipientName} (${it.recipientUserId})",
                         recipientUserId = it.recipientUserId
                     )
                 },
                 sentAt = message.sentAt,
-                readAt = message.getModifyDate()
+                readAt = message.recipients.find { it.recipientId == currentUser.id }?.readAt // 현재 사용자 기준으로 읽음 상태 처리
             )
         }
 
@@ -66,7 +71,7 @@ class ApiMessageController(
         return ResponseEntity.ok(response)
     }
 
-    @GetMapping("/search-users")
+    @GetMapping("/search-users", consumes = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun searchUsers(@RequestParam(required = false, defaultValue = "") searchUsername: String): ResponseEntity<List<MemberDto>> {
         println("검색어: $searchUsername") // 검색어 출력
 
@@ -186,3 +191,7 @@ class ApiMessageController(
     }
 
 }
+
+//9. 보낸사람 Undefined로 나옴 처리.
+//10. 받는사람 로그인한 본인 안나오게..
+//6. 슬라이드식 팝업 5개 보여주고 6개만
