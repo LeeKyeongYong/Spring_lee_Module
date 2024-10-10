@@ -115,7 +115,6 @@ dependencies {
     implementation ("org.awaitility:awaitility")
 
     //jwt
-    //implementation ("io.jsonwebtoken:jjwt:0.12.3")
     implementation("io.jsonwebtoken:jjwt-api:0.12.3")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.3")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.3")
@@ -133,7 +132,6 @@ dependencies {
    // implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
     //log4j
-    //implementation("org.slf4j:slf4j-api:1.7.32")
     implementation("ch.qos.logback:logback-classic:1.4.11")  // logback 최신 버전 사용
 
     //pdf
@@ -151,13 +149,12 @@ dependencies {
     //카프카 추가
     implementation ("org.springframework.kafka:spring-kafka")
 
+    // Resilience4j
     implementation("io.github.resilience4j:resilience4j-spring-boot2:2.2.0")
-
-    // Resilience4j Retry
     implementation("io.github.resilience4j:resilience4j-retry:2.2.0")
-
-    // Resilience4j Bulkhead
     implementation("io.github.resilience4j:resilience4j-bulkhead:2.2.0")
+
+    //api문서
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.1.3") // Feign 의존성 추가
 
     //크롤링 메일발송처리

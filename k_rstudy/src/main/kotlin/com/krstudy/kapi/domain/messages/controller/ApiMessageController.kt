@@ -156,22 +156,20 @@ class ApiMessageController(
     }
 
     // 메시지 읽음 처리
+//    @PostMapping("/{messageId}/read")
+//    suspend fun markMessageAsRead(@PathVariable messageId: Long): ResponseEntity<UnreadCountResponse> {
+//        val currentUser = messageService.getCurrentUser()
+//        messageService.markAsRead(messageId, currentUser.id)
+//        // 읽음 처리 후 새로운 안 읽은 메시지 수 반환
+//        val newUnreadCount = messageService.getUnreadMessagesCount(currentUser.id)
+//        return ResponseEntity.ok(UnreadCountResponse(newUnreadCount))
+//    }
+
     @PostMapping("/{messageId}/read")
     suspend fun markMessageAsRead(@PathVariable messageId: Long): ResponseEntity<UnreadCountResponse> {
         val currentUser = messageService.getCurrentUser()
-        messageService.markAsRead(messageId, currentUser.id)
-        // 읽음 처리 후 새로운 안 읽은 메시지 수 반환
-        val newUnreadCount = messageService.getUnreadMessagesCount(currentUser.id)
-        return ResponseEntity.ok(UnreadCountResponse(newUnreadCount))
-    }
-
-    @GetMapping("/unread/{memberId}")
-    suspend fun getUnreadCount(@PathVariable memberId: Long): ResponseEntity<UnreadCountResponse> {
-        val currentUser = messageService.getCurrentUser()
-        val count = messageService.getUnreadMessagesCount(currentUser.id)
-        return ResponseEntity.ok()
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(UnreadCountResponse(count))
+        val unreadCount = messageService.markMessageAsReadAndGetUnreadCount(messageId, currentUser.id)
+        return ResponseEntity.ok(UnreadCountResponse(unreadCount))
     }
 
 }

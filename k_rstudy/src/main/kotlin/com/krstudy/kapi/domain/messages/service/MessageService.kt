@@ -115,5 +115,17 @@ class MessageService(
         return messageRepository.searchMessages(recipientUserId, searchTerm, pageable)
     }
 
+    @Transactional
+    suspend fun markMessageAsReadAndGetUnreadCount(messageId: Long, recipientId: Long): Long {
+        messageRepository.markMessageAsRead(messageId, recipientId)
+        return messageRepository.countUnreadMessagesByRecipientId(recipientId)
+    }
+
+    suspend fun getReceivedMessagesWithUnreadCount(recipientId: Long, pageable: Pageable): Pair<Page<Message>, Long> {
+        val messages = messageRepository.findByRecipientsRecipientIdOrderByCreateDateDesc(recipientId, pageable)
+        val unreadCount = messageRepository.countUnreadMessagesByRecipientId(recipientId)
+        return Pair(messages, unreadCount)
+    }
+
 
 }

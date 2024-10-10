@@ -4,6 +4,7 @@ import com.krstudy.kapi.domain.messages.entity.Message
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
 
@@ -68,5 +69,12 @@ interface MessageRepository : JpaRepository<Message, Long> {
 """)
     fun findMessagesByRecipientUserId(recipientUserId: String, pageable: Pageable): Page<Message>
 
+    @Modifying
+    @Query("""
+        UPDATE MessageRecipient mr 
+        SET mr.readAt = CURRENT_TIMESTAMP 
+        WHERE mr.message.id = :messageId AND mr.recipientId = :recipientId
+    """)
+    fun markMessageAsRead(messageId: Long, recipientId: Long)
 
 }

@@ -15,6 +15,44 @@
             font-family: 'Noto Sans KR', sans-serif;
             background-color: #f5f5f5;
         }
+        .page-span {
+            display: inline-flex;
+        }
+
+        .page-btn:hover:not(.disabled) {
+            background-color: #e9ecef;
+        }
+
+        .page-btn.active {
+            background-color: #1976d2;
+            color: white;
+            border-color: #1976d2;
+        }
+
+        .page-btn.disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+            opacity: 0.65;
+        }
+
+        .page-numbers {
+            display: flex;
+            gap: 5px;
+        }
+
+        .page-btn {
+            padding: 8px 16px;
+            border: 1px solid #dee2e6;
+            background-color: #fff;
+            color: #333;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
         /* 컨테이너 스타일 */
         .container {
@@ -328,7 +366,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-top: 20px;
+            gap: 10px;
+            margin: 20px 0;
         }
 
         .no-messages {
@@ -403,17 +442,45 @@
         #searchButton:hover {
             background-color: #1565c0;
         }
+        .notification {
+            width: 500px;
+            background: blue;
+            color: white;
+            padding: 20px;
+            position: fixed;
+            bottom: -150px; /* 처음에 화면 밖에 위치 */
+            left: 36%;
+            transform: translateX(-50%);
+            transition: bottom 0.5s ease-in-out;
+        }
+
+        .notification.show {
+            bottom: 20px; /* 슬라이드될 최종 위치 */
+        }
+
+        /* 애니메이션을 위한 keyframes 설정 */
+        @keyframes slide-up {
+            from {
+                bottom: -150px;
+            }
+            to {
+                bottom: 20px;
+            }
+        }
 
     </style>
     <script>
         let selectedRecipients = new Set();
         let allSearchResults = [];
         let currentPage = 1;
+        let currentMessagePage = 1;
+        const messagesPerPage = 10;
         const itemsPerPage = 10;
         const pageSize = 10;
+        let messageData = {};
 
         // 전역 변수로 현재 읽지 않은 메시지 수를 관리
-        let unreadCount = 3;
+        let unreadCount = 0;
 
         function openRecipientModal(event) {
             if (event) {
@@ -447,7 +514,6 @@
 
                 const data = await response.json();
 
-                // 검색 결과 처리
                 if (Array.isArray(data) && data.length > 0) {
                     allSearchResults = data;
                     currentPage = 1;
@@ -481,9 +547,8 @@
             document.querySelector('.no-results').style.display = 'none';
             document.querySelector('.pagination').style.display = 'flex';
 
-            // 현재 페이지의 결과만 표시
             const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = Math.min(startIndex + itemsPerPage, allSearchResults.length); // 마지막 데이터까지 포함
+            const endIndex = Math.min(startIndex + itemsPerPage, allSearchResults.length);
             const pageResults = allSearchResults.slice(startIndex, endIndex);
 
             pageResults.forEach((user, index) => {
@@ -502,24 +567,21 @@
                 tbody.insertAdjacentHTML('beforeend', row);
             });
 
-            // 페이지네이션 UI 업데이트
             updateRecipientPagination();
         }
 
         // 받는 사람 검색 페이지네이션 UI 업데이트 함수
         function updateRecipientPagination() {
-            const totalPages = Math.ceil(allSearchResults.length / itemsPerPage); // totalPages 정확하게 계산
+            const totalPages = Math.ceil(allSearchResults.length / itemsPerPage);
             const paginationElement = document.querySelector('#recipientModal .pagination');
             paginationElement.innerHTML = '';
 
-            // 이전 페이지 버튼
             if (currentPage > 1) {
                 paginationElement.insertAdjacentHTML('beforeend', `
             <button onclick="changeRecipientPage(${currentPage - 1})" class="page-btn">이전</button>
         `);
             }
 
-            // 페이지 번호들
             for (let i = 1; i <= totalPages; i++) {
                 paginationElement.insertAdjacentHTML('beforeend', `
             <button onclick="changeRecipientPage(${i})"
@@ -530,14 +592,12 @@
         `);
             }
 
-            // 다음 페이지 버튼
             if (currentPage < totalPages) {
                 paginationElement.insertAdjacentHTML('beforeend', `
             <button onclick="changeRecipientPage(${currentPage + 1})" class="page-btn">다음</button>
         `);
             }
         }
-
 
         // 페이지네이션 UI 업데이트 함수 수정
         function updatePagination(currentPage, totalPages) {
@@ -635,8 +695,6 @@
                 return false;
             }
 
-
-
             const titleInput = document.getElementById('titleInput');
             if (!titleInput || !titleInput.value.trim()) {
                 alert('제목을 입력해주세요.');
@@ -650,14 +708,14 @@
             }
             document.getElementById('recipientsInput').value = JSON.stringify(Array.from(selectedRecipients));
             return true;
-
         }
-
-        // 메시지 데이터 예시 (실제로는 서버에서 가져와야 함)
-        let messageData = {};
 
         // DOM이 로드된 후 이벤트 리스너 설정
         document.addEventListener('DOMContentLoaded', () => {
+
+            //팝업효과..
+            const notification = document.querySelector('.notification');
+            notification.classList.add('show');
 
             // 검색 입력 필드에 이벤트 리스너 추가
             const searchInput = document.getElementById('searchInput');
@@ -667,12 +725,17 @@
                 }, 300));
             }
 
+            const messageSearchInput = document.getElementById('messageSearch');
+            if (messageSearchInput) {
+                messageSearchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchMessages();
+                    }
+                });
+            }
+
             //메시지 목록 불러오기
             loadReceivedMessages(currentPage, itemsPerPage);
-            // loadReceivedMessages(currentPage, pageSize).catch(error => {
-            //     console.error('Initial message load failed:', error);
-            //     displayMessageList([]); // 초기 로딩 실패 시 빈 목록 표시
-            // });
 
             // 초기 메시지 목록 표시
             displayMessageList();
@@ -725,11 +788,11 @@
                         }
 
                         alert('메시지가 성공적으로 전송되었습니다.');
-                        contentTextarea.value = ''; // textarea 내용 초기화
-                        titleInput.value = ''; // 제목 입력 필드 초기화
+                        contentTextarea.value = '';
+                        titleInput.value = '';
                         selectedRecipients.clear();
                         updateRecipientDisplay();
-                        displayMessageList();
+                        loadReceivedMessages(currentMessagePage, messagesPerPage);
 
                     } catch (error) {
                         console.error('Error:', error);
@@ -762,7 +825,7 @@
             } else {
                 messages.forEach(message => {
                     const messageItem = document.createElement('div');
-                    messageItem.className = `message-item ${message.isUnread ? 'unread' : ''}`;
+                    messageItem.className = `message-item ${!message.readAt ? 'unread' : ''}`;
                     messageItem.setAttribute('data-message-id', message.id);
                     messageItem.innerHTML = `
                 <div class="message-item-header">
@@ -775,9 +838,11 @@
                     messageList.appendChild(messageItem);
                 });
             }
+            updateUnreadCount();
         }
 
-        function handleMessageClick(messageId) {
+
+        async function handleMessageClick(messageId) {
             const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
             const message = messageData[messageId];
 
@@ -786,11 +851,11 @@
                 return;
             }
 
-            if (message.isUnread) {
-                message.isUnread = false;
+            if (!message.readAt) {
+                await markMessageAsRead(messageId);
+                message.readAt = new Date();
                 messageItem.classList.remove('unread');
                 updateUnreadCount();
-                markMessageAsRead(messageId);
             }
 
             document.querySelectorAll('.message-item').forEach(item => {
@@ -798,15 +863,16 @@
             });
 
             messageItem.classList.add('selected');
-
             showMessageDetail(messageId);
         }
 
-        function updateUnreadCount(count) {
+        // 읽지 않은 메시지 수 업데이트 함수
+        function updateUnreadCount() {
             const unreadCountSpan = document.getElementById('unreadCountSpan');
-            unreadCountSpan.textContent = count;
-            unreadCountSpan.style.display = count > 0 ? 'inline-block' : 'none';
+            unreadCountSpan.textContent = unreadCount;
+            unreadCountSpan.style.display = unreadCount > 0 ? 'inline-block' : 'none';
         }
+
 
         function showMessageDetail(messageId) {
             const message = messageData[messageId];
@@ -831,6 +897,37 @@
     `;
         }
 
+        // 새 메시지 알림 함수
+        function showNewMessageNotification() {
+            const notification = document.querySelector('.notification');
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // 웹소켓 연결 및 새 메시지 수신 처리
+        function setupWebSocket() {
+            const socket = new WebSocket('ws://your-websocket-url');
+
+            socket.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                if (data.type === 'new_message') {
+                    showNewMessageNotification();
+                    loadReceivedMessages(currentMessagePage, messagesPerPage);
+                }
+            };
+
+            socket.onerror = function(error) {
+                console.error('WebSocket Error:', error);
+            };
+
+            socket.onclose = function() {
+                console.log('WebSocket connection closed. Trying to reconnect...');
+                setTimeout(setupWebSocket, 5000);
+            };
+        }
+
         function getUrlParams() {
             const params = new URLSearchParams(window.location.search);
             return Object.fromEntries(params);
@@ -847,28 +944,23 @@
                     }
                 });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    updateUnreadCount(data.count);
-
-                    // 메시지 목록에서 해당 메시지의 'unread' 클래스 제거
-                    const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
-                    if (messageItem) {
-                        messageItem.classList.remove('unread');
-                    }
-                } else {
-                    console.error('메시지 읽음 처리 실패');
+                if (!response.ok) {
+                    throw new Error('메시지 읽음 처리 실패');
                 }
+
+                const data = await response.json();
+                unreadCount = data.unreadCount; // 서버에서 반환된 새로운 읽지 않은 메시지 수로 업데이트
+                updateUnreadCount();
             } catch (error) {
                 console.error('메시지 읽음 처리 중 오류 발생:', error);
             }
         }
 
-
-        // 메시지 검색
+        // 메시지 검색 함수 수정
         function searchMessages() {
             const searchTerm = document.getElementById('messageSearch').value;
-            loadReceivedMessages(1, pageSize, searchTerm);
+            currentMessagePage = 1;
+            loadReceivedMessages(currentMessagePage, messagesPerPage, searchTerm);
         }
 
         // 이전 페이지 로드
@@ -892,75 +984,108 @@
         }
 
         // 받은 메시지 로드 함수 수정
-        async function loadReceivedMessages(page = 1, size = 10, search = '') {
+        async function loadReceivedMessages(page = 1, size = messagesPerPage, search = '') {
             try {
-                const response = await fetch(`/api/messages/received?page=${page}&size=${size}&search=${search}`);
+                const response = await fetch(`/api/messages/received?page=${page}&size=${size}&search=${encodeURIComponent(search)}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch messages');
                 }
                 const data = await response.json();
 
                 if (data && Array.isArray(data.messages)) {
-                    // messageData 객체 업데이트
+                    messageData = {};
                     data.messages.forEach(message => {
                         messageData[message.id] = message;
                     });
 
                     displayMessageList(data.messages);
 
-                    const totalPages = Math.ceil(data.totalCount / size);
-                    updatePagination(page, totalPages);
+                    const totalPages = Math.max(1, Math.ceil(data.totalCount / size));
+                    updateMessagePagination(page, totalPages);
+
+                    unreadCount = data.unreadCount; // 서버에서 반환된 읽지 않은 메시지 수로 업데이트
+                    updateUnreadCount();
                 } else {
                     console.error('Invalid data structure received:', data);
                     displayMessageList([]);
+                    updateMessagePagination(1, 1);
                 }
-                updateUnreadCount();
             } catch (error) {
                 console.error('메시지 로드 중 오류 발생:', error);
                 displayMessageList([]);
+                updateMessagePagination(1, 1);
             }
         }
 
-        // 초기 로드 시 메시지 목록 가져오기
-        document.addEventListener('DOMContentLoaded', () => {
-            loadReceivedMessages();
+        // 메시지 목록 페이징 UI 업데이트 함수 수정
+        function updateMessagePagination(currentPage, totalPages, selector = '.message-list-panel .pagination') {
+            const paginationElement = document.querySelector(selector);
+            if (!paginationElement) {
+                console.error('Pagination element not found:', selector);
+                return;
+            }
+            paginationElement.innerHTML = '';
 
-            // CSS 스타일 추가
-            const style = document.createElement('style');
-            style.textContent = `
-    .pagination {
-        display: flex;
-        gap: 5px;
-        justify-content: center;
-        margin-top: 15px;
-    }
+            // 항상 최소 1페이지 보장
+            totalPages = Math.max(1, totalPages);
+            currentPage = Math.min(Math.max(1, currentPage), totalPages);
 
-    .page-btn {
-        padding: 5px 10px;
-        border: 1px solid #ddd;
-        background-color: #fff;
-        cursor: pointer;
-        border-radius: 4px;
-    }
+            // Previous button
+            const prevBtn = document.createElement('button');
+            prevBtn.className = `page-btn${currentPage === 1 ? ' disabled' : ''}`;
+            prevBtn.textContent = '이전';
+            if (currentPage > 1) {
+                prevBtn.onclick = () => changeMessagePage(currentPage - 1);
+            }
+            paginationElement.appendChild(prevBtn);
 
-    .page-btn:hover {
-        background-color: #f0f0f0;
-    }
+            // Page numbers container - 항상 생성
+            const pageNumbersContainer = document.createElement('div');
+            pageNumbersContainer.className = 'page-numbers';
 
-    .page-btn.active {
-        background-color: #007bff;
-        color: white;
-        border-color: #007bff;
-    }
+            // 데이터가 없거나 10개 미만이어도 항상 최소 1페이지 표시
+            const pageBtn = document.createElement('button');
+            pageBtn.className = 'page-btn active';
+            pageBtn.textContent = '1';
+            pageNumbersContainer.appendChild(pageBtn);
 
-    .page-btn:disabled {
-        cursor: not-allowed;
-        opacity: 0.6;
-    }
-`;
-            document.head.appendChild(style);
+            // 데이터가 있고 1페이지 이상인 경우 추가 페이지 표시
+            if (totalPages > 1) {
+                for (let i = 2; i <= totalPages; i++) {
+                    const additionalPageBtn = document.createElement('button');
+                    additionalPageBtn.className = `page-btn${i === currentPage ? ' active' : ''}`;
+                    additionalPageBtn.textContent = i;
+                    if (i !== currentPage) {
+                        additionalPageBtn.onclick = () => changeMessagePage(i);
+                    }
+                    pageNumbersContainer.appendChild(additionalPageBtn);
+                }
+            }
 
-        });
+            paginationElement.appendChild(pageNumbersContainer);
+
+            // Next button
+            const nextBtn = document.createElement('button');
+            nextBtn.className = `page-btn${currentPage === totalPages ? ' disabled' : ''}`;
+            nextBtn.textContent = '다음';
+            if (currentPage < totalPages) {
+                nextBtn.onclick = () => changeMessagePage(currentPage + 1);
+            }
+            paginationElement.appendChild(nextBtn);
+        }
+
+        // 메시지 페이지 변경 함수 수정
+        function changeMessagePage(page) {
+            loadReceivedMessages(page, messagesPerPage);
+        }
+
+
+        // 메시지 페이지 변경 함수 수정
+        function changeMessagePage(page) {
+            //currentMessagePage = page;
+            loadReceivedMessages(page, messagesPerPage);
+        }
+
 
     </script>
 </head>
