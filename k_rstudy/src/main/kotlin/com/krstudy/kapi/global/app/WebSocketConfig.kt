@@ -21,18 +21,22 @@ class WebSocketConfig : WebSocketConfigurer, WebSocketMessageBrokerConfigurer {
     private lateinit var customWebSocketHandler: CustomWebSocketHandler
 
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
-        registry.addHandler(customWebSocketHandler, "/ws/messages")
-            .setAllowedOrigins("*") // 클라이언트의 실제 origin으로 변경
+        registry.addHandler(customWebSocketHandler, "/ws")
+            .setAllowedOrigins("*")
             .withSockJS()
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
-        registry.addEndpoint("/ws").withSockJS()
+        registry.addEndpoint("/ws")
+            .setAllowedOrigins("http://localhost:8090")
+            .withSockJS()
     }
 
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
+
+        registry.enableSimpleBroker("/queue", "/topic")
         registry.setApplicationDestinationPrefixes("/app")
-        registry.enableSimpleBroker("/topic")
+        //registry.setUserDestinationPrefix("/user")
     }
 
     @Bean

@@ -1,6 +1,7 @@
 package com.krstudy.kapi.domain.messages.service
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.krstudy.kapi.com.krstudy.kapi.domain.messages.dto.MessageNotification
 import com.krstudy.kapi.domain.member.dto.MemberDto
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.service.MemberService
@@ -20,12 +21,14 @@ import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDateTime
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.messaging.simp.SimpMessagingTemplate
 
 @Service
 class MessageService(
     private val messageRepository: MessageRepository,
     private val memberService: MemberService,
-    private val reqData: ReqData // ReqData 주입
+    private val reqData: ReqData, // ReqData 주입
+    private val messagingTemplate: SimpMessagingTemplate // WebSocket 템플릿 주입
 ) {
 
     private val logger: Logger = LoggerFactory.getLogger(MessageService::class.java)
@@ -52,6 +55,19 @@ class MessageService(
 
         val savedMessage = messageRepository.save(message)
         messageCache.put(savedMessage.id, savedMessage)
+
+        // WebSocket으로 메시지 전송
+        message.recipients.forEach { recipient ->
+            val notification = MessageNotification(
+                messageId = savedMessage.id,
+                content = savedMessage.content,
+                title = savedMessage.title,
+                senderId = savedMessage.senderId
+            )
+            messagingTemplate.convertAndSend("/queue/messages/${recipient.recipientId}", notification)
+        }
+
+
         return savedMessage
     }
 

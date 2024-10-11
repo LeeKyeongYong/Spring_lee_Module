@@ -1,6 +1,8 @@
 package com.krstudy.kapi.standard.ws
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.krstudy.kapi.com.krstudy.kapi.domain.messages.dto.MessageNotification
+import com.krstudy.kapi.global.Security.JwtTokenProvider
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import org.springframework.web.socket.CloseStatus
@@ -12,10 +14,21 @@ import java.util.concurrent.ConcurrentHashMap
 class CustomWebSocketHandler : TextWebSocketHandler() {
     private val sessions = ConcurrentHashMap<WebSocketSession, String>()
 
+    @Autowired
+    private lateinit var jwtTokenProvider: JwtTokenProvider
+
     override fun afterConnectionEstablished(session: WebSocketSession) {
-        val userId = session.attributes["userId"] as? String ?: "anonymous"
-        sessions[session] = userId
-        println("WebSocket connection established for user: $userId")
+//        val userId = session.attributes["userId"] as? String ?: "anonymous"
+//        sessions[session] = userId
+//        println("WebSocket connection established for user: $userId")
+        val token = session.handshakeHeaders["Authorization"]?.firstOrNull()?.removePrefix("Bearer ")
+        if (token != null && jwtTokenProvider.validateToken(token)) {
+            val userId = jwtTokenProvider.getUserIdFromToken(token)
+            session.attributes["userId"] = userId
+            super.afterConnectionEstablished(session)
+        } else {
+            session.close(CloseStatus.POLICY_VIOLATION)
+        }
     }
 
     override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {

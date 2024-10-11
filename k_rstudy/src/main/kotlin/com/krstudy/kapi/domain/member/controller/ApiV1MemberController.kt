@@ -1,9 +1,11 @@
 package com.krstudy.kapi.domain.member.controller
 
+import com.krstudy.kapi.domain.member.dto.MemberInfo
 import com.krstudy.kapi.domain.member.service.MemberService
 import com.krstudy.kapi.global.https.ReqData
 import lombok.RequiredArgsConstructor
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -18,7 +20,7 @@ import org.springframework.web.bind.annotation.*
 @Transactional(readOnly = true)
 class ApiV1MemberController(
     private val memberService: MemberService,
-    private val rq: ReqData
+    @Autowired private val rq: ReqData
 ) {
 
     private val logger = LoggerFactory.getLogger(ApiV1MemberController::class.java)
@@ -33,5 +35,15 @@ class ApiV1MemberController(
             rq.setCookie("redirectUrlAfterSocialLogin", it, 60 * 10)
         }
         return "redirect:/oauth2/authorization/$providerTypeCode"
+    }
+
+    @GetMapping("/current")
+    fun getCurrentUser(): ResponseEntity<MemberInfo> {
+        val currentUser = rq.getMember()
+        return if (currentUser != null) {
+            ResponseEntity.ok(MemberInfo(currentUser.id, currentUser.username))
+        } else {
+            ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+        }
     }
 }
