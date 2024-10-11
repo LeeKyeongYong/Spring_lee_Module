@@ -1060,7 +1060,7 @@
         // 웹소켓 연결 및 새 메시지 수신 처리
         function setupWebSocket() {
 
-            const socket = new SockJS('http://localhost:8090/ws');  // URL을 상대 경로로 변경
+            const socket = new SockJS('/ws');
             const stompClient = Stomp.over(socket);
             const csrfToken = getCsrfToken(); // CSRF 토큰 가져오기
 
@@ -1094,7 +1094,7 @@
 
                                     // 5초 후 알림 숨기기
                                     setTimeout(() => {
-                                      
+
                                         notificationElement.style.display = 'none';
                                     }, 5000);
                                 }
@@ -1111,7 +1111,7 @@
                             }
                         }, {
                             // 구독 헤더 추가
-                            'X-CSRF-TOKEN': document.querySelector('[name="_csrf"]').value
+                            'X-CSRF-TOKEN': csrfToken
                         });
                     } else {
                         console.error('사용자 ID를 가져올 수 없습니다.');
