@@ -115,9 +115,10 @@ dependencies {
     implementation ("org.awaitility:awaitility")
 
     //jwt
-    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.3")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.3")
+    implementation("io.jsonwebtoken:jjwt:0.12.5") // 통합된 라이브러리 사용
+    //implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+    //runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.3")
+    //runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.3")
 
     //qrcode
     implementation ("com.fasterxml.jackson.module:jackson-module-kotlin")

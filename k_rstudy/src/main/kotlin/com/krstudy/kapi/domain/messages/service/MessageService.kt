@@ -12,7 +12,6 @@ import jakarta.transaction.Transactional
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.springframework.stereotype.Service
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable

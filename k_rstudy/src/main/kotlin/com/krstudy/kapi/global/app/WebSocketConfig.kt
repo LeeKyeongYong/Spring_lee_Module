@@ -22,7 +22,8 @@ class WebSocketConfig : WebSocketConfigurer, WebSocketMessageBrokerConfigurer {
 
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
         registry.addHandler(customWebSocketHandler, "/ws/messages")
-            .setAllowedOrigins("*")
+            .setAllowedOrigins("*") // 클라이언트의 실제 origin으로 변경
+            .withSockJS()
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {

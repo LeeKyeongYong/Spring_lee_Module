@@ -3,6 +3,7 @@
 <head>
     <title>메세지 보내기</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <style>
         /* 기본 스타일 설정 */
         * {
@@ -498,29 +499,9 @@
         let messageData = {};
         let notificationCount = 0;
         const maxNotifications = 5;
+        let socket;
         let unreadCount = 0; // 전역 변수로 현재 읽지 않은 메시지 수를 관리
 
-        // 웹소켓 연결 및 새 메시지 수신 처리 수정
-        function setupWebSocket() {
-            const socket = new WebSocket('ws://your-websocket-url');
-
-            socket.onmessage = function(event) {
-                const data = JSON.parse(event.data);
-                if (data.type === 'new_message' && !data.readAt) {
-                    showNewMessageNotification(data);
-                    loadReceivedMessages(currentMessagePage, messagesPerPage);
-                }
-            };
-
-            socket.onerror = function(error) {
-                console.error('WebSocket Error:', error);
-            };
-
-            socket.onclose = function() {
-                console.log('WebSocket disconnected. Reconnecting...');
-                setTimeout(setupWebSocket, 5000);
-            };
-        }
 
         // 새 메시지 알림 함수 수정
         function showNewMessageNotification(message) {
@@ -760,7 +741,6 @@
             updateRecipientDisplay();
         }
 
-        // 수신자 제거 함수 수정
         // 수신자 제거 함수 수정
         function removeRecipient(id) {
             const numId = parseInt(id, 10);
@@ -1075,25 +1055,41 @@
 
         // 웹소켓 연결 및 새 메시지 수신 처리
         function setupWebSocket() {
-            const socket = new WebSocket('ws://your-websocket-url');
+            const token = localStorage.getItem('jwtToken'); // JWT 토큰을 로컬 스토리지에서 가져옵니다.
 
-            socket.onmessage = function(event) {
-                const data = JSON.parse(event.data);
-                if (data.type === 'new_message') {
-                    showNewMessageNotification();
-                    loadReceivedMessages(currentMessagePage, messagesPerPage);
-                }
+            const socketUrl = '/ws/messages';
+            const sockJs = new SockJS(socketUrl);
+
+            socket = Stomp.over(sockJs);
+
+            const headers = {
+                'Authorization': `Bearer ${token}`
             };
 
-            socket.onerror = function(error) {
-                console.error('WebSocket Error:', error);
-            };
+            socket.connect(headers, function(frame) {
+                console.log('WebSocket connection established');
 
-            socket.onclose = function() {
-                console.log('WebSocket connection closed. Trying to reconnect...');
-                setTimeout(setupWebSocket, 5000);
-            };
+                // 메시지 구독
+                socket.subscribe('/user/queue/messages', function(message) {
+                    const data = JSON.parse(message.body);
+                    handleWebSocketMessage(data);
+                });
+            }, function(error) {
+                console.error('WebSocket connection error:', error);
+                setTimeout(setupWebSocket, 5000); // 연결 실패 시 재시도
+            });
         }
+
+        function handleWebSocketMessage(data) {
+            if (data.type === 'new_message') {
+                showNewMessageNotification(data.messageId);
+                loadReceivedMessages(currentMessagePage, messagesPerPage);
+            } else if (data.type === 'message_read') {
+                updateUnreadCount(data.unreadCount);
+                updateMessageReadStatus(data.messageId);
+            }
+        }
+
 
         function getUrlParams() {
             const params = new URLSearchParams(window.location.search);
@@ -1366,7 +1362,6 @@
             새로운 메시지가 도착했습니다.
         </div>
         <div class="notification-container">새로운 메시지가 도착했습니다.2</div>
-
     </div>
 </body>
 </html>

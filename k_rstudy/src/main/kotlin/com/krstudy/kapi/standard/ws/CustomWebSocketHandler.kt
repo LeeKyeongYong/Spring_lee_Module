@@ -10,20 +10,21 @@ import java.util.concurrent.ConcurrentHashMap
 
 @Component
 class CustomWebSocketHandler : TextWebSocketHandler() {
-    private val sessions = ConcurrentHashMap<String, WebSocketSession>()
+    private val sessions = ConcurrentHashMap<WebSocketSession, String>()
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
-        val userId = session.uri?.query // Implement proper user identification
-        userId?.let { sessions[it] = session }
+        val userId = session.attributes["userId"] as? String ?: "anonymous"
+        sessions[session] = userId
+        println("WebSocket connection established for user: $userId")
     }
 
     override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
-        val userId = session.uri?.query
-        userId?.let { sessions.remove(it) }
+        val userId = sessions.remove(session)
+        println("WebSocket connection closed for user: $userId")
     }
 
     fun sendMessageToUser(userId: String, message: MessageNotification) {
-        sessions[userId]?.let { session ->
+        sessions.entries.find { it.value == userId }?.key?.let { session ->
             val payload = ObjectMapper().writeValueAsString(message)
             session.sendMessage(TextMessage(payload))
         }
