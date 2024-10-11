@@ -15,6 +15,8 @@ import jakarta.servlet.http.HttpServletRequest
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
+import org.springframework.http.HttpStatus
+import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDateTime
 
 @RestController
@@ -182,8 +184,12 @@ class ApiMessageController(
             throw e
         }
     }
+    @GetMapping("/unread")
+    suspend fun getUnreadMessages(): List<MessageResponse> {
+        val currentUser = messageService.getCurrentUser()
+            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
+        return messageService.getUnreadMessages(currentUser.id)
+    }
 }
 
-//11. 슬라이드식 15초 간격으로 팝업 5개 저장순서대로  보여주고 6개만
-//12. 카운팅 처리..
 

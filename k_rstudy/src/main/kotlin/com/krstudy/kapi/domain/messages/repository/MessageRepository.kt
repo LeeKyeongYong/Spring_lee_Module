@@ -79,4 +79,12 @@ interface MessageRepository : JpaRepository<Message, Long> {
     @Transactional  // 여기에도 @Transactional 추가
     fun markMessageAsRead(messageId: Long, recipientId: Long)
 
+    @Query("""
+        SELECT DISTINCT m 
+        FROM Message m 
+        JOIN MessageRecipient mr ON mr.message = m 
+        WHERE mr.recipientId = :recipientId 
+        AND mr.readAt IS NULL
+    """)
+    fun findUnreadMessagesByRecipientId(recipientId: Long): List<Message>
 }

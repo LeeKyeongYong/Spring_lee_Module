@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import com.krstudy.kapi.domain.member.dto.MemberDto
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.service.MemberService
+import com.krstudy.kapi.domain.messages.dto.MessageResponse
 import com.krstudy.kapi.domain.messages.entity.Message
 import com.krstudy.kapi.domain.messages.repository.MessageRepository
 import com.krstudy.kapi.global.https.ReqData
@@ -145,5 +146,11 @@ class MessageService(
         return Pair(messages, unreadCount)
     }
 
+    suspend fun getUnreadMessages(userId: Long): List<MessageResponse> {
+        return messageRepository.findUnreadMessagesByRecipientId(userId)
+            .map { message ->
+                MessageResponse.fromMessage(message, userId)
+            }
+    }
 
 }

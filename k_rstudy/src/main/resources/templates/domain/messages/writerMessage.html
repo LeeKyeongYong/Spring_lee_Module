@@ -443,15 +443,33 @@
             background-color: #1565c0;
         }
         .notification {
-            width: 500px;
-            background: blue;
+            width: 300px;
+            background-color: #4CAF50;
             color: white;
-            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+            padding: 16px;
             position: fixed;
-            bottom: -150px; /* 처음에 화면 밖에 위치 */
-            left: 36%;
-            transform: translateX(-50%);
-            transition: bottom 0.5s ease-in-out;
+            z-index: 1000;
+            right: 30px;
+            top: 30px;
+            font-size: 17px;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+
+        .notification:hover {
+            background-color: #45a049;
+            cursor: pointer;
+        }
+        .notification-container {
+            opacity: 1;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
         }
 
         .notification.show {
@@ -478,9 +496,66 @@
         const itemsPerPage = 10;
         const pageSize = 10;
         let messageData = {};
+        let notificationCount = 0;
+        const maxNotifications = 5;
+        let unreadCount = 0; // 전역 변수로 현재 읽지 않은 메시지 수를 관리
 
-        // 전역 변수로 현재 읽지 않은 메시지 수를 관리
-        let unreadCount = 0;
+        // 웹소켓 연결 및 새 메시지 수신 처리 수정
+        function setupWebSocket() {
+            const socket = new WebSocket('ws://your-websocket-url');
+
+            socket.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                if (data.type === 'new_message' && !data.readAt) {
+                    showNewMessageNotification(data);
+                    loadReceivedMessages(currentMessagePage, messagesPerPage);
+                }
+            };
+
+            socket.onerror = function(error) {
+                console.error('WebSocket Error:', error);
+            };
+
+            socket.onclose = function() {
+                console.log('WebSocket disconnected. Reconnecting...');
+                setTimeout(setupWebSocket, 5000);
+            };
+        }
+
+        // 새 메시지 알림 함수 수정
+        function showNewMessageNotification(message) {
+            const notificationContainer = document.querySelector('.notification-container');
+
+            if (notificationCount >= maxNotifications) {
+                const oldestNotification = notificationContainer.firstChild;
+                notificationContainer.removeChild(oldestNotification);
+                notificationCount--;
+            }
+
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `
+                <strong>${message.title}</strong><br>
+                From: ${message.senderName}<br>
+                ${message.content.substring(0, 50)}...
+            `;
+            notification.onclick = () => handleMessageClick(message.id);
+
+            notificationContainer.appendChild(notification);
+            notificationCount++;
+
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notificationContainer.removeChild(notification);
+                    notificationCount--;
+                }, 500);
+            }, 15000);
+        }
 
         // 모달 열기 함수 수정
         function openRecipientModal(event) {
@@ -839,7 +914,29 @@
                 }
             });
 
+            // 15초마다 서버에서 읽지 않은 메시지 확인
+            setInterval(async () => {
+                try {
+                    const response = await fetch('/api/messages/unread');
+                    if (!response.ok) throw new Error('Failed to fetch unread messages');
 
+                    const unreadMessages = await response.json();
+
+                    unreadMessages.forEach(message => {
+                        if (!document.querySelector(`[data-message-id="${message.id}"]`)) {
+                            showNewMessageNotification(message);
+                        }
+                    });
+
+                    loadReceivedMessages(currentMessagePage, messagesPerPage);
+                } catch (error) {
+                    console.error('Error checking unread messages:', error);
+                }
+            }, 15000);
+
+
+            // 웹소켓 연결 설정
+            setupWebSocket();
         });
 
         function debounce(func, delay) {
@@ -1268,6 +1365,7 @@
         <div class="notification">
             새로운 메시지가 도착했습니다.
         </div>
+        <div class="notification-container">새로운 메시지가 도착했습니다.2</div>
 
     </div>
 </body>
