@@ -64,7 +64,13 @@ class MessageService(
                 title = savedMessage.title,
                 senderId = savedMessage.senderId
             )
-            messagingTemplate.convertAndSend("/queue/messages/${recipient.recipientId}", notification)
+            logger.info("Sending notification to user: ${recipient.recipientId}")
+            messagingTemplate.convertAndSendToUser(
+                recipient.recipientId.toString(),
+                "/queue/messages",
+                notification
+            )
+            logger.info("Notification sent to user: ${recipient.recipientId}")
         }
 
 

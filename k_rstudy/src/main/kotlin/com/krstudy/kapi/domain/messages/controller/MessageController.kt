@@ -3,6 +3,7 @@ package com.krstudy.kapi.domain.messages.controller
 import com.krstudy.kapi.com.krstudy.kapi.domain.messages.dto.MessageNotification
 import com.krstudy.kapi.domain.messages.entity.Message
 import com.krstudy.kapi.domain.messages.service.MessageService
+import org.slf4j.LoggerFactory
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.messaging.simp.annotation.SendToUser
@@ -15,6 +16,8 @@ import java.security.Principal
 class MessageController(
     private val messageService: MessageService
 ) {
+    private val logger = LoggerFactory.getLogger(MessageController::class.java)
+
     @GetMapping("/messages")
     suspend fun showMessageList(): String {
         return "domain/messages/messagesList"
@@ -44,15 +47,27 @@ class MessageController(
 
         return "domain/messages/messageDetail"
     }
+
     @MessageMapping("/send")
     @SendToUser("/queue/messages")
-    suspend fun sendMessage(@Payload message: Message, principal: Principal): MessageNotification {
-        val savedMessage = messageService.sendMessage(message)
-        return MessageNotification(
-            messageId = savedMessage.id,
-            content = savedMessage.content,
-            title = savedMessage.title,
-            senderId = savedMessage.senderId
-        )
+    suspend fun sendMessage(@Payload message: Message, principal: Principal?): MessageNotification {
+        try {
+            logger.info("Received message from user: ${principal?.name ?: "Unknown"}")
+            logger.info("Message content: ${message.content}, title: ${message.title}")
+
+            val savedMessage = messageService.sendMessage(message)
+
+            logger.info("Saved message ID: ${savedMessage.id}")
+
+            return MessageNotification(
+                messageId = savedMessage.id,
+                content = savedMessage.content,
+                title = savedMessage.title,
+                senderId = savedMessage.senderId
+            )
+        } catch (e: Exception) {
+            logger.error("Error processing message: ${e.message}", e)
+            throw e
+        }
     }
 }
