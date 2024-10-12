@@ -842,10 +842,12 @@
                 }
             });
 
+            setupWebSocket();
+
             // CSS 스타일 적용을 위한 스타일 태그 추가
             const style = document.createElement('style');
             style.textContent = `
-        .notification {
+         .notification {
             position: fixed;
             top: 20px;
             right: 20px;
@@ -858,18 +860,16 @@
             opacity: 0;
             transform: translateY(-20px);
             transition: all 0.3s ease-in-out;
-            display: none;
         }
 
         .notification.show {
             opacity: 1;
             transform: translateY(0);
-            display: block;
         }
     `;
             document.head.appendChild(style);
 
-            setupWebSocket();
+
 
         });
 
@@ -899,6 +899,7 @@
 
             // 5초 후 알림 숨기기
             setTimeout(() => {
+                stompClient.send("/app/send", {}, JSON.stringify({'title': title, 'content': content}));
                 notificationElement.style.display = 'none';
                 notificationElement.classList.remove('show');
                 notificationElement.classList.remove('notification-animate');
@@ -1048,14 +1049,11 @@
     `;
         }
 
-        // 새 메시지 알림 함수
-        function showNewMessageNotification() {
-            const notification = document.querySelector('.notification');
-            notification.style.display = 'block';
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 3000);
+        function getAuthToken() {
+            // localStorage나 다른 저장소에서 인증 토큰을 가져오는 로직 구현
+            return localStorage.getItem('authToken');
         }
+
 
         // 웹소켓 연결 및 새 메시지 수신 처리
         function setupWebSocket() {
@@ -1074,30 +1072,19 @@
                 console.log('Connected: ' + frame);
 
                 getCurrentUserId().then(userId => {
+
                     if (userId) {
                         console.log('Subscribing for user:', userId);
 
                         // 구독 설정
-                        stompClient.subscribe('/user/queue/messages', function(message) {
+                        stompClient.subscribe('/user/queue/messages', function(messageOutput) {
 
                             try {
-                                console.log('Received message:', message);
-                                const notification = JSON.parse(message.body);
+                                console.log('Received message:', messageOutput);
+                                const notification = JSON.parse(messageOutput.body);
 
                                 // 알림 표시
-                                const notificationElement = document.querySelector('.notification');
-
-                                if (notificationElement) {
-
-                                    notificationElement.textContent = `새로운 메시지가 도착했습니다: ${notification.title}`;
-                                    notificationElement.style.display = 'block';
-
-                                    // 5초 후 알림 숨기기
-                                    setTimeout(() => {
-
-                                        notificationElement.style.display = 'none';
-                                    }, 5000);
-                                }
+                                displayNotifications([notification]);
 
                                 // 메시지 목록 갱신
                                 loadReceivedMessages(currentMessagePage, messagesPerPage);
@@ -1109,10 +1096,8 @@
                             } catch (error) {
                                 console.error('메시지 처리 중 오류:', error);
                             }
-                        }, {
-                            // 구독 헤더 추가
-                            'X-CSRF-TOKEN': csrfToken
                         });
+
                     } else {
                         console.error('사용자 ID를 가져올 수 없습니다.');
                     }
@@ -1132,6 +1117,7 @@
             };
 
             // 연결 시도
+
             stompClient.connect({'X-CSRF-TOKEN': csrfToken}, connectCallback, errorCallback);
         }
 

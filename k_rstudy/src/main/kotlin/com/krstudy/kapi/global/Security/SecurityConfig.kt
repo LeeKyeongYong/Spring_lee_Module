@@ -59,7 +59,7 @@ class SecurityConfig(
                 }
             }
             .csrf { csrf ->
-                csrf.ignoringRequestMatchers("/v1/**", "/api/**")
+                csrf.ignoringRequestMatchers("/v1/**", "/api/**", "/ws/**")
             }
             .formLogin { formLogin ->
                 formLogin

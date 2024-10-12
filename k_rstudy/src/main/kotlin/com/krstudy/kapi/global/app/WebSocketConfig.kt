@@ -22,9 +22,7 @@ class WebSocketConfig : WebSocketConfigurer, WebSocketMessageBrokerConfigurer {
     private lateinit var webSocketAuthInterceptor: WebSocketAuthInterceptor
 
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
-        // WebSocket 핸들러를 등록합니다.
-        // 예를 들어:
-        // registry.addHandler(customWebSocketHandler, "/ws").setAllowedOrigins("http://localhost:8090")
+        // WebSocket 핸들러를 등록하는 로직을 작성합니다.
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
@@ -39,13 +37,6 @@ class WebSocketConfig : WebSocketConfigurer, WebSocketMessageBrokerConfigurer {
         registry.setApplicationDestinationPrefixes("/app")
         registry.setUserDestinationPrefix("/user")
     }
-
-    override fun configureWebSocketTransport(registry: WebSocketTransportRegistration) {
-        registry.setMessageSizeLimit(64 * 1024) // 64KB
-        registry.setSendBufferSizeLimit(512 * 1024) // 512KB
-        registry.setSendTimeLimit(20000) // 20 seconds
-    }
-
     @Bean
     fun messageWebSocketHandler() = MessageWebSocketHandler()
 }

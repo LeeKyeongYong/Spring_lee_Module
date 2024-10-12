@@ -48,6 +48,7 @@ class MessageController(
         return "domain/messages/messageDetail"
     }
 
+
     @MessageMapping("/send")
     @SendToUser("/queue/messages")
     suspend fun sendMessage(@Payload message: Message, principal: Principal?): MessageNotification {
