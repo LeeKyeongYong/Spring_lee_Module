@@ -53,6 +53,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("mysql:mysql-connector-java:8.0.33")
     runtimeOnly("com.h2database:h2")
+    testImplementation("org.testcontainers:mysql")
 
     // LOMBOK
     compileOnly("org.projectlombok:lombok")
@@ -100,7 +101,7 @@ dependencies {
 
     //처리
     implementation("com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5")
-
+    implementation("org.testcontainers:testcontainers-bom:1.19.3")
     implementation("org.jasypt:jasypt:1.9.3") // Jasypt 라이브러리
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2") // JUnit 5 API
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2") // JUnit 5 엔진
@@ -108,7 +109,7 @@ dependencies {
     //배치
     implementation("org.springframework.boot:spring-boot-starter-batch")
     implementation("org.springframework.batch:spring-batch-integration")
-    testRuntimeOnly("org.springframework.batch:spring-batch-test")
+    testRuntimeOnly("org.springframework.batch:spring-batch-test:5.0.0")
 
     //웹소켓
     implementation ("org.springframework.boot:spring-boot-starter-websocket")
@@ -168,6 +169,31 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-stomp")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework:spring-context")
+
+    // mapstruct
+    implementation("org.mapstruct:mapstruct:1.5.2.Final")
+    annotationProcessor("org.mapstruct:mapstruct-processor:1.5.2.Final")
+
+    // hibernate-types
+    implementation("com.vladmihalcea:hibernate-types-60:2.21.1")
+
+    // csv
+    implementation("com.opencsv:opencsv:5.9")
+
+    // Transaction 관리
+    implementation("org.springframework:spring-tx")
+
+    // Kotlin support
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+
+    // Optional: If you're using Mockito for mocking in Kotlin
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.0.0")
+    testImplementation("org.mockito:mockito-core:5.0.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.4.0")
+
+    // Optional: If you need to use coroutines in testing
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")
 
 }
 

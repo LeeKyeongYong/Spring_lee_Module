@@ -67,7 +67,9 @@ class PostService(
     fun like(member: Member, post: Post) {
         // 이미 좋아요를 눌렀는지 검사
         if (postlikeRepository.existsByPostAndMember(post, member)) {
-            throw GlobalException(MessageCode.ALREADY_LIKED)
+           //throw GlobalException(MessageCode.ALREADY_LIKED)
+            // 이미 좋아요가 존재하면 아무 작업도 하지 않고 종료
+            return
         }
 
         try {

@@ -10,6 +10,7 @@ import com.krstudy.kapi.global.https.ReqData
 import com.krstudy.kapi.domain.post.service.PostService
 import com.krstudy.kapi.global.exception.MessageCode
 import jakarta.validation.Valid
+import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -27,6 +28,7 @@ class PostController(
     private val postService: PostService,
     private val rq: ReqData
 ) {
+    private val logger = LoggerFactory.getLogger(PostController::class.java)
     @GetMapping("/{id}")
     fun showDetail(@PathVariable id: Long): String {
         val post = postService.findById(id).orElseThrow { GlobalException(MessageCode.NOT_FOUND_POST) }
@@ -121,9 +123,19 @@ class PostController(
     fun like(@PathVariable id: Long, redirectAttributes: RedirectAttributes): RedirectView {
         val post = postService.findById(id).orElseThrow { GlobalException(MessageCode.NOT_FOUND_POST) }
         val member = rq.getMember() ?: throw GlobalException(MessageCode.UNAUTHORIZED)
-        if (!postService.canLike(member, post)) throw GlobalException(MessageCode.FORBIDDEN)
-        postService.like(member, post)
-        redirectAttributes.addFlashAttribute("message", "${post.id}번 글을 추천하였습니다.")
+
+        try {
+            if (postService.canLike(member, post)) {
+                postService.like(member, post)
+                redirectAttributes.addFlashAttribute("message", "${post.id}번 글을 추천하였습니다.")
+            } else {
+                redirectAttributes.addFlashAttribute("message", "이미 추천한 글입니다.")
+            }
+        } catch (e: Exception) {
+            // 로그 기록
+            logger.error("좋아요 처리 중 오류 발생", e)
+            redirectAttributes.addFlashAttribute("message", "추천 처리 중 오류가 발생했습니다.")
+        }
         return RedirectView("/post/${post.id}")
     }
 
