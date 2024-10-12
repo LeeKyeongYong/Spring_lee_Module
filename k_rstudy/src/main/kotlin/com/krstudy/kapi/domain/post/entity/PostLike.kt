@@ -17,8 +17,4 @@ class PostLike(
     @ManyToOne
     @JoinColumn(name = "member_id")
     var member: Member
-) : BaseEntity(){
-    @NaturalId
-    @Column(name = "post_member_id", unique = true)
-    private val postMemberId: String = "${post.id}-${member.id}"
-}
+) : BaseEntity(){}

@@ -72,7 +72,7 @@ class PostService(
         if (existingLike == null) {
             val postLike = PostLike(post, member)
             postlikeRepository.save(postLike)
-            post.addLike(member) // 예시로 추가적인 좋아요 수 업데이트를 가정
+
         } else {
             throw GlobalException(MessageCode.ALREADY_LIKED)
         }
