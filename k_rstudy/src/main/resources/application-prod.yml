@@ -44,10 +44,13 @@ spring:
     schema: classpath:db/migration/k_db.sql  # 스키마 파일 경로
     initialization-mode: always     # 초기화 모드 설정
   jpa:
-    properties.hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
     show-sql: true
     hibernate:
-      ddl-auto: create-drop  # 기존 테이블 유지
+      ddl-auto: create-drop  # 기존 테이블 유지 안 하고 매번 새로 생성 후 삭제
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
     open-in-view: true
 
   security:
@@ -65,16 +68,6 @@ spring:
             authorization-uri: https://example.com/oauth/authorize
             token-uri: https://example.com/oauth/token
             user-info-uri: https://example.com/oauth/userinfo
-
-logging:
-  level:
-    com.ll.medium: INFO            # 로그 레벨 설정
-    org.hibernate.SQL: DEBUG        # Hibernate SQL 로그 레벨
-    org.hibernate.orm.jdbc.bind: INFO   # Hibernate JDBC 바인드 로그 레벨
-    org.hibernate.orm.jdbc.extract: INFO # Hibernate JDBC 추출 로그 레벨
-    org.springframework.transaction.interceptor: DEBUG # 트랜잭션 인터셉터 로그 레벨
-    org.hibernate.type.descriptor.sql.BasicBinder: DEBUG # Hibernate 기본 바인더 로그 레벨
-    org.springframework.web: DEBUG
 
 custom:
   dev:

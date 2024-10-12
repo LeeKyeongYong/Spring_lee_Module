@@ -118,26 +118,31 @@ class PostController(
         return RedirectView("/post/list")
     }
 
-    @PreAuthorize("isAuthenticated()")
+
     @PostMapping("/{id}/like")
     fun like(@PathVariable id: Long, redirectAttributes: RedirectAttributes): RedirectView {
         val post = postService.findById(id).orElseThrow { GlobalException(MessageCode.NOT_FOUND_POST) }
         val member = rq.getMember() ?: throw GlobalException(MessageCode.UNAUTHORIZED)
 
         try {
-            if (postService.canLike(member, post)) {
-                postService.like(member, post)
-                redirectAttributes.addFlashAttribute("message", "${post.id}번 글을 추천하였습니다.")
-            } else {
-                redirectAttributes.addFlashAttribute("message", "이미 추천한 글입니다.")
+            postService.like(member, post)
+            redirectAttributes.addFlashAttribute("message", "${post.id}번 글을 추천하였습니다.")
+        } catch (e: GlobalException) {
+            when (e.rsData.resultCode) {
+                MessageCode.ALREADY_LIKED.code -> redirectAttributes.addFlashAttribute("message", MessageCode.ALREADY_LIKED.message)
+                MessageCode.INTERNAL_SERVER_ERROR.code -> {
+                    logger.error("좋아요 처리 중 예상치 못한 오류 발생", e)
+                    redirectAttributes.addFlashAttribute("message", MessageCode.INTERNAL_SERVER_ERROR.message)
+                }
+                else -> {
+                    logger.error("알 수 없는 오류 발생", e)
+                    redirectAttributes.addFlashAttribute("message", "알 수 없는 오류가 발생했습니다.")
+                }
             }
-        } catch (e: Exception) {
-            // 로그 기록
-            logger.error("좋아요 처리 중 오류 발생", e)
-            redirectAttributes.addFlashAttribute("message", "추천 처리 중 오류가 발생했습니다.")
         }
         return RedirectView("/post/${post.id}")
     }
+
 
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}/cancelLike")

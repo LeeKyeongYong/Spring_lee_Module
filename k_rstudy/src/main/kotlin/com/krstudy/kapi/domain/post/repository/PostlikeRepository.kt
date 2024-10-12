@@ -13,6 +13,8 @@ import org.springframework.stereotype.Repository
 @Repository
 interface PostlikeRepository : JpaRepository<PostLike, Long> {
     fun existsByPostAndMember(post: Post, member: Member): Boolean
+    fun findByPostAndMember(post: Post, member: Member): PostLike?
+    fun findByMemberAndPost(member: Member, post: Post): PostLike?
     @Modifying
     @Query("DELETE FROM PostLike l WHERE l.member.id = :memberId")
     fun deleteByMemberId(@Param("memberId") memberId: Long)

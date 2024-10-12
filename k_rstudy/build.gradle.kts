@@ -194,6 +194,7 @@ dependencies {
 
     // Optional: If you need to use coroutines in testing
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")
+    implementation("org.springframework.data:spring-data-envers")
 
 }
 

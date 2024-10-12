@@ -48,7 +48,6 @@
         <form th:if="${@postService.canLike(@reqData.member, post)}"
               th:action="@{/post/{id}/like(id=${post.id})}"
               method="post" id="likeForm">
-<!--            <button type="submit" onclick="this.disabled=true; this.form.submit();">추천</button>-->
             <button type="submit" onclick="submitLikeForm(event)">추천</button>
         </form>
 
@@ -121,6 +120,7 @@
 
         button.disabled = true;
         form.submit();
+
     }
 </script>
 

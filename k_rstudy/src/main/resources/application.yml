@@ -29,6 +29,11 @@ spring:
         format_sql: true
         highlight_sql: true
         use_sql_comments: true
+        envers:
+          audit_table_suffix: _hist
+          revision_field_name: rev_id
+          revision_type_field_name: rev_type
+          store_data_at_delete: true
 logging:
   level:
     com.krstudy.kapi: DEBUG
@@ -38,6 +43,8 @@ logging:
     org.springframework.transaction.interceptor: TRACE
     org.thymeleaf: DEBUG
     org.thymeleaf.spring6: DEBUG
+
+
 custom:
   site:
     name: sleekydz86
