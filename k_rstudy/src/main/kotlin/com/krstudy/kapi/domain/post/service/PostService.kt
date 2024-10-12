@@ -69,60 +69,15 @@ class PostService(
     @Transactional
     fun like(member: Member, post: Post) {
         val existingLike = postlikeRepository.findByMemberAndPost(member, post)
-
-        try {
-            val postLike = PostLike(
-                member = member,
-                post = post
-            )
-            if (existingLike == null) {
+        if (existingLike == null) {
+            val postLike = PostLike(post, member)
             postlikeRepository.save(postLike)
-                post.addLike(member)
-            }
-
-        } catch (e: Exception) {
-            when {
-                e is DataIntegrityViolationException ||
-                        (e.cause is SQLIntegrityConstraintViolationException &&
-                                e.cause?.message?.contains("Duplicate entry") == true) -> {
-                    // 이미 좋아요가 존재하는 경우
-                    logger.info("이미 좋아요가 존재합니다: member=${member.id}, post=${post.id}")
-                    throw GlobalException(MessageCode.ALREADY_LIKED)
-                }
-                else -> {
-                    // 다른 예외 발생 시
-                    logger.error("좋아요 처리 중 예상치 못한 오류 발생", e)
-                    throw GlobalException(MessageCode.INTERNAL_SERVER_ERROR)
-                }
-            }
+            post.addLike(member) // 예시로 추가적인 좋아요 수 업데이트를 가정
+        } else {
+            throw GlobalException(MessageCode.ALREADY_LIKED)
         }
     }
 
-
-//    @Transactional
-//    fun like(member: Member, post: Post) {
-//        // 이미 좋아요를 눌렀는지 검사
-//        if (postlikeRepository.existsByPostAndMember(post, member)) {
-//            throw GlobalException(MessageCode.ALREADY_LIKED)
-//            // 이미 좋아요가 존재하면 아무 작업도 하지 않고 종료
-//        }
-//
-//        try {
-//            // 좋아요 추가 진행
-//            val postLike = PostLike(
-//                member = member,
-//                post = post
-//            )
-//            postlikeRepository.save(postLike)
-//
-//            // 추가적으로 Post 객체의 좋아요 수를 업데이트하거나 필요한 작업 수행
-//            post.addLike(member) // 예시로 추가적인 좋아요 수 업데이트를 가정
-//        } catch (e: DataIntegrityViolationException) {
-//            // 경쟁 조건의 경우, 좋아요가 존재하는지 다시 확인
-//            logger.error("좋아요 추가 중 오류 발생: ${e.message}", e)
-//            throw GlobalException(MessageCode.ALREADY_LIKED)
-//        }
-//    }
 
 
     @Transactional

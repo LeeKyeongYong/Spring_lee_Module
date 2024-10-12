@@ -11,6 +11,7 @@ import com.krstudy.kapi.domain.post.service.PostService
 import com.krstudy.kapi.global.exception.MessageCode
 import jakarta.validation.Valid
 import org.slf4j.LoggerFactory
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -127,18 +128,11 @@ class PostController(
         try {
             postService.like(member, post)
             redirectAttributes.addFlashAttribute("message", "${post.id}번 글을 추천하였습니다.")
+        } catch (e: DataIntegrityViolationException) {
+            // 중복 키 예외를 명시적으로 처리
+            redirectAttributes.addFlashAttribute("message", "이미 추천한 글입니다.")
         } catch (e: GlobalException) {
-            when (e.rsData.resultCode) {
-                MessageCode.ALREADY_LIKED.code -> redirectAttributes.addFlashAttribute("message", MessageCode.ALREADY_LIKED.message)
-                MessageCode.INTERNAL_SERVER_ERROR.code -> {
-                    logger.error("좋아요 처리 중 예상치 못한 오류 발생", e)
-                    redirectAttributes.addFlashAttribute("message", MessageCode.INTERNAL_SERVER_ERROR.message)
-                }
-                else -> {
-                    logger.error("알 수 없는 오류 발생", e)
-                    redirectAttributes.addFlashAttribute("message", "알 수 없는 오류가 발생했습니다.")
-                }
-            }
+            // 기존 예외 처리 로직
         }
         return RedirectView("/post/${post.id}")
     }
