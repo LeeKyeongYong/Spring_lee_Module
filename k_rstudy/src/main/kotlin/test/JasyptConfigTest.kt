@@ -25,7 +25,6 @@ class JasyptConfigTest {
         println("encryptUsername : $encryptUsername")
         println("encryptPassword : $encryptPassword")
 
-
         assertEquals(url, jasyptDecrypt(encryptUrl))
     }
 

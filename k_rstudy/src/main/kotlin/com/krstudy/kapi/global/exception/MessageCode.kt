@@ -30,5 +30,6 @@ enum class MessageCode(val code: String, val message: String) {
     ALREADY_LIKED("400-3", "이미 좋아요를 눌렀습니다."),
 
     // OAuth 관련 오류
-    NOT_SUPPORTED_OAUTH_VENDOR("400-4", "해당 OAuth2 벤더는 지원되지 않습니다.")
+    NOT_SUPPORTED_OAUTH_VENDOR("400-4", "해당 OAuth2 벤더는 지원되지 않습니다."),
+    EXPIRED_VERIFICATION_CODE("400-5", "인증 코드가 만료되었습니다."), // 만료된 인증 코드 에러 추가
 }

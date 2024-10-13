@@ -160,7 +160,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.1.3") // Feign 의존성 추가
 
     //크롤링 메일발송처리
-    implementation("org.springframework.boot:spring-boot-starter-mail")
+    implementation("org.springframework.boot:spring-boot-starter-mail:3.2.2")
     implementation("org.seleniumhq.selenium:selenium-java:4.10.0")
 
     implementation("jakarta.validation:jakarta.validation-api:3.0.2")
@@ -208,3 +208,4 @@ tasks.withType<KotlinCompile> {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
