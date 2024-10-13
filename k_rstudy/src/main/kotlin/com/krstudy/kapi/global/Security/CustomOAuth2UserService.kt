@@ -15,6 +15,14 @@ import java.io.FileNotFoundException
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.core.OAuth2Error
 
+// Quadruple 데이터 클래스 정의
+data class Quadruple<A, B, C, D>(
+    val first: A,
+    val second: B,
+    val third: C,
+    val fourth: D
+)
+
 @Service
 @Transactional(readOnly = true)
 class CustomOAuth2UserService(
@@ -32,20 +40,18 @@ class CustomOAuth2UserService(
                 val oauthId = oAuth2User.name
                 val providerTypeCode = userRequest.clientRegistration.registrationId.uppercase()
 
+                println("sns로그인 response: $oAuth2User")
+
                 logger.debug("Processing OAuth2 user: $oauthId from provider: $providerTypeCode")
 
                 val attributes = oAuth2User.attributes
-                val (username, nickname, profileImgUrl) = extractUserInfo(providerTypeCode, attributes, oauthId)
+                val (username, nickname, profileImgUrl, email) = extractUserInfo(providerTypeCode, attributes, oauthId)
 
                 logger.info("Extracted user info - Username: $username, Nickname: $nickname")
 
-                val emailRegex = Regex("""email=([^,}]+)""")
-                val emailMatchResult = emailRegex.find(oauthId) // userInfo에서 이메일을 찾음
-                val email = emailMatchResult?.groups?.get(1)?.value
-                //val modifiedEmail = if (providerTypeCode == "NAVER") email?.substringBefore('@')?.plus("@") ?: "" else ""
                 val modifiedEmail = when (providerTypeCode) {
-                    "NAVER" -> email?.substringBefore('@') ?: "" // '@' 기호 없이 저장
-                    else -> "" // 기타 경우에 대한 처리
+                    "NAVER", "KAKAO","GOOGLE" -> email?.substringBefore('@') ?: "" // '@' 기호 없이 저장
+                    else -> email // 기타 경우 이메일 그대로 사용
                 }
 
                 val result = memberService.modifyOrJoin(
@@ -54,7 +60,8 @@ class CustomOAuth2UserService(
                     providerTypeCode = providerTypeCode,
                     imageBytes = getDefaultImageBytes(),
                     profileImgUrl = profileImgUrl,
-                    userid = modifiedEmail
+                    userid = modifiedEmail,
+                    userEmail = email
                 )
 
                 val member = result.data ?: throw IllegalStateException("Failed to create or update member: ${result.msg ?: "Unknown error"}")
@@ -78,34 +85,48 @@ class CustomOAuth2UserService(
         providerTypeCode: String,
         attributes: Map<String, Any>,
         oauthId: String
-    ): Triple<String, String, String> {
+    ): Quadruple<String, String, String, String> { // 이메일을 추가해서 Quadruple로 반환
         return when (providerTypeCode) {
             "KAKAO" -> {
                 val properties = attributes["properties"] as? Map<String, Any>
                     ?: throw IllegalStateException("Kakao properties not found")
-                Triple(
+                val kakaoAccount = attributes["kakao_account"] as? Map<String, Any>
+                    ?: throw IllegalStateException("Kakao account not found")
+                val email = kakaoAccount["email"] as? String ?: ""
+
+                Quadruple(
                     properties["nickname"] as? String ?: throw IllegalStateException("Kakao nickname not found"),
                     properties["nickname"] as? String ?: "",
-                    properties["profile_image"] as? String ?: ""
+                    properties["profile_image"] as? String ?: "",
+                    email // 이메일 추가
                 )
             }
             "NAVER" -> {
                 val response = attributes["response"] as? Map<String, Any>
                     ?: throw IllegalStateException("Naver response not found")
-                println("Naver response: $response")
-                Triple(
+                val email = response["email"] as? String ?: ""
+
+                Quadruple(
                     response["name"] as? String ?: throw IllegalStateException("Naver name not found"),
                     response["nickname"] as? String ?: "",
-                    response["profile_image"] as? String ?: ""//,
-
+                    response["profile_image"] as? String ?: "",
+                    email // 이메일 추가
                 )
             }
             "GOOGLE" -> {
                 println("GOOGLE response: $attributes")
-                Triple(
-                    "${providerTypeCode}__$oauthId",
+
+                val givenName = attributes["given_name"] as? String ?: throw IllegalStateException("Google given_name not found")
+                val familyName = attributes["family_name"] as? String ?: ""
+                // 이름을 합치기
+                val fullName = "$familyName $givenName".trim() // trim()을 사용하여 불필요한 공백 제거
+
+
+                Quadruple(
+                    fullName as? String ?: throw IllegalStateException("Google name not found"),
                     attributes["name"] as? String ?: "",
-                    attributes["picture"] as? String ?: ""
+                    attributes["picture"] as? String ?: "",
+                    attributes["email"] as? String ?: "" // 이메일 추가
                 )
             }
             else -> throw IllegalArgumentException("Unsupported provider: $providerTypeCode")

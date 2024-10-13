@@ -213,33 +213,27 @@ class MemberService(
         providerTypeCode: String,
         imageBytes: ByteArray,
         profileImgUrl: String,
-        userid:String
+        userid: String,
+        userEmail: String,
     ): RespData<Member> {
-        logger.debug("modifyOrJoin called with username=$username")
-        val member: Member? = findByUserid(username)
-        logger.debug("findByUserName result: $member")
-        val finalUserid = if (userid.isNullOrEmpty()) username else userid
-        logger.debug("finalUserid result: $finalUserid")
+        logger.debug("modifyOrJoin called with username=$username, userid=$userid")
 
-        return if (member == null) {
-            logger.info("Creating new member for username: $username")
-            join(
-                finalUserid, //userid가 존재하면 userid 존재하지않으면 username
-                nickname,
-                username,
-                "guest@localhost.co.kr",
-                passwordEncoder.encode(username),
-                "image/jpeg", //providerTypeCode,
-                imageBytes,
-                M_Role.MEMBER.authority,
-                profileImgUrl,
-               providerTypeCode //구분코드_account_type
-            )
+        val finalUserid = if (userid.isBlank()) username else userid
+        val existingMember = findByUserid(finalUserid)
+        val finalUserEmail = if (userEmail.isBlank()) "guest@localhost.co.kr" else userEmail  // 삼항 연산자 대체
+
+        return if (existingMember == null) {
+            // 새 계정 생성
+            join(finalUserid, nickname, username, finalUserEmail,
+                passwordEncoder.encode(username), "image/jpeg", imageBytes,
+                M_Role.MEMBER.authority, profileImgUrl, providerTypeCode)
         } else {
-            logger.info("Modifying existing member: $username")
-            modify(member, nickname, profileImgUrl)
+            // 기존 계정 업데이트
+            logger.info("Updating existing member: $finalUserid")
+            modify(existingMember, nickname, profileImgUrl)
         }
     }
+
 
     @Transactional
     fun modify(member: Member, nickname: String, profileImgUrl: String): RespData<Member> {
