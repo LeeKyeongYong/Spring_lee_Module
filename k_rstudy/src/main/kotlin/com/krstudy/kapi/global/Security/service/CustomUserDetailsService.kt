@@ -1,4 +1,4 @@
-package com.krstudy.kapi.com.krstudy.kapi.global.Security.service
+package com.krstudy.kapi.global.Security.service
 
 import com.krstudy.kapi.domain.member.service.MemberService
 import com.krstudy.kapi.global.Security.SecurityUser

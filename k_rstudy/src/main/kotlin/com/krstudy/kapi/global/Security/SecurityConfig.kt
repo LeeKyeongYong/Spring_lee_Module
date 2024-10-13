@@ -1,8 +1,9 @@
 package com.krstudy.kapi.global.Security
 
-import com.krstudy.kapi.com.krstudy.kapi.global.Security.handler.CustomAuthenticationSuccessHandler
+
 import com.krstudy.kapi.domain.member.service.AuthTokenService
 import com.krstudy.kapi.domain.member.service.MemberService
+import com.krstudy.kapi.global.Security.handler.CustomAuthenticationSuccessHandler
 import com.krstudy.kapi.global.https.ReqData
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean

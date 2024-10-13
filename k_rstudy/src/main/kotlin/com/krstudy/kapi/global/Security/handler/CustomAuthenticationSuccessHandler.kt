@@ -1,4 +1,4 @@
-package com.krstudy.kapi.com.krstudy.kapi.global.Security.handler
+package com.krstudy.kapi.global.Security.handler
 
 import com.itextpdf.text.log.LoggerFactory
 import com.krstudy.kapi.domain.member.service.AuthTokenService

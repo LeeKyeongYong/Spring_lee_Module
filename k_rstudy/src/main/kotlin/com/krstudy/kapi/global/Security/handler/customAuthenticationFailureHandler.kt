@@ -1,4 +1,4 @@
-package com.krstudy.kapi.com.krstudy.kapi.global.Security.handler
+package com.krstudy.kapi.global.Security.handler
 
 import com.krstudy.kapi.global.exception.MessageCode
 import org.springframework.security.core.AuthenticationException
