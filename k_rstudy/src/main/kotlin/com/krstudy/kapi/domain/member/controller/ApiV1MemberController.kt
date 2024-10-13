@@ -25,10 +25,6 @@ class ApiV1MemberController(
 
     private val logger = LoggerFactory.getLogger(ApiV1MemberController::class.java)
 
-    companion object {
-        private const val DEFAULT_REDIRECT_URL = "/"
-    }
-
     @GetMapping("/socialLogin/{providerTypeCode}")
     fun socialLogin(@RequestParam(required = false) redirectUrl: String?, @PathVariable providerTypeCode: String): String {
         redirectUrl?.takeIf { rq.isFrontUrl(it) }?.let {
