@@ -1,17 +1,15 @@
-package com.krstudy.kapi.global.Security
+package com.krstudy.kapi.com.krstudy.kapi.global.Security.handler
 
 import com.itextpdf.text.log.LoggerFactory
 import com.krstudy.kapi.domain.member.service.AuthTokenService
 import com.krstudy.kapi.domain.member.service.MemberService
 import com.krstudy.kapi.global.https.ReqData
-import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import java.io.IOException
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 

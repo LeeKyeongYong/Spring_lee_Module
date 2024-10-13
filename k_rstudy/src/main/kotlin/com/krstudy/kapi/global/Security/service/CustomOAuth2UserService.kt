@@ -1,8 +1,8 @@
-package com.krstudy.kapi.com.krstudy.kapi.global.Security
+package com.krstudy.kapi.global.Security.service
 
-import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.service.MemberService
 import com.krstudy.kapi.global.Security.SecurityUser
+import com.krstudy.kapi.global.Security.datas.Quadruple
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException
@@ -15,13 +15,6 @@ import java.io.FileNotFoundException
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.core.OAuth2Error
 
-// Quadruple 데이터 클래스 정의
-data class Quadruple<A, B, C, D>(
-    val first: A,
-    val second: B,
-    val third: C,
-    val fourth: D
-)
 
 @Service
 @Transactional(readOnly = true)

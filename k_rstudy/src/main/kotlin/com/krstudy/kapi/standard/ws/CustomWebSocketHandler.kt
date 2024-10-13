@@ -1,7 +1,7 @@
 package com.krstudy.kapi.standard.ws
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.krstudy.kapi.com.krstudy.kapi.domain.messages.dto.MessageNotification
-import com.krstudy.kapi.global.Security.JwtTokenProvider
+import com.krstudy.kapi.com.krstudy.kapi.global.Security.datas.JwtTokenProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.handler.TextWebSocketHandler

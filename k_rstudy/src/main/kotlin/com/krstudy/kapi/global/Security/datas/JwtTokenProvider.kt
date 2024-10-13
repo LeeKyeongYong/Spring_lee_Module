@@ -1,6 +1,5 @@
-package com.krstudy.kapi.global.Security
+package com.krstudy.kapi.com.krstudy.kapi.global.Security.datas
 import io.jsonwebtoken.*
-import io.jsonwebtoken.security.Keys
 import jakarta.annotation.PostConstruct
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication

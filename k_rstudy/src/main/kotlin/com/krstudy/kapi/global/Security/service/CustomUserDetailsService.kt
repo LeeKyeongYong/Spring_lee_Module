@@ -1,6 +1,7 @@
-package com.krstudy.kapi.global.Security
+package com.krstudy.kapi.com.krstudy.kapi.global.Security.service
 
 import com.krstudy.kapi.domain.member.service.MemberService
+import com.krstudy.kapi.global.Security.SecurityUser
 import com.krstudy.kapi.global.exception.MessageCode
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.userdetails.UserDetails
