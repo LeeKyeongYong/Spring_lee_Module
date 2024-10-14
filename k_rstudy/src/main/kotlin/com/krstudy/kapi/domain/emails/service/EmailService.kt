@@ -36,17 +36,21 @@ class EmailService(
         val mimeMessage: MimeMessage = mailSender.createMimeMessage()
         val helper = MimeMessageHelper(mimeMessage, true, "UTF-8") // UTF-8 인코딩 설정
 
-        helper.setFrom(mailDto.serviceEmail) // 보내는사람
-        helper.setTo(mailDto.receiverEmail) // 받는사람
+        // `mailDto.serviceEmail`과 `mailDto.receiverEmail`이 null일 경우 기본값을 설정합니다.
+        val senderEmail = mailDto.serviceEmail ?: throw IllegalArgumentException("Sender email is missing")
+        val receiverEmail = mailDto.receiverEmail ?: throw IllegalArgumentException("Receiver email is missing")
+
+        helper.setFrom(senderEmail) // 보내는사람
+        helper.setTo(receiverEmail) // 받는사람
         helper.setSubject(mailDto.title)
-        helper.setText(mailDto.content.takeIf { it.isNotBlank() } ?: verificationCode.generateCodeMessage(),true)
+        helper.setText(mailDto.content.takeIf { it.isNotBlank() } ?: verificationCode.generateCodeMessage(), true)
 
         // EmailLog 저장 (여기서 이메일 로그를 먼저 저장)
         val emailLog = Email(
-            serviceEmail = mailDto.serviceEmail,
-            title = mailDto.title,//"Email Verification For ${mailDto.receiverEmail}",
+            serviceEmail = mailDto.customEmail ?: senderEmail,  // `customEmail`이 null일 경우 `senderEmail` 사용
+            title = mailDto.title,
             content = mailDto.content.takeIf { it.isNotBlank() } ?: verificationCode.generateCodeMessage(),
-            receiverEmail = mailDto.receiverEmail
+            receiverEmail = receiverEmail
         )
         val savedEmailLog = emailRepository.save(emailLog) // 이메일 발송 내용 저장
 
@@ -70,7 +74,7 @@ class EmailService(
             ?: throw GlobalException(MessageCode.NOT_FOUND_RESOURCE)
 
         if (verificationCode.isExpired(verifiedAt)) {
-            throw GlobalException(MessageCode.EXPIRED_VERIFICATION_CODE) // 적절한 예외 코드로 변경
+            throw GlobalException(MessageCode.EXPIRED_VERIFICATION_CODE)
         }
 
         verificationCodeRepository.delete(verificationCode) // DB에서 삭제
@@ -82,6 +86,6 @@ class EmailService(
         return VerificationCode(
             code = code,
             expirationTimeInMinutes = EXPIRATION_TIME_IN_MINUTES
-        ) // createAt은 자동으로 설정됨
+        )
     }
 }

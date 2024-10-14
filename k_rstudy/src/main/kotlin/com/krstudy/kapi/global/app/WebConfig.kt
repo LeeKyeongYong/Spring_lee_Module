@@ -8,9 +8,11 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import org.springframework.web.servlet.resource.PathResourceResolver  // WebMVC의 PathResourceResolver 사용
 import java.util.concurrent.TimeUnit
+import org.springframework.web.servlet.config.annotation.CorsRegistry
 
 @Configuration
 class WebConfig : WebMvcConfigurer {
+
     override fun configureContentNegotiation(configurer: ContentNegotiationConfigurer) {
         configurer
             .defaultContentType(MediaType.APPLICATION_JSON)
@@ -39,5 +41,6 @@ class WebConfig : WebMvcConfigurer {
             .addResourceLocations("classpath:/static/resource/")
             .setCacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
             .resourceChain(true)
+
     }
 }

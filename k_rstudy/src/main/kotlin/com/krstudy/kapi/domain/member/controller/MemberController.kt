@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -44,6 +45,9 @@ class MemberController(
     private val passwordEncoder: PasswordEncoder, // 비밀번호 인코더 주입
     private val emailService: EmailService
 ) {
+
+    @Value("\${spring.mail.username}")
+    lateinit var serviceEmail: String
 
     private val log: Logger = LoggerFactory.getLogger(MemberController::class.java) // Logger 인스턴스 생성
 
@@ -226,21 +230,20 @@ class MemberController(
         if (member.isPresent) {
             val foundMember = member.get()
 
-            // 메일 발송 로직 실행
             val encodedPath = encodeUrl("/member/reset-password")
-            val resetPasswordUrl = "http://192.168.56.1:8090/redirect?encodedUrl=$encodedPath"
+            val resetPasswordUrl = "http://localhost:8090/redirect?encodedUrl=$encodedPath"
+            println("이메일인증: $resetPasswordUrl")
 
             val emailDto = EmailDto(
                 id = foundMember.id,
-                serviceEmail = "sleekydz86@naver.com",
-                customEmail = foundMember.userEmail,
+                serviceEmail = serviceEmail, // Use the injected serviceEmail as the serviceEmail parameter
+                customEmail = serviceEmail, // Use the injected serviceEmail as the customEmail
+                receiverEmail = foundMember.userEmail,
                 title = "${foundMember.username}님 안녕하세요. 찾으시는....",
                 content = "<html><body>${foundMember.username}님의 <br />" +
-                        "<a href=\"$resetPasswordUrl\">나의 계정 찾기</a>에서 찾으실 수 있습니다.</body></html>",
-                receiverEmail = foundMember.userEmail
+                        "<a href=\"$resetPasswordUrl\">나의 계정 찾기</a>에서 찾으실 수 있습니다.</body></html>"
             )
 
-            // sendSimpleVerificationMail 메서드 호출
             emailService.sendSimpleVerificationMail(emailDto)
 
             redirectAttributes.addFlashAttribute("message", "메일이 발송되었습니다.")
