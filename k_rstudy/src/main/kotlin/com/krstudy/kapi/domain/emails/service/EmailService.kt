@@ -23,8 +23,8 @@ class EmailService(
     private val mailSender: JavaMailSender,
     private val verificationCodeRepository: VerificationCodeRepository,
     private val emailRepository: EmailRepository,
-    private val fileRepository: FileRepository,
-    private val memberService: MemberService
+    private val memberService: MemberService,
+    private val fileService: FileService,  // FileService를 주입받도록 변경
 ) {
     private val EXPIRATION_TIME_IN_MINUTES = 5
 
@@ -52,15 +52,17 @@ class EmailService(
             content = mailDto.content.takeIf { it.isNotBlank() } ?: verificationCode.generateCodeMessage(),
             receiverEmail = receiverEmail
         )
+
+        println("이메일 로그 저장 전: $emailLog")
+
         val savedEmailLog = emailRepository.save(emailLog) // 이메일 발송 내용 저장
+        println("이메일 로그 저장 후: $savedEmailLog")
 
         // 파일이 존재하는 경우 첨부
         mailDto.attachment?.let {
             if (!it.isEmpty) {
                 helper.addAttachment(it.originalFilename ?: "attachment", it)
-                // 파일도 저장 (저장된 이메일 로그 ID 사용)
-                val fileService = FileService(fileRepository) // 의존성 주입 방식에 따라 조정
-                fileService.saveFile(it, savedEmailLog.id ?: throw Exception("Email ID is null"), "EMAIL") // 이메일 ID와 함께 파일 저장
+                fileService.saveFile(it, savedEmailLog.id ?: throw Exception("Email ID is null"), "EMAIL")
             }
         }
 

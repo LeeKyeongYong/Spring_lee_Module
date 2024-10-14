@@ -230,8 +230,8 @@ class MemberController(
         if (member.isPresent) {
             val foundMember = member.get()
 
-            val encodedPath = encodeUrl("/member/reset-password")
-            val resetPasswordUrl = "http://localhost:8090/redirect?encodedUrl=$encodedPath"
+            val encodedPath = encodeUrl("${foundMember.id}")
+            val resetPasswordUrl = "http://localhost:8090/redirect?redirectCount=$encodedPath"
             println("이메일인증: $resetPasswordUrl")
 
             val emailDto = EmailDto(
@@ -255,8 +255,7 @@ class MemberController(
     }
 
     fun encodeUrl(path: String): String {
-        return URLEncoder.encode(path, StandardCharsets.UTF_8.toString())
+        return Base64.getUrlEncoder().encodeToString(path.toByteArray(StandardCharsets.UTF_8))
     }
-
 
 }

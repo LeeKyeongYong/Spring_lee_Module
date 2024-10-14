@@ -3,7 +3,7 @@ package com.krstudy.kapi.domain.files.service
 import com.krstudy.kapi.domain.files.entity.FileEntity
 import com.krstudy.kapi.domain.files.repository.FileRepository
 import com.krstudy.kapi.global.exception.FileSaveException
-import jakarta.annotation.PostConstruct
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
@@ -16,48 +16,52 @@ import java.nio.file.StandardCopyOption
 import java.util.*
 
 @Service
-class FileService(private val fileRepository: FileRepository) {
+class FileService(
+    private val fileRepository: FileRepository,
+    @Value("\${file.upload-dir.windows:#{null}}") private val windowsUploadDir: String?,
+    @Value("\${file.upload-dir.linux:#{null}}") private val linuxUploadDir: String?
+) {
+    private val logger = LoggerFactory.getLogger(FileService::class.java)
 
-    @Value("\${file.upload-dir.windows}")
-    private var windowsUploadDir: String? = null
+    init {
+        logger.info("Windows upload dir: $windowsUploadDir")
+        logger.info("Linux upload dir: $linuxUploadDir")
+    }
 
-    @Value("\${file.upload-dir.linux}")
-    private var linuxUploadDir: String? = null
-
-    private lateinit var uploadDir: String
-
-    @PostConstruct
-    fun init() {
-        uploadDir = when {
-            !windowsUploadDir.isNullOrBlank() -> windowsUploadDir!!
-            !linuxUploadDir.isNullOrBlank() -> linuxUploadDir!!
+    private val uploadDir: String by lazy {
+        when {
+            !windowsUploadDir.isNullOrBlank() -> windowsUploadDir
+            !linuxUploadDir.isNullOrBlank() -> linuxUploadDir
             else -> System.getProperty("java.io.tmpdir")
-        }
-        println("Upload directory initialized: $uploadDir")
-
-        val directory = File(uploadDir)
-        if (!directory.exists()) {
-            if (directory.mkdirs()) {
-                println("Created directory: ${directory.absolutePath}")
-            } else {
+        }.also { dir ->
+            logger.info("Selected upload directory: $dir")
+            val directory = File(dir)
+            if (!directory.exists() && !directory.mkdirs()) {
+                logger.error("Failed to create directory: ${directory.absolutePath}")
                 throw IllegalStateException("Failed to create directory: ${directory.absolutePath}")
             }
-        }
-
-        if (!directory.canWrite()) {
-            throw IllegalStateException("No write permission for directory: ${directory.absolutePath}")
+            if (!directory.canWrite()) {
+                logger.error("No write permission for directory: ${directory.absolutePath}")
+                throw IllegalStateException("No write permission for directory: ${directory.absolutePath}")
+            }
+            logger.info("Upload directory initialized: $dir")
         }
     }
 
     fun saveFile(file: MultipartFile, relatedEntityId: Long, entityType: String): FileEntity {
         val originalFilename = file.originalFilename ?: throw IllegalArgumentException("Filename cannot be null")
-        val storedFilename = "${UUID.randomUUID()}_$originalFilename"  // UUID 사용으로 파일명 충돌 방지
+        val storedFilename = "${UUID.randomUUID()}_$originalFilename"
         val path: Path = Paths.get(uploadDir, storedFilename)
+
+        logger.info("Attempting to save file: $originalFilename")
+        logger.info("Full path: ${path.toAbsolutePath()}")
 
         try {
             Files.copy(file.inputStream, path, StandardCopyOption.REPLACE_EXISTING)
+            logger.info("File saved successfully: $storedFilename")
         } catch (e: IOException) {
-            throw FileSaveException("Failed to save file: ${e.message}", e)  // 사용자 정의 예외
+            logger.error("Failed to save file: ${e.message}", e)
+            throw FileSaveException("Failed to save file: ${e.message}", e)
         }
 
         val fileEntity = FileEntity(
@@ -66,6 +70,8 @@ class FileService(private val fileRepository: FileRepository) {
             relatedEntityId = relatedEntityId,
             entityType = entityType
         )
-        return fileRepository.save(fileEntity)
+        return fileRepository.save(fileEntity).also {
+            logger.info("File entity saved: ${it.id}")
+        }
     }
 }

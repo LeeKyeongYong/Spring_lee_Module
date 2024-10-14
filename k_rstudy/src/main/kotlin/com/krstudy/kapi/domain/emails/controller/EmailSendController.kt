@@ -28,19 +28,20 @@ class EmailSendController(
     @PostMapping("/sendEmail")
     fun sendEmail(
         @RequestParam("customEmail") customEmail: String,
+        @RequestParam("receiverEmail") receiverEmail: String,
         @RequestParam("title") title: String,
         @RequestParam("content") content: String,
         @RequestParam("attachment", required = false) attachment: MultipartFile?
     ): String {
         val emailDto = EmailDto(
-            serviceEmail = serviceEmail,
+            serviceEmail = customEmail,
             customEmail = customEmail,
             title = title,
             content = content,
-            receiverEmail = customEmail,
+            receiverEmail = receiverEmail,
             attachment = attachment
         )
-        emailService.sendSimpleVerificationMail(emailDto)
+       emailService.sendSimpleVerificationMail(emailDto)
         return "redirect:/messages" // Redirect to a success page
     }
 }
