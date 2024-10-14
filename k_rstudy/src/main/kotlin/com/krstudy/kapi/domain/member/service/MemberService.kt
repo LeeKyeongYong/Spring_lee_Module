@@ -2,7 +2,6 @@ package com.krstudy.kapi.domain.member.service
 
 import com.krstudy.kapi.domain.comment.repository.PostCommentRepository
 import com.krstudy.kapi.domain.member.datas.AuthAndMakeTokensResponseBody
-import io.jsonwebtoken.SignatureAlgorithm
 import com.krstudy.kapi.domain.member.datas.M_Role
 import com.krstudy.kapi.domain.member.datas.RegistrationData
 import com.krstudy.kapi.domain.member.entity.Member
@@ -10,22 +9,21 @@ import com.krstudy.kapi.domain.member.repository.MemberRepository
 import com.krstudy.kapi.domain.post.repository.PostRepository
 import com.krstudy.kapi.domain.post.repository.PostlikeRepository
 import com.krstudy.kapi.global.Security.SecurityUser
-import com.krstudy.kapi.global.exception.MessageCode
 import com.krstudy.kapi.global.exception.GlobalException
+import com.krstudy.kapi.global.exception.MessageCode
 import com.krstudy.kapi.global.https.RespData
 import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.SignatureAlgorithm
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.springframework.security.core.userdetails.UsernameNotFoundException
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.core.Authentication
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 @Service
 @Transactional(readOnly = true)
@@ -266,6 +264,11 @@ class MemberService(
         // This is just a placeholder implementation
         return memberRepository.findAll().firstOrNull()
             ?: throw IllegalStateException("No users found in the system")
+    }
+
+    // 사용자 이름과 이메일, accountType으로 멤버 찾기
+    fun findMember(username: String, userEmail: String, accountType: String): Optional<Member> {
+        return memberRepository.findByUsernameAndUserEmailAndAccountType(username, userEmail, accountType)
     }
 
 }

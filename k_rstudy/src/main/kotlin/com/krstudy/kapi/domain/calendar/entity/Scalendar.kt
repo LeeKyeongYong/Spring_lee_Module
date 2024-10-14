@@ -2,6 +2,7 @@ package com.krstudy.kapi.domain.calendar.entity
 
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.global.jpa.BaseEntity
+
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.persistence.*
 import java.util.ArrayList

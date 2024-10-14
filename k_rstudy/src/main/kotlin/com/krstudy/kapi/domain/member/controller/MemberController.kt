@@ -1,33 +1,38 @@
 package com.krstudy.kapi.domain.member.controller
 
+import com.krstudy.kapi.domain.emails.dto.EmailDto
+import com.krstudy.kapi.domain.emails.service.EmailService
 import com.krstudy.kapi.domain.member.datas.JoinForm
 import com.krstudy.kapi.domain.member.datas.RegistrationQueue
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.service.MemberService
-import org.springframework.http.MediaType
 import com.krstudy.kapi.global.https.ReqData
 import com.krstudy.kapi.global.lgexecution.LogExecutionTime
 import com.krstudy.kapi.standard.base.MemberPdfView
 import jakarta.validation.Valid
-import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.stereotype.Controller
 import lombok.extern.slf4j.Slf4j
-import org.springframework.web.bind.annotation.*
-import org.slf4j.LoggerFactory
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.stereotype.Controller
+import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
-import org.springframework.web.servlet.mvc.support.RedirectAttributes
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.ModelAndView
-import java.io.FileNotFoundException
-import javax.imageio.ImageIO
+import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import java.io.ByteArrayInputStream
-import org.springframework.ui.Model // Model 클래스 import 추가
+import java.io.FileNotFoundException
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+import java.util.*
+import javax.imageio.ImageIO
+
 
 @Slf4j
 @Controller
@@ -36,7 +41,8 @@ class MemberController(
     private val memberService: MemberService, // 회원 서비스에 대한 의존성 주입
     private val rq: ReqData, // 요청 데이터에 대한 의존성 주입
     private val registrationQueue: RegistrationQueue, // 가입 요청 큐에 대한 의존성 주입
-    private val passwordEncoder: PasswordEncoder // 비밀번호 인코더 주입
+    private val passwordEncoder: PasswordEncoder, // 비밀번호 인코더 주입
+    private val emailService: EmailService
 ) {
 
     private val log: Logger = LoggerFactory.getLogger(MemberController::class.java) // Logger 인스턴스 생성
@@ -200,6 +206,53 @@ class MemberController(
         memberService.removeMember(id) // 회원 삭제
         attr.addFlashAttribute("msg", "회원이 삭제되었습니다.") // 삭제 메시지 추가
         return "redirect:/adm" // 회원 목록 페이지로 리디렉션
+    }
+
+    @GetMapping("/find")
+    fun showFindAccountForm(): String {
+        return "domain/member/find-account"
+    }
+
+
+    @PostMapping("/find")
+    fun findMemberInfo(
+        @RequestParam("username") username: String,
+        @RequestParam("userEmail") userEmail: String,
+        model: Model,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val member: Optional<Member> = memberService.findMember(username, userEmail, "WEB")
+
+        if (member.isPresent) {
+            val foundMember = member.get()
+
+            // 메일 발송 로직 실행
+            val encodedPath = encodeUrl("/member/reset-password")
+            val resetPasswordUrl = "http://192.168.56.1:8090/redirect?encodedUrl=$encodedPath"
+
+            val emailDto = EmailDto(
+                id = foundMember.id,
+                serviceEmail = "sleekydz86@naver.com",
+                customEmail = foundMember.userEmail,
+                title = "${foundMember.username}님 안녕하세요. 찾으시는....",
+                content = "<html><body>${foundMember.username}님의 <br />" +
+                        "<a href=\"$resetPasswordUrl\">나의 계정 찾기</a>에서 찾으실 수 있습니다.</body></html>",
+                receiverEmail = foundMember.userEmail
+            )
+
+            // sendSimpleVerificationMail 메서드 호출
+            emailService.sendSimpleVerificationMail(emailDto)
+
+            redirectAttributes.addFlashAttribute("message", "메일이 발송되었습니다.")
+        } else {
+            redirectAttributes.addFlashAttribute("message", "해당 정보를 찾을 수 없습니다.")
+        }
+
+        return "redirect:/member/find"
+    }
+
+    fun encodeUrl(path: String): String {
+        return URLEncoder.encode(path, StandardCharsets.UTF_8.toString())
     }
 
 

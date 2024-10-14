@@ -24,18 +24,21 @@ class MailConfig {
 
     @Bean
     fun javaMailSender(): JavaMailSender {
-        val mailSender = JavaMailSenderImpl()
-        mailSender.host = mailServerHost
-        mailSender.port = mailServerPort.toInt() // 포트는 Int형으로 변환
+        val mailSender = JavaMailSenderImpl().apply {
+            host = mailServerHost
+            port = mailServerPort.toInt()
 
-        mailSender.username = mailServerUsername
-        mailSender.password = mailServerPassword
+            username = mailServerUsername
+            password = mailServerPassword
 
-        val properties: Properties = mailSender.javaMailProperties
-        properties["mail.transport.protocol"] = "smtp"
-        properties["mail.smtp.auth"] = "true"
-        properties["mail.smtp.starttls.enable"] = "true"
-
+            javaMailProperties.apply {
+                put("mail.transport.protocol", "smtp")
+                put("mail.smtp.auth", "true")
+                put("mail.smtp.starttls.enable", "true")
+                put("mail.smtp.ssl.enable", "true")
+                put("mail.smtp.ssl.trust", mailServerHost)
+            }
+        }
         return mailSender
     }
 }
