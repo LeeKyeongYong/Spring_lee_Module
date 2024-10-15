@@ -41,4 +41,5 @@ class ApiV1VerificationController(
         emailService.verifyCode(code, verifiedAt)
         return ResponseEntity.ok("Verification code verified successfully.")
     }
+
 }

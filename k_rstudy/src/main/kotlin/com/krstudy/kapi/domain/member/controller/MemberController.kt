@@ -260,8 +260,5 @@ class MemberController(
         return Base64.getUrlEncoder().encodeToString(path.toByteArray(StandardCharsets.UTF_8))
     }
 
-    //받는사람이랑 시간..?
-
-
 
 }

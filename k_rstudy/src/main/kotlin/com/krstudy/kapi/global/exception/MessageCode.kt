@@ -18,8 +18,13 @@ enum class MessageCode(val code: String, val message: String) {
     FORBIDDEN("403-1", "권한이 없습니다."),
 
     // 요청 관련 오류
+    // 요청 관련 오류
     BAD_REQUEST("400-1", "잘못된 요청입니다."),
     EMPTY_COMMENT_BODY("400-2", "댓글 내용이 비어 있습니다."),
+    INVALID_INPUT("400-6", "입력값이 올바르지 않습니다."),
+    INVALID_EMAIL("400-7", "올바른 이메일 형식이 아닙니다."),
+    PASSWORD_MISMATCH("400-8", "비밀번호가 일치하지 않습니다."),
+
 
     // 서버 오류
     INTERNAL_SERVER_ERROR("500-1", "서버 내부 오류입니다."),

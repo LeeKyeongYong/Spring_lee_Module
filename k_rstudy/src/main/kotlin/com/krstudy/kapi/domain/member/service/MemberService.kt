@@ -12,8 +12,11 @@ import com.krstudy.kapi.global.Security.SecurityUser
 import com.krstudy.kapi.global.exception.GlobalException
 import com.krstudy.kapi.global.exception.MessageCode
 import com.krstudy.kapi.global.https.RespData
+import com.krstudy.kapi.member.datas.MemberUpdateData
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
+import jakarta.persistence.EntityManager
+import jakarta.persistence.PersistenceContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
@@ -22,8 +25,12 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.support.TransactionTemplate
+
 
 @Service
 @Transactional(readOnly = true)
@@ -33,8 +40,14 @@ class MemberService(
     private val postRepository: PostRepository,
     private val postCommentRepository: PostCommentRepository,
     private val postlikeRepository: PostlikeRepository,
-    private val authTokenService: AuthTokenService
+    private val authTokenService: AuthTokenService,
+    private val transactionManager: PlatformTransactionManager
 ) {
+
+    @PersistenceContext
+    private lateinit var entityManager: EntityManager
+
+
 
     companion object {
         private val logger = LoggerFactory.getLogger(MemberService::class.java)
@@ -269,6 +282,30 @@ class MemberService(
     // 사용자 이름과 이메일, accountType으로 멤버 찾기
     fun findMember(username: String, userEmail: String, accountType: String): Optional<Member> {
         return memberRepository.findByUsernameAndUserEmailAndAccountType(username, userEmail, accountType)
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    fun update(id: Long, updateData: MemberUpdateData, imageBytes: ByteArray?, imageType: String?): Member? {
+        return TransactionTemplate(transactionManager).execute { _ ->
+            val member = memberRepository.findById(id).orElseThrow { IllegalArgumentException("Member not found with id: $id") }
+
+            updateData.nickname?.let { member.nickname = it }
+            updateData.userEmail?.let { member.userEmail = it }
+            updateData.password?.let { member.password = passwordEncoder.encode(it) }
+            updateData.useYn?.let { member.useYn = it }
+            updateData.roleType?.let { member.roleType = it }
+            updateData.accountType?.let { member.accountType = it }
+            updateData.jwtToken?.let { member.jwtToken = it }
+
+            if (imageBytes != null && imageType != null) {
+                member.image = imageBytes
+                member.imageType = imageType
+            }
+
+            val updatedMember = memberRepository.save(member)
+            entityManager.flush()
+            updatedMember
+        }
     }
 
 }
