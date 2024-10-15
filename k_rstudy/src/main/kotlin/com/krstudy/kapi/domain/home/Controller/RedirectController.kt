@@ -20,6 +20,5 @@ class RedirectController(
         println("redirect 이메일인증: $decodedUrl")
         model.addAttribute("member", memberService.getMemberByNo(decodedUrl.toLong())) // 회원 정보를 모델에 추가
         return "domain/member/reset-password";
-        //return RedirectView(decodedUrl)
     }
 }

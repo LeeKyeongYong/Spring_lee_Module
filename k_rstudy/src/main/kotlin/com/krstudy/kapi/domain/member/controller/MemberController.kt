@@ -9,6 +9,7 @@ import com.krstudy.kapi.domain.member.service.MemberService
 import com.krstudy.kapi.global.https.ReqData
 import com.krstudy.kapi.global.lgexecution.LogExecutionTime
 import com.krstudy.kapi.standard.base.MemberPdfView
+import jakarta.mail.MessagingException
 import jakarta.validation.Valid
 import lombok.extern.slf4j.Slf4j
 import org.slf4j.Logger
@@ -31,6 +32,7 @@ import java.io.ByteArrayInputStream
 import java.io.FileNotFoundException
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import java.time.LocalDateTime
 import java.util.*
 import javax.imageio.ImageIO
 
@@ -257,5 +259,9 @@ class MemberController(
     fun encodeUrl(path: String): String {
         return Base64.getUrlEncoder().encodeToString(path.toByteArray(StandardCharsets.UTF_8))
     }
+
+    //받는사람이랑 시간..?
+
+
 
 }

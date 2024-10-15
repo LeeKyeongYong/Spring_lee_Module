@@ -23,7 +23,7 @@ data class VerificationCode(
     }
 
     fun generateCodeMessage(): String {
-        val formattedExpiredAt = getCreateDate()
+        val formattedExpiredAt = (getCreateDate() ?: LocalDateTime.now())
             ?.plusMinutes(expirationTimeInMinutes.toLong())
             ?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) ?: ""
 

@@ -44,4 +44,10 @@ class EmailSendController(
        emailService.sendSimpleVerificationMail(emailDto)
         return "redirect:/messages" // Redirect to a success page
     }
+
+    @GetMapping("/verifyCode")
+    fun verifycodForm(): String {
+        return "domain/email/verify-code"
+    }
+
 }
