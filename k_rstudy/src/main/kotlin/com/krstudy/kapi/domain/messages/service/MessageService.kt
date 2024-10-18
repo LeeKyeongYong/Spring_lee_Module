@@ -27,8 +27,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate
 class MessageService(
     private val messageRepository: MessageRepository,
     private val memberService: MemberService,
-    private val reqData: ReqData, // ReqData 주입
-    private val messagingTemplate: SimpMessagingTemplate // WebSocket 템플릿 주입
+    private val reqData: ReqData // ReqData 주입
 ) {
 
     private val logger: Logger = LoggerFactory.getLogger(MessageService::class.java)
@@ -65,11 +64,7 @@ class MessageService(
                 senderId = savedMessage.senderId
             )
             logger.info("Sending notification to user: ${recipient.recipientId}")
-            messagingTemplate.convertAndSendToUser(
-                recipient.recipientId.toString(),
-                "/queue/messages",
-                notification
-            )
+            
             logger.info("Notification sent to user: ${recipient.recipientId}")
         }
 

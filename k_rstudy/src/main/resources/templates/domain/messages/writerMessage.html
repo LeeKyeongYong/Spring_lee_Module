@@ -842,7 +842,7 @@
                 }
             });
 
-            setupWebSocket();
+
 
             // CSS 스타일 적용을 위한 스타일 태그 추가
             const style = document.createElement('style');
@@ -873,11 +873,6 @@
 
         });
 
-
-
-
-
-
         // 알림 표시 함수 수정
         function displayNotifications(notifications) {
             const notificationElement = document.querySelector('.notification');
@@ -905,7 +900,6 @@
                 notificationElement.classList.remove('notification-animate');
             }, 5000);
         }
-
 
         function getCurrentUserId() {
             return fetch('/api/v1/members/current')
@@ -1054,72 +1048,6 @@
             return localStorage.getItem('authToken');
         }
 
-
-        // 웹소켓 연결 및 새 메시지 수신 처리
-        function setupWebSocket() {
-
-            const socket = new SockJS('/ws');
-            const stompClient = Stomp.over(socket);
-            const csrfToken = getCsrfToken(); // CSRF 토큰 가져오기
-
-            // 디버그 로그 활성화
-            stompClient.debug = function(str) {
-                console.log('STOMP: ' + str);
-            };
-
-
-            const connectCallback = function(frame) {
-                console.log('Connected: ' + frame);
-
-                getCurrentUserId().then(userId => {
-
-                    if (userId) {
-                        console.log('Subscribing for user:', userId);
-
-                        // 구독 설정
-                        stompClient.subscribe('/user/queue/messages', function(messageOutput) {
-
-                            try {
-                                console.log('Received message:', messageOutput);
-                                const notification = JSON.parse(messageOutput.body);
-
-                                // 알림 표시
-                                displayNotifications([notification]);
-
-                                // 메시지 목록 갱신
-                                loadReceivedMessages(currentMessagePage, messagesPerPage);
-
-                                // 읽지 않은 메시지 수 증가
-                                unreadCount++;
-                                updateUnreadCount();
-
-                            } catch (error) {
-                                console.error('메시지 처리 중 오류:', error);
-                            }
-                        });
-
-                    } else {
-                        console.error('사용자 ID를 가져올 수 없습니다.');
-                    }
-                });
-            };
-
-            const errorCallback = function(error) {
-                console.error('STOMP 연결 오류:', error);
-                // 연결 실패 알림 표시
-                const notificationElement = document.querySelector('.notification');
-                if (notificationElement) {
-                    notificationElement.textContent = '서버 연결에 실패했습니다. 재연결을 시도합니다.';
-                    notificationElement.style.display = 'block';
-                }
-                // 5초 후 재연결 시도
-                setTimeout(setupWebSocket, 5000);
-            };
-
-            // 연결 시도
-
-            stompClient.connect({'X-CSRF-TOKEN': csrfToken}, connectCallback, errorCallback);
-        }
 
         function getCsrfToken() {
             return document.querySelector('meta[name="_csrf"]').content;

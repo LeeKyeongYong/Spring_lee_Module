@@ -48,27 +48,4 @@ class MessageController(
         return "domain/messages/messageDetail"
     }
 
-
-    @MessageMapping("/send")
-    @SendToUser("/queue/messages")
-    suspend fun sendMessage(@Payload message: Message, principal: Principal?): MessageNotification {
-        try {
-            logger.info("Received message from user: ${principal?.name ?: "Unknown"}")
-            logger.info("Message content: ${message.content}, title: ${message.title}")
-
-            val savedMessage = messageService.sendMessage(message)
-
-            logger.info("Saved message ID: ${savedMessage.id}")
-
-            return MessageNotification(
-                messageId = savedMessage.id,
-                content = savedMessage.content,
-                title = savedMessage.title,
-                senderId = savedMessage.senderId
-            )
-        } catch (e: Exception) {
-            logger.error("Error processing message: ${e.message}", e)
-            throw e
-        }
-    }
 }
