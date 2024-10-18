@@ -1,4 +1,4 @@
-package com.krstudy.kapi.com.krstudy.kapi.domain.messages.dto
+package com.krstudy.kapi.domain.messages.dto
 
 data class MessageNotification(
     val messageId: Long,

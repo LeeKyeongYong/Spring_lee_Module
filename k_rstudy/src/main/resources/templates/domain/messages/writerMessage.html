@@ -431,6 +431,21 @@
             color: white;
         }
 
+        .notification:hover {
+            background-color: #45a049;
+        }
+
+        .unread-badge {
+            background-color: #ff4444;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+
         /* 메시지 검색 버튼 스타일 */
         #searchButton {
             background-color: #1976d2;
@@ -446,20 +461,16 @@
         }
 
         .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px;
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            z-index: 1000;
             display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease; /* 투명도와 변형 효과 설정 */
+            transform: translateY(-20px); /* 초기 위치 설정 */
         }
 
         .notification.show {
-            bottom: 20px; /* 슬라이드될 최종 위치 */
+            display: block; /* show 클래스가 있을 때만 block */
+            opacity: 1;
+            transform: translateY(0); /* 원래 위치로 이동 */
         }
 
         /* 애니메이션을 위한 keyframes 설정 */
@@ -482,6 +493,9 @@
         const itemsPerPage = 10;
         const pageSize = 10;
         let messageData = {};
+
+        // 전역 변수로 stompClient 선언
+        let stompClient = null;
 
         // 전역 변수로 현재 읽지 않은 메시지 수를 관리
         let unreadCount = 0;
@@ -616,6 +630,89 @@
         `);
             }
         }
+
+        // 클라이언트 WebSocket 연결 및 구독 로직
+        const connectWebSocket = async () => {
+            try {
+                const userId = await getCurrentUserId();
+                console.log('Current User ID:', userId); // 사용자 ID 확인
+
+                if (!userId) {
+                    console.error('User ID not available');
+                    return;
+                }
+
+                const socket = new SockJS('/ws');
+                stompClient = Stomp.over(socket);
+
+                stompClient.connect(
+                    {},
+                    () => {
+                        console.log('WebSocket Connected');
+
+                        // 사용자별 구독 설정
+                        stompClient.subscribe(`/topic/notifications/${userId}`, (message) => {
+                            console.log('Received message:', message); // 메시지 객체 전체 확인
+                            console.log('Received message:', message.body); // 메시지 수신 확인
+                            try {
+                                const notification = JSON.parse(message.body);
+                                console.log('Parsed notification:', notification); // 알림 내용 확인
+                                showNotification(notification);
+                            } catch (error) {
+                                console.error('Error processing message:', error);
+                            }
+                        });
+                        console.log(`Subscribed to /topic/notifications/${userId}`); // 구독 확인
+                    },
+                    (error) => {
+                        console.error('WebSocket Connection Error:', error);
+                        setTimeout(() => connectWebSocket(), 5000); // 5초 후 재연결 시도
+                    }
+                );
+
+            } catch (error) {
+                console.error('Error in WebSocket connection:', error);
+                setTimeout(() => connectWebSocket(), 5000);
+            }
+        };
+
+        // 알림 표시 함수 수정
+        function showNotification(notification) {
+            console.log('Show Notification called with:', notification); // 알림 표시 함수 호출 확인
+            const notificationElement = document.querySelector('.notification');
+            console.log('Notification element:', notificationElement);
+            if (!notificationElement) {
+                console.error('Notification element not found');
+                return;
+            }
+
+            // 알림이 실제로 있을 때만 표시
+            if (notification && notification.title) {
+                notificationElement.textContent = `새로운 메시지가 도착했습니다: ${notification.title}`;
+
+
+                // CSS 애니메이션 효과 적용
+                notificationElement.style.display = 'block';
+                notificationElement.classList.add('show');
+
+                // 5초 후 알림 숨기기
+                setTimeout(() => {
+                    notificationElement.classList.remove('show');
+                    setTimeout(() => {
+                        notificationElement.style.display = 'none';
+                    }, 3000); // fade out 애니메이션 시간 후 display를 none으로 설정
+                }, 5000);
+
+                // 읽지 않은 메시지 수 업데이트
+                unreadCount++;
+                updateUnreadCount();
+
+                // 메시지 목록 새로고침
+                loadReceivedMessages(currentMessagePage, messagesPerPage);
+            }
+        }
+
+
 
         // 페이지네이션 UI 업데이트 함수 수정
         function updatePagination(currentPage, totalPages) {
@@ -754,9 +851,6 @@
         // DOM이 로드된 후 이벤트 리스너 설정
         document.addEventListener('DOMContentLoaded', () => {
 
-            //팝업효과..
-            const notification = document.querySelector('.notification');
-            notification.classList.add('show');
 
             // 검색 입력 필드에 이벤트 리스너 추가
             const searchInput = document.getElementById('searchInput');
@@ -842,34 +936,32 @@
                 }
             });
 
-
-
             // CSS 스타일 적용을 위한 스타일 태그 추가
-            const style = document.createElement('style');
-            style.textContent = `
-         .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px;
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            z-index: 1000;
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: all 0.3s ease-in-out;
-        }
+    //         const style = document.createElement('style');
+    //         style.textContent = `
+    //      .notification {
+    //         position: fixed;
+    //         top: 20px;
+    //         right: 20px;
+    //         background-color: #4CAF50;
+    //         color: white;
+    //         padding: 15px;
+    //         border-radius: 4px;
+    //         box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    //         z-index: 1000;
+    //         opacity: 0;
+    //         transform: translateY(-20px);
+    //         transition: all 0.3s ease-in-out;
+    //     }
+    //
+    //     .notification.show {
+    //         opacity: 1;
+    //         transform: translateY(0);
+    //     }
+    // `;
+    //         document.head.appendChild(style);
 
-        .notification.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    `;
-            document.head.appendChild(style);
-
-
+            connectWebSocket();
 
         });
 
@@ -1078,6 +1170,9 @@
                 const data = await response.json();
                 unreadCount = data.unreadCount; // 서버에서 반환된 새로운 읽지 않은 메시지 수로 업데이트
                 updateUnreadCount();
+                const notification = document.querySelector('.notification');
+                notification.classList.add('show');
+
             } catch (error) {
                 console.error('메시지 읽음 처리 중 오류 발생:', error);
                 throw error;
@@ -1321,7 +1416,7 @@
     </div>
 
     <!-- 새 메시지 알림 -->
-    <div class="notification" style="display: none;">
+    <div class="notification">
         새로운 메시지가 도착했습니다.
     </div>
 </div>

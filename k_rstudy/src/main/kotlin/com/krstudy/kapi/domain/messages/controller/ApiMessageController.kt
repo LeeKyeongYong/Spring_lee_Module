@@ -1,14 +1,13 @@
 package com.krstudy.kapi.domain.messages.controller
 
+
 import org.springframework.data.domain.Sort
 import org.springframework.web.bind.annotation.*
 import org.springframework.http.MediaType // Add this import
 import org.springframework.http.ResponseEntity
-import org.springframework.stereotype.Controller
 import com.krstudy.kapi.domain.messages.service.MessageService
 import com.krstudy.kapi.domain.messages.dto.*
 import com.krstudy.kapi.domain.member.dto.MemberDto
-import com.krstudy.kapi.domain.member.service.MemberService
 import com.krstudy.kapi.domain.messages.entity.Message
 import com.krstudy.kapi.domain.messages.entity.MessageRecipient
 import jakarta.servlet.http.HttpServletRequest
@@ -16,14 +15,15 @@ import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("/api/messages")
 class ApiMessageController(
-    private val messageService: MessageService
-
+    private val messageService: MessageService,
+    private val simpMessagingTemplate: SimpMessagingTemplate
 ) {
     private val logger = LoggerFactory.getLogger(ApiMessageController::class.java)
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -123,6 +123,25 @@ class ApiMessageController(
         }
 
         val savedMessage = messageService.sendMessage(message)
+
+        // 각 수신자에게 알림 전송
+        message.recipients.forEach { recipient ->
+            val notification = MessageNotification(
+                messageId = savedMessage.id,
+                content = savedMessage.content,
+                title = savedMessage.title,
+                senderId = savedMessage.senderId
+            )
+
+            logger.info("Sending notification to userId: ${recipient.recipientId}, notification: $notification")
+            // WebSocket을 통해 알림 전송
+            simpMessagingTemplate.convertAndSend(
+                "/topic/notifications/${recipient.recipientId}",
+                notification
+            )
+        }
+
+
         return ResponseEntity.ok(savedMessage)
     }
 

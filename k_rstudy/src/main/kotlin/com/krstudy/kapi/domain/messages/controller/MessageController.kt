@@ -1,16 +1,10 @@
 package com.krstudy.kapi.domain.messages.controller
 
-import com.krstudy.kapi.com.krstudy.kapi.domain.messages.dto.MessageNotification
-import com.krstudy.kapi.domain.messages.entity.Message
 import com.krstudy.kapi.domain.messages.service.MessageService
 import org.slf4j.LoggerFactory
-import org.springframework.messaging.handler.annotation.MessageMapping
-import org.springframework.messaging.handler.annotation.Payload
-import org.springframework.messaging.simp.annotation.SendToUser
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.ui.Model
-import java.security.Principal
 
 @Controller
 class MessageController(

@@ -1,10 +1,10 @@
 package com.krstudy.kapi.domain.messages.service
 
 import com.github.benmanes.caffeine.cache.Caffeine
-import com.krstudy.kapi.com.krstudy.kapi.domain.messages.dto.MessageNotification
 import com.krstudy.kapi.domain.member.dto.MemberDto
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.service.MemberService
+import com.krstudy.kapi.domain.messages.dto.MessageNotification
 import com.krstudy.kapi.domain.messages.dto.MessageResponse
 import com.krstudy.kapi.domain.messages.entity.Message
 import com.krstudy.kapi.domain.messages.repository.MessageRepository
@@ -54,20 +54,6 @@ class MessageService(
 
         val savedMessage = messageRepository.save(message)
         messageCache.put(savedMessage.id, savedMessage)
-
-        // WebSocket으로 메시지 전송
-        message.recipients.forEach { recipient ->
-            val notification = MessageNotification(
-                messageId = savedMessage.id,
-                content = savedMessage.content,
-                title = savedMessage.title,
-                senderId = savedMessage.senderId
-            )
-            logger.info("Sending notification to user: ${recipient.recipientId}")
-            
-            logger.info("Notification sent to user: ${recipient.recipientId}")
-        }
-
 
         return savedMessage
     }
