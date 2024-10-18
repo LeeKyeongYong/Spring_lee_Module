@@ -1082,6 +1082,8 @@
                     const data = await response.json();
                     unreadCount = data.unreadCount; // 서버에서 반환된 새로운 읽지 않은 메시지 수로 업데이트
                     updateUnreadCount(); // UI 업데이트
+                    const notification = document.querySelector('.notification');
+                    notification.classList.add('show');
 
                     // 메시지 상태 업데이트
                     message.readAt = new Date();
@@ -1229,6 +1231,8 @@
                     // 서버에서 받은 안읽은 메시지 수로 업데이트
                     unreadCount = data.unreadCount;
                     updateUnreadCount();
+                    const notification = document.querySelector('.notification');
+                    notification.classList.add('show');
                 } else {
                     console.error('Invalid data structure received:', data);
                     displayMessageList([]);
