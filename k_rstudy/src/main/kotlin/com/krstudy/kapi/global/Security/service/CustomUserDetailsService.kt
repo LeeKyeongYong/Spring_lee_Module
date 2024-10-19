@@ -28,6 +28,8 @@ class CustomUserDetailsService(
             throw UsernameNotFoundException(MessageCode.LOGIN_DISABLED_USER.message)
         }
 
+        log.info("User authenticated successfully: $username")
+
         return SecurityUser(
             id = member.id ?: throw UsernameNotFoundException("User ID is null"),
             _username = member.userid,

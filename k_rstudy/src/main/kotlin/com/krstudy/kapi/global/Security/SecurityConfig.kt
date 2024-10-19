@@ -4,11 +4,14 @@ package com.krstudy.kapi.global.Security
 import com.krstudy.kapi.domain.member.service.AuthTokenService
 import com.krstudy.kapi.domain.member.service.MemberService
 import com.krstudy.kapi.global.Security.handler.CustomAuthenticationSuccessHandler
+import com.krstudy.kapi.global.Security.service.CustomUserDetailsService
 import com.krstudy.kapi.global.https.ReqData
+import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Lazy
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.web.SecurityFilterChain
@@ -23,7 +26,8 @@ import java.nio.charset.StandardCharsets
 @EnableMethodSecurity
 class SecurityConfig(
     private val authTokenService: AuthTokenService,
-    private val rq: ReqData
+    private val rq: ReqData,
+    @Lazy private val customUserDetailsService: CustomUserDetailsService
 ) {
     @Autowired
     @Lazy
@@ -40,6 +44,14 @@ class SecurityConfig(
     }
 
     @Bean
+    fun authenticationProvider(): AuthenticationProvider {
+        val provider = DaoAuthenticationProvider()
+        provider.setUserDetailsService(customUserDetailsService)
+        provider.setPasswordEncoder(passwordEncoder())
+        return provider
+    }
+
+    @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .authorizeHttpRequests { authorizeRequests ->
@@ -53,6 +65,7 @@ class SecurityConfig(
                     .requestMatchers("/member/join").hasAnyRole("ADMIN") // ADMIN 권한이 있는 사용자만 허용
                     .requestMatchers("/image/**").permitAll()
                     .requestMatchers("/api/messages/**").authenticated()
+
                     .anyRequest().permitAll()
             }
             .headers { headers ->
@@ -66,7 +79,7 @@ class SecurityConfig(
             .formLogin { formLogin ->
                 formLogin
                     .loginPage("/member/login")
-                    .failureUrl("/member/login?failMsg=" + URLEncoder.encode("로그인에 실패하였습니다.", StandardCharsets.UTF_8))
+                    .failureUrl("/?msg=" + URLEncoder.encode("로그인에 실패하였습니다.", StandardCharsets.UTF_8))
                     .successHandler(customAuthSuccessHandler())
                     .defaultSuccessUrl("/?msg=" + URLEncoder.encode("환영합니다.", StandardCharsets.UTF_8))
             }
@@ -80,14 +93,14 @@ class SecurityConfig(
                 sessionManagement
                     .invalidSessionUrl("/")
                     .maximumSessions(1)
-                    .expiredUrl("/member/login?failMsg=" + URLEncoder.encode("세션이 만료되었습니다.", StandardCharsets.UTF_8))
+                    .expiredUrl("/?msg=" + URLEncoder.encode("세션이 만료되었습니다.", StandardCharsets.UTF_8))
             }
             .oauth2Login { oauth2Login ->
                 oauth2Login
                     .successHandler(customAuthSuccessHandler())
                     .defaultSuccessUrl("/", true)
             }
-
+            .authenticationProvider(authenticationProvider())
         return http.build()
     }
 }

@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.support.TransactionTemplate
+import org.slf4j.Logger
 
 
 @Service
@@ -110,7 +111,12 @@ class MemberService(
     }
 
     fun findByUserid(userid: String): Member? {
-        return memberRepository.findByUserid(userid)
+        val member = memberRepository.findByUserid(userid)
+        if (member != null && (member.useYn == null || member.useYn.uppercase() != "Y")) {
+            logger.warn("Attempt to retrieve disabled user: $userid")
+            return null
+        }
+        return member
     }
 
     @Transactional(readOnly = true)
