@@ -89,11 +89,10 @@ class CustomOAuth2UserService(
 
                 val userNames = kakaoAccount["name"] as? String ?: ""
                 val email = kakaoAccount["email"] as? String ?: ""
-                //사업자등록해서 처리가능  name_needs_agreement에서 가져오기 application-security: 사업자등록번호,키정리(phone_number 전화번호,age_range 연령대,birthday 생일,birthyear 연도)
+                //사업자등록해서 처리가능  name_needs_agreement에서 가져오기 application-security: 사업자등록번호,키정리( phone_number 국제번호(+82 10-번호중간-번호 끝), gender성별, phone_number 전화번호,age_range 연령대,birthday 생일,birthyear 연도)
 
                 Quadruple(
                     userNames,
-                    //properties["nickname"] as? String ?: throw IllegalStateException("Kakao nickname not found"),
                     properties["nickname"] as? String ?: "",
                     properties["profile_image"] as? String ?: "",
                     email // 이메일 추가
@@ -104,6 +103,7 @@ class CustomOAuth2UserService(
                 val response = attributes["response"] as? Map<String, Any>
                     ?: throw IllegalStateException("Naver response not found")
                 val email = response["email"] as? String ?: ""
+                //age 나이, gender 성별, email 이메일, mobile 전화번호, mobile_e164 국제전화번호(+8210번호나머지8자리), name 이름, birthday 생일, birthyear 년도
 
                 Quadruple(
                     response["name"] as? String ?: throw IllegalStateException("Naver name not found"),
