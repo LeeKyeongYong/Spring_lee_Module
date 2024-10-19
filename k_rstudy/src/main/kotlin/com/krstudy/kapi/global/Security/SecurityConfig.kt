@@ -4,6 +4,7 @@ package com.krstudy.kapi.global.Security
 import com.krstudy.kapi.domain.member.service.AuthTokenService
 import com.krstudy.kapi.domain.member.service.MemberService
 import com.krstudy.kapi.global.Security.handler.CustomAuthenticationSuccessHandler
+import com.krstudy.kapi.global.Security.handler.CustomOAuth2FailureHandler
 import com.krstudy.kapi.global.Security.service.CustomUserDetailsService
 import com.krstudy.kapi.global.https.ReqData
 import org.springframework.security.authentication.AuthenticationProvider
@@ -27,7 +28,8 @@ import java.nio.charset.StandardCharsets
 class SecurityConfig(
     private val authTokenService: AuthTokenService,
     private val rq: ReqData,
-    @Lazy private val customUserDetailsService: CustomUserDetailsService
+    @Lazy private val customUserDetailsService: CustomUserDetailsService,
+    private val customOAuth2FailureHandler: CustomOAuth2FailureHandler
 ) {
     @Autowired
     @Lazy
@@ -98,6 +100,7 @@ class SecurityConfig(
             .oauth2Login { oauth2Login ->
                 oauth2Login
                     .successHandler(customAuthSuccessHandler())
+                    .failureHandler(customOAuth2FailureHandler)
                     .defaultSuccessUrl("/", true)
             }
             .authenticationProvider(authenticationProvider())
