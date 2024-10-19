@@ -82,7 +82,7 @@ class MemberService(
         val member = Member().apply {
             this.userid = userid
             this.username = username
-            this.nickname = username
+            this.nickname = nickname
             this.userEmail = userEmail
             this.password = passwordEncoder.encode(password)
             this.roleType = finalRoleType
@@ -235,7 +235,7 @@ class MemberService(
 
         return if (existingMember == null) {
             // 새 계정 생성
-            join(finalUserid, nickname, username, finalUserEmail,
+            join(finalUserid, username,nickname,  finalUserEmail,
                 passwordEncoder.encode(username), "image/jpeg", imageBytes,
                 M_Role.MEMBER.authority, profileImgUrl, providerTypeCode)
         } else {

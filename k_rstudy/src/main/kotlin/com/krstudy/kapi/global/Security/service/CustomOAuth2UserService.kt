@@ -81,20 +81,26 @@ class CustomOAuth2UserService(
     ): Quadruple<String, String, String, String> { // 이메일을 추가해서 Quadruple로 반환
         return when (providerTypeCode) {
             "KAKAO" -> {
+                println("KAKAO response: $attributes")
                 val properties = attributes["properties"] as? Map<String, Any>
                     ?: throw IllegalStateException("Kakao properties not found")
                 val kakaoAccount = attributes["kakao_account"] as? Map<String, Any>
                     ?: throw IllegalStateException("Kakao account not found")
+
+                val userNames = kakaoAccount["name"] as? String ?: ""
                 val email = kakaoAccount["email"] as? String ?: ""
+                //사업자등록해서 처리가능  name_needs_agreement에서 가져오기 application-security: 사업자등록번호,키정리(phone_number 전화번호,age_range 연령대,birthday 생일,birthyear 연도)
 
                 Quadruple(
-                    properties["nickname"] as? String ?: throw IllegalStateException("Kakao nickname not found"),
+                    userNames,
+                    //properties["nickname"] as? String ?: throw IllegalStateException("Kakao nickname not found"),
                     properties["nickname"] as? String ?: "",
                     properties["profile_image"] as? String ?: "",
                     email // 이메일 추가
                 )
             }
             "NAVER" -> {
+                println("NAVER response: $attributes")
                 val response = attributes["response"] as? Map<String, Any>
                     ?: throw IllegalStateException("Naver response not found")
                 val email = response["email"] as? String ?: ""
@@ -112,12 +118,12 @@ class CustomOAuth2UserService(
                 val givenName = attributes["given_name"] as? String ?: throw IllegalStateException("Google given_name not found")
                 val familyName = attributes["family_name"] as? String ?: ""
                 // 이름을 합치기
-                val fullName = "$familyName $givenName".trim() // trim()을 사용하여 불필요한 공백 제거
+                val NickName = "$familyName$givenName".trim() // trim()을 사용하여 불필요한 공백 제거
 
 
                 Quadruple(
-                    fullName as? String ?: throw IllegalStateException("Google name not found"),
-                    attributes["name"] as? String ?: "",
+                    attributes["name"] as? String ?: throw IllegalStateException("Google name not found"),
+                    NickName as? String ?: "",
                     attributes["picture"] as? String ?: "",
                     attributes["email"] as? String ?: "" // 이메일 추가
                 )
