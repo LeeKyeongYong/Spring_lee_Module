@@ -500,6 +500,10 @@
         // 전역 변수로 현재 읽지 않은 메시지 수를 관리
         let unreadCount = 0;
 
+        // 전역 변수로 알림 카운터 추가
+        let notificationCount = 0;
+        const MAX_NOTIFICATIONS = 5;
+
         // 모달 열기 함수 수정
         function openRecipientModal(event) {
             if (event) {
@@ -676,43 +680,58 @@
             }
         };
 
+
         // 알림 표시 함수 수정
         function showNotification(notification) {
-            console.log('Show Notification called with:', notification); // 알림 표시 함수 호출 확인
+            console.log('Show Notification called with:', notification);
             const notificationElement = document.querySelector('.notification');
-            console.log('Notification element:', notificationElement);
-            if (!notificationElement) {
-                console.error('Notification element not found');
-                return;
-            }
 
-            // 알림이 실제로 있을 때만 표시
-            if (notification && notification.title) {
-                notificationElement.textContent = `새로운 메시지가 도착했습니다: ${notification.title}`;
+            // 최대 알림 개수 체크
+            notificationCount++;
 
+            if (notificationCount <= MAX_NOTIFICATIONS) {
+                // 새로운 알림 요소 생성
+                const newNotification = document.createElement('div');
+                newNotification.className = 'notification';
+                newNotification.innerHTML = `
+            <div class="notification-content">
+                새로운 메시지가 도착했습니다: ${notification.title}
+            </div>
+        `;
 
-                // CSS 애니메이션 효과 적용
-                notificationElement.style.display = 'block';
-                notificationElement.classList.add('show');
+                // 기존 알림이 있다면 제거
+                const existingNotification = document.querySelector('.notification');
+                if (existingNotification) {
+                    existingNotification.remove();
+                }
 
-                // 5초 후 알림 숨기기
+                // 새 알림 추가
+                document.body.appendChild(newNotification);
+
+                // 알림 표시 애니메이션
                 setTimeout(() => {
-                    notificationElement.classList.remove('show');
+                    newNotification.classList.add('show');
+                }, 100);
+
+                // 5초 후 알림 제거
+                setTimeout(() => {
+                    newNotification.classList.remove('show');
                     setTimeout(() => {
-                        notificationElement.style.display = 'none';
-                    }, 3000); // fade out 애니메이션 시간 후 display를 none으로 설정
+                        newNotification.remove();
+                    }, 300);
                 }, 5000);
-
-                // 읽지 않은 메시지 수 업데이트
-                unreadCount++;
+            } else {
+                // 카운트만 증가시키고 알림은 표시하지 않음
                 updateUnreadCount();
-
-                // 메시지 목록 새로고침
-                loadReceivedMessages(currentMessagePage, messagesPerPage);
             }
+
+            // 읽지 않은 메시지 수 업데이트
+            unreadCount++;
+            updateUnreadCount();
+
+            // 메시지 목록 새로고침
+            loadReceivedMessages(currentMessagePage, messagesPerPage);
         }
-
-
 
         // 페이지네이션 UI 업데이트 함수 수정
         function updatePagination(currentPage, totalPages) {
@@ -851,7 +870,6 @@
         // DOM이 로드된 후 이벤트 리스너 설정
         document.addEventListener('DOMContentLoaded', () => {
 
-
             // 검색 입력 필드에 이벤트 리스너 추가
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
@@ -936,62 +954,43 @@
                 }
             });
 
-            // CSS 스타일 적용을 위한 스타일 태그 추가
-    //         const style = document.createElement('style');
-    //         style.textContent = `
-    //      .notification {
-    //         position: fixed;
-    //         top: 20px;
-    //         right: 20px;
-    //         background-color: #4CAF50;
-    //         color: white;
-    //         padding: 15px;
-    //         border-radius: 4px;
-    //         box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    //         z-index: 1000;
-    //         opacity: 0;
-    //         transform: translateY(-20px);
-    //         transition: all 0.3s ease-in-out;
-    //     }
-    //
-    //     .notification.show {
-    //         opacity: 1;
-    //         transform: translateY(0);
-    //     }
-    // `;
-    //         document.head.appendChild(style);
+            const style = document.createElement('style');
+            style.textContent = `
+                    .notification {
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background-color: #4CAF50;
+                        color: white;
+                        padding: 15px;
+                        border-radius: 4px;
+                        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                        z-index: 1000;
+                        opacity: 0;
+                        transform: translateY(-20px);
+                        transition: all 0.3s ease-in-out;
+                    }
 
+                    .notification.show {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+
+                    .notification-content {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                    }
+                `;
+           document.head.appendChild(style);
+
+            const notification = document.querySelector('.notification');
+            if (notification) {
+                notification.style.display = 'none';
+            }
             connectWebSocket();
 
         });
-
-        // 알림 표시 함수 수정
-        function displayNotifications(notifications) {
-            const notificationElement = document.querySelector('.notification');
-
-            if (!notificationElement) {
-                console.error('Notification element not found');
-                return;
-            }
-
-            notifications.forEach(notification => {
-                // 알림 요소 표시 및 내용 설정
-                notificationElement.textContent = `새로운 메시지가 도착했습니다: ${notification.title}`;
-                notificationElement.style.display = 'block';
-                notificationElement.classList.add('show');
-
-                // 알림 효과를 위한 CSS 클래스 추가
-                notificationElement.classList.add('notification-animate');
-            });
-
-            // 5초 후 알림 숨기기
-            setTimeout(() => {
-                stompClient.send("/app/send", {}, JSON.stringify({'title': title, 'content': content}));
-                notificationElement.style.display = 'none';
-                notificationElement.classList.remove('show');
-                notificationElement.classList.remove('notification-animate');
-            }, 5000);
-        }
 
         function getCurrentUserId() {
             return fetch('/api/v1/members/current')
@@ -1082,8 +1081,8 @@
                     const data = await response.json();
                     unreadCount = data.unreadCount; // 서버에서 반환된 새로운 읽지 않은 메시지 수로 업데이트
                     updateUnreadCount(); // UI 업데이트
-                    const notification = document.querySelector('.notification');
-                    notification.classList.add('show');
+                    //const notification = document.querySelector('.notification');
+                    //notification.classList.add('show');
 
                     // 메시지 상태 업데이트
                     message.readAt = new Date();
