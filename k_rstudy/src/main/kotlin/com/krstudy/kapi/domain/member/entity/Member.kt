@@ -8,7 +8,6 @@ import jakarta.persistence.Entity
 import jakarta.persistence.Lob
 import jakarta.persistence.Transient
 import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 
 @Entity
 class Member(

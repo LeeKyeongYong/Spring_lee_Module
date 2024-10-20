@@ -18,7 +18,8 @@ class CustomOAuth2FailureHandler : AuthenticationFailureHandler {
         response: HttpServletResponse,
         exception: AuthenticationException
     ) {
-        log.error("OAuth2 authentication failed", exception)
+        log.error("OAuth2 authentication failed", exception.message)
+        log.error("Auth2 login failed: ", exception)
         val errorMessage = "로그인에 실패했습니다. 관리자에게 문의하세요."
         val encodedErrorMessage = URLEncoder.encode(errorMessage, StandardCharsets.UTF_8)
         response.sendRedirect("/?msg=$encodedErrorMessage")  // 루트 페이지로 리다이렉트
