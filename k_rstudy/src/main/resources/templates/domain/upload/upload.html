@@ -129,12 +129,12 @@
 <div layout:fragment="content">
     <h1>미션 업로드</h1>
     <div class="container">
-        <h3>다중 파일 업로드</h3>
         <p><strong>업로드 할 파일을 지정해주세요</strong></p>
 
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
         <div class="alert alert-danger" id="errorAlert"></div>
 
-        <form th:action="@{/api/v1/files/upload}" method="post" enctype="multipart/form-data" class="upload-form">
+        <form th:action="@{/upload}" method="post" enctype="multipart/form-data" class="upload-form">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <div id="file-upload-container">
                 <div class="file-input">
