@@ -4,8 +4,10 @@ import com.krstudy.kapi.domain.uploads.dto.FileStatus
 import com.krstudy.kapi.domain.uploads.dto.FileUploadResponse
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.http.codec.multipart.FilePart
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.server.ResponseStatusException
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
@@ -20,30 +22,37 @@ class FileUploadController (
 ) {
 
     @PostMapping("/upload")
-    fun uploadFile(@RequestPart("file") filePart: FilePart): Mono<FileUploadResponse> {
-        return Mono.fromCallable {
-            val fileId = UUID.randomUUID().toString()
-            val filePath = Path.of(uploadDir, fileId)
+    fun uploadFile(@RequestParam("file") files: Array<MultipartFile>): ResponseEntity<FileUploadResponse> {
+        return try {
+            // 각 파일 처리
+            files.forEach { file ->
+                val fileId = UUID.randomUUID().toString()
+                val filePath = Path.of(uploadDir, fileId)
 
-            // 파일을 서버 로컬 디렉터리에 저장
-            filePart.transferTo(filePath.toFile()).subscribeOn(Schedulers.boundedElastic()).block()
-            FileUploadResponse(fileId, "File upload successful")
-        }
-            .onErrorResume { e ->
-                Mono.just(FileUploadResponse(null, "Upload failed: ${e.message}"))
+                // 디렉토리가 없으면 생성
+                Files.createDirectories(filePath.parent)
+
+                // 파일 저장
+                file.transferTo(filePath)
             }
+
+            ResponseEntity.ok(FileUploadResponse(
+                fileId = UUID.randomUUID().toString(),
+                message = "Files uploaded successfully"
+            ))
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(FileUploadResponse(null, "Upload failed: ${e.message}"))
+        }
     }
 
     @GetMapping("/{fileId}/status")
-    fun getFileStatus(@PathVariable fileId: String): Mono<FileStatus> {
-        return Mono.fromCallable {
-            val filePath = Path.of(uploadDir, fileId)
-            if (Files.exists(filePath)) {
-                FileStatus(fileId, "UPLOADED")
-            } else {
-                throw ResponseStatusException(HttpStatus.NOT_FOUND, "File not found")
-            }
+    fun getFileStatus(@PathVariable fileId: String): ResponseEntity<FileStatus> {
+        val filePath = Path.of(uploadDir, fileId)
+        return if (Files.exists(filePath)) {
+            ResponseEntity.ok(FileStatus(fileId, "UPLOADED"))
+        } else {
+            ResponseEntity.notFound().build()
         }
-            .subscribeOn(Schedulers.boundedElastic())
     }
 }
