@@ -42,6 +42,7 @@
 
 
         <a href="/">홈</a>
+        <a th:if="${@reqData.login}" href="/upload">파일업로드</a>
         <a href="/post/list">글 목록</a>
         <a th:if="${@reqData.admin}" href="/adm">관리자 홈</a>
         <a th:if="${@reqData.login}" href="/post/write">글 쓰기</a>

@@ -147,6 +147,7 @@ dependencies {
     testImplementation ("org.projectlombok:lombok:1.18.26")
 
     implementation ("org.apache.commons:commons-lang3:3.12.0")
+    implementation ("commons-io:commons-io:2.15.1")
 
     //카프카 추가
     implementation ("org.springframework.kafka:spring-kafka")
@@ -155,6 +156,7 @@ dependencies {
     implementation("io.github.resilience4j:resilience4j-spring-boot2:2.2.0")
     implementation("io.github.resilience4j:resilience4j-retry:2.2.0")
     implementation("io.github.resilience4j:resilience4j-bulkhead:2.2.0")
+    implementation ("io.github.resilience4j:resilience4j-reactor")
 
     //api문서
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.1.3") // Feign 의존성 추가
@@ -195,6 +197,11 @@ dependencies {
     // Optional: If you need to use coroutines in testing
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")
     implementation("org.springframework.data:spring-data-envers")
+
+    // 로깅
+    implementation ("net.logstash.logback:logstash-logback-encoder:7.4")
+
+
 
 }
 

@@ -1,0 +1,163 @@
+<html layout:decorate="~{global/usrLayout}">
+
+<head>
+    <title th:text="|미션 등록|"></title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 12px;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .upload-form {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .file-input {
+            margin-bottom: 10px;
+        }
+
+        .button-group {
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .alert {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+    <script th:inline="javascript">
+        $(document).ready(function() {
+            const form = $('form');
+            const errorAlert = $('#errorAlert');
+
+            // 폼 제출 처리
+            form.on('submit', function(e) {
+                const fileInputs = $('input[type="file"]');
+
+                // 파일 입력 필드가 없는 경우
+                if (fileInputs.length === 0) {
+                    showError('1개 이상의 파일을 지정해야 합니다.');
+                    e.preventDefault();
+                    return;
+                }
+
+                // 모든 파일 입력 필드 검증
+                let hasEmptyField = false;
+                fileInputs.each(function() {
+                    if (!$(this).val()) {
+                        hasEmptyField = true;
+                        return false;  // 루프 중단
+                    }
+                });
+
+                if (hasEmptyField) {
+                    showError('모든 파일 필드에 파일을 지정해주세요.');
+                    e.preventDefault();
+                }
+            });
+
+            // 파일 추가 버튼
+            $('#btnAddFile').click(function() {
+                const newFileInput = `
+                <div class="file-input">
+                    <input type="file" name="file" class="form-control">
+                </div>
+            `;
+                $('#file-upload-container').append(newFileInput);
+            });
+
+            // 파일 제거 버튼
+            $('#btnRemoveFile').click(function() {
+                const fileInputs = $('.file-input');
+                if (fileInputs.length > 1) {
+                    fileInputs.last().remove();
+                }
+            });
+
+            // 에러 메시지 표시 함수
+            function showError(message) {
+                errorAlert.text(message).show();
+                setTimeout(() => errorAlert.fadeOut(), 3000);
+            }
+        });
+    </script>
+</head>
+
+<body>
+
+<div layout:fragment="content">
+    <h1>미션 업로드</h1>
+    <div class="container">
+        <h3>다중 파일 업로드</h3>
+        <p><strong>업로드 할 파일을 지정해주세요</strong></p>
+
+        <div class="alert alert-danger" id="errorAlert"></div>
+
+        <form th:action="@{/api/v1/files/upload}" method="post" enctype="multipart/form-data" class="upload-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <div id="file-upload-container">
+                <div class="file-input">
+                    <input type="file" name="file" class="form-control">
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="button" id="btnAddFile" class="btn btn-secondary">파일 추가</button>
+                <button type="button" id="btnRemoveFile" class="btn btn-secondary">파일 제거</button>
+                <button type="submit" class="btn btn-primary">업로드</button>
+            </div>
+        </form>
+
+        <!-- 업로드 결과 메시지 표시 (옵션) -->
+        <div th:if="${message}" class="alert" th:classappend="${success} ? 'alert-success' : 'alert-danger'"
+             th:text="${message}">
+        </div>
+    </div>
+
+
+</div>
+
+</body>
+
+</html>
