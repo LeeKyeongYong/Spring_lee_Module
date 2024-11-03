@@ -13,8 +13,8 @@ spring:
     include: secret
   servlet:
     multipart:
-      max-file-size: 100MB
-      max-request-size: 100MB
+      max-file-size: 900MB
+      max-request-size: 900MB
   threads:
     virtual:
       enabled: true

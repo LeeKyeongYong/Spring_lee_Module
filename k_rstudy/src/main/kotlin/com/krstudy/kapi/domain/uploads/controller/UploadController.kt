@@ -20,30 +20,9 @@ import java.security.Principal
 
 @Controller
 @RequestMapping("/upload")
-class UploadController(
-    @Value("\${file.upload-dir.windows}") private val uploadDir: String,
-    @Qualifier("uploadFileService") private val fileService: FileServiceImpl  // FileService 직접 주입
-) {
+class UploadController {
     @GetMapping
-    fun showUploadForm(model: Model): String {
+    fun showUploadForm(): String {
         return "domain/upload/upload"
-    }
-
-    @PostMapping
-    fun handleFileUpload(
-        @RequestParam("file") files: Array<MultipartFile>,
-        redirectAttributes: RedirectAttributes,
-        principal: Principal
-    ): String {
-        try {
-            val userId = principal.name
-            val uploadedFiles = fileService.uploadFiles(files, userId)  // FileService 직접 호출
-            redirectAttributes.addFlashAttribute("message", "파일이 성공적으로 업로드되었습니다.")
-            redirectAttributes.addFlashAttribute("success", true)
-        } catch (e: Exception) {
-            redirectAttributes.addFlashAttribute("message", "업로드 실패: ${e.message}")
-            redirectAttributes.addFlashAttribute("success", false)
-        }
-        return "redirect:/upload"
     }
 }
