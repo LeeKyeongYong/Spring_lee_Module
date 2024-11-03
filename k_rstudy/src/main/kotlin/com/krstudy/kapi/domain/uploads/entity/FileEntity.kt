@@ -1,8 +1,9 @@
 package com.krstudy.kapi.domain.uploads.entity
 
+import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.global.jpa.BaseEntity
 import jakarta.persistence.*
-import java.time.LocalDateTime
+import com.krstudy.kapi.domain.uploads.dto.FileStatusEnum
 
 @Entity(name = "StoredFile") // 엔티티 이름을 다르게 지정
 class FileEntity(
@@ -25,17 +26,14 @@ class FileEntity(
     @Column(nullable = false)
     val contentType: String,
 
-    @Column(nullable = false)
-    val uploadedBy: String,  // 업로더 식별자
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    var member: Member? = null,  // Member 엔티티와의 관계 추가
 
     @Column
     val checksum: String? = null,  // 파일 무결성 검사용
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    var status: FileStatus = FileStatus.ACTIVE
-) : BaseEntity() {
-    enum class FileStatus {
-        ACTIVE, DELETED
-    }
-}
+    var status: FileStatusEnum = FileStatusEnum.ACTIVE
+) : BaseEntity() {}

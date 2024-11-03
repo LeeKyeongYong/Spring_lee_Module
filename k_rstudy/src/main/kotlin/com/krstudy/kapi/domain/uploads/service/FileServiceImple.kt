@@ -1,6 +1,8 @@
 package com.krstudy.kapi.domain.uploads.service
 
 import FileService
+import com.krstudy.kapi.domain.member.repository.MemberRepository
+import com.krstudy.kapi.domain.uploads.dto.FileStatusEnum
 import com.krstudy.kapi.domain.uploads.entity.FileEntity
 import com.krstudy.kapi.domain.uploads.exception.FileUploadException
 import com.krstudy.kapi.domain.uploads.repository.UploadFileRepository
@@ -22,6 +24,7 @@ import java.util.*
 @Service("uploadFileService")
 class FileServiceImpl(
     private val fileRepository: UploadFileRepository,
+    private val memberRepository: MemberRepository,  // Member 레포지토리 추가
     @Value("\${file.upload-dir.windows}") private val uploadDir: String
 ) : FileService {
     private val logger = LoggerFactory.getLogger(FileServiceImpl::class.java)
@@ -33,6 +36,11 @@ class FileServiceImpl(
 
     @Transactional
     override fun uploadFiles(files: Array<MultipartFile>, userId: String): List<FileEntity> {
+        val member = memberRepository.findByUsername(userId)
+            ?: throw EntityNotFoundException("Member not found with ID: $userId")
+
+
+
         return files.mapNotNull { file ->
             try {
                 if (file.isEmpty) {
@@ -77,8 +85,8 @@ class FileServiceImpl(
                     fileSize = file.size,
                     fileType = file.contentType ?: "application/octet-stream",
                     contentType = file.contentType ?: "application/octet-stream",
-                    uploadedBy = userId,
-                    checksum = checksum
+                    checksum = checksum,
+                    member = member  // Member 엔티티 설정
                 )
 
                 // 파일 엔티티 저장
@@ -91,18 +99,17 @@ class FileServiceImpl(
             }
         }
     }
-
     override fun getUserFiles(userId: String): List<FileEntity> {
-        return fileRepository.findAllByUploadedBy(userId)
+        return fileRepository.findAllByUserId(userId)
     }
 
     @Transactional
     override fun deleteFile(fileId: Long, userId: String) {
         val file = getFileById(fileId)
-        if (file.uploadedBy != userId) {
+        if (file.member?.userid != userId) {
             throw SecurityException("Not authorized to delete this file")
         }
-        file.status = FileEntity.FileStatus.DELETED
+        file.status = FileStatusEnum.DELETED  // FileEntity.FileStatus 대신 FileStatusEnum 사용
         fileRepository.save(file)
     }
 

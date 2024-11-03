@@ -1,5 +1,6 @@
 package com.krstudy.kapi.domain.uploads.controller
 
+
 import com.krstudy.kapi.domain.uploads.dto.FileUploadResponse
 import com.krstudy.kapi.domain.uploads.entity.FileEntity
 import com.krstudy.kapi.domain.uploads.service.FileServiceImpl
@@ -12,6 +13,8 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -28,6 +31,7 @@ class FileUploadController(
         @RequestHeader("X-User-Id") userId: String
     ): ResponseEntity<FileUploadResponse> {
         return try {
+            val userId = URLDecoder.decode(userId, StandardCharsets.UTF_8.name())
             val uploadedFiles = fileService.uploadFiles(files, userId)
             ResponseEntity.ok(
                 FileUploadResponse(
