@@ -111,8 +111,15 @@
 
             // 파일 추가/제거 버튼 핸들러는 동일하게 유지
             $('#btnAddFile').click(function() {
-                const newFileInput = '<div class="file-input"><input type="file" name="file" class="form-control"></div>';
-                $('#file-upload-container').append(newFileInput);
+                //const newFileInput = '<div class="file-input"><input type="file" name="file" class="form-control"></div>';
+                //$('#file-upload-container').append(newFileInput);
+                const fileInputs = $('.file-input');
+                if (fileInputs.length < 10) {
+                    const newFileInput = '<div class="file-input"><input type="file" name="file" class="form-control"></div>';
+                    $('#file-upload-container').append(newFileInput);
+                } else {
+                    alert('파일은 최대 10개까지 업로드할 수 있습니다.');
+                }
             });
 
             $('#btnRemoveFile').click(function() {
