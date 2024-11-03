@@ -125,39 +125,36 @@
 </head>
 
 <body>
+    <div layout:fragment="content">
+        <h1>미션 업로드</h1>
+        <div class="container">
+            <p><strong>업로드 할 파일을 지정해주세요</strong></p>
 
-<div layout:fragment="content">
-    <h1>미션 업로드</h1>
-    <div class="container">
-        <p><strong>업로드 할 파일을 지정해주세요</strong></p>
+            <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+            <div class="alert alert-danger" id="errorAlert"></div>
 
-        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
-        <div class="alert alert-danger" id="errorAlert"></div>
-
-        <form th:action="@{/upload}" method="post" enctype="multipart/form-data" class="upload-form">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <div id="file-upload-container">
-                <div class="file-input">
-                    <input type="file" name="file" class="form-control">
+            <form th:action="@{/upload}" method="post" enctype="multipart/form-data" class="upload-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <!-- 현재 로그인한 사용자 정보가 자동으로 서버로 전송됩니다 -->
+                <div id="file-upload-container">
+                    <div class="file-input">
+                        <input type="file" name="file" class="form-control">
+                    </div>
                 </div>
-            </div>
 
-            <div class="button-group">
-                <button type="button" id="btnAddFile" class="btn btn-secondary">파일 추가</button>
-                <button type="button" id="btnRemoveFile" class="btn btn-secondary">파일 제거</button>
-                <button type="submit" class="btn btn-primary">업로드</button>
-            </div>
-        </form>
+                <div class="button-group">
+                    <button type="button" id="btnAddFile" class="btn btn-secondary">파일 추가</button>
+                    <button type="button" id="btnRemoveFile" class="btn btn-secondary">파일 제거</button>
+                    <button type="submit" class="btn btn-primary">업로드</button>
+                </div>
+            </form>
 
-        <!-- 업로드 결과 메시지 표시 (옵션) -->
-        <div th:if="${message}" class="alert" th:classappend="${success} ? 'alert-success' : 'alert-danger'"
-             th:text="${message}">
+            <div th:if="${message}" class="alert"
+                 th:classappend="${success} ? 'alert-success' : 'alert-danger'"
+                 th:text="${message}">
+            </div>
         </div>
     </div>
-
-
-</div>
-
 </body>
 
 </html>

@@ -1,4 +1,3 @@
-// FileUploadController.kt
 package com.krstudy.kapi.domain.uploads.controller
 
 import com.krstudy.kapi.domain.uploads.dto.FileUploadResponse
@@ -20,16 +19,20 @@ class FileUploadController(
     ): ResponseEntity<FileUploadResponse> {
         return try {
             val uploadedFiles = fileService.uploadFiles(files, userId)
-            ResponseEntity.ok(FileUploadResponse(
-                message = "Files uploaded successfully",
-                fileIds = uploadedFiles.map { it.id.toString() }
-            ))
+            ResponseEntity.ok(
+                FileUploadResponse(
+                    message = "Files uploaded successfully",
+                    fileIds = uploadedFiles.map { it.id.toString() }
+                )
+            )
         } catch (e: Exception) {
             ResponseEntity.badRequest()
-                .body(FileUploadResponse(
-                    message = "Upload failed: ${e.message}",
-                    fileIds = null
-                ))
+                .body(
+                    FileUploadResponse(
+                        message = "Upload failed: ${e.message}",
+                        fileIds = null
+                    )
+                )
         }
     }
 
