@@ -4,8 +4,7 @@ import com.krstudy.kapi.global.jpa.BaseEntity
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
-@Entity
-@Table(name = "file_uploads")
+@Entity(name = "StoredFile") // 엔티티 이름을 다르게 지정
 class FileEntity(
 
     @Column(nullable = false)
@@ -25,9 +24,6 @@ class FileEntity(
 
     @Column(nullable = false)
     val contentType: String,
-
-    @Column(nullable = false)
-    val uploadDateTime: LocalDateTime = LocalDateTime.now(),
 
     @Column(nullable = false)
     val uploadedBy: String,  // 업로더 식별자

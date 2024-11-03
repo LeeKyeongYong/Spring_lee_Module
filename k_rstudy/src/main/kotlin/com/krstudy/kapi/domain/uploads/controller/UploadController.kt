@@ -1,7 +1,10 @@
 package com.krstudy.kapi.domain.uploads.controller
 
+
+import com.krstudy.kapi.domain.uploads.service.FileServiceImpl
 import com.krstudy.kapi.global.lgexecution.LogExecutionTime
 import lombok.extern.slf4j.Slf4j
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.beans.factory.annotation.Value
@@ -19,7 +22,7 @@ import java.security.Principal
 @RequestMapping("/upload")
 class UploadController(
     @Value("\${file.upload-dir.windows}") private val uploadDir: String,
-    private val fileUploadController: FileUploadController
+    @Qualifier("uploadFileService") private val fileService: FileServiceImpl  // FileService 직접 주입
 ) {
     @GetMapping
     fun showUploadForm(model: Model): String {
@@ -30,22 +33,17 @@ class UploadController(
     fun handleFileUpload(
         @RequestParam("file") files: Array<MultipartFile>,
         redirectAttributes: RedirectAttributes,
-        principal: Principal // Spring Security의 Principal 객체를 주입
+        principal: Principal
     ): String {
         try {
-            // Principal에서 사용자 ID를 가져와서 파일 업로드 처리
-            val userId = principal.name // 또는 사용자 ID를 가져오는 적절한 방법 사용
-            fileUploadController.uploadFile(files, userId)
-
-            // 성공 메시지 설정
+            val userId = principal.name
+            val uploadedFiles = fileService.uploadFiles(files, userId)  // FileService 직접 호출
             redirectAttributes.addFlashAttribute("message", "파일이 성공적으로 업로드되었습니다.")
             redirectAttributes.addFlashAttribute("success", true)
         } catch (e: Exception) {
-            // 실패 메시지 설정
             redirectAttributes.addFlashAttribute("message", "업로드 실패: ${e.message}")
             redirectAttributes.addFlashAttribute("success", false)
         }
-
         return "redirect:/upload"
     }
 }
