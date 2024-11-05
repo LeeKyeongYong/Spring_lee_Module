@@ -15,6 +15,15 @@ export default function ClientPage({id}:{id:string}){
             .then((data) => setPost(data));
     },[]);
 
+    const deletePost = async ()=>{
+        await fetch(`http://localhost:8080/api/v1/posts/${id}`,{
+            method:"DELETE",
+        });
+        alert("삭제 되었습니다.");
+
+        router.back();
+    }
+
     return(
         <div className="grid">
             {post && (
@@ -25,6 +34,7 @@ export default function ClientPage({id}:{id:string}){
                     <div>{post.modifyDate}</div>
                     <div>{post.body}</div>
                     <button onClick={() => router.back()}>뒤로가기</button>
+                    <button onClick={deletePost}>삭제</button>
                 </div>
             )}
         </div>

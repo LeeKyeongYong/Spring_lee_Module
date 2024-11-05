@@ -19,9 +19,12 @@ public class ApiV1PostController {
     }
 
     @GetMapping("/{id}")
-    public Post getItem(
-            @PathVariable long id
-    ) {
+    public Post getItem(@PathVariable long id) {
         return postService.findById(id).get();
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteItem(@PathVariable long id){
+        postService.deleteById(id);
     }
 }

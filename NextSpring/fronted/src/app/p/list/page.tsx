@@ -1,4 +1,4 @@
-import ClientPage from "@/app/p/[id]/ClientPage";
+import ClientPage from "./ClientPage";
 export default function Page(){
     return <ClientPage />;
 }
