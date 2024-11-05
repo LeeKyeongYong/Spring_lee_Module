@@ -11,10 +11,12 @@
         <a th:if="${@reqData.login}" href="/messages/writerForm">받은메세지 함</a>
         <a th:if="${@reqData.login}" href="/mymail/sendForm">메일발송</a>
         <a th:if="${@reqData.login}" href="/mymail/verifyCode">메일인증발송</a>
+        <a th:if="${@reqData.login}" href="#">날씨보기</a>
         <a th:if="${@reqData.login}" href="#">크롤링보기</a>
+        <a th:if="${@reqData.login}" href="#">주소록 보기</a>
+        <a th:if="${@reqData.login}" href="#">pdf 보기</a>
         <br/>
         <a th:if="${@reqData.login}" href="#">통계 홈</a>
-        <a th:if="${@reqData.login}" href="#">지도</a>
         <a th:if="${@reqData.login}" href="#">결제하기 </a>
         <a th:if="${@reqData.login}" href="/member/logout">로그아웃</a>
     </header>
