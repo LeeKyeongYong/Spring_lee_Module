@@ -2,6 +2,7 @@ package com.study.nextspring.domain.post.post.service;
 
 import com.study.nextspring.domain.post.post.entity.Post;
 import com.study.nextspring.domain.post.post.repository.PostRepository;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,5 +41,11 @@ public class PostService {
     @Transactional
     public void deleteById(long id){
         postRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void modify(Post post, @NotBlank String title,@NotBlank String body){
+        post.setTitle(title);
+        post.setBody(body);
     }
 }
