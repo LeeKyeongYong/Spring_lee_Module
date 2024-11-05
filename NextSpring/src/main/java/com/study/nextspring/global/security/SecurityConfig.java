@@ -14,6 +14,16 @@ public class SecurityConfig {
                         authorizeRequests
                                 .requestMatchers("/**").permitAll()
                                 .anyRequest().authenticated()
+                ).headers(
+                        headers ->
+                                headers.frameOptions(
+                                        frameOptions ->
+                                                frameOptions.sameOrigin()
+                                )
+                )
+                .csrf(
+                        csrf ->
+                                csrf.disable()
                 );
 
         return http.build();
