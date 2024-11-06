@@ -4,4 +4,5 @@ export type Post ={
     modifyDate: string;
     title: string;
     body: string;
+    author: Member;
 };
