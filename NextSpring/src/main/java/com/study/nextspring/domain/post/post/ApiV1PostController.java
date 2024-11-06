@@ -1,6 +1,7 @@
 package com.study.nextspring.domain.post.post;
 
 import com.study.nextspring.domain.post.post.dto.PostModifyItemReqBody;
+import com.study.nextspring.domain.post.post.dto.PostWriteItemReqBody;
 import com.study.nextspring.domain.post.post.entity.Post;
 import com.study.nextspring.domain.post.post.service.PostService;
 import jakarta.validation.Valid;
@@ -35,5 +36,10 @@ public class ApiV1PostController {
         Post post = postService.findById(id).get();
         postService.modify(post,reqBody.title,reqBody.body);
         return post;
+    }
+
+    @PostMapping
+    public Post writeItem( @RequestBody @Valid PostWriteItemReqBody reqBody) {
+        return postService.write(reqBody.title, reqBody.body);
     }
 }

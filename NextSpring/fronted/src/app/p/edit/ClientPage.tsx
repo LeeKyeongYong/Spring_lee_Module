@@ -36,11 +36,16 @@ export default function ClientPage({id}:{id:string}){
     };
 
     return(
-        <div className="grid">
+        <div>
             {post &&(
                 <form onSubmit={handleSubmit}>
-                    <input type="text" name="title" defaultValue={post.title}/>
-                    <textarea name="body" defaultValue={post.body}/>
+                    <input
+                        type="text"
+                        name="title"
+                        placeholder="제목"
+                        defaultValue={post.title}
+                    />
+                    <textarea name="body" placeholder="내용" defaultValue={post.body} />
                     <button type="submit">수정</button>
                 </form>
             )}

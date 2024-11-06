@@ -17,13 +17,15 @@ public class PostService {
     private final PostRepository postRepository;
 
     @Transactional
-    public void write(String title, String body) {
+    public Post write(String title, String body) {
         Post post = Post.builder()
                 .title(title)
                 .body(body)
                 .build();
 
         postRepository.save(post);
+
+        return post;
     }
 
     public long count() {

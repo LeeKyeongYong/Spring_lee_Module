@@ -13,12 +13,16 @@ export default function clientPage(){
     },[]);
 
     return(
-        <div className ="grid">
-            {posts.map((post) => (
-                <Link href={`/p/${post.id}`} key={post.id}>
-                    {post.title}
-                </Link>
-            ))}
-        </div>
+        <>
+            <div className="grid">
+                {posts.map((post) => (
+                    <Link href={`/p/${post.id}`} key={post.id}>
+                        {post.title}
+                    </Link>
+                ))}
+            </div>
+
+            <Link href="/p/write">글쓰기</Link>
+        </>
     );
 }
