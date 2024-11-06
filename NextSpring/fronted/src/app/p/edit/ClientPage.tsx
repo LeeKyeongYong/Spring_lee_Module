@@ -1,6 +1,6 @@
 "use client";
 
-import {Post} from "@/app/types/Post";
+import {Post} from "@/types/Post";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
