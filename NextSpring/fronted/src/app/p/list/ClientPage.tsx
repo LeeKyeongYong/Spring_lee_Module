@@ -1,11 +1,11 @@
 "use client";
-import { Post } from "@/app/types/Post";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { Page } from "@/app/types/Page";
-import { useRouter, useSearchParams } from "next/navigation";
 
-// 검색 폼 컴포넌트
+import { Page } from "@/types/page";
+import { Post } from "@/types/post";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+
 type SearchFormProps = {
     initialKwType: string;
     initialKw: string;
@@ -51,15 +51,17 @@ export function SearchForm({ initialKwType, initialKw }: SearchFormProps) {
     );
 }
 
-// 글 목록 컴포넌트
 type PostListProps = {
     posts: Post[];
 };
 
 export function PostList({ posts }: PostListProps) {
+    // posts가 없을 경우 빈 배열로 처리
+    const safePosts = posts || [];
+
     return (
         <div className="grid gap-4">
-            {posts.map((post) => (
+            {safePosts.map((post) => (
                 <Link
                     href={`/p/${post.id}`}
                     key={post.id}
@@ -75,7 +77,6 @@ export function PostList({ posts }: PostListProps) {
     );
 }
 
-// 페이지네이션 컴포넌트
 type PaginationProps = {
     currentPage: number;
     totalPages: number;
@@ -93,6 +94,7 @@ export function Pagination({
                            }: PaginationProps) {
     const createPageLink = (pageNum: number, label?: string) => (
         <Link
+            key={pageNum}
             href={`/p/list?page=${pageNum}&kwType=${kwType}&kw=${kw}`}
             className={`px-3 py-1 border rounded ${
                 currentPage === pageNum ? "bg-blue-500 text-white" : "hover:bg-gray-50"
@@ -129,7 +131,6 @@ export function Pagination({
     );
 }
 
-// 클라이언트 페이지 컴포넌트
 const PAGE_MENU_ARM_SIZE = 5;
 
 export default function ClientPage() {
