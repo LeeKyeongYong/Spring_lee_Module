@@ -5,27 +5,16 @@ import { useEffect, useState } from "react";
 import { Page } from "@/app/types/Page";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function ClientPage() {
+// 검색 폼 컴포넌트
+type SearchFormProps = {
+    initialKwType: string;
+    initialKw: string;
+};
 
+export function SearchForm({ initialKwType, initialKw }: SearchFormProps) {
     const router = useRouter();
 
-    const [postPage, setPostPage] = useState<Page<Post> | null>(null);
-    const searchParams = useSearchParams();
-    const currentPageNumber = parseInt(searchParams.get("page") ?? "1");
-
-    const kwType = searchParams.get("kwType") ?? "ALL";
-    const kw = searchParams.get("kw") ?? "";
-
-    const pageMenuArmSize = 5;
-
-    useEffect(() => {
-        const searchUrl = `http://localhost:8080/api/v1/posts?page=${currentPageNumber}&kwType=${kwType}&kw=${kw}`;
-        fetch(searchUrl)
-            .then((res) => res.json())
-            .then((data) => setPostPage(data));
-    }, [currentPageNumber, kwType, kw]);
-
-    const handleSearchFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
         const kwType = formData.get("kwType");
@@ -35,69 +24,164 @@ export default function ClientPage() {
     };
 
     return (
-        <>
+        <form onSubmit={handleSubmit} className="mb-4">
+            <select
+                name="kwType"
+                defaultValue={initialKwType}
+                className="mr-2 p-2 border rounded"
+            >
+                <option value="ALL">전체</option>
+                <option value="TITLE">제목</option>
+                <option value="BODY">내용</option>
+                <option value="NAME">작성자</option>
+            </select>
+            <input
+                type="text"
+                name="kw"
+                defaultValue={initialKw}
+                className="mr-2 p-2 border rounded"
+            />
+            <button
+                type="submit"
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+                검색
+            </button>
+        </form>
+    );
+}
 
-            <form onSubmit={handleSearchFormSubmit}>
-                <select name="kwType" defaultValue={kwType}>
-                    <option value="ALL">전체</option>
-                    <option value="TITLE">제목</option>
-                    <option value="BODY">내용</option>
-                    <option value="NAME">작성자</option>
-                </select>
-                <input type="text" name="kw" defaultValue={kw} />
-                <button type="submit">검색</button>
-            </form>
+// 글 목록 컴포넌트
+type PostListProps = {
+    posts: Post[];
+};
 
-            <div className="grid">
-                {postPage?.content.map((post) => (
-                    <Link href={`/p/${post.id}`} key={post.id}>
-                        {post.author.nickname} - {post.title}
-                    </Link>
-                ))}
-            </div>
-
-            <Link href="/p/write">글쓰기</Link>
-
-            <div>
-                {postPage && (
-                    <div className="flex gap-2">
-                        {currentPageNumber - pageMenuArmSize > 1 && (
-                            <>
-                                <Link href={`/p/list?page=1&kwType=${kwType}&kw=${kw}`}>1</Link>
-                                <div>...</div>
-                            </>
-                        )}
-                        {Array.from({ length: 100 }, (_, i) => i + 1)
-                            .filter((pageNumber) => {
-                                const start = currentPageNumber - pageMenuArmSize;
-                                const end = Math.min(
-                                    currentPageNumber + pageMenuArmSize,
-                                    postPage.totalPages
-                                );
-                                return pageNumber >= start && pageNumber <= end;
-                            })
-                            .map((pageNumber) => (
-                                <Link
-                                    href={`/p/list?page=${pageNumber}&kwType=${kwType}&kw=${kw}`}
-                                    key={pageNumber}
-                                    className={currentPageNumber === pageNumber ? "text-red-500" : ""}
-                                >
-                                    {pageNumber}
-                                </Link>
-                            ))}
-                        {currentPageNumber + pageMenuArmSize < postPage.totalPages && (
-                            <>
-                                <div>...</div>
-                                <Link
-                                    href={`/p/list?page=${postPage.totalPages}&kwType=${kwType}&kw=${kw}`}
-                                >
-                                    {postPage.totalPages}
-                                </Link>
-                            </>
-                        )}
+export function PostList({ posts }: PostListProps) {
+    return (
+        <div className="grid gap-4">
+            {posts.map((post) => (
+                <Link
+                    href={`/p/${post.id}`}
+                    key={post.id}
+                    className="p-4 border rounded hover:bg-gray-50"
+                >
+                    <div className="flex justify-between">
+                        <span className="font-medium">{post.title}</span>
+                        <span className="text-gray-600">{post.author.nickname}</span>
                     </div>
-                )}
+                </Link>
+            ))}
+        </div>
+    );
+}
+
+// 페이지네이션 컴포넌트
+type PaginationProps = {
+    currentPage: number;
+    totalPages: number;
+    armSize: number;
+    kwType: string;
+    kw: string;
+};
+
+export function Pagination({
+                               currentPage,
+                               totalPages,
+                               armSize,
+                               kwType,
+                               kw,
+                           }: PaginationProps) {
+    const createPageLink = (pageNum: number, label?: string) => (
+        <Link
+            href={`/p/list?page=${pageNum}&kwType=${kwType}&kw=${kw}`}
+            className={`px-3 py-1 border rounded ${
+                currentPage === pageNum ? "bg-blue-500 text-white" : "hover:bg-gray-50"
+            }`}
+        >
+            {label ?? pageNum}
+        </Link>
+    );
+
+    const getPageNumbers = () => {
+        const start = Math.max(1, currentPage - armSize);
+        const end = Math.min(currentPage + armSize, totalPages);
+        return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+    };
+
+    return (
+        <div className="flex gap-2 items-center justify-center mt-4">
+            {currentPage - armSize > 1 && (
+                <>
+                    {createPageLink(1)}
+                    <span>...</span>
+                </>
+            )}
+
+            {getPageNumbers().map((pageNumber) => createPageLink(pageNumber))}
+
+            {currentPage + armSize < totalPages && (
+                <>
+                    <span>...</span>
+                    {createPageLink(totalPages)}
+                </>
+            )}
+        </div>
+    );
+}
+
+// 클라이언트 페이지 컴포넌트
+const PAGE_MENU_ARM_SIZE = 5;
+
+export default function ClientPage() {
+    const [postPage, setPostPage] = useState<Page<Post> | null>(null);
+    const searchParams = useSearchParams();
+
+    const currentPage = parseInt(searchParams.get("page") ?? "1");
+    const kwType = searchParams.get("kwType") ?? "ALL";
+    const kw = searchParams.get("kw") ?? "";
+
+    useEffect(() => {
+        const fetchPosts = async () => {
+            try {
+                const response = await fetch(
+                    `http://localhost:8080/api/v1/posts?page=${currentPage}&kwType=${kwType}&kw=${kw}`
+                );
+                const data = await response.json();
+                setPostPage(data);
+            } catch (error) {
+                console.error("Failed to fetch posts:", error);
+            }
+        };
+
+        fetchPosts();
+    }, [currentPage, kwType, kw]);
+
+    if (!postPage) {
+        return <div>Loading...</div>;
+    }
+
+    return (
+        <div className="container mx-auto px-4 py-8">
+            <SearchForm initialKwType={kwType} initialKw={kw} />
+
+            <div className="mb-4 flex justify-end">
+                <Link
+                    href="/p/write"
+                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                >
+                    글쓰기
+                </Link>
             </div>
-        </>
+
+            <PostList posts={postPage.content} />
+
+            <Pagination
+                currentPage={currentPage}
+                totalPages={postPage.totalPages}
+                armSize={PAGE_MENU_ARM_SIZE}
+                kwType={kwType}
+                kw={kw}
+            />
+        </div>
     );
 }
