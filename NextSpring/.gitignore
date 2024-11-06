@@ -1,4 +1,7 @@
 
+### QueryDsl 생성 파일 제거 ###
+/src/main/generated/
+
 application.yml
 application-secret.yml
 build.gradle
