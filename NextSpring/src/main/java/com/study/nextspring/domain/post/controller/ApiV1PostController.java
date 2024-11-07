@@ -8,6 +8,7 @@ import com.study.nextspring.domain.post.dto.PostWriteItemReqBody;
 import com.study.nextspring.domain.post.service.PostService;
 import com.study.nextspring.global.app.AppConfig;
 import com.study.nextspring.global.base.KwTypeV1;
+import com.study.nextspring.global.httpsdata.ReqData;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,7 @@ import java.util.List;
 public class ApiV1PostController {
     private final PostService postService;
     private final MemberService memberService;
+    private final ReqData rq;
 
     @GetMapping
     public Page<Post> getItems(
@@ -42,17 +44,25 @@ public class ApiV1PostController {
 
     @GetMapping("/{id}")
     public Post getItem(@PathVariable long id) {
+        Member actor = rq.getMember();
+        Post post = postService.findById(id).get();
+        postService.checkCanRead(actor, post);
         return postService.findById(id).get();
     }
 
     @DeleteMapping("/{id}")
     public void deleteItem(@PathVariable long id){
-        postService.deleteById(id);
+        Member actor = rq.getMember();
+        Post post = postService.findById(id).get();
+        postService.checkCanDelete(actor, post);
+        postService.delete(post);
     }
 
     @PutMapping("/{id}")
     public Post modifyItem(@PathVariable long id, @RequestBody @Valid PostModifyItemReqBody reqBody){
+        Member actor = rq.getMember();
         Post post = postService.findById(id).get();
+        postService.checkCanModify(actor, post);
         postService.modify(post,reqBody.title,reqBody.body);
         return post;
     }

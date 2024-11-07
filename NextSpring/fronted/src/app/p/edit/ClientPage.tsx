@@ -11,9 +11,20 @@ export default function ClientPage({id}:{id:string}){
     const[post,setPost] = useState<Post | null>(null);
 
     useEffect(() => {
-        fetch(`http://localhost:8080/api/v1/posts/${id}`)
+        fetch(`http://localhost:8080/api/v1/posts/${id}`, {
+            credentials: "include",
+        })
+            .then((res) => {
+                if (!res.ok) throw new Error("권한이 없습니다.");
+
+                return res;
+            })
             .then((res) => res.json())
-            .then((data) => setPost(data));
+            .then((data) => setPost(data))
+            .catch((err) => {
+                alert(err.message);
+                router.back();
+            });
     },[]);
 
     const handleSubmit = async (e:React.FormEvent<HTMLFormElement>)=>{
@@ -24,6 +35,7 @@ export default function ClientPage({id}:{id:string}){
         const body = formData.get("body") as string;
 
         await fetch(`http://localhost:8080/api/v1/posts/${id}`,{
+            credentials: "include",
             method:"PUT",
             body:JSON.stringify({title,body}),
             headers:{

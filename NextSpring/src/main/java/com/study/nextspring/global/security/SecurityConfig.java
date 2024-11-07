@@ -27,6 +27,8 @@ public class SecurityConfig {
                 .securityMatcher("/api/**")
                 .authorizeRequests(
                         authorizeRequests -> authorizeRequests
+                                .requestMatchers(HttpMethod.OPTIONS, "/**")
+                                .permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/*/posts/{id:\\d+}", "/api/*/posts", "/api/*/postComments/{id:\\d+}")
                                 .permitAll()
                                 .requestMatchers("/api/*/members/login", "/api/*/members/logout")
