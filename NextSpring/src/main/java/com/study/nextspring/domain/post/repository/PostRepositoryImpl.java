@@ -1,12 +1,12 @@
-package com.study.nextspring.domain.post.post.repository;
+package com.study.nextspring.domain.post.repository;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.study.nextspring.domain.member.member.entity.Member;
-import com.study.nextspring.domain.post.post.entity.Post;
+import com.study.nextspring.domain.member.entity.Member;
+import com.study.nextspring.domain.post.entity.Post;
 import com.study.nextspring.global.base.KwTypeV1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,7 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import com.querydsl.core.BooleanBuilder;
-import static com.study.nextspring.domain.post.post.entity.QPost.post;
+import static com.study.nextspring.domain.post.entity.QPost.post;
 
 @RequiredArgsConstructor
 public class PostRepositoryImpl implements PostRepositoryCustom {

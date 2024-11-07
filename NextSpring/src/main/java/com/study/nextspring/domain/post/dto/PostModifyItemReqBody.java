@@ -1,4 +1,4 @@
-package com.study.nextspring.domain.post.post.dto;
+package com.study.nextspring.domain.post.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

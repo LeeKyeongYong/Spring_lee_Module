@@ -1,6 +1,6 @@
-package com.study.nextspring.domain.member.member.dto;
+package com.study.nextspring.domain.member.dto;
 
-import com.study.nextspring.domain.member.member.entity.Member;
+import com.study.nextspring.domain.member.entity.Member;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

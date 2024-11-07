@@ -1,4 +1,4 @@
-package com.study.nextspring.domain.member.member.auth;
+package com.study.nextspring.domain.member.auth;
 
 import jakarta.validation.constraints.NotBlank;
 

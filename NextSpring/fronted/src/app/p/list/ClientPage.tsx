@@ -63,8 +63,8 @@ export function PostList({ posts }: PostListProps) {
         <div className="grid gap-4">
             {safePosts.map((post) => (
                 <Link
+                    key={pageNum}
                     href={`/p/${post.id}`}
-                    key={post.id}
                     className="p-4 border rounded hover:bg-gray-50"
                 >
                     <div className="flex justify-between">

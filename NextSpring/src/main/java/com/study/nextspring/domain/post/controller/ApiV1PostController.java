@@ -1,11 +1,11 @@
-package com.study.nextspring.domain.post.post;
+package com.study.nextspring.domain.post.controller;
 
-import com.study.nextspring.domain.member.member.entity.Member;
-import com.study.nextspring.domain.member.member.service.MemberService;
-import com.study.nextspring.domain.post.post.dto.PostModifyItemReqBody;
-import com.study.nextspring.domain.post.post.dto.PostWriteItemReqBody;
-import com.study.nextspring.domain.post.post.entity.Post;
-import com.study.nextspring.domain.post.post.service.PostService;
+import com.study.nextspring.domain.member.entity.Member;
+import com.study.nextspring.domain.member.service.MemberService;
+import com.study.nextspring.domain.post.entity.Post;
+import com.study.nextspring.domain.post.dto.PostModifyItemReqBody;
+import com.study.nextspring.domain.post.dto.PostWriteItemReqBody;
+import com.study.nextspring.domain.post.service.PostService;
 import com.study.nextspring.global.app.AppConfig;
 import com.study.nextspring.global.base.KwTypeV1;
 import jakarta.validation.Valid;

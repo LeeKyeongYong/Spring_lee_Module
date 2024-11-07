@@ -1,8 +1,8 @@
-package com.study.nextspring.domain.post.post.service;
+package com.study.nextspring.domain.post.service;
 
-import com.study.nextspring.domain.member.member.entity.Member;
-import com.study.nextspring.domain.post.post.entity.Post;
-import com.study.nextspring.domain.post.post.repository.PostRepository;
+import com.study.nextspring.domain.member.entity.Member;
+import com.study.nextspring.domain.post.entity.Post;
+import com.study.nextspring.domain.post.repository.PostRepository;
 import com.study.nextspring.global.base.KwTypeV1;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;

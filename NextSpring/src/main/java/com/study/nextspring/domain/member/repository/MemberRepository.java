@@ -1,6 +1,6 @@
-package com.study.nextspring.domain.member.member.repository;
+package com.study.nextspring.domain.member.repository;
 
-import com.study.nextspring.domain.member.member.entity.Member;
+import com.study.nextspring.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 

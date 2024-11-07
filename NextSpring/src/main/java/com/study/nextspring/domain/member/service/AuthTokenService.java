@@ -1,6 +1,6 @@
-package com.study.nextspring.domain.member.member.service;
+package com.study.nextspring.domain.member.service;
 
-import com.study.nextspring.domain.member.member.entity.Member;
+import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.global.app.AppConfig;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

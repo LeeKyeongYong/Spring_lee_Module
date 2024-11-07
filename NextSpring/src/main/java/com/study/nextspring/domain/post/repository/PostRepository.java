@@ -1,6 +1,6 @@
-package com.study.nextspring.domain.post.post.repository;
+package com.study.nextspring.domain.post.repository;
 
-import com.study.nextspring.domain.post.post.entity.Post;
+import com.study.nextspring.domain.post.entity.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

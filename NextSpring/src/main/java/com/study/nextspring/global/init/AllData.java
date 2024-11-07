@@ -1,8 +1,8 @@
 package com.study.nextspring.global.init;
 
-import com.study.nextspring.domain.member.member.entity.Member;
-import com.study.nextspring.domain.member.member.service.MemberService;
-import com.study.nextspring.domain.post.post.service.PostService;
+import com.study.nextspring.domain.member.entity.Member;
+import com.study.nextspring.domain.member.service.MemberService;
+import com.study.nextspring.domain.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;

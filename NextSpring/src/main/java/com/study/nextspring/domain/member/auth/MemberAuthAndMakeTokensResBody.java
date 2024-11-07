@@ -1,6 +1,6 @@
-package com.study.nextspring.domain.member.member.auth;
+package com.study.nextspring.domain.member.auth;
 
-import com.study.nextspring.domain.member.member.entity.Member;
+import com.study.nextspring.domain.member.entity.Member;
 
 public record MemberAuthAndMakeTokensResBody(
         Member member,

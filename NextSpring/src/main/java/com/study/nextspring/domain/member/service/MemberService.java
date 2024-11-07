@@ -1,8 +1,8 @@
-package com.study.nextspring.domain.member.member.service;
+package com.study.nextspring.domain.member.service;
 
-import com.study.nextspring.domain.member.member.auth.MemberAuthAndMakeTokensResBody;
-import com.study.nextspring.domain.member.member.entity.Member;
-import com.study.nextspring.domain.member.member.repository.MemberRepository;
+import com.study.nextspring.domain.member.auth.MemberAuthAndMakeTokensResBody;
+import com.study.nextspring.domain.member.entity.Member;
+import com.study.nextspring.domain.member.repository.MemberRepository;
 import com.study.nextspring.global.httpsdata.RespData;
 import com.study.nextspring.global.security.SecurityUser;
 import lombok.RequiredArgsConstructor;
