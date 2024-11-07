@@ -19,7 +19,7 @@ export default function ClientPage(){
 
         try{
             const response = await fetch(
-                `http://localhost:8000/api/v1/members/login`,{
+                `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/members/login`,{
                     credentials: "include",
                     method: "POST",
                     body: JSON.stringify({username,password}),

@@ -9,7 +9,8 @@ export default function ClientPage({ id, post }: { id: string; post: Post }) {
     const router = useRouter();
 
     const deletePost = async ()=>{
-        await fetch(`http://localhost:8080/api/v1/posts/${id}`,{
+        await fetch(`${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/posts/${id}`, {
+            credentials: "include",
             method:"DELETE",
         });
         alert("삭제 되었습니다.");
@@ -27,8 +28,8 @@ export default function ClientPage({ id, post }: { id: string; post: Post }) {
                     <div>{post.modifyDate}</div>
                     <div>{post.body}</div>
                     <button onClick={() => router.back()}>뒤로가기</button>
-                    <button onClick={deletePost}>삭제</button>
-                    <Link href={`/p/${post.id}/edit`}>수정</Link>
+                    {post.actorCanModify && <Link href={`/p/${post.id}/edit`}>수정</Link>}
+                    {post.actorCanDelete && <button onClick={deletePost}>삭제</button>}
                 </div>
             )}
         </div>

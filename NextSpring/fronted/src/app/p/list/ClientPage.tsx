@@ -1,6 +1,6 @@
 "use client";
 
-import { Page } from "@/types/page";
+import Page from "@/types/page";
 import { Post } from "@/types/post";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -69,7 +69,7 @@ export function PostList({ posts }: PostListProps) {
                 >
                     <div className="flex justify-between">
                         <span className="font-medium">{post.title}</span>
-                        <span className="text-gray-600">{post.author.nickname}</span>
+                        <span className="text-gray-600">{post.authorName}</span>
                     </div>
                 </Link>
             ))}
@@ -145,7 +145,7 @@ export default function ClientPage() {
         const fetchPosts = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:8080/api/v1/posts?page=${currentPage}&kwType=${kwType}&kw=${kw}`
+                    `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/posts?page=${currentPage}&kwType=${kwType}&kw=${kw}`
                 );
                 const data = await response.json();
                 setPostPage(data);

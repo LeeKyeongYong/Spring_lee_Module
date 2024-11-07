@@ -4,5 +4,10 @@ export type Post ={
     modifyDate: string;
     title: string;
     body: string;
-    author: Member;
+    authorId: number;
+    authorName: string;
+    authorProfileImgUrl: string;
+    actorCanRead: boolean | null;
+    actorCanModify: boolean | null;
+    actorCanDelete: boolean | null;
 };

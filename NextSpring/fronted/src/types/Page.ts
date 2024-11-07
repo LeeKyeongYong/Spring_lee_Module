@@ -16,7 +16,7 @@ type Pageable = {
 };
 
 // Page 타입 정의
-export type Page<T> = {
+type Page<T> = {
     content: T[];
     pageable: Pageable;
     last: boolean;
@@ -29,3 +29,4 @@ export type Page<T> = {
     numberOfElements: number;
     empty: boolean;
 };
+export default Page;

@@ -1,10 +1,25 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { MemberContext } from "@/stores/member";
+import { use } from "react";
 
 export default function ClientPage(){
 
+    const { isLogin, isLoginMemberPending } = use(MemberContext);
+
+    if (isLoginMemberPending) {
+        return <div>로그인 체크 중...</div>;
+    }
+
     const router = useRouter();
+
+    if (!isLogin) {
+        alert("로그인이 필요합니다.");
+        router.back();
+    }
+
+
     const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) =>{
         e.preventDefault();
 
@@ -12,7 +27,7 @@ export default function ClientPage(){
         const title = formData.get("title") as string;
         const body= formData.get("body") as string;
 
-        await fetch(`http://localhost:8080/api/v1/posts`,{
+        await fetch(`${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/posts`, {
             method:"POST",
             body:JSON.stringify({title,body}),
             headers:{

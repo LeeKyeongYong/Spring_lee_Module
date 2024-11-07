@@ -7,11 +7,15 @@ export const MemberContext = React.createContext<{
     setLoginMember: React.Dispatch<React.SetStateAction<Member>>;
     removeLoginMember: () => void;
     isLogin: boolean;
+    isLoginMemberPending: boolean;
+    setLoginMemberPending: React.Dispatch<React.SetStateAction<boolean>>;
 }>({
     loginMember: createEmptyMember(),
     setLoginMember: () => {},
     removeLoginMember: () => {},
     isLogin: false,
+    isLoginMemberPending: true,
+    setLoginMemberPending: () => {},
 });
 
 function createEmptyMember(): Member {
@@ -19,13 +23,12 @@ function createEmptyMember(): Member {
         id: 0,
         createDate: "",
         modifyDate: "",
-        username: "",
-        password: "",
         name: "",
     };
 }
 
 export function useLoginMember() {
+    const [isLoginMemberPending, setLoginMemberPending] = useState(true);
     const [loginMember, setLoginMember] = useState<Member>(createEmptyMember());
 
     const removeLoginMember = () => {
@@ -39,5 +42,7 @@ export function useLoginMember() {
         setLoginMember,
         removeLoginMember,
         isLogin,
+        isLoginMemberPending,
+        setLoginMemberPending,
     };
 }

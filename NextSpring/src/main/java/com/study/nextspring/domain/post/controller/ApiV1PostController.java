@@ -2,6 +2,7 @@ package com.study.nextspring.domain.post.controller;
 
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.member.service.MemberService;
+import com.study.nextspring.domain.post.dto.PostDto;
 import com.study.nextspring.domain.post.entity.Post;
 import com.study.nextspring.domain.post.dto.PostModifyItemReqBody;
 import com.study.nextspring.domain.post.dto.PostWriteItemReqBody;
@@ -29,7 +30,7 @@ public class ApiV1PostController {
     private final ReqData rq;
 
     @GetMapping
-    public Page<Post> getItems(
+    public Page<PostDto> getItems(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "") String kw,
             @RequestParam(defaultValue = "ALL") KwTypeV1 kwType
@@ -39,15 +40,18 @@ public class ApiV1PostController {
         Pageable pageable = PageRequest.of(page - 1, AppConfig.getBasePageSize(), Sort.by(sorts));
         Page<Post> itemPage = postService.findByKw(kwType, kw, null, true, true, pageable);
 
-        return itemPage;
+        Member actor = rq.getMember();
+        Page<PostDto> postDtos = itemPage.map(post -> toPostDto(actor, post));
+        return postDtos;
     }
 
     @GetMapping("/{id}")
-    public Post getItem(@PathVariable long id) {
+    public PostDto getItem(@PathVariable long id) {
         Member actor = rq.getMember();
         Post post = postService.findById(id).get();
         postService.checkCanRead(actor, post);
-        return postService.findById(id).get();
+        PostDto postDto = toPostDto(actor, post);
+        return postDto;
     }
 
     @DeleteMapping("/{id}")
@@ -72,4 +76,16 @@ public class ApiV1PostController {
         Member author = memberService.findById(3).get();
         return postService.write(author, reqBody.title, reqBody.body, reqBody.isPublished(), reqBody.isListed());
     }
+
+    private PostDto toPostDto(Member actor, Post post) {
+        PostDto postDto = new PostDto(post);
+
+        postDto.setActorCanRead(postService.canRead(actor, post));
+        postDto.setActorCanModify(postService.canModify(actor, post));
+        postDto.setActorCanDelete(postService.canDelete(actor, post));
+
+        return postDto;
+    }
+
+
 }

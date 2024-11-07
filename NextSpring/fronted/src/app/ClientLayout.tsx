@@ -9,22 +9,33 @@ export default function ClientLayout({
                                      }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const { loginMember, setLoginMember, removeLoginMember, isLogin } =
-        useLoginMember();
+    const {
+        loginMember,
+        setLoginMember,
+        removeLoginMember,
+        isLogin,
+        isLoginMemberPending,
+        setLoginMemberPending,
+    } = useLoginMember();
 
     const memberContextValue = {
         loginMember,
         setLoginMember,
         removeLoginMember,
         isLogin,
+        isLoginMemberPending,
     };
 
     const fetchLoginMember = async () => {
-        const response = await fetch("http://localhost:8080/api/v1/members/me", {
-            credentials: "include",
-            method: "GET",
-        });
+        const response = await fetch(
+            `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/members/me`,
+            {
+                credentials: "include",
+                method: "GET",
+            }
+        );
 
+        if (!response.ok) setLoginMemberPending(false);
         if (!response.ok) return;
 
         const data = await response.json();
@@ -46,13 +57,16 @@ export default function ClientLayout({
                     {isLogin && (
                         <button
                             onClick={async () => {
-                                await fetch("http://localhost:8080/api/v1/members/logout", {
-                                    credentials: "include",
-                                    method: "POST",
-                                    headers: {
-                                        "Content-Type": "application/json",
-                                    },
-                                });
+                                await fetch(
+                                    `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/members/logout`,
+                                    {
+                                        credentials: "include",
+                                        method: "POST",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                        },
+                                    }
+                                );
 
                                 removeLoginMember();
                             }}
