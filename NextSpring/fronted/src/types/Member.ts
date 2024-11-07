@@ -1,6 +1,6 @@
-export type Member ={
-    id:number;
+export type Member = {
+    id: number;
     createDate: string;
     modifyDate: string;
     name: string;
-}
+};

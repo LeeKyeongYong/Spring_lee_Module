@@ -56,15 +56,12 @@ type PostListProps = {
 };
 
 export function PostList({ posts }: PostListProps) {
-    // posts가 없을 경우 빈 배열로 처리
-    const safePosts = posts || [];
-
     return (
         <div className="grid gap-4">
-            {safePosts.map((post) => (
+            {posts.map((post) => (
                 <Link
-                    key={pageNum}
                     href={`/p/${post.id}`}
+                    key={post.id}
                     className="p-4 border rounded hover:bg-gray-50"
                 >
                     <div className="flex justify-between">
@@ -148,6 +145,7 @@ export default function ClientPage() {
                     `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/posts?page=${currentPage}&kwType=${kwType}&kw=${kw}`
                 );
                 const data = await response.json();
+                console.log(data);  // Check the structure of the response
                 setPostPage(data);
             } catch (error) {
                 console.error("Failed to fetch posts:", error);
@@ -157,7 +155,8 @@ export default function ClientPage() {
         fetchPosts();
     }, [currentPage, kwType, kw]);
 
-    if (!postPage) {
+    // If postPage is null, or content is undefined, display a loading message or an empty state
+    if (!postPage || !postPage.content) {
         return <div>Loading...</div>;
     }
 

@@ -41,7 +41,7 @@ export default function ClientLayout({
         const data = await response.json();
 
         setLoginMember(data.data.item);
-
+        setLoginMemberPending(false);
     };
 
     useEffect(() => {
@@ -52,7 +52,7 @@ export default function ClientLayout({
         <>
             <header>
                 <div className="flex gap-2">
-                    <Link href="/">GB</Link>
+                    <Link href="/">NextSpring</Link>
                     {!isLogin && <Link href="/member/login">로그인</Link>}
                     {isLogin && (
                         <button

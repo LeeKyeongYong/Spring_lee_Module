@@ -1,13 +1,11 @@
 "use client";
 
 import { MemberContext } from "@/stores/member";
-import {Post} from "@/types/Post";
-import Link from "next/link";
+import { Post } from "@/types/post";
 import { useRouter } from "next/navigation";
 
 import { use, useEffect, useState } from "react";
-export default function ClientPage({id}:{id:string}){
-
+export default function ClientPage({ id }: { id: string }) {
     const { isLogin, loginMember, isLoginMemberPending } = use(MemberContext);
 
     if (isLoginMemberPending) {
@@ -15,7 +13,7 @@ export default function ClientPage({id}:{id:string}){
     }
 
     const router = useRouter();
-    const[post,setPost] = useState<Post | null>(null);
+    const [post, setPost] = useState<Post | null>(null);
 
     if (!isLogin) {
         alert("로그인이 필요합니다.");
@@ -24,7 +22,6 @@ export default function ClientPage({id}:{id:string}){
     }
 
     useEffect(() => {
-
         fetch(`${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/posts/${id}`, {
             credentials: "include",
         })
@@ -33,6 +30,7 @@ export default function ClientPage({id}:{id:string}){
 
                 return res;
             })
+            .then((res) => res.json())
             .then((data) => {
                 if (data.authorId !== loginMember.id)
                     throw new Error("권한이 없습니다.");
@@ -44,9 +42,9 @@ export default function ClientPage({id}:{id:string}){
                 alert(err.message);
                 router.back();
             });
-    },[]);
+    }, []);
 
-    const handleSubmit = async (e:React.FormEvent<HTMLFormElement>)=>{
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const formData = new FormData(e.target as HTMLFormElement);
@@ -55,11 +53,11 @@ export default function ClientPage({id}:{id:string}){
 
         await fetch(`${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/posts/${id}`, {
             credentials: "include",
-            method:"PUT",
-            body:JSON.stringify({title,body}),
-            headers:{
-                "Content-Type":"application/json",
-            }
+            method: "PUT",
+            body: JSON.stringify({ title, body }),
+            headers: {
+                "Content-Type": "application/json",
+            },
         })
             .then((data) => data.json())
             .then((res) => {
@@ -72,13 +70,14 @@ export default function ClientPage({id}:{id:string}){
                 router.back();
             });
 
-        alert("수정 되었습니다.");
+        alert("수정되었습니다.");
+
         router.replace(`/p/${id}`);
     };
 
-    return(
+    return (
         <div>
-            {post &&(
+            {post && (
                 <form onSubmit={handleSubmit}>
                     <input
                         type="text"

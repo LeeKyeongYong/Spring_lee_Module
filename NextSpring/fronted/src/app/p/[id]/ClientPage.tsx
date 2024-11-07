@@ -1,24 +1,24 @@
 "use client";
 
 import { Post } from "@/types/post";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function ClientPage({ id, post }: { id: string; post: Post }) {
-
     const router = useRouter();
 
-    const deletePost = async ()=>{
+    const deletePost = async () => {
         await fetch(`${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/posts/${id}`, {
             credentials: "include",
-            method:"DELETE",
+            method: "DELETE",
         });
-        alert("삭제 되었습니다.");
+
+        alert("삭제되었습니다.");
 
         router.back();
-    }
+    };
 
-    return(
+    return (
         <div className="grid">
             {post && (
                 <div>

@@ -1,11 +1,10 @@
+import { cookies } from "next/headers";
 import ClientPage from "./ClientPage";
 import { Metadata } from "next";
-import { cookies } from "next/headers";
 
 export const metadata: Metadata = {};
 
-export default async function Page({ params }:{params:{id:string}}){
-
+export default async function Page({ params }: { params: { id: string } }) {
     const { id } = await params;
 
     // 쿠키 스토어에서 쿠키들을 가져옴

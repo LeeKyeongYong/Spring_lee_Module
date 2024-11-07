@@ -1,53 +1,49 @@
 "use client";
 
-import {useRouter} from "next/navigation";
 import { MemberContext } from "@/stores/member";
+import { useRouter } from "next/navigation";
 import { use } from "react";
 
-export default function ClientPage(){
-
+export default function ClientPage() {
     const router = useRouter();
     const { setLoginMember } = use(MemberContext);
 
-    const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) =>{
-
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const formData = new FormData(e.target as HTMLFormElement);
         const username = formData.get("username") as string;
         const password = formData.get("password") as string;
 
-        try{
+        try {
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/members/login`,{
+                `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/members/login`,
+                {
                     credentials: "include",
                     method: "POST",
-                    body: JSON.stringify({username,password}),
-                    headers:{
-                        "Content-Type":"application/json",
-                    }
-                },
+                    body: JSON.stringify({ username, password }),
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
             );
 
-            if(!response.ok){
+            if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const data = await response.json();
             setLoginMember(data.data.item);
 
-
-            alert("로그인이 되었습니다.");
+            alert("로그인되었습니다.");
             router.push("/");
-
-        } catch(error){
+        } catch (error) {
             alert("로그인에 실패했습니다.");
-            console.error("로그인 실패: ",error);
+            console.error("로그인 실패:", error);
         }
-
-
     };
-    return(
+
+    return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8">
                 <div>
@@ -76,6 +72,7 @@ export default function ClientPage(){
                             />
                         </div>
                     </div>
+
                     <div>
                         <button
                             type="submit"
