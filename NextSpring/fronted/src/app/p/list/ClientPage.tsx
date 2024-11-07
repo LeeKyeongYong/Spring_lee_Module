@@ -17,8 +17,8 @@ export function SearchForm({ initialKwType, initialKw }: SearchFormProps) {
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
-        const kwType = formData.get("kwType") as string;
-        const kw = formData.get("kw") as string;
+        const kwType = formData.get("kwType");
+        const kw = formData.get("kw");
 
         router.push(`/p/list?page=1&kwType=${kwType}&kw=${kw}`);
     };
@@ -56,6 +56,10 @@ type PostListProps = {
 };
 
 export function PostList({ posts }: PostListProps) {
+    if (!posts || posts.length === 0) {
+        return <div>No posts to display.</div>;
+    }
+
     return (
         <div className="grid gap-4">
             {posts.map((post) => (
@@ -138,11 +142,12 @@ export default function ClientPage() {
     const kwType = searchParams.get("kwType") ?? "ALL";
     const kw = searchParams.get("kw") ?? "";
 
+
     useEffect(() => {
         const fetchPosts = async () => {
             try {
                 const response = await fetch(
-                    `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/posts?page=${currentPage}&kwType=${kwType}&kw=${kw}`
+                    `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/api/v1/posts?page=${currentPage}&kwType=${kwType}&kw=${kw}`
                 );
                 if (!response.ok) {
                     throw new Error(`HTTP error ${response.status}`);
@@ -150,8 +155,8 @@ export default function ClientPage() {
                 const data = await response.json();
                 setPostPage(data);
             } catch (error) {
-                console.error("Failed to fetch posts:", error.message);
-                setPostPage(null);
+                console.error("Failed to fetch posts:", error);
+                // 에러 처리 로직 추가 (예: 에러 메시지 표시 등)
             }
         };
 
@@ -160,8 +165,6 @@ export default function ClientPage() {
 
     if (!postPage) {
         return <div>Loading...</div>;
-    } else if (!postPage.content) {
-        return <div>Error: Failed to fetch posts.</div>;
     }
 
     return (
