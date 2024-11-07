@@ -3,9 +3,9 @@ package com.study.nextspring.domain.post.controller;
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.member.service.MemberService;
 import com.study.nextspring.domain.post.dto.PostDto;
-import com.study.nextspring.domain.post.entity.Post;
 import com.study.nextspring.domain.post.dto.PostModifyItemReqBody;
 import com.study.nextspring.domain.post.dto.PostWriteItemReqBody;
+import com.study.nextspring.domain.post.entity.Post;
 import com.study.nextspring.domain.post.service.PostService;
 import com.study.nextspring.global.app.AppConfig;
 import com.study.nextspring.global.base.KwTypeV1;
@@ -25,6 +25,7 @@ import java.util.List;
 @RequestMapping("/api/v1/posts")
 @RequiredArgsConstructor
 public class ApiV1PostController {
+
     private final PostService postService;
     private final MemberService memberService;
     private final ReqData rq;
@@ -36,57 +37,55 @@ public class ApiV1PostController {
             @RequestParam(defaultValue = "ALL") KwTypeV1 kwType
     ) {
         System.out.println("Page: " + page + ", Kw: " + kw + ", KwType: " + kwType);
+
         List<Sort.Order> sorts = new ArrayList<>();
         sorts.add(Sort.Order.desc("id"));
+
         Pageable pageable = PageRequest.of(page - 1, AppConfig.getBasePageSize(), Sort.by(sorts));
         Page<Post> itemPage = postService.findByKw(kwType, kw, null, true, true, pageable);
 
         Member actor = rq.getMember();
-        Page<PostDto> postDtos = itemPage.map(post -> toPostDto(actor, post));
-        return postDtos;
+        return itemPage.map(post -> toPostDto(actor, post));
     }
 
     @GetMapping("/{id}")
     public PostDto getItem(@PathVariable long id) {
         Member actor = rq.getMember();
-        Post post = postService.findById(id).get();
+        Post post = postService.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
         postService.checkCanRead(actor, post);
-        PostDto postDto = toPostDto(actor, post);
-        return postDto;
+
+        return toPostDto(actor, post);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteItem(@PathVariable long id){
+    public void deleteItem(@PathVariable long id) {
         Member actor = rq.getMember();
-        Post post = postService.findById(id).get();
+        Post post = postService.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
         postService.checkCanDelete(actor, post);
         postService.delete(post);
     }
 
     @PutMapping("/{id}")
-    public Post modifyItem(@PathVariable long id, @RequestBody @Valid PostModifyItemReqBody reqBody){
+    public Post modifyItem(@PathVariable long id, @RequestBody @Valid PostModifyItemReqBody reqBody) {
         Member actor = rq.getMember();
-        Post post = postService.findById(id).get();
+        Post post = postService.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
         postService.checkCanModify(actor, post);
-        postService.modify(post,reqBody.title,reqBody.body);
+        postService.modify(post, reqBody.title, reqBody.body);
+
         return post;
     }
 
     @PostMapping
-    public Post writeItem( @RequestBody @Valid PostWriteItemReqBody reqBody) {
-        Member author = memberService.findById(3).get();
+    public Post writeItem(@RequestBody @Valid PostWriteItemReqBody reqBody) {
+        Member author = memberService.findById(3).orElseThrow(() -> new RuntimeException("Author not found"));
         return postService.write(author, reqBody.title, reqBody.body, reqBody.isPublished(), reqBody.isListed());
     }
 
     private PostDto toPostDto(Member actor, Post post) {
         PostDto postDto = new PostDto(post);
-
         postDto.setActorCanRead(postService.canRead(actor, post));
         postDto.setActorCanModify(postService.canModify(actor, post));
         postDto.setActorCanDelete(postService.canDelete(actor, post));
-
         return postDto;
     }
-
-
 }

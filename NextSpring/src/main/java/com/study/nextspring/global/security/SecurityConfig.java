@@ -34,51 +34,38 @@ public class SecurityConfig {
                                 .authenticated()
                 )
                 .headers(
-                        headers ->
-                                headers.frameOptions(
-                                        frameOptions ->
-                                                frameOptions.sameOrigin()
-                                )
+                        headers -> headers.frameOptions(
+                                frameOptions -> frameOptions.sameOrigin()
+                        )
                 )
-                .csrf(
-                        csrf ->
-                                csrf.disable()
-                ).sessionManagement(
-                        sessionManagement -> sessionManagement
-                                .sessionCreationPolicy(
-                                        SessionCreationPolicy.STATELESS
-                                )
-                ).exceptionHandling(
-                        exceptionHandling -> exceptionHandling
-                                .authenticationEntryPoint(
-                                        (request, response, authException) -> {
-                                            response.setContentType("application/json;charset=UTF-8");
-                                            response.setStatus(403);
-                                            response.setHeader("Access-Control-Allow-Credentials", "true"); // 쿠키 허용
-                                            response.setHeader("Access-Control-Allow-Origin", AppConfig.getSiteFrontUrl()); // 특정 출처 허용
-                                            response.getWriter().write(
-                                                    UtClass.json.toString(
-                                                            RespData.of("403-1", request.getRequestURI() + ", " + authException.getLocalizedMessage())
-                                                    )
-                                            );
-                                        }
-                                )
-                )
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sessionManagement -> sessionManagement
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint(
+                                (request, response, authException) -> {
+                                    response.setContentType("application/json;charset=UTF-8");
+                                    response.setStatus(403);
+                                    response.setHeader("Access-Control-Allow-Credentials", "true");
+                                    response.setHeader("Access-Control-Allow-Origin", AppConfig.getSiteFrontUrl()); // 클라이언트 URL
+                                    response.getWriter().write(
+                                            UtClass.json.toString(
+                                                    RespData.of("403-1", request.getRequestURI() + ", " + authException.getLocalizedMessage())
+                                            )
+                                    );
+                                }
+                        ))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .cors(
-                        cors ->
-                                cors.configurationSource(
-                                        request -> {
-                                            var corsConfig = new CorsConfiguration();
-                                            corsConfig.setAllowCredentials(true);
-                                            corsConfig.addAllowedOrigin(AppConfig.getSiteFrontUrl());
-                                            corsConfig.addAllowedHeader("*");
-                                            corsConfig.addAllowedMethod("*");
-
-                                            return corsConfig;
-                                        }
-                                )
-                );
+                .cors(cors -> cors.configurationSource(
+                        request -> {
+                            CorsConfiguration corsConfig = new CorsConfiguration();
+                            corsConfig.setAllowCredentials(true);
+                            corsConfig.addAllowedOrigin(AppConfig.getSiteFrontUrl()); // 클라이언트 URL
+                            corsConfig.addAllowedHeader("*");
+                            corsConfig.addAllowedMethod("*");
+                            return corsConfig;
+                        }
+                ));
 
         return http.build();
     }

@@ -144,19 +144,24 @@ export default function ClientPage() {
                 const response = await fetch(
                     `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/posts?page=${currentPage}&kwType=${kwType}&kw=${kw}`
                 );
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}`);
+                }
                 const data = await response.json();
                 setPostPage(data);
             } catch (error) {
-                console.error("Failed to fetch posts:", error.message);  // error.message 출력
+                console.error("Failed to fetch posts:", error.message);
+                setPostPage(null);
             }
         };
 
         fetchPosts();
     }, [currentPage, kwType, kw]);
 
-    // If postPage is null, or content is undefined, display a loading message or an empty state
-    if (!postPage || !postPage.content) {
+    if (!postPage) {
         return <div>Loading...</div>;
+    } else if (!postPage.content) {
+        return <div>Error: Failed to fetch posts.</div>;
     }
 
     return (

@@ -15,26 +15,18 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import com.querydsl.core.BooleanBuilder;
 import static com.study.nextspring.domain.post.entity.QPost.post;
-
 @RequiredArgsConstructor
 public class PostRepositoryImpl implements PostRepositoryCustom {
+
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
     public Page<Post> findByKw(KwTypeV1 kwType, String kw, Member author, Boolean published, Boolean listed, Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder();
 
-        if (author != null) {
-            builder.and(post.author.eq(author));
-        }
-
-        if (published != null) {
-            builder.and(post.published.eq(published));
-        }
-
-        if (listed != null) {
-            builder.and(post.listed.eq(listed));
-        }
+        if (author != null) builder.and(post.author.eq(author));
+        if (published != null) builder.and(post.published.eq(published));
+        if (listed != null) builder.and(post.listed.eq(listed));
 
         if (kw != null && !kw.isBlank()) {
             applyKeywordFilter(kwType, kw, builder);
@@ -46,7 +38,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         postsQuery.offset(pageable.getOffset()).limit(pageable.getPageSize());
 
         JPAQuery<Long> totalQuery = createTotalQuery(builder);
-
         return PageableExecutionUtils.getPage(postsQuery.fetch(), pageable, totalQuery::fetchOne);
     }
 
@@ -55,7 +46,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
             case TITLE -> builder.and(post.title.containsIgnoreCase(kw));
             case BODY -> builder.and(post.body.containsIgnoreCase(kw));
             case NAME -> builder.and(post.author.nickname.containsIgnoreCase(kw));
-            default -> builder.and(
+            case ALL -> builder.and(
                     post.title.containsIgnoreCase(kw)
                             .or(post.body.containsIgnoreCase(kw))
                             .or(post.author.nickname.containsIgnoreCase(kw))
@@ -64,23 +55,17 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     private JPAQuery<Post> createPostsQuery(BooleanBuilder builder) {
-        return jpaQueryFactory
-                .select(post)
-                .from(post)
-                .where(builder);
+        return jpaQueryFactory.select(post).from(post).where(builder);
     }
 
     private void applySorting(Pageable pageable, JPAQuery<Post> postsQuery) {
-        for (Sort.Order o : pageable.getSort()) {
+        for (Sort.Order order : pageable.getSort()) {
             PathBuilder pathBuilder = new PathBuilder(post.getType(), post.getMetadata());
-            postsQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC, pathBuilder.get(o.getProperty())));
+            postsQuery.orderBy(new OrderSpecifier(order.isAscending() ? Order.ASC : Order.DESC, pathBuilder.get(order.getProperty())));
         }
     }
 
     private JPAQuery<Long> createTotalQuery(BooleanBuilder builder) {
-        return jpaQueryFactory
-                .select(post.count())
-                .from(post)
-                .where(builder);
+        return jpaQueryFactory.select(post.count()).from(post).where(builder);
     }
 }

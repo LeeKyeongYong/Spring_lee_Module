@@ -26,22 +26,49 @@ export default function ClientLayout({
         isLoginMemberPending,
     };
 
+    // 로그인된 사용자 정보를 가져오는 함수
     const fetchLoginMember = async () => {
-        const response = await fetch(
-            `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/members/me`,
-            {
-                credentials: "include",
-                method: "GET",
+        const token = localStorage.getItem('accessToken');
+
+        if (!token) {
+            console.error("No token found");
+            setLoginMemberPending(false);
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/members/me`,
+                {
+                    credentials: "include", // 쿠키 전송
+                    method: "GET",
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                console.error("Failed to fetch login member");
+                setLoginMemberPending(false);
+                return;
             }
-        );
 
-        if (!response.ok) setLoginMemberPending(false);
-        if (!response.ok) return;
+            const data = await response.json();
 
-        const data = await response.json();
-
-        setLoginMember(data.data.item);
-        setLoginMemberPending(false);
+            // 로그인 실패 처리
+            if (data.resultCode === "403-1") {
+                console.error("User not authenticated");
+                // 여기서 로그인 페이지로 리디렉션하거나 처리할 수 있습니다.
+            } else {
+                setLoginMember(data.data.item);
+                setLoginMemberPending(false);
+            }
+        } catch (error) {
+            console.error("Error fetching login member:", error);
+            setLoginMemberPending(false);
+        }
     };
 
     useEffect(() => {
@@ -52,7 +79,7 @@ export default function ClientLayout({
         <>
             <header>
                 <div className="flex gap-2">
-                    <Link href="/">GB</Link>
+                    <Link href="/">NextSpring</Link>
                     {!isLogin && <Link href="/member/login">로그인</Link>}
                     {isLogin && (
                         <button
@@ -67,7 +94,6 @@ export default function ClientLayout({
                                         },
                                     }
                                 );
-
                                 removeLoginMember();
                             }}
                         >

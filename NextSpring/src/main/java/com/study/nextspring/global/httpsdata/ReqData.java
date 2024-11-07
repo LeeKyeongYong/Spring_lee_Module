@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
@@ -23,6 +24,7 @@ import java.util.Optional;
     public class ReqData {
         @Autowired private final HttpServletRequest req;
         @Autowired private final HttpServletResponse resp;
+        @Autowired private final CookieService cookieService;
         @PersistenceContext
         private EntityManager entityManager;
         private SecurityUser user;
@@ -55,18 +57,12 @@ import java.util.Optional;
         }
 
 
-        public void setCookie(String name, String value) {
-            Cookie cookie = new Cookie(name, value);
-            cookie.setPath("/");
-            cookie.setDomain(AppConfig.getSiteCookieDomain());
-            resp.addCookie(cookie);
+        public void setCookie(String name, String value, int maxAge) {
+            cookieService.setCookie(name, value, maxAge);
         }
 
-        public void setCookie(String name, String value, int maxAge) {
-            Cookie cookie = new Cookie(name, value);
-            cookie.setPath("/");
-            cookie.setMaxAge(maxAge);
-            resp.addCookie(cookie);
+        public void setCookie(String name, String value) {
+            cookieService.setCookie(name, value);
         }
 
         private String getSiteCookieDomain() {
@@ -93,41 +89,15 @@ import java.util.Optional;
 
         public void removeCrossDomainCookie(String name) {
 
-            ResponseCookie cookie = ResponseCookie.from(name, null)
-                    .path("/")
-                    .maxAge(0)
-                    .domain(getSiteCookieDomain())
-                    .secure(true)
-                    .httpOnly(true)
-                    .build();
-
-            resp.addHeader("Set-Cookie", cookie.toString());
+            cookieService.removeCrossDomainCookie(name);
         }
 
         public Cookie getCookie(String name) {
-            Cookie[] cookies = req.getCookies();
-
-            if (cookies == null) {
-                return null;
-            }
-
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(name)) {
-                    return cookie;
-                }
-            }
-
-            return null;
+            return cookieService.getCookie(name);
         }
 
         public String getCookieValue(String name, String defaultValue) {
-            Cookie cookie = getCookie(name);
-
-            if (cookie == null) {
-                return defaultValue;
-            }
-
-            return cookie.getValue();
+            return cookieService.getCookieValue(name, defaultValue);
         }
 
         private long getCookieAsLong(String name, int defaultValue) {
@@ -154,15 +124,17 @@ import java.util.Optional;
 
 
         public Member getMember() {
-            if (isLogout()) return null;
-
-            if (member == null) {
-                // entityManager 객체로 프록시 객체 얻기
-                member = entityManager.getReference(Member.class, getUser().getId());
-                member.setAdmin(isAdmin());
+            if (isLogin()) {
+                if (member == null) {
+                    SecurityUser user = getUser();
+                    if (user != null) {
+                        member = entityManager.find(Member.class, user.getId());
+                    }
+                }
+                return member;
+            } else {
+                return null;
             }
-
-            return member;
         }
 
         public boolean isAdmin() {
@@ -190,20 +162,22 @@ import java.util.Optional;
 
         private SecurityUser getUser() {
             if (isLogin == null) {
-                user = Optional.ofNullable(SecurityContextHolder.getContext())
-                        .map(context -> context.getAuthentication())
-                        .filter(authentication -> authentication.getPrincipal() instanceof SecurityUser)
-                        .map(authentication -> (SecurityUser) authentication.getPrincipal())
-                        .orElse(null);
-
-                isLogin = user != null;
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                if (authentication != null && authentication.getPrincipal() instanceof SecurityUser) {
+                    user = (SecurityUser) authentication.getPrincipal();
+                    isLogin = true;
+                } else {
+                    user = null;
+                    isLogin = false;
+                }
             }
-
             return user;
         }
 
         public void setLogin(SecurityUser securityUser) {
             SecurityContextHolder.getContext().setAuthentication(securityUser.genAuthentication());
+            this.user = securityUser;
+            this.isLogin = true;
         }
 
         public void setLogout() {
