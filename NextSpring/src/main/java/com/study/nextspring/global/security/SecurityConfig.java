@@ -13,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @RequiredArgsConstructor
@@ -27,9 +28,7 @@ public class SecurityConfig {
                 .securityMatcher("/api/**")
                 .authorizeRequests(
                         authorizeRequests -> authorizeRequests
-                                .requestMatchers(HttpMethod.OPTIONS, "/**")
-                                .permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/*/posts/{id:\\d+}", "/api/*/posts", "/api/*/postComments/{id:\\d+}")
+                                .requestMatchers(HttpMethod.GET, "/api/*/posts/{id:\\d+}", "/api/*/posts")
                                 .permitAll()
                                 .requestMatchers("/api/*/members/login", "/api/*/members/logout")
                                 .permitAll()
@@ -66,7 +65,21 @@ public class SecurityConfig {
                                         }
                                 )
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .cors(
+                        cors ->
+                                cors.configurationSource(
+                                        request -> {
+                                            var corsConfig = new CorsConfiguration();
+                                            corsConfig.setAllowCredentials(true);
+                                            corsConfig.addAllowedOrigin(AppConfig.getSiteFrontUrl());
+                                            corsConfig.addAllowedHeader("*");
+                                            corsConfig.addAllowedMethod("*");
+
+                                            return corsConfig;
+                                        }
+                                )
+                );
 
         return http.build();
     }

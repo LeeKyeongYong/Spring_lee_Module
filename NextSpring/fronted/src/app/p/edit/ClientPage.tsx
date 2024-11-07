@@ -10,7 +10,12 @@ export default function ClientPage({id}:{id:string}){
     const router = useRouter();
     const[post,setPost] = useState<Post | null>(null);
 
+    console.log("실행됨 1");
+
     useEffect(() => {
+
+        console.log("실행됨 2");
+
         fetch(`http://localhost:8080/api/v1/posts/${id}`, {
             credentials: "include",
         })

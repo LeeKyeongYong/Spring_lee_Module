@@ -91,7 +91,6 @@ import java.util.Optional;
         }
 
         public void removeCrossDomainCookie(String name) {
-            removeCookie(name);
 
             ResponseCookie cookie = ResponseCookie.from(name, null)
                     .path("/")
