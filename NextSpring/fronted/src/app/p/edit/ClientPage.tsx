@@ -46,7 +46,7 @@ export default function ClientPage({id}:{id:string}){
             headers:{
                 "Content-Type":"application/json",
             }
-        });
+        }).then((data) => data.json());
 
         alert("수정 되었습니다.");
         router.back();
