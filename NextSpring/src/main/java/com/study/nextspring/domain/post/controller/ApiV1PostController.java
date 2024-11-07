@@ -45,8 +45,12 @@ public class ApiV1PostController {
         Page<Post> itemPage = postService.findByKw(kwType, kw, null, true, true, pageable);
 
         Member actor = rq.getMember();
-        return itemPage.map(post -> toPostDto(actor, post));
+        Page<PostDto> postDtos = itemPage.map(post -> toPostDto(actor, post));
+
+        // 페이지네이션 정보 포함
+        return postDtos;
     }
+
 
     @GetMapping("/{id}")
     public PostDto getItem(@PathVariable long id) {

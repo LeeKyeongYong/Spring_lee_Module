@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static jakarta.persistence.FetchType.LAZY;
-
 @Entity
 @Getter
 @Setter
@@ -25,14 +24,18 @@ public class Post {
     @GeneratedValue(strategy = IDENTITY)
     @EqualsAndHashCode.Include
     private Long id;
+
     @CreatedDate
     @Setter(value = AccessLevel.PRIVATE)
     private LocalDateTime createDate;
+
     @LastModifiedDate
     @Setter(value = AccessLevel.PRIVATE)
     private LocalDateTime modifyDate;
+
     private String title;
     private String body;
+
     @ManyToOne(fetch = LAZY)
     private Member author;
 
@@ -41,6 +44,7 @@ public class Post {
 
     @Column(columnDefinition = "BOOLEAN default false")
     private boolean listed;
+
     public void setModified() {
         setModifyDate(LocalDateTime.now());
     }

@@ -100,7 +100,8 @@ export default function ClientLayout({
                             로그아웃
                         </button>
                     )}
-                    {isLogin && <Link href="/member/me">{loginMember.name}</Link>}
+                    {isLogin && <Link href="/member/me">나의정보</Link>}
+
                     <Link href="/p/list">글 목록</Link>
                 </div>
             </header>

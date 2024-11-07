@@ -17,8 +17,8 @@ export function SearchForm({ initialKwType, initialKw }: SearchFormProps) {
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
-        const kwType = formData.get("kwType");
-        const kw = formData.get("kw");
+        const kwType = formData.get("kwType") as string;
+        const kw = formData.get("kw") as string;
 
         router.push(`/p/list?page=1&kwType=${kwType}&kw=${kw}`);
     };

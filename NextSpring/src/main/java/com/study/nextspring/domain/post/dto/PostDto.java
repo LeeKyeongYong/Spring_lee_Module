@@ -9,16 +9,17 @@ import java.time.LocalDateTime;
 
 @Getter
 public class PostDto {
-    private long id;
+    private Long id;
+    private String title;
+    private String body;
+    private Boolean published;
+    private Boolean listed;
     private LocalDateTime createDate;
     private LocalDateTime modifyDate;
     private long authorId;
     private String authorName;
     private String authorProfileImgUrl;
-    private String title;
-    private String body;
-    private boolean published;
-    private boolean listed;
+
 
     @Setter
     private Boolean actorCanRead;
