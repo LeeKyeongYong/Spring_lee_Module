@@ -19,9 +19,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     @SneakyThrows
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
-
         String accessToken_ = rq.getCookieValue("accessToken", "");
         System.out.println("accessToken = " + accessToken_);
+
         if (!request.getRequestURI().startsWith("/api/")) {
             filterChain.doFilter(request, response);
             return;

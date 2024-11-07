@@ -38,15 +38,18 @@ public class ApiV1MemberController {
     }
 
     @GetMapping("/me")
-    public RespData<MeResponseBody> getMe(){
-        return RespData.of(new MeResponseBody(
-                new MemberDto(rq.getMember())
-        ));
+    public RespData<MeResponseBody> getMe() {
+        return RespData.of(
+                new MeResponseBody(
+                        new MemberDto(rq.getMember())
+                )
+        );
     }
 
     @PostMapping("/logout")
-    public RespData<Empty> logout(){
+    public RespData<Empty> logout() {
         rq.setLogout();
+
         return RespData.of("로그아웃 성공");
     }
 }

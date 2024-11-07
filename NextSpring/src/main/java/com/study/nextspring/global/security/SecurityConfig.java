@@ -18,13 +18,11 @@ import org.springframework.web.cors.CorsConfiguration;
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-
                 .securityMatcher("/api/**")
                 .authorizeRequests(
                         authorizeRequests -> authorizeRequests
@@ -34,7 +32,8 @@ public class SecurityConfig {
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated()
-                ).headers(
+                )
+                .headers(
                         headers ->
                                 headers.frameOptions(
                                         frameOptions ->
