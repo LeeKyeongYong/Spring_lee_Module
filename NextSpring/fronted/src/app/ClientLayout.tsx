@@ -24,9 +24,9 @@ export default function ClientLayout({
         removeLoginMember,
         isLogin,
         isLoginMemberPending,
+        setLoginMemberPending,  // 추가
     };
 
-    // 로그인된 사용자 정보를 가져오는 함수
     const fetchLoginMember = async () => {
         const token = localStorage.getItem('accessToken');
 
@@ -40,7 +40,7 @@ export default function ClientLayout({
             const response = await fetch(
                 `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/members/me`,
                 {
-                    credentials: "include", // 쿠키 전송
+                    credentials: "include",
                     method: "GET",
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -57,10 +57,8 @@ export default function ClientLayout({
 
             const data = await response.json();
 
-            // 로그인 실패 처리
             if (data.resultCode === "403-1") {
                 console.error("User not authenticated");
-                // 여기서 로그인 페이지로 리디렉션하거나 처리할 수 있습니다.
             } else {
                 setLoginMember(data.data.item);
                 setLoginMemberPending(false);

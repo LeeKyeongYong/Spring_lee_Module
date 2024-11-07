@@ -1,4 +1,4 @@
-import { Member } from "@/types/member";
+import { Member } from "@/types/Member";
 import React, { useState } from "react";
 
 export const MemberContext = React.createContext<{

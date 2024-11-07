@@ -1,7 +1,7 @@
 "use client";
 
-import Page from "@/types/page";
-import { Post } from "@/types/post";
+import Page from "@/types/Page";
+import { Post } from "@/types/Post";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -147,7 +147,7 @@ export default function ClientPage() {
         const fetchPosts = async () => {
             try {
                 const response = await fetch(
-                    `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/api/v1/posts?page=${currentPage}&kwType=${kwType}&kw=${kw}`
+                    `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/posts?page=${currentPage}&kwType=${kwType}&kw=${kw}`
                 );
                 if (!response.ok) {
                     throw new Error(`HTTP error ${response.status}`);
