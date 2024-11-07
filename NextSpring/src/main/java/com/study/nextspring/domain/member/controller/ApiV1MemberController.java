@@ -11,6 +11,7 @@ import com.study.nextspring.global.httpsdata.ReqData;
 import com.study.nextspring.global.httpsdata.RespData;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ApiV1MemberController {
     private final MemberService memberService;
+    @Autowired
     private ReqData rq;
 
     @PostMapping(value = "/login")
@@ -27,8 +29,8 @@ public class ApiV1MemberController {
                 body.password()
         );
 
-        rq.setCrossDomainCookie("refreshToken",authAndMakeTokensRs.getData().refreshToken());
-        rq.setCrossDomainCookie("accessToken",authAndMakeTokensRs.getData().accessToken());
+        rq.setCrossDomainCookie("refreshToken", authAndMakeTokensRs.getData().refreshToken());
+        rq.setCrossDomainCookie("accessToken", authAndMakeTokensRs.getData().accessToken());
 
         return authAndMakeTokensRs.newDataOf(
                 new MemberLoginResBody(

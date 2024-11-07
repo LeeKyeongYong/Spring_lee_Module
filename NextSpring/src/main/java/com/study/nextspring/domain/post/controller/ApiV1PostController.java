@@ -35,6 +35,7 @@ public class ApiV1PostController {
             @RequestParam(defaultValue = "") String kw,
             @RequestParam(defaultValue = "ALL") KwTypeV1 kwType
     ) {
+        System.out.println("Page: " + page + ", Kw: " + kw + ", KwType: " + kwType);
         List<Sort.Order> sorts = new ArrayList<>();
         sorts.add(Sort.Order.desc("id"));
         Pageable pageable = PageRequest.of(page - 1, AppConfig.getBasePageSize(), Sort.by(sorts));

@@ -145,10 +145,9 @@ export default function ClientPage() {
                     `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/posts?page=${currentPage}&kwType=${kwType}&kw=${kw}`
                 );
                 const data = await response.json();
-                console.log(data);  // Check the structure of the response
                 setPostPage(data);
             } catch (error) {
-                console.error("Failed to fetch posts:", error);
+                console.error("Failed to fetch posts:", error.message);  // error.message 출력
             }
         };
 

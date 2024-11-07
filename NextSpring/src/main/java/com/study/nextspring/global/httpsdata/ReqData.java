@@ -9,6 +9,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -20,8 +21,8 @@ import java.util.Optional;
     @RequestScope
     @RequiredArgsConstructor
     public class ReqData {
-        private final HttpServletRequest req;
-        private final HttpServletResponse resp;
+        @Autowired private final HttpServletRequest req;
+        @Autowired private final HttpServletResponse resp;
         @PersistenceContext
         private EntityManager entityManager;
         private SecurityUser user;

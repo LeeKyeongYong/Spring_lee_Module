@@ -52,7 +52,7 @@ export default function ClientLayout({
         <>
             <header>
                 <div className="flex gap-2">
-                    <Link href="/">NextSpring</Link>
+                    <Link href="/">GB</Link>
                     {!isLogin && <Link href="/member/login">로그인</Link>}
                     {isLogin && (
                         <button
