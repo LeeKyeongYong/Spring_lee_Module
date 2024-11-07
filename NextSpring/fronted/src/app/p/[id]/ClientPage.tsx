@@ -3,17 +3,10 @@
 import { Post } from "@/types/post";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import {useEffect,useState} from "react";
-export default function ClientPage({id}:{id:string}){
+
+export default function ClientPage({ id, post }: { id: string; post: Post }) {
 
     const router = useRouter();
-    const [post,setPost] = useState<Post | null>(null);
-
-    useEffect(() => {
-        fetch(`http://localhost:8080/api/v1/posts/${id}`)
-            .then((res) => res.json())
-            .then((data) => setPost(data));
-    },[]);
 
     const deletePost = async ()=>{
         await fetch(`http://localhost:8080/api/v1/posts/${id}`,{

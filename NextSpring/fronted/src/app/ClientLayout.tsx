@@ -31,7 +31,6 @@ export default function ClientLayout({
 
         setLoginMember(data.data.item);
 
-        return data;
     };
 
     useEffect(() => {
@@ -61,7 +60,7 @@ export default function ClientLayout({
                             로그아웃
                         </button>
                     )}
-                    {isLogin && <span>{loginMember.name}</span>}
+                    {isLogin && <Link href="/member/me">{loginMember.name}</Link>}
                     <Link href="/p/list">글 목록</Link>
                 </div>
             </header>
