@@ -1,8 +1,7 @@
 "use client";
-
-import Link from "next/link";
 import React, { useEffect } from "react";
 import { MemberContext, useLoginMember } from "../stores/member";
+import Link from "next/link";
 
 export default function ClientLayout({
                                          children,
@@ -24,48 +23,49 @@ export default function ClientLayout({
         removeLoginMember,
         isLogin,
         isLoginMemberPending,
-        setLoginMemberPending,  // 추가
+        setLoginMemberPending,
     };
 
     const fetchLoginMember = async () => {
-        const token = localStorage.getItem('accessToken');
-
-        if (!token) {
-            console.error("No token found");
-            setLoginMemberPending(false);
-            return;
-        }
-
-        try {
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/members/me`,
-                {
-                    credentials: "include",
-                    method: "GET",
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-
-            if (!response.ok) {
-                console.error("Failed to fetch login member");
+        // 클라이언트 측에서만 localStorage 접근
+        if (typeof window !== "undefined") {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                console.error("No token found");
                 setLoginMemberPending(false);
                 return;
             }
 
-            const data = await response.json();
+            try {
+                const response = await fetch(
+                    `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/members/me`,
+                    {
+                        credentials: "include",
+                        method: "GET",
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
 
-            if (data.resultCode === "403-1") {
-                console.error("User not authenticated");
-            } else {
-                setLoginMember(data.data.item);
+                if (!response.ok) {
+                    console.error("Failed to fetch login member");
+                    setLoginMemberPending(false);
+                    return;
+                }
+
+                const data = await response.json();
+                if (data.resultCode === "403-1") {
+                    console.error("User not authenticated");
+                } else {
+                    setLoginMember(data.data.item);
+                    setLoginMemberPending(false);
+                }
+            } catch (error) {
+                console.error("Error fetching login member:", error);
                 setLoginMemberPending(false);
             }
-        } catch (error) {
-            console.error("Error fetching login member:", error);
-            setLoginMemberPending(false);
         }
     };
 

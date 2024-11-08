@@ -1,10 +1,9 @@
 "use client";
 
-import Page from "@/types/Page";
-import { Post } from "@/types/Post";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { Post } from '@/types/Post';
 
 type SearchFormProps = {
     initialKwType: string;
@@ -17,8 +16,8 @@ export function SearchForm({ initialKwType, initialKw }: SearchFormProps) {
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
-        const kwType = formData.get("kwType");
-        const kw = formData.get("kw");
+        const kwType = formData.get('kwType') as string;
+        const kw = formData.get('kw') as string;
 
         router.push(`/p/list?page=1&kwType=${kwType}&kw=${kw}`);
     };
@@ -98,7 +97,7 @@ export function Pagination({
             key={pageNum}
             href={`/p/list?page=${pageNum}&kwType=${kwType}&kw=${kw}`}
             className={`px-3 py-1 border rounded ${
-                currentPage === pageNum ? "bg-blue-500 text-white" : "hover:bg-gray-50"
+                currentPage === pageNum ? 'bg-blue-500 text-white' : 'hover:bg-gray-50'
             }`}
         >
             {label ?? pageNum}
@@ -134,34 +133,42 @@ export function Pagination({
 
 const PAGE_MENU_ARM_SIZE = 5;
 
-export default function ClientPage() {
-    const [postPage, setPostPage] = useState<Page<Post> | null>(null);
+export default function PostListPage() {
+    const [postPage, setPostPage] = useState<{ content: Post[]; totalPages: number } | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
     const searchParams = useSearchParams();
 
-    const currentPage = parseInt(searchParams.get("page") ?? "1");
-    const kwType = searchParams.get("kwType") ?? "ALL";
-    const kw = searchParams.get("kw") ?? "";
-
+    const currentPage = parseInt(searchParams.get('page') || '1');
+    const kwType = searchParams.get('kwType') || 'ALL';
+    const kw = searchParams.get('kw') || '';
 
     useEffect(() => {
         const fetchPosts = async () => {
             try {
                 const response = await fetch(
-                    `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/posts?page=${currentPage}&kwType=${kwType}&kw=${kw}`
+                    `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/posts?page=${currentPage - 1}&kwType=${kwType}&kw=${kw}`
                 );
+
                 if (!response.ok) {
                     throw new Error(`HTTP error ${response.status}`);
                 }
+
                 const data = await response.json();
                 setPostPage(data);
+                setError(null);
             } catch (error) {
-                console.error("Failed to fetch posts:", error);
-                // 에러 처리 로직 추가 (예: 에러 메시지 표시 등)
+                console.error('Failed to fetch posts:', error);
+                setError('Failed to fetch posts. Please try again later.');
             }
         };
 
         fetchPosts();
     }, [currentPage, kwType, kw]);
+
+    if (error) {
+        return <div>{error}</div>;
+    }
 
     if (!postPage) {
         return <div>Loading...</div>;
