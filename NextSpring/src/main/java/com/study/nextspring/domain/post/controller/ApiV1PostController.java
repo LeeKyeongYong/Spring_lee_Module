@@ -16,11 +16,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -31,26 +34,35 @@ public class ApiV1PostController {
     private final ReqData rq;
 
     @GetMapping
-    public Page<PostDto> getItems(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "") String kw,
-            @RequestParam(defaultValue = "ALL") KwTypeV1 kwType,
-            Authentication authentication) {
-        try {
-            Member actor = (authentication != null && authentication.getPrincipal() instanceof Member)
-                    ? (Member) authentication.getPrincipal()
-                    : null;
-            List<Sort.Order> sorts = new ArrayList<>();
-            sorts.add(Sort.Order.desc("id"));
-            Pageable pageable = PageRequest.of(page - 1, AppConfig.getBasePageSize(), Sort.by(sorts));
-            Page<Post> itemPage = postService.findByKw(kwType, kw, actor, true, true, pageable);
-            Page<PostDto> postDtos = itemPage.map(post -> toPostDto(actor, post));
-            return postDtos;
-        } catch (Exception e) {
-            // 적절한 예외 처리 로직 추가
-            throw new RuntimeException("Failed to fetch posts", e);
-        }
+    public ResponseEntity<Page<PostDto>> getPosts(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "${app.config.basePageSize:20}") int size,
+            @RequestParam(name = "kw", defaultValue = "") String kw,
+            @RequestParam(name = "kwType", defaultValue = "ALL") KwTypeV1 kwType,
+            @RequestParam(name = "published", defaultValue = "false") Boolean published,
+            @RequestParam(name = "listed", defaultValue = "false") Boolean listed,
+            Pageable pageable
+    ) {
+        Pageable defaultPageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        Page<Post> postPage = postService.findByKw(kwType, kw, null, published, listed, pageable.getPageNumber() > 0 ? pageable : defaultPageable);
+        Page<PostDto> postDtoPage = postPage.map(PostDto::new);
+        return new ResponseEntity<>(postDtoPage, HttpStatus.OK);
     }
+
+//    @GetMapping
+//    public ResponseEntity<Page<PostDto>> getPosts(
+//            @RequestParam(name = "page", defaultValue = "0") int page,
+//            @RequestParam(name = "size", defaultValue = "10") int size,
+//            @RequestParam(name = "kw", defaultValue = "") String kw,
+//            @RequestParam(name = "kwType", defaultValue = "ALL") KwTypeV1 kwType,
+//            @RequestParam(name = "published", defaultValue = "false") Boolean published,
+//            @RequestParam(name = "listed", defaultValue = "false") Boolean listed
+//    ) {
+//        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+//        Page<Post> postPage = postService.findByKw(kwType, kw, null, published, listed, pageable);
+//        Page<PostDto> postDtoPage = postPage.map(PostDto::new);
+//        return new ResponseEntity<>(postDtoPage, HttpStatus.OK);
+//    }
 
     @GetMapping("/{id}")
     public PostDto getItem(
