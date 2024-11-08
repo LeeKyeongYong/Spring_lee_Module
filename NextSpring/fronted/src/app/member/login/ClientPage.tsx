@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { MemberContext } from "@/stores/member";
 import { useRouter } from "next/navigation";
 import { use } from "react";
@@ -7,13 +8,11 @@ import { use } from "react";
 export default function ClientPage() {
     const router = useRouter();
     const { setLoginMember } = use(MemberContext);
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
-        const formData = new FormData(e.target as HTMLFormElement);
-        const username = formData.get("username") as string;
-        const password = formData.get("password") as string;
 
         try {
             const response = await fetch(
@@ -34,7 +33,7 @@ export default function ClientPage() {
 
             const data = await response.json();
             setLoginMember(data.data.item);
-
+            localStorage.setItem("accessToken", data.accessToken);
             alert("로그인되었습니다.");
             router.push("/");
         } catch (error) {
@@ -58,6 +57,8 @@ export default function ClientPage() {
                                 name="username"
                                 type="text"
                                 required
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
                                 className="appearance-none rounded-none block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                 placeholder="아이디"
                             />
@@ -67,6 +68,8 @@ export default function ClientPage() {
                                 name="password"
                                 type="password"
                                 required
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
                                 className="appearance-none rounded-none block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                 placeholder="비밀번호"
                             />

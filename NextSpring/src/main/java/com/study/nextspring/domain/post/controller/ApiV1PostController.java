@@ -10,6 +10,7 @@ import com.study.nextspring.domain.post.service.PostService;
 import com.study.nextspring.global.app.AppConfig;
 import com.study.nextspring.global.base.KwTypeV1;
 import com.study.nextspring.global.httpsdata.ReqData;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -122,11 +124,16 @@ public class ApiV1PostController {
     }
 
     @PostMapping
-    public Post writeItem(
-            @RequestBody @Valid PostWriteItemReqBody reqBody
-    ) {
-        Member author = memberService.findById(3).get();
+    public ResponseEntity<Post> writeItem(@RequestBody @Valid PostWriteItemReqBody reqBody, @AuthenticationPrincipal Member author) {
+        // 로그인된 사용자가 없다면 에러 반환
+        if (author == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
-        return postService.write(author, reqBody.title, reqBody.body, reqBody.isPublished(), reqBody.isListed());
+        // 새 게시글 작성
+        Post post = postService.write(author, reqBody.getTitle(), reqBody.getBody(), reqBody.isPublished(), reqBody.isListed());
+
+        // 작성한 게시글 반환
+        return ResponseEntity.status(HttpStatus.CREATED).body(post);
     }
 }
