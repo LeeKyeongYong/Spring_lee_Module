@@ -142,4 +142,5 @@ class CustomOAuth2UserService(
             ByteArray(0) // Return empty array as fallback
         }
     }
+
 }
