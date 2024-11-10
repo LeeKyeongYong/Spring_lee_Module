@@ -22,24 +22,48 @@
         }
     </style>
     <script>
-        document.getElementById('uploadForm').onsubmit = function(e) {
-            const title = document.getElementById('title').value;
-            const file = document.getElementById('file').value;
 
-            if (!title.trim()) {
-                alert('문서 설명을 입력해주세요.');
-                e.preventDefault();
-                return false;
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('file');
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    const fileName = e.target.files[0]?.name;
+                    if (fileName) {
+                        const fileNameDisplay = document.createElement('p');
+                        fileNameDisplay.textContent = `선택된 파일: ${fileName}`;
+                        fileNameDisplay.className = 'mt-2 text-sm text-gray-600';
+                        e.target.parentElement.appendChild(fileNameDisplay);
+                    }
+                });
             }
 
-            if (!file) {
-                alert('업로드할 파일을 선택해주세요.');
-                e.preventDefault();
-                return false;
-            }
+            const uploadForm = document.getElementById('uploadForm');
+            if (uploadForm) {
+                uploadForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
 
-            return true;
-        };
+                    const file = document.getElementById('file').files[0];
+                    const title = document.getElementById('title').value.trim();
+
+                    if (!file) {
+                        alert('파일을 선택해주세요.');
+                        return;
+                    }
+
+                    if (!title) {
+                        alert('문서 설명을 입력해주세요.');
+                        return;
+                    }
+
+                    if (file.type !== 'application/pdf') {
+                        alert('PDF 파일만 업로드 가능합니다.');
+                        return;
+                    }
+
+                    this.submit();
+                });
+            }
+        });
     </script>
 </head>
 
@@ -52,6 +76,7 @@
             <div class="bg-white rounded-lg shadow-md p-6 mb-8">
                 <form th:action="@{/api/pdf/upload}" method="post" enctype="multipart/form-data"
                       class="space-y-4" id="uploadForm">
+                    <input type="hidden" name="userId" th:value="${#authentication.principal.username}">
                     <div class="upload-area p-8 rounded-lg text-center cursor-pointer">
                         <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
                         <h3 class="text-lg font-semibold text-gray-700">PDF 파일 업로드</h3>

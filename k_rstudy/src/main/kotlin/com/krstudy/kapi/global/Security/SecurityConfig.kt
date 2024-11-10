@@ -60,6 +60,7 @@ class SecurityConfig(
                     .requestMatchers("/adm/**").hasAuthority("ROLE_ADMIN")
                     .requestMatchers("/resource/**").permitAll()
                     .requestMatchers("/v1/qrcode/**").permitAll()
+                    .requestMatchers("/api/pdf/**").permitAll()
                     .requestMatchers("/v1/**").authenticated()
                     .requestMatchers("/login/oauth2/**").permitAll()
                     .requestMatchers("/member/login").anonymous()

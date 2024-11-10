@@ -35,53 +35,58 @@ class PdfService(
 
     @Transactional
     fun uploadPdf(file: MultipartFile, userId: String, title: String): FileEntity {
-        if (!file.contentType.equals("application/pdf")) {
-            throw IllegalArgumentException("PDF files only are allowed")
+        logger.info("Starting PDF upload process for user: $userId")
+
+        // 1. 사용자 확인
+        val member = memberRepository.findByUsername(userId)
+            ?: throw EntityNotFoundException("사용자를 찾을 수 없습니다: $userId")
+
+        // 2. 업로드 디렉토리 확인 및 생성
+        val uploadPath = Path.of(uploadDir)
+        if (!Files.exists(uploadPath)) {
+            logger.info("Creating upload directory: $uploadDir")
+            Files.createDirectories(uploadPath)
         }
 
-        val member = memberRepository.findByUsername(userId)
-            ?: throw EntityNotFoundException("Member not found with ID: $userId")
+        try {
+            // 3. PDF 문서 검증
+            PDDocument.load(file.inputStream).use { document ->
+                val pageCount = document.numberOfPages
+                logger.info("PDF validated - pages: $pageCount")
 
-        return try {
-            // PDF 문서 로드 및 페이지 수 확인
-            val document = PDDocument.load(file.inputStream)
-            val pageCount = document.numberOfPages
+                // 4. 파일 저장
+                val storedFileName = "${UUID.randomUUID()}.pdf"
+                val filePath = uploadPath.resolve(storedFileName)
 
-            // 파일 저장을 위한 UUID 생성
-            val storedFileName = "${UUID.randomUUID()}.pdf"
-            val filePath = Path.of(uploadDir).resolve(storedFileName)
+                logger.info("Saving file to: $filePath")
+                Files.copy(
+                    file.inputStream,
+                    filePath,
+                    StandardCopyOption.REPLACE_EXISTING
+                )
 
-            // 디렉토리 생성
-            Files.createDirectories(filePath.parent)
+                // 5. 미리보기 생성
+                createPdfPreviews(document, storedFileName)
 
-            // PDF 파일 저장
-            Files.copy(
-                file.inputStream,
-                filePath,
-                StandardCopyOption.REPLACE_EXISTING
-            )
+                // 6. 파일 엔티티 생성 및 저장
+                val fileEntity = FileEntity(
+                    originalFileName = file.originalFilename ?: "unknown.pdf",
+                    storedFileName = storedFileName,
+                    filePath = filePath.toString(),
+                    fileSize = file.size,
+                    fileType = "application/pdf",
+                    contentType = file.contentType ?: "application/pdf",
+                    checksum = calculateChecksum(file),
+                    member = member,
+                    status = FileStatusEnum.ACTIVE
+                )
 
-            // 미리보기 이미지 생성
-            createPdfPreviews(document, storedFileName)
-
-            // FileEntity 생성 및 저장
-            val fileEntity = FileEntity(
-                originalFileName = file.originalFilename ?: "unknown.pdf",
-                storedFileName = storedFileName,
-                filePath = filePath.toString(),
-                fileSize = file.size,
-                fileType = "application/pdf",
-                contentType = "application/pdf",
-                checksum = calculateChecksum(file),
-                member = member,
-                status = FileStatusEnum.ACTIVE
-            )
-
-            document.close()
-            fileRepository.save(fileEntity)
+                logger.info("Saving file entity to database")
+                return fileRepository.save(fileEntity)
+            }
         } catch (e: Exception) {
-            logger.error("Failed to upload PDF: ${e.message}", e)
-            throw FileUploadException("Failed to upload PDF: ${e.message}")
+            logger.error("Error during file upload: ${e.message}", e)
+            throw FileUploadException("파일 업로드 중 오류가 발생했습니다: ${e.message}")
         }
     }
 
