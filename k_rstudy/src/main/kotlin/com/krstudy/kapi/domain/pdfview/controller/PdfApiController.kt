@@ -3,6 +3,8 @@ package com.krstudy.kapi.domain.pdfview.controller
 import com.krstudy.kapi.domain.pdfview.service.PdfService
 import com.krstudy.kapi.domain.uploads.entity.FileEntity
 import com.krstudy.kapi.global.Security.datas.AuthenticationFacade
+import com.krstudy.kapi.global.exception.GlobalException
+import com.krstudy.kapi.global.https.RespData
 import jakarta.persistence.EntityNotFoundException
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
@@ -24,27 +26,50 @@ class PdfApiController(
 ) {
     private val logger = LoggerFactory.getLogger(PdfApiController::class.java)
     @PostMapping("/upload")
-    @PreAuthorize("isAuthenticated()")  // 인증된 사용자만 접근 가능
+    @PreAuthorize("isAuthenticated()")
     fun uploadPdf(
         @RequestParam("file") file: MultipartFile,
         @RequestParam("title") title: String
-    ): ResponseEntity<*> {
-        logger.info("File upload started - fileName: ${file.originalFilename}")
+    ): ResponseEntity<RespData<FileEntity>> {
+        logger.info("File upload started - fileName: ${file.originalFilename}, title: $title")
 
         return try {
-            // 현재 인증된 사용자 정보 가져오기
             val currentUser = authenticationFacade.getCurrentUser()
                 ?: throw UnauthorizedException("인증된 사용자 정보를 찾을 수 없습니다.")
 
-            // 파일 유효성 검사
             validateFile(file)
 
             val uploadedFile = pdfService.uploadPdf(file, currentUser.username, title)
             logger.info("File upload successful - fileId: ${uploadedFile.id}")
-            ResponseEntity.ok(uploadedFile)
 
+            ResponseEntity.ok(
+                RespData.of(
+                resultCode = "200",
+                message = "파일이 성공적으로 업로드되었습니다.",
+                data = uploadedFile
+            ))
         } catch (e: Exception) {
-            handleUploadException(e)
+            logger.error("File upload failed", e)
+            when (e) {
+                is UnauthorizedException -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                is InvalidFileException -> ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                else -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            }.body(RespData.of(
+                resultCode = "500",
+                message = e.message ?: "파일 업로드 중 오류가 발생했습니다.",
+                data = null
+            ))
+        }
+    }
+
+    private fun validateFile(file: MultipartFile) {
+        when {
+            file.isEmpty -> throw InvalidFileException("파일이 비어있습니다.")
+            file.originalFilename.isNullOrEmpty() -> throw InvalidFileException("파일명이 없습니다.")
+            !file.contentType?.equals("application/pdf", ignoreCase = true)!! ->
+                throw InvalidFileException("PDF 파일만 업로드 가능합니다.")
+            file.size > 10_485_760 -> // 10MB limit
+                throw InvalidFileException("파일 크기는 10MB를 초과할 수 없습니다.")
         }
     }
 
@@ -102,6 +127,11 @@ class PdfApiController(
                 logger.error("Entity not found: ${e.message}", e)
                 ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ErrorResponse("찾을 수 없음", e.message))
+            }
+            is GlobalException -> {  // GlobalException을 처리하는 예시
+                logger.error("Global error: ${e.message}", e)
+                ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ErrorResponse("잘못된 요청", e.message))
             }
             else -> {
                 logger.error("Unexpected error: ${e.message}", e)

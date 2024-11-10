@@ -132,7 +132,7 @@ class MemberService(
     private fun generateJwtToken(userid: String, secretKey: String): String {
         return Jwts.builder()
             .setSubject(userid)
-            .setExpiration(Date(System.currentTimeMillis() + 600000))  // 1분 유효
+            .setExpiration(Date(System.currentTimeMillis() + 600000)) // 10분 유효
             .signWith(SignatureAlgorithm.HS512, secretKey.toByteArray())
             .compact()
     }
@@ -197,17 +197,16 @@ class MemberService(
         return authTokenService.validateToken(token)
     }
 
+    @Transactional
     fun refreshAccessToken(refreshToken: String): RespData<String> {
-        // JWT 토큰으로 멤버 조회, null일 경우 예외 발생
         val member = memberRepository.findByJwtToken(refreshToken)
-            ?: throw GlobalException(MessageCode.BAD_REQUEST.code, MessageCode.BAD_REQUEST.message)
+            ?: throw GlobalException(MessageCode.BAD_REQUEST.code, "유효하지 않은 토큰입니다. 재로그인 후 시도해 주세요.")
 
-        // 엑세스 토큰 생성
         val accessToken = authTokenService.genAccessToken(member)
 
-        // 응답 데이터 반환
-        return RespData.of(MessageCode.SUCCESS.code, MessageCode.SUCCESS.message, accessToken)
+        return RespData.of(MessageCode.SUCCESS.code, "액세스 토큰이 갱신되었습니다.", accessToken)
     }
+
 
     fun getUserFromAccessToken(accessToken: String): SecurityUser {
         val payloadBody = authTokenService.getDataFrom(accessToken)
@@ -279,10 +278,8 @@ class MemberService(
     }
 
     fun getCurrentUser(): Member {
-        // Implement the logic to get the current authenticated user
-        // This is just a placeholder implementation
         return memberRepository.findAll().firstOrNull()
-            ?: throw IllegalStateException("No users found in the system")
+            ?: throw IllegalStateException("사용자가 존재하지 않습니다.")
     }
 
     // 사용자 이름과 이메일, accountType으로 멤버 찾기

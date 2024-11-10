@@ -142,11 +142,14 @@ class ReqData(
         return isLogin == true
     }
 
-    fun setLogin(securityUser: SecurityUser) {
+    fun setLogin(securityUser: SecurityUser?) {
+        if (securityUser == null) {
+            throw IllegalArgumentException("SecurityUser cannot be null")
+        }
         SecurityContextHolder.getContext().authentication = securityUser.genAuthentication()
     }
 
-    private fun getUser(): SecurityUser? {
+    fun getUser(): SecurityUser? {
         if (isLogin == null) {
             user = Optional.ofNullable(SecurityContextHolder.getContext())
                 .map { it.authentication }
