@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html layout:decorate="~{global/msgLayout}">
+
+<head>
+    <title th:title="pdf 미리보기 등록 |"></title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .upload-area {
+            border: 2px dashed #cbd5e0;
+            transition: all 0.3s ease;
+        }
+        .upload-area:hover {
+            border-color: #4299e1;
+            background-color: #ebf8ff;
+        }
+        .pagination-button {
+            @apply px-3 py-1 rounded-md hover:bg-blue-100 transition-colors;
+        }
+        .pagination-button.active {
+            @apply bg-blue-500 text-white hover:bg-blue-600;
+        }
+    </style>
+    <script>
+        document.getElementById('uploadForm').onsubmit = function(e) {
+            const title = document.getElementById('title').value;
+            const file = document.getElementById('file').value;
+
+            if (!title.trim()) {
+                alert('문서 설명을 입력해주세요.');
+                e.preventDefault();
+                return false;
+            }
+
+            if (!file) {
+                alert('업로드할 파일을 선택해주세요.');
+                e.preventDefault();
+                return false;
+            }
+
+            return true;
+        };
+    </script>
+</head>
+
+<body class="bg-gray-50">
+    <div layout:fragment="content">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-3xl font-bold text-gray-800 mb-8">문서 관리 시스템</h1>
+
+            <!-- Upload Form -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <form th:action="@{/api/pdf/upload}" method="post" enctype="multipart/form-data"
+                      class="space-y-4" id="uploadForm">
+                    <div class="upload-area p-8 rounded-lg text-center cursor-pointer">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                        <h3 class="text-lg font-semibold text-gray-700">PDF 파일 업로드</h3>
+                        <p class="text-sm text-gray-500 mb-4">PDF 파일만 업로드 가능합니다</p>
+                        <input type="file" id="file" name="file" accept=".pdf" class="hidden">
+                        <button type="button" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors"
+                                onclick="document.getElementById('file').click()">
+                            파일 선택
+                        </button>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="title" class="block text-sm font-medium text-gray-700">문서 설명</label>
+                        <input type="text" id="title" name="title"
+                               class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div class="text-right">
+                        <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded-md hover:bg-green-600 transition-colors">
+                            업로드
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Error Message -->
+            <div th:if="${error}" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-8" role="alert">
+                <p th:text="${error}"></p>
+            </div>
+
+            <!-- Documents List -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">번호</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">설명</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">업로드 일자</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">액션</th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tr th:each="doc : ${documents}">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${doc.no}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a th:href="@{/documents/view(no=${doc.no},p=1,page=${page})}"
+                               class="text-blue-600 hover:text-blue-800" th:text="${doc.title}"></a>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                            th:text="${#temporals.format(doc.uploadDate, 'yyyy/MM/dd HH:mm:ss')}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a th:href="@{/documents/save(no=${doc.no})}"
+                               class="text-indigo-600 hover:text-indigo-900 mr-3">다운로드</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-center space-x-2 mt-6" th:if="${navigator != null}">
+                <div th:utext="${navigator}" class="flex space-x-1"></div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

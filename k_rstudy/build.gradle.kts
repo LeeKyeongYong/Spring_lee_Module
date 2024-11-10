@@ -139,6 +139,7 @@ dependencies {
     //pdf
     implementation("com.itextpdf:itextpdf:5.5.13.4")
     implementation ("com.lowagie:itext:2.1.7")
+    implementation("org.apache.pdfbox:pdfbox:2.0.27")
 
     //config 서버 안해줘도 업데이트 할수있음..
     implementation ("org.springframework.boot:spring-boot-starter-actuator")
@@ -200,6 +201,7 @@ dependencies {
 
     // 로깅
     implementation ("net.logstash.logback:logstash-logback-encoder:7.4")
+
 
 
 

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html layout:decorate="~{global/msgLayout}">
+
+<head>
+    <title th:title="pdf 상세보기 등록|"></title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .preview-nav-button {
+            @apply bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors;
+        }
+        .preview-nav-button:disabled {
+            @apply bg-gray-300 cursor-not-allowed;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <div layout:fragment="content">
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h1 class="text-2xl font-bold text-gray-800 mb-6">PDF 미리보기</h1>
+                <p class="text-sm text-gray-600 mb-6">미리보기는 문서의 첫 10페이지만 제공됩니다.</p>
+
+                <!-- Document Info -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">문서 설명</h3>
+                        <p class="mt-1 text-sm text-gray-900" th:text="${book.title}"></p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">업로드 일자</h3>
+                        <p class="mt-1 text-sm text-gray-900"
+                           th:text="${#temporals.format(book.uploadDate, 'yyyy/MM/dd HH:mm:ss')}"></p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">파일명</h3>
+                        <p class="mt-1 text-sm text-gray-900" th:text="${book.fileName}"></p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">총 페이지 수</h3>
+                        <p class="mt-1 text-sm text-gray-900" th:text="${book.pageNum}"></p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex space-x-4 mb-8">
+                    <a th:href="@{/documents/save(no=${book.no})}"
+                       class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                        <i class="fas fa-download mr-2"></i> 다운로드
+                    </a>
+                    <a th:href="@{/documents/remove(no=${book.no},page=${page})}"
+                       class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700"
+                       onclick="return confirm('정말 삭제하시겠습니까?');">
+                        <i class="fas fa-trash-alt mr-2"></i> 삭제
+                    </a>
+                </div>
+
+                <!-- Preview Area -->
+                <div class="bg-gray-100 rounded-lg p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <button th:if="${p > 1}"
+                                th:onclick="'window.location.href=\'' + @{/documents/view(no=${book.no},p=${p-1},page=${page})} + '\''"
+                                class="preview-nav-button">
+                            <i class="fas fa-chevron-left mr-2"></i> 이전 페이지
+                        </button>
+                        <span th:unless="${p > 1}" class="invisible">이전</span>
+
+                        <span class="text-lg font-medium" th:text="${p + '/' + last}"></span>
+
+                        <button th:if="${p < last}"
+                                th:onclick="'window.location.href=\'' + @{/documents/view(no=${book.no},p=${p+1},page=${page})} + '\''"
+                                class="preview-nav-button">
+                            다음 페이지 <i class="fas fa-chevron-right ml-2"></i>
+                        </button>
+                        <span th:unless="${p < last}" class="invisible">다음</span>
+                    </div>
+
+                    <div class="flex justify-center">
+                        <img th:src="@{/documents/preview/preview_${book.no}_${p}.png}"
+                             class="max-w-full h-auto rounded-lg shadow-lg"
+                             th:alt="'Page ' + ${p}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Back Button -->
+            <div class="text-center">
+                <a th:href="@{/documents(page=${page})}"
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-arrow-left mr-2"></i> 목록으로 돌아가기
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
