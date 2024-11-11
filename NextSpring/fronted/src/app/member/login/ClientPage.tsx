@@ -13,7 +13,7 @@ export default function ClientPage() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
+        console.log(process.env.NEXT_PUBLIC_CORE_API_BASE_URL);
         try {
             const response = await fetch(
                 `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/members/login`,

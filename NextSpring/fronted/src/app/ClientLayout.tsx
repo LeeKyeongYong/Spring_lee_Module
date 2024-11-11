@@ -27,11 +27,9 @@ export default function ClientLayout({
     };
 
     const fetchLoginMember = async () => {
-        // 클라이언트 측에서만 localStorage 접근
         if (typeof window !== "undefined") {
             const token = localStorage.getItem('accessToken');
             if (!token) {
-                console.error("No token found");
                 setLoginMemberPending(false);
                 return;
             }
@@ -50,18 +48,18 @@ export default function ClientLayout({
                 );
 
                 if (!response.ok) {
-                    console.error("Failed to fetch login member");
+                    if (response.status === 403) {
+                        // 403 에러 발생 시 로그인이 안 된 상태로 처리
+                        console.error("User not authenticated");
+                        removeLoginMember(); // 로그아웃 상태로 처리
+                    }
                     setLoginMemberPending(false);
                     return;
                 }
 
                 const data = await response.json();
-                if (data.resultCode === "403-1") {
-                    console.error("User not authenticated");
-                } else {
-                    setLoginMember(data.data.item);
-                    setLoginMemberPending(false);
-                }
+                setLoginMember(data.data.item);
+                setLoginMemberPending(false);
             } catch (error) {
                 console.error("Error fetching login member:", error);
                 setLoginMemberPending(false);

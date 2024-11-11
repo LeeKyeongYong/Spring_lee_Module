@@ -13,6 +13,7 @@ import com.study.nextspring.global.httpsdata.ReqData;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/posts")
 @RequiredArgsConstructor
 public class ApiV1PostController {
-    private final PostService postService;
+    @Autowired private final PostService postService;
     private final MemberService memberService;
     private final ReqData rq;
 

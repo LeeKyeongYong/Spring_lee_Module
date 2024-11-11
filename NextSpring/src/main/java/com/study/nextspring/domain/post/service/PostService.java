@@ -21,7 +21,6 @@ import java.util.Optional;
 public class PostService {
     private final PostRepository postRepository;
 
-    @Transactional
     public Post write(Member author, String title, String body, boolean published, boolean listed) {
         Post post = Post.builder()
                 .author(author)
@@ -31,9 +30,7 @@ public class PostService {
                 .listed(listed)
                 .build();
 
-        postRepository.save(post);
-
-        return post;
+        return postRepository.save(post);
     }
 
     public long count() {

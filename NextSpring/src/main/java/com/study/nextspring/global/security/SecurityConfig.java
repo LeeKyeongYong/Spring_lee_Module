@@ -26,14 +26,10 @@ public class SecurityConfig {
                 .securityMatcher("/api/**")
                 .authorizeRequests(
                         authorizeRequests -> authorizeRequests
-                                .requestMatchers(HttpMethod.GET, "/api/*/posts/{id:\\d+}", "/api/*/posts")
-                                .permitAll()
-                                .requestMatchers("/api/*/members/login", "/api/*/members/logout")
-                                .permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/v1/posts")
-                                .authenticated()
-                                .anyRequest()
-                                .authenticated()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/members/login").permitAll() // 정확한 로그인 엔드포인트 허용
+                                .requestMatchers(HttpMethod.GET, "/api/v1/members/me").permitAll() // 로그인 상태 확인 엔드포인트 허용
+                                .requestMatchers(HttpMethod.GET, "/api/**").hasRole("USER")
+                                .anyRequest().authenticated()
                 )
                 .headers(
                         headers -> headers.frameOptions(

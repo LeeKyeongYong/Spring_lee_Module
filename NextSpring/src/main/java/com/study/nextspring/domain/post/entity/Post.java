@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static jakarta.persistence.FetchType.LAZY;
+
 @Entity
 @Getter
 @Setter
