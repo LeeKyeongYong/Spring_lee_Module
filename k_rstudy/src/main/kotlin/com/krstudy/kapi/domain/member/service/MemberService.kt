@@ -1,5 +1,6 @@
 package com.krstudy.kapi.domain.member.service
 
+import com.krstudy.kapi.com.krstudy.kapi.global.Security.datas.JwtTokenProvider
 import com.krstudy.kapi.domain.comment.repository.PostCommentRepository
 import com.krstudy.kapi.domain.member.datas.AuthAndMakeTokensResponseBody
 import com.krstudy.kapi.domain.member.datas.M_Role
@@ -42,6 +43,7 @@ class MemberService(
     private val postCommentRepository: PostCommentRepository,
     private val postlikeRepository: PostlikeRepository,
     private val authTokenService: AuthTokenService,
+    private val jwtTokenProvider: JwtTokenProvider,
     private val transactionManager: PlatformTransactionManager
 ) {
 
@@ -199,12 +201,40 @@ class MemberService(
 
     @Transactional
     fun refreshAccessToken(refreshToken: String): RespData<String> {
-        val member = memberRepository.findByJwtToken(refreshToken)
-            ?: throw GlobalException(MessageCode.BAD_REQUEST.code, "유효하지 않은 토큰입니다. 재로그인 후 시도해 주세요.")
+        return try {
+            logger.debug("Received refresh token: $refreshToken")
 
-        val accessToken = authTokenService.genAccessToken(member)
+            if (!authTokenService.validateToken(refreshToken)) {
+                logger.warn("Invalid refresh token")
+                return RespData.fromErrorCode(MessageCode.UNAUTHORIZED)
+            }
 
-        return RespData.of(MessageCode.SUCCESS.code, "액세스 토큰이 갱신되었습니다.", accessToken)
+            val payloadBody = authTokenService.getDataFrom(refreshToken)
+            val memberId = (payloadBody["id"] as Int).toLong()
+            logger.debug("Extracted member ID: $memberId")
+
+            val member = memberRepository.findById(memberId).orElse(null) ?: run {
+                logger.warn("Member not found for id: $memberId")
+                return RespData.fromErrorCode(MessageCode.NOT_FOUND_USER)
+            }
+
+            // 새로운 액세스 토큰 생성
+            val newAccessToken = authTokenService.genAccessToken(member)
+
+            // 데이터베이스에 새로운 토큰 저장
+            member.jwtToken = newAccessToken
+            memberRepository.save(member)
+
+            RespData.of(
+                MessageCode.SUCCESS.code,
+                "토큰이 갱신되었습니다.",
+                newAccessToken
+            )
+
+        } catch (e: Exception) {
+            logger.error("토큰 갱신 실패: ${e.message}", e)
+            RespData.fromErrorCode(MessageCode.BAD_REQUEST)
+        }
     }
 
 

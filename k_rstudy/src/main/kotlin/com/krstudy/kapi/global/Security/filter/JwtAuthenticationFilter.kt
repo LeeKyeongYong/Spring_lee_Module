@@ -1,5 +1,6 @@
 package com.krstudy.kapi.global.Security.filter
 
+import com.krstudy.kapi.com.krstudy.kapi.global.Security.datas.JwtTokenProvider
 import org.slf4j.LoggerFactory
 import com.krstudy.kapi.domain.member.service.MemberService
 import com.krstudy.kapi.global.https.ReqData
@@ -23,41 +24,35 @@ class JwtAuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        // 1. API 경로가 아닌 경우 그대로 통과
-        if (!request.requestURI.startsWith("/api/")) {
-            filterChain.doFilter(request, response)
-            return
-        }
-
         try {
-            // 2. Bearer 토큰 확인
-            val bearerToken = rq.getHeader("Authorization", "")
-            if (bearerToken.isBlank() || !bearerToken.startsWith("Bearer ")) {
-                handleCookieBasedAuth(request, response, filterChain)
-                return
-            }
-
-            // 3. 토큰 파싱
-            val tokensStr = bearerToken.substring("Bearer ".length)
-            val tokens = tokensStr.split(" ", limit = 2)
-            if (tokens.size < 2) {
-                handleCookieBasedAuth(request, response, filterChain)
-                return
-            }
-
-            val refreshToken = tokens[0]
-            val accessToken = tokens[1]
-
-            // 4. 토큰 기반 인증 처리
-            if (accessToken.isNotBlank()) {
-                handleTokenAuth(refreshToken, accessToken, request, response, filterChain)
-            } else {
-                handleCookieBasedAuth(request, response, filterChain)
-            }
+            handleCookieBasedAuth(request)
         } catch (e: Exception) {
-            // 5. 예외 발생 시 인증 없이 계속 진행
-            logger.error("Authentication error", e)
-            filterChain.doFilter(request, response)
+            logger.error("Authentication error: ${e.message}")
+        }
+        filterChain.doFilter(request, response)
+    }
+
+    private fun handleAuthentication(request: HttpServletRequest, response: HttpServletResponse) {
+        val accessToken = rq.getCookieValue("accessToken", "")
+        val refreshToken = rq.getCookieValue("refreshToken", "")
+
+        when {
+            !accessToken.isNullOrBlank() && memberService.validateToken(accessToken) -> {
+                val securityUser = memberService.getUserFromAccessToken(accessToken)
+                rq.setLogin(securityUser)
+            }
+            !refreshToken.isNullOrBlank() -> {
+                try {
+                    val rs = memberService.refreshAccessToken(refreshToken)
+                    rs.data?.let { newAccessToken ->
+                        rq.setCrossDomainCookie("accessToken", newAccessToken)
+                        val securityUser = memberService.getUserFromAccessToken(newAccessToken)
+                        rq.setLogin(securityUser)
+                    }
+                } catch (e: Exception) {
+                    logger.error("Token refresh failed: ${e.message}")
+                }
+            }
         }
     }
 
@@ -91,49 +86,27 @@ class JwtAuthenticationFilter(
         }
     }
 
-    private fun handleCookieBasedAuth(
-        request: HttpServletRequest,
-        response: HttpServletResponse,
-        filterChain: FilterChain
-    ) {
-        try {
-            val accessToken = rq.getCookieValue("accessToken", "")
-            if (accessToken.isNullOrBlank()) {
-                filterChain.doFilter(request, response)
-                return
-            }
+    private fun handleCookieBasedAuth(request: HttpServletRequest) {
+        val accessToken = rq.getCookieValue("accessToken", "")
+        val refreshToken = rq.getCookieValue("refreshToken", "")
 
-            if (!memberService.validateToken(accessToken)) {
-                val refreshToken = rq.getCookieValue("refreshToken", "")
-                if (refreshToken.isNullOrBlank()) {
-                    filterChain.doFilter(request, response)
-                    return
-                }
+        if (!accessToken.isNullOrBlank() && memberService.validateToken(accessToken)) {
+            val securityUser = memberService.getUserFromAccessToken(accessToken)
+            rq.setLogin(securityUser)
+            return
+        }
 
-                try {
-                    val rs: RespData<String> = memberService.refreshAccessToken(refreshToken)
-                    val newAccessToken = rs.data ?: run {
-                        filterChain.doFilter(request, response)
-                        return
-                    }
-
-                    rq.setCrossDomainCookie("accessToken", newAccessToken)
-                    val securityUser = memberService.getUserFromAccessToken(newAccessToken)
+        if (!refreshToken.isNullOrBlank()) {
+            try {
+                val result = memberService.refreshAccessToken(refreshToken)
+                if (result.isSuccess() && result.data != null) {
+                    rq.setCrossDomainCookie("accessToken", result.data)
+                    val securityUser = memberService.getUserFromAccessToken(result.data)
                     rq.setLogin(securityUser)
-                } catch (e: Exception) {
-                    logger.error("Token refresh error", e)
-                    filterChain.doFilter(request, response)
-                    return
                 }
-            } else {
-                val securityUser = memberService.getUserFromAccessToken(accessToken)
-                rq.setLogin(securityUser)
+            } catch (e: Exception) {
+                logger.error("Token refresh failed: ${e.message}")
             }
-
-            filterChain.doFilter(request, response)
-        } catch (e: Exception) {
-            logger.error("Cookie authentication error", e)
-            filterChain.doFilter(request, response)
         }
     }
 

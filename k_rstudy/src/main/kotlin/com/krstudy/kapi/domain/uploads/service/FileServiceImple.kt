@@ -36,10 +36,10 @@ class FileServiceImpl(
 
     @Transactional
     override fun uploadFiles(files: Array<MultipartFile>, userId: String): List<FileEntity> {
-        val member = memberRepository.findByUsername(userId)
+        val member = memberRepository.findByUserid(userId)
             ?: throw EntityNotFoundException("Member not found with ID: $userId")
 
-
+        print("member: "+member);
 
         return files.mapNotNull { file ->
             try {
