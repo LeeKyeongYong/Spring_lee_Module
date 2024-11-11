@@ -141,7 +141,7 @@
 
             <!-- 현재 로그인한 사용자 정보 표시 (디버깅용, 필요시 제거) -->
             <p th:if="${#authentication.principal}" class="text-muted">
-                로그인 사용자: <span th:text="${#authentication.principal.username}"></span>
+                로그인 사용자: <span th:text="${#authentication.principal.id}"></span>
             </p>
             <p>ID: [[${#authentication.principal.id}]]</p>
             <p>Username: [[${#authentication.principal.username}]]</p>

@@ -30,6 +30,8 @@ public class SecurityConfig {
                                 .permitAll()
                                 .requestMatchers("/api/*/members/login", "/api/*/members/logout")
                                 .permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/posts")
+                                .authenticated()
                                 .anyRequest()
                                 .authenticated()
                 )

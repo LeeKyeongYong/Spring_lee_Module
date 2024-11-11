@@ -1,24 +1,24 @@
 "use client";
 
-import { MemberContext } from "@/stores/member";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";  // 추가된 부분
+import { useEffect } from "react";
 
 export default function ClientPage() {
-    const { getAccessToken, isLoggedIn } = useAuth();
+    const { getAccessToken, isLoggedIn, isInitialized } = useAuth();
     const router = useRouter();
 
-    // 아직 초기화가 안 됐으면 아무것도 렌더링하지 않음
+    // 로그인 상태 확인
     useEffect(() => {
-        if (!isLoggedIn()) {
+        if (isInitialized && !isLoggedIn()) {
             alert("로그인이 필요합니다.");
             router.push("/login");
         }
-    }, [isLoggedIn, router]);
+    }, [isInitialized, isLoggedIn, router]);
 
-    if (!isLoggedIn()) {
-        return null;
+    // 로그인 여부 확인 후 렌더링
+    if (!isInitialized || !isLoggedIn()) {
+        return <div>Loading...</div>; // 초기 상태에서는 로딩 표시
     }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -26,11 +26,12 @@ export default function ClientPage() {
         const formData = new FormData(e.currentTarget);
         const title = formData.get("title") as string;
         const body = formData.get("body") as string;
-        const postData = { title, body, isPublished: true, isListed: true };
+        const postData = { title, body, published: true, listed: true }; // 필드 이름 수정
 
         try {
-            const accessToken = await getAccessToken();
-            const response = await fetch(`${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/api/v1/posts`, {
+            const accessToken = await getAccessToken(); // 토큰을 여기서만 호출
+            console.log('Access Token:', accessToken); // 토큰 값 확인
+            const response = await fetch(`${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/posts`, { // URL 수정
                 method: "POST",
                 body: JSON.stringify(postData),
                 headers: {
@@ -40,6 +41,7 @@ export default function ClientPage() {
             });
 
             if (!response.ok) {
+                console.log('Response status:', response.status); // 응답 상태 확인
                 throw new Error(`HTTP error ${response.status}`);
             }
 
@@ -54,8 +56,8 @@ export default function ClientPage() {
     return (
         <div>
             <form onSubmit={handleSubmit}>
-                <input type="text" name="title" placeholder="제목" />
-                <textarea name="body" placeholder="내용" />
+                <input type="text" name="title" placeholder="제목" required /> {/* 필수 입력 필드 추가 */}
+                <textarea name="body" placeholder="내용" required /> {/* 필수 입력 필드 추가 */}
                 <button type="submit">등록</button>
             </form>
         </div>

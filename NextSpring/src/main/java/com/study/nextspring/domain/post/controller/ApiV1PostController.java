@@ -42,11 +42,10 @@ public class ApiV1PostController {
             @RequestParam(name = "kw", defaultValue = "") String kw,
             @RequestParam(name = "kwType", defaultValue = "ALL") KwTypeV1 kwType,
             @RequestParam(name = "published", defaultValue = "false") Boolean published,
-            @RequestParam(name = "listed", defaultValue = "false") Boolean listed,
-            Pageable pageable
+            @RequestParam(name = "listed", defaultValue = "false") Boolean listed
     ) {
-        Pageable defaultPageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-        Page<Post> postPage = postService.findByKw(kwType, kw, null, published, listed, pageable.getPageNumber() > 0 ? pageable : defaultPageable);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        Page<Post> postPage = postService.findByKw(kwType, kw, null, published, listed, pageable);
         Page<PostDto> postDtoPage = postPage.map(PostDto::new);
         return new ResponseEntity<>(postDtoPage, HttpStatus.OK);
     }

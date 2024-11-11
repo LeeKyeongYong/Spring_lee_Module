@@ -36,21 +36,24 @@ class FileServiceImpl(
 
     @Transactional
     override fun uploadFiles(files: Array<MultipartFile>, userId: String): List<FileEntity> {
+        // userId로 변경
         val member = memberRepository.findByUserid(userId)
-            ?: throw EntityNotFoundException("Member not found with ID: $userId")
+            ?: throw EntityNotFoundException("Member not found with userId: $userId").also {
+                logger.error("Member with userId $userId not found.")
+            }
 
-        print("member: "+member);
+        logger.info("Uploading files for member: $member")
 
         return files.mapNotNull { file ->
             try {
                 if (file.isEmpty) {
-                    logger.warn("Skipping empty file")
+                    logger.warn("Skipping empty file: ${file.originalFilename}")
                     return@mapNotNull null
                 }
 
                 val checksum = calculateChecksum(file)
                 if (fileRepository.existsByChecksumAndStatus(checksum)) {
-                    logger.warn("File with same checksum already exists")
+                    logger.warn("File with same checksum already exists: ${file.originalFilename}")
                     return@mapNotNull null
                 }
 
@@ -72,11 +75,7 @@ class FileServiceImpl(
                 Files.createDirectories(filePath.parent)
 
                 // 파일 복사 수행
-                Files.copy(
-                    file.inputStream,
-                    filePath,
-                    StandardCopyOption.REPLACE_EXISTING
-                )
+                Files.copy(file.inputStream, filePath, StandardCopyOption.REPLACE_EXISTING)
 
                 val fileEntity = FileEntity(
                     originalFileName = originalFilename,
@@ -90,15 +89,17 @@ class FileServiceImpl(
                 )
 
                 // 파일 엔티티 저장
-                fileRepository.save(fileEntity).also {
+                return@mapNotNull fileRepository.save(fileEntity).also {
                     logger.info("File saved successfully: ${it.id} - ${it.originalFileName}")
                 }
+
             } catch (e: Exception) {
-                logger.error("Failed to upload file: ${e.message}", e)
-                throw FileUploadException("Failed to upload file: ${e.message}")
+                logger.error("Failed to upload file: ${file.originalFilename}, Error: ${e.message}", e)
+                throw FileUploadException("Failed to upload file: ${file.originalFilename}")
             }
         }
     }
+
     override fun getUserFiles(userId: String): List<FileEntity> {
         return fileRepository.findAllByUserId(userId)
     }

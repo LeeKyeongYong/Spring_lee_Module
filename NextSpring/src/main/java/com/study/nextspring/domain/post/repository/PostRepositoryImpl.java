@@ -35,12 +35,12 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         JPAQuery<Post> postsQuery = createPostsQuery(builder);
         applySorting(pageable, postsQuery);
 
+        // offset과 limit을 설정
         postsQuery.offset(pageable.getOffset()).limit(pageable.getPageSize());
 
         JPAQuery<Long> totalQuery = createTotalQuery(builder);
         return PageableExecutionUtils.getPage(postsQuery.fetch(), pageable, totalQuery::fetchOne);
     }
-
     private void applyKeywordFilter(KwTypeV1 kwType, String kw, BooleanBuilder builder) {
         switch (kwType) {
             case TITLE -> builder.and(post.title.containsIgnoreCase(kw));

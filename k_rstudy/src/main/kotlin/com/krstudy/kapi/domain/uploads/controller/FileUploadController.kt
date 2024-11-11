@@ -39,7 +39,6 @@ class FileUploadController(
     ): ResponseEntity<FileUploadResponse> {
         logger.debug("Uploading files for user: $userId") // 로그 추가
         return try {
-            val userId = URLDecoder.decode(userId, StandardCharsets.UTF_8.name())
             val uploadedFiles = fileService.uploadFiles(files, userId)
             ResponseEntity.ok(
                 FileUploadResponse(

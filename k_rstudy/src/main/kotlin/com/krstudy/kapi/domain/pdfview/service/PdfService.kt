@@ -37,7 +37,7 @@ class PdfService(
     fun uploadPdf(file: MultipartFile, username: String, title: String): FileEntity {
         logger.info("Starting PDF upload process for user: $username")
 
-        val member = memberRepository.findByUsername(username)
+        val member = memberRepository.findByUserid(username)
             ?: throw EntityNotFoundException("사용자를 찾을 수 없습니다: $username")
 
         val uploadPath = Path.of(uploadDir).also { path ->
