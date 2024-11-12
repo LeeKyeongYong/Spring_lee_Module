@@ -1,5 +1,6 @@
 package com.study.nextspring.domain.member.entity;
 
+import com.study.nextspring.domain.member.dto.MemberDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -48,7 +49,11 @@ public class Member {
     private boolean social;
 
     @Transient
-    private  Boolean _isAdmin;
+    private Boolean _isAdmin;
+
+    public MemberDto toDto() {
+        return new MemberDto(this);
+    }
 
     public void setModified() {
         setModifyDate(LocalDateTime.now());
@@ -64,22 +69,30 @@ public class Member {
     }
 
     private boolean isAdmin() {
-        if(this._isAdmin!=null)
+        if(this._isAdmin != null)
             return this._isAdmin;
-        this._isAdmin = List.of("system","admin").contains(getUsername());
+        this._isAdmin = List.of("system", "admin").contains(getUsername());
         return this._isAdmin;
     }
 
     public String getName() {
-        return nickname;
+        return nickname; // nickname 필드 반환
     }
 
     public String getProfileImgUrlOrDefault() {
         return "https://placehold.co/640x640?text=O_O";
     }
 
-    public void setAdmin(boolean admin){
+    public void setAdmin(boolean admin) {
         this._isAdmin = admin;
     }
 
+    // MemberDto를 Member로 변환하는 메서드
+    public void updateFromDto(MemberDto dto) {
+        this.nickname = dto.getName(); // name을 nickname으로 설정
+        this.refreshToken = dto.getProfileImgUrl(); // profileImgUrl을 refreshToken에 적용하고 싶다면
+        // authorities와 social은 이미 Member에서 관리되므로 적절하게 처리해줍니다.
+        this.social = dto.isSocial();
+        this.modifyDate = LocalDateTime.now(); // 수정일시 갱신
+    }
 }

@@ -34,7 +34,7 @@ export function useLoginMember() {
         setLoginMember(createEmptyMember());
     };
 
-    const isLogin = loginMember.id !== 0;
+    const isLogin = loginMember && loginMember.id !== 0;
 
     return {
         loginMember,

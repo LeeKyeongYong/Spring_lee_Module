@@ -107,4 +107,9 @@ public class AppConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    public static String getSiteFrontUrl() {
+        return "http://localhost:3000";  // 클라이언트 URL을 정확히 반환해야 함
+    }
+
 }

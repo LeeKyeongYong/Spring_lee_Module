@@ -144,10 +144,17 @@ export default function PostListPage() {
     const kw = searchParams.get('kw') || '';
 
     useEffect(() => {
+// ClientPage.tsx의 fetchPosts 함수 수정
         const fetchPosts = async () => {
             try {
                 const response = await fetch(
-                    `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/posts?page=${currentPage - 1}&kwType=${kwType}&kw=${kw}`
+                    `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/posts?page=${currentPage - 1}&kwType=${kwType}&kw=${kw}`,
+                    {
+                        credentials: 'include',  // 쿠키 포함
+                        headers: {
+                            'Accept': 'application/json',
+                        }
+                    }
                 );
 
                 if (!response.ok) {
@@ -162,7 +169,6 @@ export default function PostListPage() {
                 setError('Failed to fetch posts. Please try again later.');
             }
         };
-
         fetchPosts();
     }, [currentPage, kwType, kw]);
 

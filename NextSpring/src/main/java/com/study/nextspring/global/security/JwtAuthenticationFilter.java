@@ -20,7 +20,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @SneakyThrows
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
         String accessToken_ = rq.getCookieValue("accessToken", "");
-        System.out.println("accessToken = " + accessToken_);
+        System.out.println("accessToken from cookie: " + accessToken_);
 
         if (!request.getRequestURI().startsWith("/api/")) {
             filterChain.doFilter(request, response);
@@ -33,60 +33,38 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        // Authorization 헤더에서 Bearer 토큰 처리
         String bearerToken = rq.getHeader("Authorization", null);
-        System.out.println("bearerToken from header: " + bearerToken);
-
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            // 토큰이 헤더로 들어온 경우
+        if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
+            // 헤더에 토큰이 없으면 쿠키에서 가져오도록 처리
+            accessToken_ = rq.getCookieValue("accessToken", "");
+            if (accessToken_.isBlank()) {
+                filterChain.doFilter(request, response);
+                return;  // accessToken이 없으면 필터를 계속해서 실행하지 않음
+            }
+        } else {
+            // Bearer 토큰이 있는 경우
             String tokensStr = bearerToken.substring("Bearer ".length());
             String[] tokens = tokensStr.split(" ", 2);
             String refreshToken = tokens[0];
             String accessToken = tokens.length == 2 ? tokens[1] : "";
 
-            System.out.println("accessToken: " + accessToken);
-
-            // 엑세스 토큰이 존재하면
             if (!accessToken.isBlank()) {
-                // 유효성 체크하여 만료되었으면 리프레시 토큰으로 새로운 엑세스 토큰을 발급받고 응답헤더에 추가
+                // accessToken 유효성 체크
                 if (!memberService.validateToken(accessToken)) {
                     System.out.println("Access token expired, refreshing...");
                     RespData<String> rs = memberService.refreshAccessToken(refreshToken);
                     accessToken = rs.getData();
                     rq.setHeader("Authorization", "Bearer " + refreshToken + " " + accessToken);
-                    System.out.println("New accessToken: " + accessToken);
                 }
 
                 SecurityUser securityUser = memberService.getUserFromAccessToken(accessToken);
                 System.out.println("Logged in user: " + securityUser.getUsername());
-                // 세션에 로그인하는 것이 아닌 1회성(이번 요청/응답 생명주기에서만 인정됨)으로 로그인 처리
-                // API 요청은, 로그인이 필요하다면 이렇게 매번 요청마다 로그인 처리가 되어야 하는게 맞다.
-                rq.setLogin(securityUser);
-            }
-        } else {
-            // 토큰이 쿠키로 들어온 경우
-            String accessToken = rq.getCookieValue("accessToken", "");
-            System.out.println("accessToken from cookie: " + accessToken);
-
-            // 엑세스 토큰이 존재하면
-            if (!accessToken.isBlank()) {
-                // 유효성 체크하여 만료되었으면 리프레시 토큰으로 새로운 엑세스 토큰을 발급받고 응답쿠키에 추가
-                if (!memberService.validateToken(accessToken)) {
-                    String refreshToken = rq.getCookieValue("refreshToken", "");
-                    RespData<String> rs = memberService.refreshAccessToken(refreshToken);
-                    accessToken = rs.getData();
-                    rq.setCrossDomainCookie("accessToken", accessToken);
-                    System.out.println("New accessToken from cookie: " + accessToken);
-                }
-
-
-                SecurityUser securityUser = memberService.getUserFromAccessToken(accessToken);
-                System.out.println("Logged in user: " + securityUser.getUsername());
-                // 세션에 로그인하는 것이 아닌 1회성(이번 요청/응답 생명주기에서만 인정됨)으로 로그인 처리
-                // API 요청은, 로그인이 필요하다면 이렇게 매번 요청마다 로그인 처리가 되어야 하는게 맞다.
                 rq.setLogin(securityUser);
             }
         }
 
         filterChain.doFilter(request, response);
     }
+
 }
