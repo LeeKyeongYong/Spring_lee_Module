@@ -29,56 +29,29 @@ public class SecurityConfig {
         http
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        // Public endpoints that don't require authentication
                         .requestMatchers(HttpMethod.POST, "/api/v1/members/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/members/join").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // OPTIONS 요청 허용
                         .requestMatchers(HttpMethod.GET, "/api/v1/members/me").authenticated()
-                        // Allow public access to posts listing and viewing
                         .requestMatchers(HttpMethod.GET, "/api/v1/posts").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/posts/*").permitAll()
-                        // Secured endpoints that require authentication
                         .requestMatchers(HttpMethod.POST, "/api/v1/posts").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/v1/posts/*").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/posts/*").authenticated()
-                        // Any other request needs authentication
                         .anyRequest().authenticated()
                 )
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
                     config.setAllowCredentials(true);
-                    config.addAllowedOrigin(AppConfig.getSiteFrontUrl());
+                    config.addAllowedOrigin("http://localhost:3000");  // 프론트엔드 URL 직접 지정
                     config.addAllowedHeader("*");
                     config.addAllowedMethod("*");
+                    config.setExposedHeaders(Arrays.asList("Authorization", "Access-Control-Allow-Origin"));
                     return config;
                 }))
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(request -> {
-                    CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowCredentials(true);
-                    config.addAllowedOrigin(AppConfig.getSiteFrontUrl());
-                    config.addAllowedHeader("*");
-                    config.addAllowedMethod("*");
-                    config.setExposedHeaders(Arrays.asList("Authorization")); // Authorization 헤더 노출
-                    return config;
-                }))
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .exceptionHandling(exceptionHandling ->
-                        exceptionHandling.authenticationEntryPoint((request, response, authException) -> {
-                            response.setContentType("application/json;charset=UTF-8");
-                            response.setStatus(403);
-                            response.setHeader("Access-Control-Allow-Origin", AppConfig.getSiteFrontUrl());
-                            response.setHeader("Access-Control-Allow-Credentials", "true");
-
-                            Map<String, Object> errorResponse = new HashMap<>();
-                            errorResponse.put("status", "403");
-                            errorResponse.put("message", "Authentication required");
-                            errorResponse.put("path", request.getRequestURI());
-
-                            ObjectMapper mapper = new ObjectMapper();
-                            response.getWriter().write(mapper.writeValueAsString(errorResponse));
-                        })
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

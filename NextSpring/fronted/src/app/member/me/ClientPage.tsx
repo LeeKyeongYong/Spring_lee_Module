@@ -1,5 +1,4 @@
 "use client";
-
 import { useContext, useEffect } from "react";
 import { MemberContext } from "@/stores/member";
 
@@ -9,7 +8,7 @@ export default function ClientPage() {
     useEffect(() => {
         const checkAuth = async () => {
             const token = localStorage.getItem('accessToken');
-            console.log("Access Token:", token);
+            console.log("Access Token:", token); // 토큰 값 확인
 
             if (!token) {
                 console.log("No token found");
@@ -18,14 +17,27 @@ export default function ClientPage() {
 
             try {
                 setLoginMemberPending(true);
-                const response = await fetch(`${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/members/me`, {
+
+                // API URL 확인
+                const apiUrl = `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/members/me`;
+                console.log("API URL:", apiUrl);
+
+                const response = await fetch(apiUrl, {
                     method: 'GET',
                     credentials: 'include',
                     headers: {
                         'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     }
                 });
+
+                console.log("Response status:", response.status);
+                console.log("Response headers:", [...response.headers.entries()]);
+
+                if (response.status === 401) {
+                    console.error("Unauthorized: Token might be invalid or expired.");
+                    return; // 토큰 문제로 401 오류 발생 시 처리
+                }
 
                 if (!response.ok) {
                     throw new Error(`Auth check failed: ${response.status}`);
@@ -33,7 +45,6 @@ export default function ClientPage() {
 
                 const data = await response.json();
                 console.log("Auth response:", data);
-                // 데이터 처리
             } catch (error) {
                 console.error('Auth check error:', error);
             } finally {
@@ -50,6 +61,7 @@ export default function ClientPage() {
         <div>
             <h1>me</h1>
             <p>{loginMember?.name}</p>
+            <p>{loginMember?.nickname}</p>
         </div>
     );
 }

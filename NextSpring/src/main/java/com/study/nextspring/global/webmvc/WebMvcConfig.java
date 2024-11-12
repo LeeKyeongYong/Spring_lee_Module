@@ -9,23 +9,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
-                .allowedOrigins(
-                        AppConfig.getSiteFrontUrl()
-                )
-                .allowedMethods("*")
+        registry.addMapping("/**")
+                .allowedOrigins(AppConfig.getSiteFrontUrl())
+                .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowedHeaders("*")
                 .allowCredentials(true);
-    }
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/v1/**")
-                        .allowedOrigins("http://localhost:3000")  // 클라이언트의 주소
-                        .allowedMethods("GET", "POST", "PUT", "DELETE");
-            }
-        };
+                //.exposedHeaders("Authorization");
     }
 }

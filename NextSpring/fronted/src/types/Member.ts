@@ -3,4 +3,5 @@ export type Member = {
     createDate: string;
     modifyDate: string;
     name: string;
+    nickname: string;
 };

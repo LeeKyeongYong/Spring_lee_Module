@@ -23,6 +23,7 @@ function createEmptyMember(): Member {
         createDate: "",
         modifyDate: "",
         name: "",
+        nickname:"",
     };
 }
 

@@ -13,25 +13,29 @@ export default function ClientPage() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log(process.env.NEXT_PUBLIC_CORE_API_BASE_URL);
+        const apiUrl = `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/members/login`;
+        console.log('API URL:', apiUrl); // API URL 확인
+        console.log('Request body:', { username, password }); // 요청 데이터 확인
+
         try {
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/members/login`,
-                {
-                    credentials: "include",
-                    method: "POST",
-                    body: JSON.stringify({ username, password }),
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
+            const response = await fetch(apiUrl, {
+                credentials: "include",
+                method: "POST",
+                body: JSON.stringify({ username, password }),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
 
             if (!response.ok) {
+                const errorData = await response.text();
+                console.error('Error response:', errorData);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const data = await response.json();
+            console.log('Success response:', data); // 성공 응답 확인
+
             setLoginMember(data.data.item);
             localStorage.setItem("accessToken", data.accessToken);
             alert("로그인되었습니다.");
@@ -41,7 +45,6 @@ export default function ClientPage() {
             console.error("로그인 실패:", error);
         }
     };
-
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8">
