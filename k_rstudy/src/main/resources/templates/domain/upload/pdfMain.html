@@ -162,7 +162,7 @@
                 <thead class="bg-gray-50">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">번호</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">설명</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">파일명</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">업로드 일자</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">액션</th>
                 </tr>
@@ -170,12 +170,12 @@
                 <!-- Documents List 부분 수정 -->
                 <tbody class="bg-white divide-y divide-gray-200">
                 <tr th:each="doc : ${documents}">
-                  
+
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${doc.id}"></td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <!-- no를 id로 변경 -->
                         <a th:href="@{/documents/view(id=${doc.id},p=1,page=${page})}"
-                           class="text-blue-600 hover:text-blue-800" th:text="${doc.title}"></a>
+                           class="text-blue-600 hover:text-blue-800" th:text="${doc.originalFileName}"></a>
                     </td>
 
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"

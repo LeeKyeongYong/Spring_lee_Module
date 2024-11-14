@@ -9,17 +9,19 @@ import org.springframework.web.bind.annotation.RequestParam
 
 @Controller
 @RequestMapping("/uploadPdf")
-class PdfController (
+class PdfController(
     private val fileService: FileServiceImpl
-){
+) {
     @GetMapping
     fun listDocuments(
         @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "10") size: Int,
         model: Model
     ): String {
-        val documents = fileService.getAllActivePdfFiles(page - 1)
-        model.addAttribute("documents", documents)
+        val documents = fileService.getAllActivePdfFiles(page - 1, size)
+        model.addAttribute("documents", documents.content)
         model.addAttribute("page", page)
+        model.addAttribute("totalPages", documents.totalPages)
         return "domain/upload/pdfMain"
     }
 }
