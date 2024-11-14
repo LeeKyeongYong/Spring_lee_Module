@@ -13,7 +13,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 @SpringBootApplication
 @EnableJpaAuditing
 @EnableBatchProcessing
-@ComponentScan(basePackages = ["com.krstudy.kapi"])
+//@ComponentScan(basePackages = ["com.krstudy.kapi"])
 class Main {
 
     @Bean

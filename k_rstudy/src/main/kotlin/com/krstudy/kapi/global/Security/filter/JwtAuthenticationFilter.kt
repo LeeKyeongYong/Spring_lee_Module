@@ -1,6 +1,6 @@
 package com.krstudy.kapi.global.Security.filter
 
-import com.krstudy.kapi.com.krstudy.kapi.global.Security.datas.JwtTokenProvider
+import org.springframework.context.annotation.Lazy
 import org.slf4j.LoggerFactory
 import com.krstudy.kapi.domain.member.service.MemberService
 import com.krstudy.kapi.global.https.ReqData
@@ -9,13 +9,14 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import lombok.RequiredArgsConstructor
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 @Component
 @RequiredArgsConstructor
 class JwtAuthenticationFilter(
     private val rq: ReqData,
-    private val memberService: MemberService
+    @Lazy private val memberService: MemberService
 ) : OncePerRequestFilter() {
 
     @Throws(Exception::class)

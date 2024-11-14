@@ -17,13 +17,14 @@ import com.krstudy.kapi.domain.member.service.MemberService
 import jakarta.mail.internet.MimeMessage
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.web.multipart.MultipartFile
+import org.springframework.context.annotation.Lazy
 
 @Service
 class EmailService(
     private val mailSender: JavaMailSender,
     private val verificationCodeRepository: VerificationCodeRepository,
     private val emailRepository: EmailRepository,
-    private val memberService: MemberService,
+    @Lazy private val memberService: MemberService,
     private val fileService: FileService,  // FileService를 주입받도록 변경
 ) {
     private val EXPIRATION_TIME_IN_MINUTES = 5

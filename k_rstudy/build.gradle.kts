@@ -16,7 +16,7 @@ allOpen {
     annotation("jakarta.persistence.Embeddable")
 }
 
-group = "org.jc"
+group = "com.krstudy.kapi"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_19
 
@@ -157,7 +157,7 @@ dependencies {
     implementation("io.github.resilience4j:resilience4j-spring-boot2:2.2.0")
     implementation("io.github.resilience4j:resilience4j-retry:2.2.0")
     implementation("io.github.resilience4j:resilience4j-bulkhead:2.2.0")
-    implementation ("io.github.resilience4j:resilience4j-reactor")
+    implementation("io.github.resilience4j:resilience4j-reactor:1.7.1")
 
     //api문서
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.1.3") // Feign 의존성 추가
@@ -169,7 +169,7 @@ dependencies {
     implementation("jakarta.validation:jakarta.validation-api:3.0.2")
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.5")
 
-    implementation("org.springframework.boot:spring-boot-starter-stomp")
+    implementation("org.springframework:spring-messaging") // STOMP 메시징을 위한 의존성
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework:spring-context")
 

@@ -9,11 +9,12 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.context.annotation.Lazy
 
 @Service
 @Transactional(readOnly = true)
 class CustomUserDetailsService(
-    private val memberService: MemberService
+    @Lazy private val memberService: MemberService
 ) : UserDetailsService {
 
     private val log = LoggerFactory.getLogger(CustomUserDetailsService::class.java)
