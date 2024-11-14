@@ -22,6 +22,7 @@
             display: block;
         }
     </style>
+    <meta name="_username" th:content="${#authentication.principal.username}" />
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const uploadForm = document.getElementById('uploadForm');
@@ -47,6 +48,7 @@
 
                 const file = fileInput.files[0];
                 const title = document.getElementById('title').value.trim();
+                const userId = document.querySelector('meta[name="_username"]').content;
 
                 // 입력 검증
                 if (!file) {
@@ -165,17 +167,22 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">액션</th>
                 </tr>
                 </thead>
+                <!-- Documents List 부분 수정 -->
                 <tbody class="bg-white divide-y divide-gray-200">
                 <tr th:each="doc : ${documents}">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${doc.no}"></td>
+                  
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${doc.id}"></td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <a th:href="@{/documents/view(no=${doc.no},p=1,page=${page})}"
+                        <!-- no를 id로 변경 -->
+                        <a th:href="@{/documents/view(id=${doc.id},p=1,page=${page})}"
                            class="text-blue-600 hover:text-blue-800" th:text="${doc.title}"></a>
                     </td>
+
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
-                        th:text="${#temporals.format(doc.uploadDate, 'yyyy/MM/dd HH:mm:ss')}"></td>
+                        th:text="${#temporals.format(doc.createDate, 'yyyy/MM/dd HH:mm:ss')}"></td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <a th:href="@{/documents/save(no=${doc.no})}"
+
+                        <a th:href="@{/documents/save(id=${doc.id})}"
                            class="text-indigo-600 hover:text-indigo-900 mr-3">다운로드</a>
                     </td>
                 </tr>

@@ -1,5 +1,7 @@
 package com.krstudy.kapi.domain.uploads.controller
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.data.domain.Page
@@ -32,7 +34,8 @@ class PdfRestController(
     @PostMapping("/upload")
     fun uploadPdf(
         @RequestParam("file") file: MultipartFile,
-        @RequestParam("userId") userId: String
+        @RequestParam("title") title: String,  // title 파라미터 추가
+        @AuthenticationPrincipal userDetails: UserDetails
     ): ResponseEntity<Map<String, Any>> {
         return try {
             if (file.contentType != "application/pdf") {
@@ -40,6 +43,7 @@ class PdfRestController(
                     .body(mapOf("resultCode" to "400", "message" to "PDF 파일만 업로드 가능합니다."))
             }
 
+            val userId = userDetails.username
             val savedFile = fileService.uploadFiles(arrayOf(file), userId).firstOrNull()
                 ?: throw RuntimeException("파일 업로드 실패")
 
