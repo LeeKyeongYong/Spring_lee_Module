@@ -1,38 +1,41 @@
 package com.krstudy.kapi.domain.uploads.controller
 
-
-import com.krstudy.kapi.domain.uploads.dto.FileStatusEnum
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.data.domain.Page
+import java.io.ByteArrayOutputStream
+import javax.imageio.ImageIO
 import com.krstudy.kapi.domain.uploads.service.FileServiceImpl
-import jakarta.servlet.http.HttpServletResponse
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.rendering.PDFRenderer
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
-import org.springframework.stereotype.Controller
-import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import java.awt.image.BufferedImage
 import java.io.File
-import java.io.IOException
-import javax.imageio.ImageIO
 
-@Controller
+@RestController
 @RequestMapping("/api/pdf")
-class PdfViewController(
+class PdfRestController(
     private val fileService: FileServiceImpl
 ) {
-    private val logger = LoggerFactory.getLogger(PdfViewController::class.java)
+    private val logger = LoggerFactory.getLogger(PdfRestController::class.java)
+
+    data class PdfResponse(
+        val id: Long,
+        val originalFileName: String,
+        val fileSize: Long,
+        val contentType: String,
+        val pageCount: Int? = null
+    )
 
     @PostMapping("/upload")
-    @ResponseBody
     fun uploadPdf(
         @RequestParam("file") file: MultipartFile,
-        @RequestParam("title") title: String,
         @RequestParam("userId") userId: String
     ): ResponseEntity<Map<String, Any>> {
         return try {
-            if (!file.contentType.equals("application/pdf")) {
+            if (file.contentType != "application/pdf") {
                 return ResponseEntity.badRequest()
                     .body(mapOf("resultCode" to "400", "message" to "PDF 파일만 업로드 가능합니다."))
             }
@@ -47,53 +50,87 @@ class PdfViewController(
             ))
         } catch (e: Exception) {
             logger.error("PDF 업로드 실패", e)
-            ResponseEntity.badRequest()
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(mapOf("resultCode" to "500", "message" to "파일 업로드 중 오류가 발생했습니다."))
         }
     }
 
-    @GetMapping("/view")
-    fun viewPdf(
-        @RequestParam no: Long,
-        @RequestParam(defaultValue = "1") p: Int,
-        @RequestParam(defaultValue = "1") page: Int,
-        model: Model
-    ): String {
-        val file = fileService.getFileById(no)
-        val pdfFile = File(file.filePath)
+    @GetMapping("/{fileId}")
+    fun getPdfInfo(@PathVariable fileId: Long): ResponseEntity<PdfResponse> {
+        return try {
+            val file = fileService.getFileById(fileId)
+            val pdfFile = File(file.filePath)
 
-        PDDocument.load(pdfFile).use { document ->
-            val pageCount = document.numberOfPages
-            val lastPage = minOf(pageCount, 10) // 최대 10페이지까지만 미리보기 제공
+            val pageCount = PDDocument.load(pdfFile).use { document ->
+                document.numberOfPages
+            }
 
-            model.addAttribute("book", file)
-            model.addAttribute("p", p)
-            model.addAttribute("last", lastPage)
-            model.addAttribute("page", page)
+            val response = PdfResponse(
+                id = file.id,
+                originalFileName = file.originalFileName,
+                fileSize = file.fileSize,
+                contentType = file.contentType,
+                pageCount = pageCount
+            )
+
+            ResponseEntity.ok(response)
+        } catch (e: Exception) {
+            logger.error("PDF 정보 조회 실패", e)
+            ResponseEntity.notFound().build()
         }
-
-        return "documents/view"
     }
 
-    @GetMapping("/preview/{fileId}/{page}")
-    fun getPreviewImage(
+    @GetMapping("/{fileId}/pages/{page}")
+    fun getPdfPage(
         @PathVariable fileId: Long,
         @PathVariable page: Int,
-        response: HttpServletResponse
-    ) {
-        val file = fileService.getFileById(fileId)
-        val pdfFile = File(file.filePath)
+        @RequestParam(defaultValue = "150") dpi: Float
+    ): ResponseEntity<ByteArray> {
+        return try {
+            val file = fileService.getFileById(fileId)
+            val pdfFile = File(file.filePath)
 
-        try {
             PDDocument.load(pdfFile).use { document ->
+                if (page < 1 || page > document.numberOfPages) {
+                    return ResponseEntity.badRequest()
+                        .body("유효하지 않은 페이지 번호입니다.".toByteArray())
+                }
+
                 val renderer = PDFRenderer(document)
-                val image: BufferedImage = renderer.renderImageWithDPI(page - 1, 150f)
-                response.contentType = "image/png"
-                ImageIO.write(image, "png", response.outputStream)
+                val image = renderer.renderImageWithDPI(page - 1, dpi)
+
+                val baos = ByteArrayOutputStream()
+                ImageIO.write(image, "png", baos)
+
+                ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_PNG)
+                    .body(baos.toByteArray())
             }
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             logger.error("PDF 페이지 렌더링 실패", e)
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+    }
+
+    @GetMapping("/list")
+    fun listPdfFiles(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") size: Int
+    ): ResponseEntity<Page<PdfResponse>> {
+        return try {
+            val pdfFiles = fileService.getAllActivePdfFiles(page, size)
+            val response = pdfFiles.map { file ->
+                PdfResponse(
+                    id = file.id,
+                    originalFileName = file.originalFileName,
+                    fileSize = file.fileSize,
+                    contentType = file.contentType
+                )
+            }
+            ResponseEntity.ok(response)
+        } catch (e: Exception) {
+            logger.error("PDF 목록 조회 실패", e)
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         }
     }
 }

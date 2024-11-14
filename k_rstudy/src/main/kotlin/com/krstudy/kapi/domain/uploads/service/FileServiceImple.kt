@@ -148,7 +148,7 @@ class FileServiceImpl(
     }
 
     fun getAllActivePdfFiles(page: Int, size: Int = 10): Page<FileEntity> {
-        val pageable = PageRequest.of(page, size, Sort.by("createdAt").descending())
+        val pageable = PageRequest.of(page, size, Sort.by("createDate").descending())
         return fileRepository.findAllByStatusAndFileType(
             FileStatusEnum.ACTIVE,
             "application/pdf",
