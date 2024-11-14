@@ -2,6 +2,8 @@ package com.krstudy.kapi.domain.uploads.repository
 
 import com.krstudy.kapi.domain.uploads.dto.FileStatusEnum
 import com.krstudy.kapi.domain.uploads.entity.FileEntity
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -30,4 +32,12 @@ interface UploadFileRepository : JpaRepository<FileEntity, Long> {
     // 활성화된 파일 검색
     @Query("SELECT f FROM StoredFile f WHERE f.status = 'ACTIVE' AND f.id = :id")
     fun findActiveFileById(@Param("id") id: Long): FileEntity?
+
+    // PDF 파일 목록 조회 (페이징)
+    @Query("SELECT f FROM StoredFile f WHERE f.status = :status AND f.fileType = :fileType")
+    fun findAllByStatusAndFileType(
+        @Param("status") status: FileStatusEnum,
+        @Param("fileType") fileType: String,
+        pageable: Pageable
+    ): Page<FileEntity>
 }

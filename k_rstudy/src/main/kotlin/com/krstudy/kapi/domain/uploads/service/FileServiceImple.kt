@@ -13,12 +13,14 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
-import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
 import java.util.*
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 
 // FileServiceImpl.kt
 @Service("uploadFileService")
@@ -143,6 +145,15 @@ class FileServiceImpl(
             logger.error("Failed to calculate checksum", e)
             throw FileUploadException("Failed to calculate checksum: ${e.message}")
         }
+    }
+
+    fun getAllActivePdfFiles(page: Int, size: Int = 10): Page<FileEntity> {
+        val pageable = PageRequest.of(page, size, Sort.by("createdAt").descending())
+        return fileRepository.findAllByStatusAndFileType(
+            FileStatusEnum.ACTIVE,
+            "application/pdf",
+            pageable
+        )
     }
 
     override fun getFileById(id: Long): FileEntity {
