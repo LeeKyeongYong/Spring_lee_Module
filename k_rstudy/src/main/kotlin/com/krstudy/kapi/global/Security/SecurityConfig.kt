@@ -58,6 +58,7 @@ class SecurityConfig(
             .authorizeHttpRequests { authorizeRequests ->
                 authorizeRequests
                     .requestMatchers("/adm/**").hasAuthority("ROLE_ADMIN")
+                    .requestMatchers("/api/banners/**").hasAuthority("ROLE_ADMIN")  // 배너 API에 대한 권한 설정
                     .requestMatchers("/resource/**").permitAll()
                     .requestMatchers("/v1/qrcode/**").permitAll()
                     .requestMatchers("/api/**").permitAll()
@@ -76,7 +77,12 @@ class SecurityConfig(
                 }
             }
             .csrf { csrf ->
-                csrf.ignoringRequestMatchers("/v1/**", "/api/**", "/ws/**")
+                csrf
+                    .ignoringRequestMatchers(
+                        "/v1/**",
+                        "/api/**",  // API 요청에 대해 CSRF 검사 제외
+                        "/ws/**"
+                    )
             }
             .formLogin { formLogin ->
                 formLogin
