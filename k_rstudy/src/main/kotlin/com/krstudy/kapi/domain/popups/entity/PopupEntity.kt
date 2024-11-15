@@ -44,15 +44,15 @@ class PopupEntity(
     @Column(nullable = false)
     var positionY: Int, // Y 좌표
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "image_id")
-    var popupImage: FileEntity?, // 팝업 이미지 (선택)
+    var image: FileEntity?, // 팝업 이미지
 
     @Column
-    var linkUrl: String?, // 링크 URL (선택)
+    var linkUrl: String?, // 링크 URL
 
     @Column
-    var altText: String?, // 대체 텍스트 (선택)
+    var altText: String?, // 대체 텍스트
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -88,13 +88,9 @@ class PopupEntity(
     @CollectionTable(name = "popup_display_pages")
     var displayPages: Set<String> = setOf(), // 노출할 페이지 목록
 
-    @ManyToMany
-    @JoinTable(
-        name = "popup_user_groups",
-        joinColumns = [JoinColumn(name = "popup_id")],
-        inverseJoinColumns = [JoinColumn(name = "group_id")]
-    )
-    var targetUserGroups: Set<UserGroup> = setOf(), // 타겟 사용자 그룹
+    @ElementCollection
+    @CollectionTable(name = "popup_target_roles")
+    var targetRoles: Set<String> = setOf(), // 타겟 사용자 역할 (ROLE_ADMIN, ROLE_MEMBER 등)
 
     @Column(nullable = false)
     var maxDisplayCount: Int = 0, // 최대 노출 횟수 (0은 무제한)

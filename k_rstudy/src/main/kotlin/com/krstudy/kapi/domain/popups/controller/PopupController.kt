@@ -3,8 +3,9 @@ package com.krstudy.kapi.domain.popups.controller
 import com.krstudy.kapi.domain.popups.dto.PopupCreateRequest
 import com.krstudy.kapi.domain.popups.dto.PopupResponse
 import com.krstudy.kapi.domain.popups.entity.DeviceType
+import com.krstudy.kapi.domain.popups.exception.PopupCreationException
 import com.krstudy.kapi.domain.popups.service.PopupService
-import com.opencsv.bean.util.OpencsvUtils.handleException
+import jakarta.persistence.EntityNotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -58,16 +59,16 @@ class PopupRestController(
         @RequestPart("image", required = false) image: MultipartFile?,
         @AuthenticationPrincipal userDetails: UserDetails?
     ): ResponseEntity<Any> {
-        try {
+        return try {
             if (userDetails == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(mapOf("error" to "Unauthorized"))
+            } else {
+                val popup = popupService.createPopup(request, image, userDetails.username)
+                ResponseEntity.ok(popup)
             }
-
-            val popup = popupService.createPopup(request, image, userDetails.username)
-            return ResponseEntity.ok(popup)
         } catch (e: Exception) {
-            return handleException(e)
+            handleException(e)
         }
     }
 
@@ -100,4 +101,28 @@ class PopupRestController(
         popupService.incrementClickCount(id)
         return ResponseEntity.ok().build()
     }
+
+    /**
+     * 예외 처리 유틸리티 메서드
+     */
+    private fun handleException(e: Exception): ResponseEntity<Any> {
+        return when (e) {
+            is PopupCreationException -> ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(mapOf("error" to e.message))
+
+            is IllegalArgumentException -> ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(mapOf("error" to (e.message ?: "Invalid request")))
+
+            is EntityNotFoundException -> ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(mapOf("error" to (e.message ?: "Resource not found")))
+
+            else -> ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf("error" to "An unexpected error occurred"))
+        }
+    }
+
 }
