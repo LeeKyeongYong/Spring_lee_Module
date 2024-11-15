@@ -15,6 +15,13 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
+import org.springframework.core.io.Resource
+import org.springframework.core.io.InputStreamResource
+import org.springframework.http.HttpHeaders
+import java.nio.file.Path
+import java.nio.file.Files
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @RestController
 @RequestMapping("/api/pdf")
@@ -134,6 +141,23 @@ class PdfRestController(
             ResponseEntity.ok(response)
         } catch (e: Exception) {
             logger.error("PDF 목록 조회 실패", e)
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+    }
+    @GetMapping("/{fileId}/download")
+    fun downloadPdf(@PathVariable fileId: Long): ResponseEntity<Resource> {
+        return try {
+            val file = fileService.getFileById(fileId)
+            val path = Path.of(file.filePath)
+            val resource = InputStreamResource(Files.newInputStream(path))
+
+            ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                    "attachment; filename=\"${URLEncoder.encode(file.originalFileName, StandardCharsets.UTF_8.name())}\"")
+                .body(resource)
+        } catch (e: Exception) {
+            logger.error("PDF 다운로드 실패", e)
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         }
     }
