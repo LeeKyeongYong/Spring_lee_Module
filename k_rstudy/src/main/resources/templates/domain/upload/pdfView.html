@@ -1,98 +1,174 @@
 <!DOCTYPE html>
 <html layout:decorate="~{global/msgLayout}">
-
 <head>
-    <title>PDF 미리보기 등록</title>
+    <title>PDF 뷰어</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .preview-nav-button {
-            @apply bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors;
+        .pdf-viewer {
+            height: calc(100vh - 200px);
+            position: relative;
         }
-        .preview-nav-button:disabled {
-            @apply bg-gray-300 cursor-not-allowed;
+        .page-container {
+            max-width: 100%;
+            margin: 0 auto;
+            position: relative;
+        }
+        .page-image {
+            width: 100%;
+            height: auto;
         }
     </style>
+    <script th:inline="javascript">
+        const currentPage = [[${currentPage}]];
+        const totalPages = [[${totalPages}]];
+        const fileId = [[${file.id}]];
+        const fileName = [[${file.originalFileName}]];
+        const pageCache = new Map();
+
+        async function loadPage(page) {
+            if (page < 1 || page > totalPages) return;
+
+            const cacheKey = `${fileId}-${page}`;
+            if (pageCache.has(cacheKey)) {
+                return pageCache.get(cacheKey);
+            }
+
+            try {
+                const response = await fetch(`/api/pdf/${fileId}/pages/${page}`, {
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+                    }
+                });
+                if (!response.ok) throw new Error('Page load failed');
+
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                pageCache.set(cacheKey, url);
+
+                if (pageCache.size > 10) {
+                    const firstKey = pageCache.keys().next().value;
+                    URL.revokeObjectURL(pageCache.get(firstKey));
+                    pageCache.delete(firstKey);
+                }
+
+                return url;
+            } catch (error) {
+                console.error('Error loading page:', error);
+                throw error;
+            }
+        }
+
+        async function changePage(newPage) {
+            try {
+                if (newPage < 1 || newPage > totalPages) return;
+
+                const pageUrl = await loadPage(newPage);
+                const pageImage = document.getElementById('pageImage');
+                pageImage.src = pageUrl;
+                document.getElementById('currentPageNum').textContent = newPage;
+
+                // URL 업데이트
+                const url = new URL(window.location);
+                url.searchParams.set('page', newPage);
+                window.history.pushState({}, '', url);
+
+                // 버튼 상태 업데이트
+                updateNavigationButtons(newPage);
+            } catch (error) {
+                alert('페이지 로딩 중 오류가 발생했습니다.');
+            }
+        }
+
+        function updateNavigationButtons(page) {
+            const prevButton = document.getElementById('prevButton');
+            const nextButton = document.getElementById('nextButton');
+
+            prevButton.disabled = page <= 1;
+            nextButton.disabled = page >= totalPages;
+        }
+
+        async function downloadPdf(fileId, fileName) {
+            try {
+                const response = await fetch(`/api/pdf/${fileId}/download`, {
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+                    }
+                });
+
+                if (!response.ok) throw new Error('Download failed');
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                console.error('Download error:', error);
+                alert('파일 다운로드 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 초기 페이지 로드
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadPage(currentPage);
+            updateNavigationButtons(currentPage);
+        });
+    </script>
 </head>
+<body>
+<div layout:fragment="content" class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <!-- 문서 정보 -->
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold mb-2" th:text="${file.originalFileName}"></h1>
+            <p class="text-gray-600" th:text="${'업로드 날짜: ' + #temporals.format(file.createDate, 'yyyy-MM-dd HH:mm')}"></p>
+        </div>
 
-<body class="bg-gray-50">
-    <div layout:fragment="content">
-        <div class="max-w-4xl mx-auto">
-            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-                <h1 class="text-2xl font-bold text-gray-800 mb-6">PDF 미리보기</h1>
-                <p class="text-sm text-gray-600 mb-6">미리보기는 문서의 첫 10페이지만 제공됩니다.</p>
-
-                <!-- Document Info -->
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div>
-                        <h3 class="text-sm font-medium text-gray-500">문서 설명</h3>
-                        <p class="mt-1 text-sm text-gray-900" th:text="${book.title}"></p>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-medium text-gray-500">업로드 일자</h3>
-                        <p class="mt-1 text-sm text-gray-900"
-                           th:text="${#temporals.format(book.uploadDate, 'yyyy/MM/dd HH:mm:ss')}"></p>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-medium text-gray-500">파일명</h3>
-                        <p class="mt-1 text-sm text-gray-900" th:text="${book.fileName}"></p>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-medium text-gray-500">총 페이지 수</h3>
-                        <p class="mt-1 text-sm text-gray-900" th:text="${book.pageNum}"></p>
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="flex space-x-4 mb-8">
-                    <a th:href="@{/documents/save(no=${book.no})}"
-                       class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
-                        <i class="fas fa-download mr-2"></i> 다운로드
-                    </a>
-                    <a th:href="@{/documents/remove(no=${book.no},page=${page})}"
-                       class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700"
-                       onclick="return confirm('정말 삭제하시겠습니까?');">
-                        <i class="fas fa-trash-alt mr-2"></i> 삭제
-                    </a>
-                </div>
-
-                <!-- Preview Area -->
-                <div class="bg-gray-100 rounded-lg p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <button th:if="${p > 1}"
-                                th:onclick="'window.location.href=\'' + @{/documents/view(no=${book.no},p=${p-1},page=${page})} + '\''"
-                                class="preview-nav-button">
-                            <i class="fas fa-chevron-left mr-2"></i> 이전 페이지
-                        </button>
-                        <span th:unless="${p > 1}" class="invisible">이전</span>
-
-                        <span class="text-lg font-medium" th:text="${p + '/' + last}"></span>
-
-                        <button th:if="${p < last}"
-                                th:onclick="'window.location.href=\'' + @{/documents/view(no=${book.no},p=${p+1},page=${page})} + '\''"
-                                class="preview-nav-button">
-                            다음 페이지 <i class="fas fa-chevron-right ml-2"></i>
-                        </button>
-                        <span th:unless="${p < last}" class="invisible">다음</span>
-                    </div>
-
-                    <div class="flex justify-center">
-                        <img th:src="@{/documents/preview/preview_${book.no}_${p}.png}"
-                             class="max-w-full h-auto rounded-lg shadow-lg"
-                             th:alt="'Page ' + ${p}">
-                    </div>
-                </div>
+        <!-- PDF 뷰어 -->
+        <div class="pdf-viewer bg-gray-100 rounded-lg p-4">
+            <div class="page-container">
+                <img id="pageImage" class="page-image rounded shadow-lg"
+                     th:src="@{/api/pdf/{id}/pages/{page}(id=${file.id},page=${currentPage})}"
+                     alt="PDF Page">
             </div>
 
-            <!-- Back Button -->
-            <div class="text-center">
-                <a th:href="@{/documents(page=${page})}"
-                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                    <i class="fas fa-arrow-left mr-2"></i> 목록으로 돌아가기
-                </a>
+            <!-- 페이지 네비게이션 -->
+            <div class="flex justify-between items-center mt-4">
+                <button id="prevButton"
+                        onclick="changePage(currentPage - 1)"
+                        class="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-300 hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-chevron-left mr-2"></i> 이전
+                </button>
+
+                <span class="text-lg font-medium">
+                    페이지 <span id="currentPageNum" th:text="${currentPage}"></span> / <span th:text="${totalPages}"></span>
+                </span>
+
+                <button id="nextButton"
+                        onclick="changePage(currentPage + 1)"
+                        class="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-300 hover:bg-blue-600 transition-colors">
+                    다음 <i class="fas fa-chevron-right ml-2"></i>
+                </button>
             </div>
         </div>
-    </div>
-</body>
 
+        <!-- 작업 버튼 -->
+        <div class="mt-6 flex justify-end space-x-4">
+            <button onclick="downloadPdf(fileId, fileName)"
+                    class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
+                <i class="fas fa-download mr-2"></i> 다운로드
+            </button>
+            <a th:href="@{/uploadPdf(page=${listPage})}"
+               class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">
+                <i class="fas fa-list mr-2"></i> 목록으로
+            </a>
+        </div>
+    </div>
+</div>
+</body>
 </html>

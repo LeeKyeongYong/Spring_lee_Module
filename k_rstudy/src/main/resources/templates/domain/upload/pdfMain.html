@@ -220,15 +220,15 @@
 
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${doc.id}"></td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <!-- no를 id로 변경 -->
-                        <a th:href="@{/documents/view(id=${doc.id},p=1,page=${page})}"
-                           class="text-blue-600 hover:text-blue-800" th:text="${doc.originalFileName}"></a>
+                        <a th:href="@{/uploadPdf/view/{id}(id=${doc.id}, page=${page})}"
+                           class="text-blue-600 hover:text-blue-800"
+                           th:text="${doc.originalFileName}">
+                        </a>
                     </td>
 
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
                         th:text="${#temporals.format(doc.createDate, 'yyyy/MM/dd HH:mm:ss')}"></td>
 
-                    <!-- 다운로드 버튼 부분 수정 -->
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button th:id="'download-' + ${doc.id}"
                                 th:data-file-id="${doc.id}"
