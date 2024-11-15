@@ -2,18 +2,43 @@
 
 <head>
     <title>홈</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        .banner-slider {
+            width: 100%;
+            margin: 20px 0;
+        }
+        .banner-container {
+            position: relative;
+            width: 100%;
+        }
+        .banner-slides {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+        .banner-slide {
+            width: 100%;
+            flex-shrink: 0;
+        }
+    </style>
 </head>
 
 <div layout:fragment="content">
-<!--    <h1>메인</h1>-->
+    <h1>메인</h1>
 
-<!--    <h2>최신 게시물</h2>-->
+    <!-- 배너 슬라이드 추가 -->
+    <div th:replace="~{global/fragments/banner :: bannerSlide}"></div>
 
-<!--    <ul>-->
-<!--        <li th:each="post : ${posts}">-->
-<!--            <a th:href="|/post/${post.id}|" th:text="${post.title}"></a>-->
-<!--        </li>-->
-<!--    </ul>-->
+    <h2>최신 게시물</h2>
+
+    <ul>
+        <li th:each="post : ${posts}">
+            <a th:href="|/post/${post.id}|" th:text="${post.title}"></a>
+        </li>
+    </ul>
 </div>
 
 </html>
+

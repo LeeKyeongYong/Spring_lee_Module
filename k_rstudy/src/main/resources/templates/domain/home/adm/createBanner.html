@@ -1,0 +1,147 @@
+<html layout:decorate="~{global/admLayout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>새 배너 등록</title>
+    <!-- CSRF 토큰 -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <!-- CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
+</head>
+
+<body>
+<div layout:fragment="content" class="container mx-auto px-4 py-8">
+    <!-- 기존 content 내용 동일 -->
+</div>
+
+<!-- JavaScript는 body 끝에 배치 -->
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        // 이미지 미리보기
+        const imageInput = document.getElementById('bannerImage');
+        const imagePreview = document.getElementById('imagePreview');
+
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = imagePreview.querySelector('img');
+                    img.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 드래그 앤 드롭 지원
+        const dropZone = document.querySelector('.border-dashed');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            imageInput.files = files;
+
+            if (files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = imagePreview.querySelector('img');
+                    img.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                }
+                reader.readAsDataURL(files[0]);
+            }
+        }
+
+        // Flatpickr 설정
+        const flatpickrConfig = {
+            locale: "ko",
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            time_24hr: true,
+            minDate: "today",
+            defaultHour: 9,
+            onChange: function(selectedDates, dateStr, instance) {
+                if (instance.element.id === 'startDate') {
+                    const endDatePicker = document.getElementById('endDate')._flatpickr;
+                    endDatePicker.set('minDate', dateStr);
+                }
+            }
+        };
+
+        // Flatpickr 초기화
+        const startDatePicker = flatpickr("#startDate", flatpickrConfig);
+        const endDatePicker = flatpickr("#endDate", flatpickrConfig);
+
+        // 기본값 설정
+        const now = new Date();
+        const oneMonthLater = new Date(now);
+        oneMonthLater.setMonth(now.getMonth() + 1);
+
+        startDatePicker.setDate(now);
+        endDatePicker.setDate(oneMonthLater);
+
+        // 폼 제출
+        const form = document.getElementById('bannerForm');
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const bannerData = {
+                title: formData.get('title'),
+                description: formData.get('description'),
+                linkUrl: formData.get('linkUrl') || null,
+                displayOrder: parseInt(formData.get('displayOrder')),
+                startDate: formData.get('startDate'),
+                endDate: formData.get('endDate')
+            };
+
+            const submitFormData = new FormData();
+            submitFormData.append('banner', new Blob([JSON.stringify(bannerData)], {
+                type: 'application/json'
+            }));
+            submitFormData.append('image', formData.get('image'));
+
+            try {
+                const response = await fetch('/api/banners', {
+                    method: 'POST',
+                    body: submitFormData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+                    }
+                });
+
+                if (response.ok) {
+                    alert('배너가 성공적으로 등록되었습니다.');
+                    window.location.href = '/adm/banners';  // URL 수정
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || '배너 등록에 실패했습니다.');
+                }
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+    });
+</script>
+</body>
+</html>

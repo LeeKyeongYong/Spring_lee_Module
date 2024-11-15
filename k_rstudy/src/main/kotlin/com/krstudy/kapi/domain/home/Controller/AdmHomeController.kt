@@ -7,18 +7,17 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 
 @Controller
-@RequestMapping("/adm")
 class AdmHomeController(
     private val service: MemberService // 생성자 주입 사용
 ) {
 
-    @GetMapping("")
+    @GetMapping("/adm")
     fun showMain(model: Model): String {
         model.addAttribute("members", service.getAllMembers())
         return "domain/home/adm/main"
     }
 
-    @GetMapping("/home/about")
+    @GetMapping("/adm/home/about")
     fun showAbout(): String {
         return "domain/home/adm/about"
     }

@@ -1,0 +1,49 @@
+<html>
+<head>
+    <script th:inline="javascript">
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.banner-slide');
+        const totalSlides = slides.length;
+
+        function showSlide(index) {
+            const container = document.querySelector('.banner-slides');
+            currentSlide = (index + totalSlides) % totalSlides;
+            container.style.transform = `translateX(-${currentSlide * 100}%)`;
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // 자동 슬라이드
+        setInterval(nextSlide, 5000);
+    </script>
+</head>
+    <body>
+        <div th:fragment="bannerSlide" class="banner-slider relative mt-8"> <!-- margin-top 추가 -->
+            <div class="banner-container overflow-hidden">
+                <div class="banner-slides flex transition-transform duration-500">
+                    <div th:each="banner : ${banners}" class="banner-slide w-full flex-shrink-0">
+                        <a th:href="${banner.linkUrl}" class="block relative">
+                            <img th:src="${banner.imageUrl}" th:alt="${banner.title}" class="w-full h-auto">
+                            <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
+                                <h3 class="text-xl font-bold" th:text="${banner.title}"></h3>
+                                <p class="text-sm" th:text="${banner.description}"></p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <button class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2" onclick="prevSlide()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2" onclick="nextSlide()">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </body>
+</html>
