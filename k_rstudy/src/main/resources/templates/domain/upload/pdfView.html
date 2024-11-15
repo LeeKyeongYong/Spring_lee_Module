@@ -8,23 +8,63 @@
         .pdf-viewer {
             height: calc(100vh - 200px);
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .page-container {
-            max-width: 100%;
+            width: 100%;
+            max-width: 800px;
             margin: 0 auto;
             position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f3f4f6;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         .page-image {
-            width: 100%;
+            max-width: 100%;
+            max-height: calc(100vh - 300px);
+            width: auto;
             height: auto;
+            object-fit: contain;
+            position: relative;
+            z-index: 1;
+        }
+        .zoom-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 5px;
+            border-radius: 4px;
+            display: flex;
+            gap: 5px;
+            z-index: 2;
+        }
+        .zoom-button {
+            padding: 5px 10px;
+            background-color: #4b5563;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .zoom-button:hover {
+            background-color: #374151;
         }
     </style>
     <script th:inline="javascript">
-        const currentPage = [[${currentPage}]];
+        let currentPage = [[${currentPage}]];
         const totalPages = [[${totalPages}]];
         const fileId = [[${file.id}]];
         const fileName = [[${file.originalFileName}]];
         const pageCache = new Map();
+        let currentZoom = 1.0;
 
         async function loadPage(page) {
             if (page < 1 || page > totalPages) return;
@@ -59,6 +99,13 @@
             }
         }
 
+        function adjustZoom(delta) {
+            const pageImage = document.getElementById('pageImage');
+            currentZoom = Math.max(0.5, Math.min(2.0, currentZoom + delta));
+            pageImage.style.transform = `scale(${currentZoom})`;
+            document.getElementById('zoomLevel').textContent = `${Math.round(currentZoom * 100)}%`;
+        }
+
         async function changePage(newPage) {
             try {
                 if (newPage < 1 || newPage > totalPages) return;
@@ -67,6 +114,7 @@
                 const pageImage = document.getElementById('pageImage');
                 pageImage.src = pageUrl;
                 document.getElementById('currentPageNum').textContent = newPage;
+                currentPage = newPage;
 
                 // URL 업데이트
                 const url = new URL(window.location);
@@ -132,7 +180,16 @@
         <!-- PDF 뷰어 -->
         <div class="pdf-viewer bg-gray-100 rounded-lg p-4">
             <div class="page-container">
-                <img id="pageImage" class="page-image rounded shadow-lg"
+                <div class="zoom-controls">
+                    <button class="zoom-button" onclick="adjustZoom(-0.1)">
+                        <i class="fas fa-search-minus"></i>
+                    </button>
+                    <span id="zoomLevel" class="px-2">100%</span>
+                    <button class="zoom-button" onclick="adjustZoom(0.1)">
+                        <i class="fas fa-search-plus"></i>
+                    </button>
+                </div>
+                <img id="pageImage" class="page-image rounded shadow-lg transition-transform duration-200"
                      th:src="@{/api/pdf/{id}/pages/{page}(id=${file.id},page=${currentPage})}"
                      alt="PDF Page">
             </div>
