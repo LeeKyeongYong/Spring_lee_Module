@@ -16,33 +16,6 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
 /**
- * 팝업 관리 컨트롤러 (관리자용)
- */
-@Controller
-@RequestMapping("/adm/popups")
-class PopupController(
-    private val popupService: PopupService
-) {
-    /**
-     * 팝업 관리 페이지
-     */
-    @GetMapping
-    fun popupManagement(model: Model): String {
-        val popups = popupService.getAllPopups()
-        model.addAttribute("popups", popups)
-        return "domain/home/adm/managementPopup"
-    }
-
-    /**
-     * 팝업 생성 폼
-     */
-    @GetMapping("/create")
-    fun createPopupForm(model: Model): String {
-        return "domain/home/adm/createPopup"
-    }
-}
-
-/**
  * 팝업 REST API 컨트롤러
  */
 @RestController
@@ -71,6 +44,51 @@ class PopupRestController(
             handleException(e)
         }
     }
+
+    /**
+     * 팝업 삭제 API
+     */
+    @DeleteMapping("/{id}")
+    fun deletePopup(@PathVariable id: Long): ResponseEntity<Void> {
+        popupService.deletePopup(id)
+        return ResponseEntity.ok().build()
+    }
+
+    /**
+     * 팝업 상태 변경 API
+     */
+    @PatchMapping("/{id}/status")
+    fun updatePopupStatus(
+        @PathVariable id: Long,
+        @RequestParam status: String
+    ): ResponseEntity<PopupResponse> {
+        val popup = popupService.updatePopupStatus(id, status)
+        return ResponseEntity.ok(popup)
+    }
+
+    /**
+     * 팝업 수정 API
+     */
+    @PutMapping("/{id}")
+    fun updatePopup(
+        @PathVariable id: Long,
+        @RequestPart("popup") request: PopupCreateRequest,
+        @RequestPart("image", required = false) image: MultipartFile?,
+        @AuthenticationPrincipal userDetails: UserDetails
+    ): ResponseEntity<PopupResponse> {
+        val popup = popupService.updatePopup(id, request, image, userDetails.username)
+        return ResponseEntity.ok(popup)
+    }
+
+    /**
+     * 팝업 상세 조회 API
+     */
+    @GetMapping("/{id}")
+    fun getPopup(@PathVariable id: Long): ResponseEntity<PopupResponse> {
+        val popup = popupService.getPopup(id)
+        return ResponseEntity.ok(popup)
+    }
+
 
     /**
      * 활성화된 팝업 조회

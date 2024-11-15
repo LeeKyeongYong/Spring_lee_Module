@@ -4,7 +4,102 @@
     <title>홈</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- 팝업 관련 JavaScript -->
+    <script layout:fragment="script">
+        // 페이지 로드 시 팝업 표시 여부 확인
+        document.addEventListener('DOMContentLoaded', function() {
+            incrementViewCount();
+        });
 
+        // 조회수 증가
+        async function incrementViewCount() {
+            const popups = document.querySelectorAll('.popup');
+            for (const popup of popups) {
+                const popupId = popup.id.split('-')[1];
+                if (!isPopupHidden(popupId)) {
+                    try {
+                        await fetch(`/api/popups/${popupId}/view`, {
+                            method: 'POST'
+                        });
+                    } catch (error) {
+                        console.error('조회수 증가 실패:', error);
+                    }
+                }
+            }
+        }
+
+        // 클릭수 증가
+        async function incrementClickCount(popupId) {
+            try {
+                await fetch(`/api/popups/${popupId}/click`, {
+                    method: 'POST'
+                });
+            } catch (error) {
+                console.error('클릭수 증가 실패:', error);
+            }
+        }
+
+        // 팝업 닫기
+        function closePopup(popupId) {
+            const popup = document.getElementById(`popup-${popupId}`);
+            if (popup) {
+                popup.style.display = 'none';
+            }
+        }
+
+        // 팝업 숨기기 설정
+        function setHidePopup(popupId, days) {
+            const expireDate = new Date();
+            expireDate.setDate(expireDate.getDate() + days);
+            document.cookie = `popup_${popupId}=hidden; expires=${expireDate.toUTCString()}; path=/`;
+            closePopup(popupId);
+        }
+
+        // 팝업 숨김 여부 확인
+        function isPopupHidden(popupId) {
+            const cookies = document.cookie.split(';');
+            for (const cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === `popup_${popupId}` && value === 'hidden') {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // 드래그 가능한 팝업 설정
+        document.querySelectorAll('.popup').forEach(popup => {
+            let isDragging = false;
+            let currentX;
+            let currentY;
+            let initialX;
+            let initialY;
+
+            popup.querySelector('.popup-header').addEventListener('mousedown', dragStart);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', dragEnd);
+
+            function dragStart(e) {
+                initialX = e.clientX - popup.offsetLeft;
+                initialY = e.clientY - popup.offsetTop;
+                isDragging = true;
+            }
+
+            function drag(e) {
+                if (isDragging) {
+                    e.preventDefault();
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+                    popup.style.left = currentX + 'px';
+                    popup.style.top = currentY + 'px';
+                }
+            }
+
+            function dragEnd() {
+                isDragging = false;
+            }
+        });
+    </script>
     <style>
         .banner-slider {
             width: 100%;
@@ -22,10 +117,110 @@
             width: 100%;
             flex-shrink: 0;
         }
+
+        /* 팝업 스타일 추가 */
+        .popup {
+            position: fixed;
+            z-index: 1000;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .popup-header {
+            padding: 10px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .popup-content {
+            position: relative;
+        }
+
+        .popup-image {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .popup-footer {
+            padding: 8px;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+        }
+
+        .popup-close {
+            cursor: pointer;
+            padding: 4px 8px;
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+        }
+
+        .hide-popup {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
     </style>
 </head>
 
 <div layout:fragment="content">
+
+    <th:block th:each="popup : ${popups}">
+        <div th:id="'popup-' + ${popup.id}"
+             class="popup"
+             th:style="'width:' + ${popup.width} + 'px; height:' + ${popup.height} + 'px; left:' + ${popup.positionX} + 'px; top:' + ${popup.positionY} + 'px;'">
+
+            <div class="popup-header">
+                <span th:text="${popup.title}">팝업 제목</span>
+                <button class="popup-close" th:onclick="'closePopup(' + ${popup.id} + ')'">×</button>
+            </div>
+
+            <div class="popup-content">
+                <a th:if="${popup.linkUrl}"
+                   th:href="${popup.linkUrl}"
+                   th:target="${popup.target == 'BLANK' ? '_blank' : '_self'}"
+                   th:onclick="'incrementClickCount(' + ${popup.id} + ')'">
+                    <img th:if="${popup.imageUrl}"
+                         th:src="${popup.imageUrl}"
+                         th:alt="${popup.altText}"
+                         class="popup-image">
+                    <div th:if="${!popup.imageUrl}"
+                         class="p-4"
+                         th:text="${popup.content}">
+                    </div>
+                </a>
+                <div th:unless="${popup.linkUrl}"
+                     class="p-4"
+                     th:text="${popup.content}">
+                </div>
+            </div>
+
+            <div class="popup-footer">
+                <div class="hide-popup">
+                    <label th:if="${popup.hideForToday}">
+                        <input type="checkbox" th:onclick="'setHidePopup(' + ${popup.id} + ', 1)'">
+                        오늘 하루 보지 않기
+                    </label>
+                    <label th:if="${popup.hideForWeek}">
+                        <input type="checkbox" th:onclick="'setHidePopup(' + ${popup.id} + ', 7)'">
+                        일주일 동안 보지 않기
+                    </label>
+                </div>
+            </div>
+        </div>
+    </th:block>
+
     <h1>메인</h1>
 
     <!-- 배너 슬라이드 추가 -->
