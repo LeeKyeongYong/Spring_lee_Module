@@ -119,7 +119,7 @@ class BannerService(
         linkUrl = linkUrl,
         displayOrder = displayOrder,
         status = status,
-        imageUrl = "/api/files/${bannerImage.id}",
+        imageUrl = "/api/v1/files/view/${bannerImage.id}", //이미지경로
         creatorName = creator.username,
         startDate = startDate,
         endDate = endDate,

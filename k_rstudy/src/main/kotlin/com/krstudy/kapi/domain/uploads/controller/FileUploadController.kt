@@ -79,16 +79,23 @@ class FileUploadController(
             .body(resource)
     }
 
-//    @GetMapping("/view/{id}")
-//    fun viewFile(@PathVariable id: Long): ResponseEntity<Resource> {
-//        val file = fileService.getFileById(id)
-//        val path = Paths.get(file.filePath)
-//        val resource = InputStreamResource(Files.newInputStream(path))
-//
-//        return ResponseEntity.ok()
-//            .contentType(MediaType.parseMediaType(file.contentType))
-//            .body(resource)
-//    }
+
+    @GetMapping("/view/{id}") // view 엔드포인트 추가
+    fun viewFile(@PathVariable id: Long): ResponseEntity<Resource> {
+        return try {
+            val file = fileService.getFileById(id)
+            val path = Paths.get(file.filePath)
+            val resource = InputStreamResource(Files.newInputStream(path))
+
+            ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(file.contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"${file.originalFileName}\"")
+                .body(resource)
+        } catch (e: Exception) {
+            logger.error("Failed to view file: ${e.message}", e)
+            ResponseEntity.notFound().build()
+        }
+    }
 
     @GetMapping("/user")
     fun getUserFiles(@RequestHeader("X-User-Id") userId: String): ResponseEntity<List<FileEntity>> {
