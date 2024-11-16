@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Lazy
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -23,6 +24,7 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 @Configuration
+@EnableWebSecurity
 @EnableMethodSecurity
 class SecurityConfig(
     private val authTokenService: AuthTokenService,
@@ -57,17 +59,23 @@ class SecurityConfig(
         http
             .authorizeHttpRequests { authorizeRequests ->
                 authorizeRequests
+                    // 기존 권한 설정
                     .requestMatchers("/adm/**").hasAuthority("ROLE_ADMIN")
-                    .requestMatchers("/api/banners/**").hasAuthority("ROLE_ADMIN")  // 배너 API에 대한 권한 설정
+                    .requestMatchers("/api/banners/**").hasAuthority("ROLE_ADMIN")
                     .requestMatchers("/resource/**").permitAll()
                     .requestMatchers("/v1/qrcode/**").permitAll()
                     .requestMatchers("/api/**").permitAll()
                     .requestMatchers("/v1/**").authenticated()
                     .requestMatchers("/login/oauth2/**").permitAll()
                     .requestMatchers("/member/login").anonymous()
-                    .requestMatchers("/member/join").hasAnyRole("ADMIN") // ADMIN 권한이 있는 사용자만 허용
+                    .requestMatchers("/member/join").hasAnyRole("ADMIN")
                     .requestMatchers("/image/**").permitAll()
                     .requestMatchers("/api/messages/**").authenticated()
+
+                    // 팝업 관련 권한 설정 추가
+                    .requestMatchers("/api/public/**").permitAll()
+                    .requestMatchers("/api/admin/popups/**").hasAuthority("ROLE_ADMIN")
+                    .requestMatchers("/api/admin/popup-templates/**").hasAuthority("ROLE_ADMIN")
 
                     .anyRequest().permitAll()
             }
@@ -80,9 +88,12 @@ class SecurityConfig(
                 csrf
                     .ignoringRequestMatchers(
                         "/v1/**",
-                        "/api/**",  // API 요청에 대해 CSRF 검사 제외
+                        "/api/**",
                         "/ws/**"
                     )
+            }
+            .cors { cors ->
+                cors.disable()
             }
             .formLogin { formLogin ->
                 formLogin
@@ -110,6 +121,7 @@ class SecurityConfig(
                     .defaultSuccessUrl("/", true)
             }
             .authenticationProvider(authenticationProvider())
+
         return http.build()
     }
 }

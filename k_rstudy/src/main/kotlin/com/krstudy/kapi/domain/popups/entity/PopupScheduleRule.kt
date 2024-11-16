@@ -1,23 +1,44 @@
 package com.krstudy.kapi.domain.popups.entity
 
-import jakarta.persistence.ElementCollection
-import jakarta.persistence.Entity
+import com.krstudy.kapi.global.jpa.BaseEntity
+import jakarta.persistence.*
 import java.time.DayOfWeek
-import java.time.LocalDate
+import java.time.LocalTime
 
 @Entity
+@Table(name = "popup_schedule_rules")
 class PopupScheduleRule(
-    // 복잡한 반복 규칙 지원
-    var cronExpression: String?,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "popup_id")
+    var popup: PopupEntity,
 
-    // 특정 기간 제외
     @ElementCollection
-    var excludeDates: Set<LocalDate>,
+    @CollectionTable(
+        name = "popup_schedule_days",
+        joinColumns = [JoinColumn(name = "schedule_rule_id")]
+    )
+    @Column(name = "day_of_week")
+    @Enumerated(EnumType.STRING)
+    var days: MutableSet<DayOfWeek> = mutableSetOf(),
 
-    // 특정 시간대 타겟팅
-    var targetHours: String?, // "09:00-18:00,19:00-22:00"
+    @Column(name = "start_time")
+    var startTime: LocalTime,
 
-    // 요일별 다른 시간 설정
-    @ElementCollection
-    var dayTimeRules: Map<DayOfWeek, String>
-)
+    @Column(name = "end_time")
+    var endTime: LocalTime,
+
+    @Column(name = "is_active")
+    var isActive: Boolean = true,
+
+    @Column(name = "priority")
+    var priority: Int = 0
+) : BaseEntity() {
+
+    fun isActiveForTime(time: LocalTime): Boolean {
+        return isActive && time in startTime..endTime
+    }
+
+    fun isActiveForDay(day: DayOfWeek): Boolean {
+        return isActive && days.contains(day)
+    }
+}
