@@ -127,4 +127,98 @@ class PopupService(
         }
     }
 
+    /**
+     * 팝업 삭제
+     */
+    @Transactional
+    fun deletePopup(id: Long) {
+        val popup = popupRepository.findById(id).orElseThrow {
+            EntityNotFoundException("팝업을 찾을 수 없습니다: $id")
+        }
+        popup.status = PopupStatus.DELETED
+        popupRepository.save(popup)
+    }
+
+    /**
+     * 팝업 상태 업데이트
+     */
+    @Transactional
+    fun updatePopupStatus(id: Long, status: String): PopupResponse {
+        val popup = popupRepository.findById(id).orElseThrow {
+            EntityNotFoundException("팝업을 찾을 수 없습니다: $id")
+        }
+        popup.status = PopupStatus.valueOf(status.uppercase())
+        return PopupResponse.from(popupRepository.save(popup))
+    }
+
+    /**
+     * 팝업 수정
+     */
+    @Transactional
+    fun updatePopup(
+        id: Long,
+        request: PopupCreateRequest,
+        image: MultipartFile?,
+        userId: String
+    ): PopupResponse {
+        try {
+            validatePopupRequest(request)
+            image?.let { validateImageFile(it) }
+
+            val popup = popupRepository.findById(id).orElseThrow {
+                EntityNotFoundException("팝업을 찾을 수 없습니다: $id")
+            }
+
+            val creator = memberRepository.findByUserid(userId)
+                ?: throw EntityNotFoundException("사용자를 찾을 수 없습니다")
+
+            val popupImage = image?.let {
+                fileService.uploadFiles(arrayOf(it), userId).firstOrNull()
+            } ?: popup.image
+
+            // 팝업 정보 업데이트
+            popup.apply {
+                title = request.title
+                content = request.content
+                startDateTime = request.startDateTime
+                endDateTime = request.endDateTime
+                priority = request.priority
+                width = request.width
+                height = request.height
+                positionX = request.positionX
+                positionY = request.positionY
+                this.image = popupImage
+                linkUrl = request.linkUrl
+                altText = request.altText
+                target = request.target
+                deviceType = request.deviceType
+                cookieExpireDays = request.cookieExpireDays
+                hideForToday = request.hideForToday
+                hideForWeek = request.hideForWeek
+                backgroundColor = request.backgroundColor
+                borderStyle = request.borderStyle
+                shadowEffect = request.shadowEffect
+                animationType = request.animationType
+                displayPages = request.displayPages.toSet()
+                targetRoles = request.targetRoles.toSet()
+                maxDisplayCount = request.maxDisplayCount
+            }
+
+            return PopupResponse.from(popupRepository.save(popup))
+        } catch (e: Exception) {
+            throw PopupCreationException("팝업 수정 실패: ${e.message}", e)
+        }
+    }
+
+    /**
+     * 팝업 상세 조회
+     */
+    @Transactional(readOnly = true)
+    fun getPopup(id: Long): PopupResponse {
+        val popup = popupRepository.findById(id).orElseThrow {
+            EntityNotFoundException("팝업을 찾을 수 없습니다: $id")
+        }
+        return PopupResponse.from(popup)
+    }
+
 }

@@ -23,7 +23,10 @@ data class PopupResponse(
     val deviceType: String,
     val viewCount: Long,
     val clickCount: Long,
-    val createDate: LocalDateTime = LocalDateTime.now()  // 기본값 설정
+    // 아래 속성들 추가
+    val hideForToday: Boolean,
+    val hideForWeek: Boolean,
+    val createDate: LocalDateTime = LocalDateTime.now()
 ) {
     companion object {
         fun from(entity: PopupEntity): PopupResponse {
@@ -39,13 +42,16 @@ data class PopupResponse(
                 height = entity.height,
                 positionX = entity.positionX,
                 positionY = entity.positionY,
-                imageUrl = entity.image?.let { "/files/${it.id}" },
+                imageUrl = entity.image?.let { "/api/v1/files/view/${it.id}" },
                 linkUrl = entity.linkUrl,
                 altText = entity.altText,
                 target = entity.target.name,
                 deviceType = entity.deviceType.name,
                 viewCount = entity.viewCount,
-                clickCount = entity.clickCount
+                clickCount = entity.clickCount,
+
+                hideForToday = entity.hideForToday,
+                hideForWeek = entity.hideForWeek
             )
         }
     }

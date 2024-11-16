@@ -191,18 +191,28 @@
                    th:href="${popup.linkUrl}"
                    th:target="${popup.target == 'BLANK' ? '_blank' : '_self'}"
                    th:onclick="'incrementClickCount(' + ${popup.id} + ')'">
-                    <img th:if="${popup.imageUrl}"
-                         th:src="${popup.imageUrl}"
-                         th:alt="${popup.altText}"
-                         class="popup-image">
-                    <div th:if="${!popup.imageUrl}"
+                    <!-- 여기 부분을 수정 -->
+                    <div th:if="${popup.imageUrl == null}"
                          class="p-4"
                          th:text="${popup.content}">
                     </div>
+                    <div th:if="${popup.imageUrl != null}">
+                        <img th:src="${popup.imageUrl}"
+                             th:alt="${popup.altText}"
+                             class="popup-image">
+                    </div>
                 </a>
-                <div th:unless="${popup.linkUrl}"
-                     class="p-4"
-                     th:text="${popup.content}">
+                <!-- 링크가 없는 경우도 동일한 방식으로 수정 -->
+                <div th:unless="${popup.linkUrl}">
+                    <div th:if="${popup.imageUrl == null}"
+                         class="p-4"
+                         th:text="${popup.content}">
+                    </div>
+                    <div th:if="${popup.imageUrl != null}">
+                        <img th:src="${popup.imageUrl}"
+                             th:alt="${popup.altText}"
+                             class="popup-image">
+                    </div>
                 </div>
             </div>
 

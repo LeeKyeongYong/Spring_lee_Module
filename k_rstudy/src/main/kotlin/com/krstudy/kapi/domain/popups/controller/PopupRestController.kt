@@ -41,6 +41,9 @@ class PopupRestController(
                 ResponseEntity.ok(popup)
             }
         } catch (e: Exception) {
+            // 에러 로깅 추가
+            println("팝업 생성 중 에러 발생: ${e.message}")
+            e.printStackTrace()
             handleException(e)
         }
     }
