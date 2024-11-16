@@ -2,14 +2,66 @@
 
 <head>
     <title>홈</title>
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
     <!-- 팝업 관련 JavaScript -->
-    <script layout:fragment="script">
-        // 페이지 로드 시 팝업 표시 여부 확인
+    <script layout:fragment="script" th:inline="javascript">
+        // 페이지 로드 시 실행될 초기화 함수
         document.addEventListener('DOMContentLoaded', function() {
+            initializePopups();
             incrementViewCount();
         });
+
+        // 팝업 초기화 함수
+        function initializePopups() {
+            document.querySelectorAll('.popup').forEach(popup => {
+                const header = popup.querySelector('.popup-header');
+                let isDragging = false;
+                let currentX;
+                let currentY;
+                let initialX;
+                let initialY;
+
+                // 드래그 시작
+                header.addEventListener('mousedown', function(e) {
+                    isDragging = true;
+                    const rect = popup.getBoundingClientRect();
+                    initialX = e.clientX - rect.left;
+                    initialY = e.clientY - rect.top;
+
+                    popup.style.cursor = 'grabbing';
+                    header.style.cursor = 'grabbing';
+                });
+
+                // 드래그 중
+                document.addEventListener('mousemove', function(e) {
+                    if (!isDragging) return;
+
+                    e.preventDefault();
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+
+                    // 화면 경계 체크
+                    currentX = Math.max(0, Math.min(currentX, window.innerWidth - popup.offsetWidth));
+                    currentY = Math.max(0, Math.min(currentY, window.innerHeight - popup.offsetHeight));
+
+                    popup.style.left = currentX + 'px';
+                    popup.style.top = currentY + 'px';
+                });
+
+                // 드래그 종료
+                document.addEventListener('mouseup', function() {
+                    if (isDragging) {
+                        isDragging = false;
+                        popup.style.cursor = 'default';
+                        header.style.cursor = 'grab';
+                    }
+                });
+
+                // 초기 커서 스타일 설정
+                header.style.cursor = 'grab';
+            });
+        }
 
         // 조회수 증가
         async function incrementViewCount() {
@@ -66,40 +118,8 @@
             }
             return false;
         }
-
-        // 드래그 가능한 팝업 설정
-        document.querySelectorAll('.popup').forEach(popup => {
-            let isDragging = false;
-            let currentX;
-            let currentY;
-            let initialX;
-            let initialY;
-
-            popup.querySelector('.popup-header').addEventListener('mousedown', dragStart);
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('mouseup', dragEnd);
-
-            function dragStart(e) {
-                initialX = e.clientX - popup.offsetLeft;
-                initialY = e.clientY - popup.offsetTop;
-                isDragging = true;
-            }
-
-            function drag(e) {
-                if (isDragging) {
-                    e.preventDefault();
-                    currentX = e.clientX - initialX;
-                    currentY = e.clientY - initialY;
-                    popup.style.left = currentX + 'px';
-                    popup.style.top = currentY + 'px';
-                }
-            }
-
-            function dragEnd() {
-                isDragging = false;
-            }
-        });
     </script>
+
     <style>
         .banner-slider {
             width: 100%;
@@ -118,7 +138,7 @@
             flex-shrink: 0;
         }
 
-        /* 팝업 스타일 추가 */
+        /* 팝업 스타일 */
         .popup {
             position: fixed;
             z-index: 1000;
@@ -126,6 +146,7 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.2);
             border-radius: 8px;
             overflow: hidden;
+            user-select: none; /* 드래그 중 텍스트 선택 방지 */
         }
 
         .popup-header {
@@ -135,10 +156,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            touch-action: none; /* 모바일에서 드래그 개선 */
         }
 
         .popup-content {
             position: relative;
+            overflow: auto;
+            max-height: calc(100% - 100px); /* 헤더와 푸터 고려 */
         }
 
         .popup-image {
@@ -163,6 +187,12 @@
             background: none;
             border: none;
             font-size: 1.25rem;
+            color: #666;
+            transition: color 0.2s;
+        }
+
+        .popup-close:hover {
+            color: #000;
         }
 
         .hide-popup {
@@ -171,11 +201,20 @@
             gap: 4px;
         }
 
+        .hide-popup label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .hide-popup input[type="checkbox"] {
+            cursor: pointer;
+        }
     </style>
 </head>
 
 <div layout:fragment="content">
-
     <th:block th:each="popup : ${popups}">
         <div th:id="'popup-' + ${popup.id}"
              class="popup"
@@ -191,7 +230,6 @@
                    th:href="${popup.linkUrl}"
                    th:target="${popup.target == 'BLANK' ? '_blank' : '_self'}"
                    th:onclick="'incrementClickCount(' + ${popup.id} + ')'">
-                    <!-- 여기 부분을 수정 -->
                     <div th:if="${popup.imageUrl == null}"
                          class="p-4"
                          th:text="${popup.content}">
@@ -202,7 +240,6 @@
                              class="popup-image">
                     </div>
                 </a>
-                <!-- 링크가 없는 경우도 동일한 방식으로 수정 -->
                 <div th:unless="${popup.linkUrl}">
                     <div th:if="${popup.imageUrl == null}"
                          class="p-4"
@@ -233,7 +270,7 @@
 
     <h1>메인</h1>
 
-    <!-- 배너 슬라이드 추가 -->
+    <!-- 배너 슬라이드 -->
     <div th:replace="~{global/fragments/banner :: bannerSlide}"></div>
 
     <h2>최신 게시물</h2>
@@ -246,4 +283,3 @@
 </div>
 
 </html>
-

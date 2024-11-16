@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html layout:decorate="~{global/admLayout}">
+<head>
+    <title th:text="${popup != null} ? '팝업 수정' : '새 팝업 등록'"></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
+</head>
+<body>
+<div layout:fragment="content" class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-2xl font-bold mb-6"
+            th:text="${popup != null} ? '팝업 수정' : '새 팝업 등록'"></h1>
+
+        <form id="popupForm" class="space-y-6"
+              th:action="${popup != null} ? @{/api/admin/popups/{id}(id=${popup.id})} : @{/api/admin/popups}"
+              method="POST"
+              enctype="multipart/form-data">
+
+            <!-- 기본 정보 -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-lg font-semibold mb-4">기본 정보</h2>
+
+                <div class="grid grid-cols-1 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">제목</label>
+                        <input type="text" name="title"
+                               th:value="${popup?.title}"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                               required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">설명</label>
+                        <textarea name="description"
+                                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                  rows="3"
+                                  th:text="${popup?.description}"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">이미지</label>
+                        <input type="file" name="image"
+                               accept="image/*"
+                               class="mt-1 block w-full"
+                               th:required="${popup == null}">
+                        <img th:if="${popup?.imageUrl}"
+                             th:src="${popup.imageUrl}"
+                             class="mt-2 h-32 object-cover">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">링크 URL</label>
+                        <input type="url" name="linkUrl"
+                               th:value="${popup?.linkUrl}"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 표시 설정 -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-lg font-semibold mb-4">표시 설정</h2>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">시작일시</label>
+                        <input type="text" name="startDateTime"
+                               class="datepicker mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                               th:value="${popup?.startDateTime}"
+                               required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">종료일시</label>
+                        <input type="text" name="endDateTime"
+                               class="datepicker mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                               th:value="${popup?.endDateTime}"
+                               required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">디바이스 타입</label>
+                        <select name="deviceType"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <option value="ALL" th:selected="${popup?.deviceType == 'ALL'}">전체</option>
+                            <option value="PC" th:selected="${popup?.deviceType == 'PC'}">PC</option>
+                            <option value="MOBILE" th:selected="${popup?.deviceType == 'MOBILE'}">모바일</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">우선순위</label>
+                        <input type="number" name="priority"
+                               th:value="${popup?.priority ?: 1}"
+                               min="1" max="10"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 반복 설정 -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-lg font-semibold mb-4">반복 설정</h2>
+
+                <div class="grid grid-cols-1 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">반복 유형</label>
+                        <select name="repeatType"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                onchange="toggleRepeatOptions(this.value)">
+                            <option value="NONE" th:selected="${popup?.repeatType == null}">반복 없음</option>
+                            <option value="DAILY" th:selected="${popup?.repeatType == 'DAILY'}">매일</option>
+                            <option value="WEEKLY" th:selected="${popup?.repeatType == 'WEEKLY'}">매주</option>
+                            <option value="MONTHLY" th:selected="${popup?.repeatType == 'MONTHLY'}">매월</option>
+                        </select>
+                    </div>
+
+                    <div id="weeklyOptions" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700">반복할 요일</label>
+                        <div class="mt-2 space-x-4">
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" name="repeatDays" value="1" class="rounded">
+                                <span class="ml-2">월</span>
+                            </label>
+                            <!-- 화~일 체크박스 반복 -->
+                        </div>
+                    </div>
+
+                    <div id="monthlyOptions" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700">반복할 날짜</label>
+                        <input type="number" name="repeatMonthDay"
+                               min="1" max="31"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 저장 버튼 -->
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="saveAsTemplate()"
+                        class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
+                    템플릿으로 저장
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                    저장하기
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    // Flatpickr 설정
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr(".datepicker", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            locale: "ko",
+            time_24hr: true
+        });
+    });
+
+    // 반복 옵션 토글
+    function toggleRepeatOptions(value) {
+        const weeklyOptions = document.getElementById('weeklyOptions');
+        const monthlyOptions = document.getElementById('monthlyOptions');
+
+        weeklyOptions.classList.add('hidden');
+        monthlyOptions.classList.add('hidden');
+
+        if (value === 'WEEKLY') {
+            weeklyOptions.classList.remove('hidden');
+        } else if (value === 'MONTHLY') {
+            monthlyOptions.classList.remove('hidden');
+        }
+    }
+
+    // 폼 제출
+    document.getElementById('popupForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        try {
+            const response = await fetch(this.action, {
+                method: this.method,
+                body: formData
+            });
+
+            if (response.ok) {
+                alert('저장되었습니다.');
+                location.href = '/adm/popups';
+            } else {
+                const error = await response.json();
+                alert(error.message || '저장 중 오류가 발생했습니다.');
+            }
+        } catch (error) {
+            alert('저장 중 오류가 발생했습니다.');
+        }
+    });
+
+    // 템플릿으로 저장
+    async function saveAsTemplate() {
+        const name = prompt('템플릿 이름을 입력하세요:');
+        if (!name) return;
+
+        const formData = new FormData(document.getElementById('popupForm'));
+        formData.append('templateName', name);
+
+        try {
+            const response = await fetch('/api/admin/popup-templates', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert('템플릿이 저장되었습니다.');
+            } else {
+                alert('템플릿 저장 중 오류가 발생했습니다.');
+            }
+        } catch (error) {
+            alert('템플릿 저장 중 오류가 발생했습니다.');
+        }
+    }
+</script>
+</body>
+</html>

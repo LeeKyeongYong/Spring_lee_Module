@@ -24,7 +24,11 @@ class PopupService(
     private val popupRepository: PopupRepository,
     private val fileService: FileServiceImpl,
     private val memberRepository: MemberRepository,
-    private val popupFactory: PopupFactory
+    private val popupFactory: PopupFactory,
+    private val popupHistoryRepository: PopupHistoryRepository,
+    private val popupTemplateRepository: PopupTemplateRepository,
+    private val popupStatisticsRepository: PopupStatisticsRepository,
+    private val popupScheduleRepository: PopupScheduleRepository
 ) {
     /**
      * 팝업 요청 검증
@@ -220,5 +224,117 @@ class PopupService(
         }
         return PopupResponse.from(popup)
     }
+
+    /**
+     * 팝업 미리보기
+     */
+    fun previewPopup(id: Long): PopupPreviewResponse {
+        val popup = popupRepository.findById(id).orElseThrow {
+            EntityNotFoundException("Popup not found")
+        }
+        return PopupPreviewResponse.from(popup)
+    }
+
+    /**
+     * 팝업 상태 변경
+     */
+    @Transactional
+    fun changePopupStatus(id: Long, status: PopupStatus, userId: String) {
+        val popup = popupRepository.findById(id).orElseThrow {
+            EntityNotFoundException("Popup not found")
+        }
+        val editor = memberRepository.findByUserid(userId)
+            ?: throw EntityNotFoundException("User not found")
+
+        popup.status = status
+        savePopupHistory(popup, editor, "STATUS_CHANGE",
+            mapOf("oldStatus" to popup.status, "newStatus" to status))
+    }
+
+    /**
+     * 팝업 복제
+     */
+    @Transactional
+    fun clonePopup(id: Long, userId: String): PopupResponse {
+        val originalPopup = popupRepository.findById(id).orElseThrow {
+            EntityNotFoundException("Popup not found")
+        }
+        val creator = memberRepository.findByUserid(userId)
+            ?: throw EntityNotFoundException("User not found")
+
+        val clonedPopup = originalPopup.copy(
+            title = "${originalPopup.title} (복사본)",
+            status = PopupStatus.INACTIVE,
+            creator = creator
+        )
+
+        val savedPopup = popupRepository.save(clonedPopup)
+        savePopupHistory(savedPopup, creator, "CLONE",
+            mapOf("originalId" to id))
+
+        return savedPopup.toResponse()
+    }
+
+
+    /**
+     * 템플릿 저장
+     */
+    @Transactional
+    fun saveTemplate(request: TemplateCreateRequest, userId: String): TemplateResponse {
+        val creator = memberRepository.findByUserid(userId)
+            ?: throw EntityNotFoundException("User not found")
+
+        val template = PopupTemplateEntity(
+            name = request.name,
+            content = request.content,
+            width = request.width,
+            height = request.height,
+            backgroundColor = request.backgroundColor,
+            borderStyle = request.borderStyle,
+            creator = creator,
+            isDefault = request.isDefault
+        )
+
+        return popupTemplateRepository.save(template).toResponse()
+    }
+
+    /**
+     * 통계 업데이트
+     */
+    @Transactional
+    fun updateStatistics(id: Long, statsType: String, deviceType: String?) {
+        val statistics = popupStatisticsRepository.findByPopupId(id)
+            ?: throw EntityNotFoundException("Statistics not found")
+
+        when (statsType) {
+            "VIEW" -> {
+                statistics.viewCount++
+                deviceType?.let {
+                    statistics.deviceStats.merge(it, 1L, Long::plus)
+                }
+            }
+            "CLICK" -> statistics.clickCount++
+            "CLOSE" -> {
+                statistics.closeCount++
+                statistics.closeTypeStats.merge(deviceType ?: "NORMAL", 1L, Long::plus)
+            }
+        }
+    }
+
+    /**
+     * CTR 계산
+     */
+    fun calculateCTR(id: Long): Double {
+        val statistics = popupStatisticsRepository.findByPopupId(id)
+            ?: throw EntityNotFoundException("Statistics not found")
+
+        return if (statistics.viewCount > 0) {
+            (statistics.clickCount.toDouble() / statistics.viewCount) * 100
+        } else 0.0
+    }
+
+
+
+
 
 }

@@ -1,360 +1,322 @@
 <!DOCTYPE html>
 <html layout:decorate="~{global/admLayout}">
 <head>
-    <title>팝업 등록</title>
+    <title>팝업 관리</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        .popup-form-container {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background: #ffffff;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            border-radius: 8px;
-        }
-
-        .form-section {
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background: #f8f9fa;
-            border-radius: 6px;
-            border: 1px solid #e9ecef;
-        }
-
-        .section-title {
-            font-size: 1.25rem;
-            color: #343a40;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #4dabf7;
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #495057;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            transition: border-color 0.2s;
-        }
-
-        .form-input:focus {
-            border-color: #4dabf7;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(77, 171, 247, 0.2);
-        }
-
-        .form-textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .input-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            margin: 0.5rem 0;
-        }
-
-        .checkbox-label {
-            margin-left: 0.5rem;
-            color: #495057;
-        }
-
-        .form-select {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            background-color: white;
-        }
-
-        .file-input {
-            padding: 0.5rem;
-            border: 1px dashed #ced4da;
-            border-radius: 4px;
-            background: #f8f9fa;
-        }
-
-        .button-group {
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .btn {
-            padding: 0.5rem 1.5rem;
-            border-radius: 4px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-cancel {
-            background: #e9ecef;
-            color: #495057;
-            border: 1px solid #ced4da;
-        }
-
-        .btn-cancel:hover {
-            background: #dee2e6;
-        }
-
-        .btn-submit {
-            background: #4dabf7;
-            color: white;
-            border: none;
-        }
-
-        .btn-submit:hover {
-            background: #339af0;
-        }
-
-        .error-message {
-            color: #fa5252;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-        }
-
-        /* 반응형 디자인 */
-        @media (max-width: 768px) {
-            .popup-form-container {
-                margin: 1rem;
-                padding: 1rem;
-            }
-
-            .input-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .button-group {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-                margin: 0.5rem 0;
-            }
+        .preview-popup {
+            position: fixed;
+            display: none;
+            z-index: 1000;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
         }
     </style>
 
     <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('popupForm');
-
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                const formData = new FormData(e.target);
-
-                // 날짜 형식 변환
-                const startDateTime = new Date(formData.get('startDateTime')).toISOString();
-                const endDateTime = new Date(formData.get('endDateTime')).toISOString();
-
-                // displayPages 설정 (현재는 모든 페이지로 설정)
-                const displayPages = new Set(['/']);
-
-                // targetRoles 설정 (기본값으로 모든 사용자 설정)
-                const targetRoles = new Set(['ROLE_USER']);
-
-                const popupData = {
-                    title: formData.get('title'),
-                    content: formData.get('content'),
-                    startDateTime: startDateTime,
-                    endDateTime: endDateTime,
-                    priority: parseInt(formData.get('priority')),
-                    width: parseInt(formData.get('width')),
-                    height: parseInt(formData.get('height')),
-                    positionX: parseInt(formData.get('positionX')),
-                    positionY: parseInt(formData.get('positionY')),
-                    linkUrl: formData.get('linkUrl') || null,
-                    altText: formData.get('altText') || null,
-                    target: formData.get('target'),
-                    deviceType: formData.get('deviceType'),
-                    cookieExpireDays: parseInt(formData.get('cookieExpireDays')) || 1,
-                    hideForToday: formData.get('hideForToday') === 'on',
-                    hideForWeek: formData.get('hideForWeek') === 'on',
-                    backgroundColor: formData.get('backgroundColor') || null,
-                    borderStyle: formData.get('borderStyle') || null,
-                    shadowEffect: formData.get('shadowEffect') === 'on',
-                    animationType: formData.get('animationType') || 'NONE',
-                    displayPages: Array.from(displayPages),
-                    targetRoles: Array.from(targetRoles),
-                    maxDisplayCount: parseInt(formData.get('maxDisplayCount')) || 0
-                };
-
-                const imageFile = formData.get('image');
-                const finalFormData = new FormData();
-
-                finalFormData.append('popup', new Blob([JSON.stringify(popupData)], {
-                    type: 'application/json'
-                }));
-
-                if (imageFile && imageFile.size > 0) {
-                    finalFormData.append('image', imageFile);
-                }
-
-                try {
-                    const response = await fetch('/api/popups', {
-                        method: 'POST',
-                        body: finalFormData
-                    });
-
-                    if (!response.ok) {
-                        const error = await response.json();
-                        throw new Error(error.error || '팝업 생성에 실패했습니다.');
+        // 팝업 활성화/비활성화
+        async function activatePopup(id) {
+            try {
+                await fetch(`/api/admin/popups/${id}/activate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
                     }
+                });
+                location.reload();
+            } catch (error) {
+                alert('팝업 활성화 중 오류가 발생했습니다.');
+            }
+        }
 
-                    alert('팝업이 성공적으로 등록되었습니다.');
-                    window.location.href = '/adm/popups';
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert(error.message);
-                }
-            });
-        });
+        async function deactivatePopup(id) {
+            try {
+                await fetch(`/api/admin/popups/${id}/deactivate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                location.reload();
+            } catch (error) {
+                alert('팝업 비활성화 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 팝업 미리보기
+        async function previewPopup(id) {
+            try {
+                const response = await fetch(`/api/admin/popups/${id}/preview`);
+                const data = await response.json();
+
+                const previewPopup = document.getElementById('preview-popup');
+                previewPopup.style.width = data.width + 'px';
+                previewPopup.style.height = data.height + 'px';
+                previewPopup.style.display = 'block';
+                previewPopup.querySelector('.preview-content').innerHTML = data.content;
+
+                // 드래그 가능하도록 설정
+                makeDraggable(previewPopup);
+            } catch (error) {
+                alert('미리보기를 불러오는 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 통계 차트 표시
+        async function showStatistics(id) {
+            try {
+                const response = await fetch(`/api/admin/popups/${id}/statistics`);
+                const data = await response.json();
+
+                // 디바이스별 통계 차트
+                new Chart(document.getElementById('deviceChart'), {
+                    type: 'pie',
+                    data: {
+                        labels: Object.keys(data.deviceStats),
+                        datasets: [{
+                            data: Object.values(data.deviceStats),
+                            backgroundColor: ['#4B5563', '#60A5FA', '#34D399']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '디바이스별 통계'
+                            }
+                        }
+                    }
+                });
+
+                // 닫기 방식 통계 차트
+                new Chart(document.getElementById('closeTypeChart'), {
+                    type: 'pie',
+                    data: {
+                        labels: Object.keys(data.closeTypeStats),
+                        datasets: [{
+                            data: Object.values(data.closeTypeStats),
+                            backgroundColor: ['#F87171', '#FBBF24', '#818CF8']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '닫기 방식 통계'
+                            }
+                        }
+                    }
+                });
+
+                document.getElementById('statistics-modal').classList.remove('hidden');
+            } catch (error) {
+                alert('통계를 불러오는 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 팝업 복제
+        async function clonePopup(id) {
+            if (!confirm('팝업을 복제하시겠습니까?')) return;
+
+            try {
+                const response = await fetch(`/api/admin/popups/${id}/clone`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                location.reload();
+            } catch (error) {
+                alert('팝업 복제 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 팝업 삭제
+        async function deletePopup(id) {
+            if (!confirm('정말 삭제하시겠습니까?')) return;
+
+            try {
+                await fetch(`/api/admin/popups/${id}`, {
+                    method: 'DELETE'
+                });
+                document.getElementById(`popup-row-${id}`).remove();
+            } catch (error) {
+                alert('팝업 삭제 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 드래그 가능한 팝업
+        function makeDraggable(element) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            element.onmousedown = dragMouseDown;
+
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                element.style.top = (element.offsetTop - pos2) + "px";
+                element.style.left = (element.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
     </script>
 </head>
-<body>
-    <div layout:fragment="content">
-        <div class="popup-form-container">
-            <h1 class="section-title">팝업 등록</h1>
-
-            <form id="popupForm">
-                <!-- 기본 정보 섹션 -->
-                <div class="form-section">
-                    <h2 class="section-title">기본 정보</h2>
-                    <div class="form-group">
-                        <label class="form-label">제목</label>
-                        <input type="text" name="title" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">내용</label>
-                        <textarea name="content" class="form-input form-textarea"></textarea>
-                    </div>
-                </div>
-
-                <!-- 표시 기간 섹션 -->
-                <div class="form-section">
-                    <h2 class="section-title">표시 기간</h2>
-                    <div class="input-grid">
-                        <div class="form-group">
-                            <label class="form-label">시작일시</label>
-                            <input type="datetime-local" name="startDateTime" class="form-input" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">종료일시</label>
-                            <input type="datetime-local" name="endDateTime" class="form-input" required>
-                        </div>
+    <body>
+        <div layout:fragment="content">
+            <div class="container mx-auto px-4 py-8">
+                <!-- 상단 메뉴 -->
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold">팝업 관리</h1>
+                    <div class="space-x-2">
+                        <a th:href="@{/adm/popups/templates}"
+                           class="bg-green-500 text-white px-4 py-2 rounded">
+                            템플릿 관리
+                        </a>
+                        <a th:href="@{/adm/popups/create}"
+                           class="bg-blue-500 text-white px-4 py-2 rounded">
+                            새 팝업 등록
+                        </a>
                     </div>
                 </div>
 
-                <!-- 크기 및 위치 섹션 -->
-                <div class="form-section">
-                    <h2 class="section-title">크기 및 위치</h2>
-                    <div class="input-grid">
-                        <div class="form-group">
-                            <label class="form-label">너비 (px)</label>
-                            <input type="number" name="width" min="100" max="2000" class="form-input" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">높이 (px)</label>
-                            <input type="number" name="height" min="100" max="2000" class="form-input" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">X 좌표</label>
-                            <input type="number" name="positionX" class="form-input" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Y 좌표</label>
-                            <input type="number" name="positionY" class="form-input" required>
-                        </div>
-                    </div>
+                <!-- 팝업 목록 -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                제목/이미지
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                상태/기간
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                통계
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                관리
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                        <tr th:each="popup : ${popups}" th:id="'popup-row-' + ${popup.id}">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <img th:if="${popup.imageUrl}"
+                                         th:src="${popup.imageUrl}"
+                                         class="h-16 w-16 object-cover mr-3">
+                                    <div>
+                                        <div class="font-medium" th:text="${popup.title}"></div>
+                                        <div class="text-sm text-gray-500">
+                                            <span th:text="${popup.deviceType}"></span>
+                                            <span th:if="${popup.repeatType}"
+                                                  th:text="'(' + ${popup.repeatType} + ')'">
+                                                </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="mb-2">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                              th:classappend="${popup.status == 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}"
+                                              th:text="${popup.status}">
+                                        </span>
+                                    <button th:if="${popup.status == 'INACTIVE'}"
+                                            th:onclick="'activatePopup(' + ${popup.id} + ')'"
+                                            class="ml-2 text-xs text-blue-600 hover:text-blue-900">
+                                        활성화
+                                    </button>
+                                    <button th:if="${popup.status == 'ACTIVE'}"
+                                            th:onclick="'deactivatePopup(' + ${popup.id} + ')'"
+                                            class="ml-2 text-xs text-red-600 hover:text-red-900">
+                                        비활성화
+                                    </button>
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    <div th:text="${#temporals.format(popup.startDateTime, 'yyyy-MM-dd HH:mm')}"></div>
+                                    <div th:text="${#temporals.format(popup.endDateTime, 'yyyy-MM-dd HH:mm')}"></div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm">
+                                    <div>노출수: <span th:text="${popup.statistics.viewCount}"></span></div>
+                                    <div>클릭률: <span th:text="${#numbers.formatDecimal(popup.statistics.ctr, 1, 2)}">%</span></div>
+                                    <button class="text-blue-600 hover:text-blue-900 text-xs"
+                                            th:onclick="'showStatistics(' + ${popup.id} + ')'">
+                                        상세 통계
+                                    </button>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="space-y-2">
+                                    <button class="block text-blue-600 hover:text-blue-900"
+                                            th:onclick="'previewPopup(' + ${popup.id} + ')'">
+                                        미리보기
+                                    </button>
+                                    <a th:href="@{/adm/popups/edit/{id}(id=${popup.id})}"
+                                       class="block text-blue-600 hover:text-blue-900">
+                                        수정
+                                    </a>
+                                    <button class="block text-blue-600 hover:text-blue-900"
+                                            th:onclick="'clonePopup(' + ${popup.id} + ')'">
+                                        복제
+                                    </button>
+                                    <button class="block text-red-600 hover:text-red-900"
+                                            th:onclick="'deletePopup(' + ${popup.id} + ')'">
+                                        삭제
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
+            </div>
 
-                <!-- 이미지 및 링크 섹션 -->
-                <div class="form-section">
-                    <h2 class="section-title">이미지 및 링크</h2>
-                    <div class="form-group">
-                        <label class="form-label">이미지</label>
-                        <input type="file" name="image" accept="image/*" class="file-input">
+            <!-- 통계 모달 -->
+            <div id="statistics-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
+                <div class="bg-white rounded-lg p-8 max-w-2xl mx-auto mt-20">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold">상세 통계</h2>
+                        <button onclick="closeStatisticsModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">링크 URL</label>
-                        <input type="url" name="linkUrl" class="form-input">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">대체 텍스트</label>
-                        <input type="text" name="altText" class="form-input">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <canvas id="deviceChart"></canvas>
+                        </div>
+                        <div>
+                            <canvas id="closeTypeChart"></canvas>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- 표시 옵션 섹션 -->
-                <div class="form-section">
-                    <h2 class="section-title">표시 옵션</h2>
-                    <div class="input-grid">
-                        <div class="form-group">
-                            <label class="form-label">디바이스 타입</label>
-                            <select name="deviceType" class="form-select">
-                                <option value="ALL">모든 기기</option>
-                                <option value="PC">PC</option>
-                                <option value="MOBILE">모바일</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">링크 타겟</label>
-                            <select name="target" class="form-select">
-                                <option value="SELF">현재 창</option>
-                                <option value="BLANK">새 창</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 추가 설정 섹션 -->
-                <div class="form-section">
-                    <h2 class="section-title">추가 설정</h2>
-                    <div class="input-grid">
-                        <div class="form-group">
-                            <label class="form-label">우선순위</label>
-                            <input type="number" name="priority" min="1" max="10" class="form-input" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">최대 노출 횟수</label>
-                            <input type="number" name="maxDisplayCount" min="0" class="form-input">
-                        </div>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" name="hideForToday" id="hideForToday">
-                        <label for="hideForToday" class="checkbox-label">오늘 하루 보지 않기 허용</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" name="hideForWeek" id="hideForWeek">
-                        <label for="hideForWeek" class="checkbox-label">일주일 동안 보지 않기 허용</label>
-                    </div>
-                </div>
-
-                <div class="button-group">
-                    <button type="button" onclick="history.back()" class="btn btn-cancel">취소</button>
-                    <button type="submit" class="btn btn-submit">등록</button>
-                </div>
-            </form>
+            <!-- 미리보기 팝업 -->
+            <div id="preview-popup" class="preview-popup">
+                <div class="preview-content"></div>
+            </div>
         </div>
-    </div>
-</body>
+
+    </body>
 </html>
