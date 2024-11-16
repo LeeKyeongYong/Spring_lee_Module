@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useContext,use } from "react"; // useContext 추가
 import { MemberContext } from "@/stores/member";
 import { useRouter } from "next/navigation";
-import { use } from "react";
 
 export default function ClientPage() {
     const router = useRouter();
-    const { setLoginMember } = use(MemberContext);
+    const { setLoginMember } = useContext(MemberContext); // use() 대신 useContext 사용
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

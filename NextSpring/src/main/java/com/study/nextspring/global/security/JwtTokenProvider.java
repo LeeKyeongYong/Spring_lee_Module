@@ -9,7 +9,7 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    @Value("${jwt.secret}")
+    @Value("${custom.jwt.secretKey}")
     private String secretKey;
 
     private final long expirationTime = 1000 * 60 * 60 * 24; // 24시간 유효
