@@ -1,5 +1,9 @@
 package com.krstudy.kapi.domain.popups.entity
 
+import com.krstudy.kapi.domain.member.entity.Member
+import com.krstudy.kapi.global.jpa.BaseEntity
+import jakarta.persistence.*
+
 /**
  * 팝업 템플릿 엔티티
  */

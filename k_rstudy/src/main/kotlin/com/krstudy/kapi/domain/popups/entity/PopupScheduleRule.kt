@@ -1,5 +1,10 @@
 package com.krstudy.kapi.domain.popups.entity
 
+import jakarta.persistence.ElementCollection
+import jakarta.persistence.Entity
+import java.time.DayOfWeek
+import java.time.LocalDate
+
 @Entity
 class PopupScheduleRule(
     // 복잡한 반복 규칙 지원

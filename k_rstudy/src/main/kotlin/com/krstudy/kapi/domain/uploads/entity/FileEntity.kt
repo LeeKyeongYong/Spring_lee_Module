@@ -36,4 +36,8 @@ class FileEntity(
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     var status: FileStatusEnum = FileStatusEnum.ACTIVE
-) : BaseEntity() {}
+) : BaseEntity() {
+    // URL을 생성하는 프로퍼티 추가
+    val url: String
+        get() = "/files/$storedFileName"
+}

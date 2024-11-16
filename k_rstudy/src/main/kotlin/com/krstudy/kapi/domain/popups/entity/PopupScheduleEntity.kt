@@ -1,24 +1,37 @@
 package com.krstudy.kapi.domain.popups.entity
 
+import com.krstudy.kapi.domain.popups.enums.RepeatType
+import com.krstudy.kapi.global.jpa.BaseEntity
+import jakarta.persistence.*
+import java.time.LocalDateTime
+
 /**
  * 팝업 반복 설정 엔티티
  */
-@Entity(name = "PopupSchedule")
+@Entity
+@Table(name = "popup_schedules")
 class PopupScheduleEntity(
-    @OneToOne
-    @JoinColumn(name = "popup_id")
-    val popup: PopupEntity,
 
-    @Column(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "popup_id")
+    var popup: PopupEntity,
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     var repeatType: RepeatType,
 
     @Column
-    var repeatDays: String?, // 요일 정보 (예: "1,3,5" - 월,수,금)
+    var repeatDays: String? = null,  // 주간 반복 시 요일 (1,2,3,4,5,6,7)
 
     @Column
-    var repeatMonthDay: Int?, // 매월 특정 일
+    var repeatMonthDay: Int? = null, // 월간 반복 시 일자
 
     @Column(nullable = false)
-    var endDate: LocalDateTime?
+    var startTime: LocalDateTime,
+
+    @Column(nullable = false)
+    var endTime: LocalDateTime,
+
+    @Column(nullable = false)
+    var isActive: Boolean = true
 ) : BaseEntity()

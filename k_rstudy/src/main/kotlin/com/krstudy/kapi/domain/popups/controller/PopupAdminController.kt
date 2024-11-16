@@ -1,5 +1,12 @@
 package com.krstudy.kapi.domain.popups.controller
 
+import com.krstudy.kapi.domain.popups.enums.PopupStatus
+import com.krstudy.kapi.domain.popups.service.PopupService
+import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.ui.Model
+import org.springframework.web.bind.annotation.*
+
 @PreAuthorize("hasRole('POPUP_ADMIN')")
 @RestController
 @RequestMapping("/api/admin/popups")
@@ -35,4 +42,11 @@ class PopupAdminController(
     // 변경 이력 추적
     @GetMapping("/{id}/history")
     fun getChangeHistory(@PathVariable id: Long): List<PopupChangeLog>
+
+    @GetMapping("/preview/{id}")
+    fun previewPopup(@PathVariable id: Long, model: Model): String {
+        val popup = popupService.getPopup(id)
+        model.addAttribute("popup", popup)
+        return "admin/popup/template-preview"
+    }
 }

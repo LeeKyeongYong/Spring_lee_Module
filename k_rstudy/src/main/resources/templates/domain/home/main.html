@@ -211,6 +211,44 @@
         .hide-popup input[type="checkbox"] {
             cursor: pointer;
         }
+
+        /* 페이드 효과 */
+        .popup-preview.fade {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* 슬라이드 효과 */
+        .popup-preview.slide {
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .popup-preview.slide.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* 바운스 효과 */
+        .popup-preview.bounce {
+            animation: bounceIn 0.5s cubic-bezier(0.36, 0, 0.66, -0.56);
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+            70% { transform: scale(0.9); }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 

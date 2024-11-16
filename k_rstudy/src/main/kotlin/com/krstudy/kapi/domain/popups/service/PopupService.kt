@@ -2,15 +2,15 @@ package com.krstudy.kapi.domain.popups.service
 
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.repository.MemberRepository
-import com.krstudy.kapi.domain.popups.dto.PopupCreateRequest
-import com.krstudy.kapi.domain.popups.dto.PopupResponse
+import com.krstudy.kapi.domain.popups.dto.*
 import com.krstudy.kapi.domain.popups.entity.DeviceType
 import com.krstudy.kapi.domain.popups.entity.PopupEntity
+import com.krstudy.kapi.domain.popups.entity.PopupHistoryEntity
+import com.krstudy.kapi.domain.popups.entity.PopupTemplateEntity
 import com.krstudy.kapi.domain.popups.enums.PopupStatus
 import com.krstudy.kapi.domain.popups.exception.PopupCreationException
 import com.krstudy.kapi.domain.popups.factory.PopupFactory
-import com.krstudy.kapi.domain.popups.repository.PopupRepository
-import com.krstudy.kapi.domain.uploads.entity.FileEntity
+import com.krstudy.kapi.domain.popups.repository.*
 import com.krstudy.kapi.domain.uploads.service.FileServiceImpl
 import jakarta.persistence.EntityNotFoundException
 import org.springframework.stereotype.Service
@@ -333,8 +333,19 @@ class PopupService(
         } else 0.0
     }
 
-
-
-
+    private fun savePopupHistory(
+        popup: PopupEntity,
+        editor: Member,
+        action: String,
+        details: Map<String, Any>
+    ) {
+        val historyEntity = PopupHistoryEntity(
+            popup = popup,
+            editor = editor,
+            action = action,
+            changeDetails = objectMapper.writeValueAsString(details)
+        )
+        popupHistoryRepository.save(historyEntity)
+    }
 
 }
