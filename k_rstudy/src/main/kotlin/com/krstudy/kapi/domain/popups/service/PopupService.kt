@@ -1,5 +1,6 @@
 package com.krstudy.kapi.domain.popups.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.repository.MemberRepository
 import com.krstudy.kapi.domain.popups.dto.*
@@ -13,6 +14,7 @@ import com.krstudy.kapi.domain.popups.factory.PopupFactory
 import com.krstudy.kapi.domain.popups.repository.*
 import com.krstudy.kapi.domain.uploads.service.FileServiceImpl
 import jakarta.persistence.EntityNotFoundException
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -28,7 +30,8 @@ class PopupService(
     private val popupHistoryRepository: PopupHistoryRepository,
     private val popupTemplateRepository: PopupTemplateRepository,
     private val popupStatisticsRepository: PopupStatisticsRepository,
-    private val popupScheduleRepository: PopupScheduleRepository
+    private val popupScheduleRepository: PopupScheduleRepository,
+    @Autowired private val objectMapper: ObjectMapper
 ) {
     /**
      * 팝업 요청 검증
@@ -346,6 +349,113 @@ class PopupService(
             changeDetails = objectMapper.writeValueAsString(details)
         )
         popupHistoryRepository.save(historyEntity)
+    }
+
+    /**
+     * 팝업 이력 조회
+     */
+    @Transactional(readOnly = true)
+    fun getPopupHistory(id: Long): List<PopupHistoryDto> {
+        val popup = popupRepository.findById(id).orElseThrow {
+            EntityNotFoundException("팝업을 찾을 수 없습니다: $id")
+        }
+        return popupHistoryRepository.findByPopupOrderByCreateDateDesc(popup)
+            .map { history ->
+                PopupHistoryDto(
+                    id = history.id,
+                    popupId = history.popup.id,
+                    action = history.action,
+                    changeDetails = history.changeDetails ?: "",  // null일 경우 빈 문자열 반환
+                    editorId = history.editor.userid,
+                    createdAt = history.getCreateDate() ?: LocalDateTime.now()
+                )
+            }
+    }
+
+    /**
+     * 팝업 대량 업데이트
+     */
+    @Transactional
+    fun bulkUpdate(updates: List<PopupBulkUpdateDto>, userId: String): List<PopupResponse> {
+        val editor = memberRepository.findByUserid(userId)
+            ?: throw EntityNotFoundException("사용자를 찾을 수 없습니다")
+
+        return updates.map { update ->
+            val popup = popupRepository.findById(update.id).orElseThrow {
+                EntityNotFoundException("팝업을 찾을 수 없습니다: ${update.id}")
+            }
+
+            // 팝업 정보 업데이트
+            update.status?.let {
+                popup.status = it
+                savePopupHistory(popup, editor, "STATUS_CHANGE",
+                    mapOf("oldStatus" to popup.status, "newStatus" to it))
+            }
+            update.priority?.let {
+                popup.priority = it
+                savePopupHistory(popup, editor, "PRIORITY_CHANGE",
+                    mapOf("oldPriority" to popup.priority, "newPriority" to it))
+            }
+            update.startDateTime?.let {
+                val newDateTime = LocalDateTime.parse(it)
+                savePopupHistory(popup, editor, "START_DATE_CHANGE",
+                    mapOf("oldStartDate" to popup.startDateTime, "newStartDate" to newDateTime))
+                popup.startDateTime = newDateTime
+            }
+            update.endDateTime?.let {
+                val newDateTime = LocalDateTime.parse(it)
+                savePopupHistory(popup, editor, "END_DATE_CHANGE",
+                    mapOf("oldEndDate" to popup.endDateTime, "newEndDate" to newDateTime))
+                popup.endDateTime = newDateTime
+            }
+
+            PopupResponse.from(popupRepository.save(popup))
+        }
+    }
+
+    /**
+     * 설정을 상속받은 팝업 복제
+     */
+    @Transactional
+    fun clonePopup(
+        id: Long,
+        settings: PopupCloneSettingsDto,
+        userId: String
+    ): PopupResponse {
+        val originalPopup = popupRepository.findById(id).orElseThrow {
+            EntityNotFoundException("팝업을 찾을 수 없습니다")
+        }
+        val creator = memberRepository.findByUserid(userId)
+            ?: throw EntityNotFoundException("사용자를 찾을 수 없습니다")
+
+        val clonedPopup = originalPopup.copy(
+            title = settings.newTitle ?: "${originalPopup.title} (복사본)",
+            status = PopupStatus.INACTIVE,
+            creator = creator
+        ).apply {
+            if (!settings.inheritTargetRoles) {
+                targetRoles = emptySet()
+            }
+            if (!settings.inheritDisplayPages) {
+                displayPages = emptySet()
+            }
+            if (!settings.inheritSchedule) {
+                startDateTime = LocalDateTime.now()
+                endDateTime = LocalDateTime.now().plusDays(7)
+            }
+        }
+
+        val savedPopup = popupRepository.save(clonedPopup)
+        savePopupHistory(savedPopup, creator, "CLONE_WITH_SETTINGS",
+            mapOf(
+                "originalId" to id,
+                "inheritTargetRoles" to settings.inheritTargetRoles,
+                "inheritDisplayPages" to settings.inheritDisplayPages,
+                "inheritSchedule" to settings.inheritSchedule
+            )
+        )
+
+        return savedPopup.toResponse()
     }
 
 }

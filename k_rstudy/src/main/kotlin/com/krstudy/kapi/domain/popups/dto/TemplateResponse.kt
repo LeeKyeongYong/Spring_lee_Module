@@ -1,6 +1,7 @@
 package com.krstudy.kapi.domain.popups.dto
 
 import com.krstudy.kapi.domain.popups.entity.PopupTemplateEntity
+import java.time.LocalDateTime
 
 data class TemplateResponse(
     val id: Long,
@@ -10,7 +11,9 @@ data class TemplateResponse(
     val height: Int,
     val backgroundColor: String?,
     val borderStyle: String?,
-    val isDefault: Boolean
+    val isDefault: Boolean,
+    val createdBy: String,
+    val createdAt: LocalDateTime
 ) {
     companion object {
         fun from(template: PopupTemplateEntity): TemplateResponse {
@@ -22,7 +25,9 @@ data class TemplateResponse(
                 height = template.height,
                 backgroundColor = template.backgroundColor,
                 borderStyle = template.borderStyle,
-                isDefault = template.isDefault
+                isDefault = template.isDefault,
+                createdBy = template.creator.userid,
+                createdAt = template.getCreateDate() ?: LocalDateTime.now()
             )
         }
     }

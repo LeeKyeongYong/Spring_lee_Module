@@ -1,9 +1,12 @@
 package com.krstudy.kapi.domain.popups.controller
 
+import com.krstudy.kapi.domain.popups.dto.*
 import com.krstudy.kapi.domain.popups.enums.PopupStatus
 import com.krstudy.kapi.domain.popups.service.PopupService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
 
@@ -14,34 +17,44 @@ class PopupAdminController(
     private val popupService: PopupService
 ) {
     @PostMapping("/{id}/activate")
-    fun activatePopup(@PathVariable id: Long): ResponseEntity<Void> {
-        popupService.changePopupStatus(id, PopupStatus.ACTIVE)
+    fun activatePopup(
+        @PathVariable id: Long,
+        @AuthenticationPrincipal user: UserDetails
+    ): ResponseEntity<Void> {
+        popupService.changePopupStatus(id, PopupStatus.ACTIVE, user.username)
         return ResponseEntity.ok().build()
     }
 
     @PostMapping("/{id}/deactivate")
-    fun deactivatePopup(@PathVariable id: Long): ResponseEntity<Void> {
-        popupService.changePopupStatus(id, PopupStatus.INACTIVE)
+    fun deactivatePopup(
+        @PathVariable id: Long,
+        @AuthenticationPrincipal user: UserDetails
+    ): ResponseEntity<Void> {
+        popupService.changePopupStatus(id, PopupStatus.INACTIVE, user.username)
         return ResponseEntity.ok().build()
     }
 
     @GetMapping("/{id}/history")
-    fun getPopupHistory(@PathVariable id: Long): ResponseEntity<List<PopupHistoryResponse>> {
+    fun getPopupHistory(@PathVariable id: Long): ResponseEntity<List<PopupHistoryDto>> {
         return ResponseEntity.ok(popupService.getPopupHistory(id))
     }
 
-    // 대량 작업 지원
     @PostMapping("/bulk-update")
-    fun bulkUpdate(@RequestBody updates: List<PopupBulkUpdate>)
+    fun bulkUpdate(
+        @RequestBody updates: List<PopupBulkUpdateDto>,
+        @AuthenticationPrincipal user: UserDetails
+    ): ResponseEntity<List<PopupResponse>> {
+        return ResponseEntity.ok(popupService.bulkUpdate(updates, user.username))
+    }
 
-    // 팝업 복제 시 설정 상속
-    @PostMapping("/{id}/clone-with-settings")
-    fun cloneWithSettings(@PathVariable id: Long,
-                          @RequestBody settings: CloneSettings)
-
-    // 변경 이력 추적
-    @GetMapping("/{id}/history")
-    fun getChangeHistory(@PathVariable id: Long): List<PopupChangeLog>
+    @PostMapping("/{id}/clone")
+    fun clonePopup(
+        @PathVariable id: Long,
+        @RequestBody settings: PopupCloneSettingsDto,
+        @AuthenticationPrincipal user: UserDetails
+    ): ResponseEntity<PopupResponse> {
+        return ResponseEntity.ok(popupService.clonePopup(id, settings, user.username))
+    }
 
     @GetMapping("/preview/{id}")
     fun previewPopup(@PathVariable id: Long, model: Model): String {
