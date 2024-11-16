@@ -1,50 +1,51 @@
 "use client";
 
-import { useState, useContext,use } from "react"; // useContext 추가
+import axios from 'axios';
+import { useState, useContext } from "react";
 import { MemberContext } from "@/stores/member";
 import { useRouter } from "next/navigation";
 
 export default function ClientPage() {
     const router = useRouter();
-    const { setLoginMember } = useContext(MemberContext); // use() 대신 useContext 사용
+    const { setLoginMember } = useContext(MemberContext);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const apiUrl = `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/members/login`;
-        console.log('API URL:', apiUrl); // API URL 확인
-        console.log('Request body:', { username, password }); // 요청 데이터 확인
+        console.log('API URL:', apiUrl);
+        console.log('Request body:', { username, password });
 
         try {
-            const response = await fetch(apiUrl, {
-                credentials: "include",
-                method: "POST",
-                body: JSON.stringify({ username, password }),
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
+            const response = await axios.post(apiUrl,
+                { username, password },
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
 
-            if (!response.ok) {
-                const errorData = await response.text();
-                console.error('Error response:', errorData);
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            // axios는 response.ok 대신 status로 확인합니다
+            console.log('Success response:', response.data);
 
-            const data = await response.json();
-            console.log('Success response:', data); // 성공 응답 확인
-
-            setLoginMember(data.data.item);
-            localStorage.setItem("accessToken", data.accessToken);
+            setLoginMember(response.data.data.item);
+            localStorage.setItem("accessToken", response.data.accessToken);
             alert("로그인되었습니다.");
             router.push("/");
         } catch (error) {
-            alert("로그인에 실패했습니다.");
-            console.error("로그인 실패:", error);
+            if (axios.isAxiosError(error)) {
+                console.error('Error response:', error.response?.data);
+                alert(error.response?.data?.message || "로그인에 실패했습니다.");
+            } else {
+                console.error("로그인 실패:", error);
+                alert("로그인에 실패했습니다.");
+            }
         }
     };
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8">

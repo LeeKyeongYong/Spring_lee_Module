@@ -4,27 +4,27 @@ import "./globals.css";
 import ClientLayout from "./ClientLayout";
 
 const pretendard = localFont({
-  src: "../../node_modules/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
-  display: "swap",
-  weight: "45 920",
-  variable: "--font-pretendard",
+    src: "./fonts/GeistMonoVF.woff",  // 경로 수정
+    display: "swap",
+    weight: "45 920",
+    variable: "--font-pretendard",
 });
 
 export const metadata: Metadata = {
-  title: "NestSpring",
-  description: "Nest Study 복습",
+    title: "NextSpring",
+    description: "개발자를 위한 블로그 솔루션",
 };
 
 export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
+                                       children,
+                                   }: Readonly<{
+    children: React.ReactNode;
 }>) {
-  return (
-      <html lang="ko" className={`${pretendard.variable}`}>
-      <body className={pretendard.className}>
-      <ClientLayout>{children}</ClientLayout>
-      </body>
-    </html>
-  );
+    return (
+        <html lang="ko" className={`${pretendard.variable}`}>
+        <body className={`${pretendard.className} flex flex-col min-h-screen`}>
+        <ClientLayout>{children}</ClientLayout>
+        </body>
+        </html>
+    );
 }
