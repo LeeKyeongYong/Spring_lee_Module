@@ -23,10 +23,12 @@ data class PopupResponse(
     val deviceType: String,
     val viewCount: Long,
     val clickCount: Long,
-    // 아래 속성들 추가
+    val ctr: Double = if (viewCount > 0) (clickCount * 100.0) / viewCount else 0.0,
+    val averageViewDuration: Double = 0.0,
     val hideForToday: Boolean,
     val hideForWeek: Boolean,
-    val createDate: LocalDateTime = LocalDateTime.now()
+    val createDate: LocalDateTime = LocalDateTime.now(),
+    val repeatType: String? = null
 ) {
     companion object {
         fun from(entity: PopupEntity): PopupResponse {
@@ -49,9 +51,11 @@ data class PopupResponse(
                 deviceType = entity.deviceType.name,
                 viewCount = entity.viewCount,
                 clickCount = entity.clickCount,
-
+                ctr = if (entity.viewCount > 0) (entity.clickCount * 100.0) / entity.viewCount else 0.0,
+                averageViewDuration = 0.0,  // 실제 데이터가 있다면 그 값을 사용
                 hideForToday = entity.hideForToday,
-                hideForWeek = entity.hideForWeek
+                hideForWeek = entity.hideForWeek,
+                repeatType = null
             )
         }
     }
