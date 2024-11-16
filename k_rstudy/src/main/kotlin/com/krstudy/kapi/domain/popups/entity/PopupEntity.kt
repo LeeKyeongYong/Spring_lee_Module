@@ -104,8 +104,20 @@ class PopupEntity(
     var viewCount: Long = 0, // 조회수
 
     @Column(nullable = false)
-    var clickCount: Long = 0 // 클릭수
+    var clickCount: Long = 0, // 클릭수
+
+    @OneToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @JoinColumn(name = "targeting_id")
+    private var _targeting: PopupTargeting? = null // private backing field로 변경
 ) : BaseEntity() {
+
+    // targeting 프로퍼티 정의
+    var targeting: PopupTargeting?
+        get() = _targeting
+        set(value) {
+            _targeting = value
+            value?.connectPopup(this) // popup
+        }
 
     /**
      * 팝업 복제 메서드
@@ -143,7 +155,8 @@ class PopupEntity(
             maxDisplayCount = this.maxDisplayCount,
             creator = creator,
             viewCount = 0,
-            clickCount = 0
+            clickCount = 0,
+            _targeting = null
         )
     }
 
