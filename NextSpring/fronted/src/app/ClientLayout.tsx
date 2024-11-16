@@ -23,23 +23,46 @@ export default function ClientLayout({ children }: Readonly<{ children: React.Re
     };
 
     useEffect(() => {
-        // 템플릿 리터럴 대신 문자열 연결 사용
-        client.GET('/members/me').then(({ data }) => {
-            if (data) {
-                setLoginMember(data.data);
-            }
-        });
-    }, [setLoginMember]);
+        // 로그인 상태가 아닐 때는 API 호출 건너뛰기
+        if (!localStorage.getItem("accessToken")) {
+            console.log("로그인 상태가 아님");
+            return;
+        }
+
+        console.log('Base URL:', process.env.NEXT_PUBLIC_CORE_API_BASE_URL);
+
+        client.GET('/members/me')
+            .then(({ data, error }) => {
+                if (error) {
+                    console.error('API 에러:', error);
+                    return;
+                }
+                if (data?.data) {
+                    setLoginMember(data.data);
+                }
+            })
+            .catch((error) => {
+                console.error('API 요청 에러:', error);
+                // 401 에러인 경우 토큰 제거
+                if (error.response?.status === 401) {
+                    localStorage.removeItem("accessToken");
+                    removeLoginMember();
+                }
+            });
+    }, [setLoginMember, removeLoginMember]);
 
     const logout = () => {
-        // 템플릿 리터럴 대신 문자열 연결 사용
-        client.POST('/members/logout').then(({ error }) => {
-            if (error) {
-                alert(error.msg);
-            } else {
-                removeLoginMember();
-            }
-        });
+        client.POST('/members/logout')
+            .then(({ error }) => {
+                if (error) {
+                    alert(error.msg);
+                } else {
+                    removeLoginMember();
+                }
+            })
+            .catch((error) => {
+                console.error('로그아웃 에러:', error);
+            });
     };
 
     return (

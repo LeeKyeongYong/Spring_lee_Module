@@ -13,7 +13,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowedOrigins(AppConfig.getSiteFrontUrl())
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowedHeaders("*")
-                .allowCredentials(true);
-                //.exposedHeaders("Authorization");
+                .allowCredentials(true)
+                .exposedHeaders("*");
     }
 }

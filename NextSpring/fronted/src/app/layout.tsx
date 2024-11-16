@@ -4,7 +4,7 @@ import "./globals.css";
 import ClientLayout from "./ClientLayout";
 
 const pretendard = localFont({
-    src: "./fonts/GeistMonoVF.woff",  // 경로 수정
+    src: "./fonts/PretendardVariable.woff2",
     display: "swap",
     weight: "45 920",
     variable: "--font-pretendard",
