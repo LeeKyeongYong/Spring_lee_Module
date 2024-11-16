@@ -1,6 +1,5 @@
 package com.krstudy.kapi.domain.popups.entity
 
-
 import com.krstudy.kapi.global.jpa.BaseEntity
 import jakarta.persistence.*
 import java.time.LocalDateTime
@@ -8,7 +7,6 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "popup_statistics")
 class PopupStatisticsEntity(
-
 
     @Column(nullable = false)
     val popupId: Long,
@@ -54,5 +52,8 @@ class PopupStatisticsEntity(
     val deviceType: DeviceType,
 
     @Column(nullable = false)
-    val recordedAt: LocalDateTime = LocalDateTime.now()
+    val recordedAt: LocalDateTime = LocalDateTime.now(),
+
+    @Column(nullable = false)
+    val createdAt: LocalDateTime = LocalDateTime.now()  // createdAt 필드 추가
 ) : BaseEntity()

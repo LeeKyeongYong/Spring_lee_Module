@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import java.net.URLDecoder
+import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -80,16 +81,23 @@ class FileUploadController(
     }
 
 
-    @GetMapping("/view/{id}") // view 엔드포인트 추가
+    @GetMapping("/view/{id}")
     fun viewFile(@PathVariable id: Long): ResponseEntity<Resource> {
         return try {
             val file = fileService.getFileById(id)
             val path = Paths.get(file.filePath)
             val resource = InputStreamResource(Files.newInputStream(path))
 
+            // 파일명 인코딩
+            val encodedFileName = URLEncoder.encode(file.originalFileName, "UTF-8")
+                .replace("+", "%20") // 공백 처리
+
             ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(file.contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"${file.originalFileName}\"")
+                .header(
+                    HttpHeaders.CONTENT_DISPOSITION,
+                    """inline; filename*=UTF-8''$encodedFileName"""
+                )
                 .body(resource)
         } catch (e: Exception) {
             logger.error("Failed to view file: ${e.message}", e)

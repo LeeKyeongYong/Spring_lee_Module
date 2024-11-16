@@ -3,6 +3,7 @@
 <head>
     <title>팝업 관리</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         .preview-popup {
             position: fixed;
@@ -11,10 +12,50 @@
             background: white;
             box-shadow: 0 0 10px rgba(0,0,0,0.3);
         }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: #f9fafb;
+            border-radius: 0.5rem;
+            border: 2px dashed #e5e7eb;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .stats-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
     </style>
 
     <script type="text/javascript">
-        // 팝업 활성화/비활성화
+        // 기존 JavaScript 함수들 유지
         async function activatePopup(id) {
             try {
                 await fetch(`/api/admin/popups/${id}/activate`, {
@@ -43,7 +84,6 @@
             }
         }
 
-        // 팝업 미리보기
         async function previewPopup(id) {
             try {
                 const response = await fetch(`/api/admin/popups/${id}/preview`);
@@ -55,18 +95,21 @@
                 previewPopup.style.display = 'block';
                 previewPopup.querySelector('.preview-content').innerHTML = data.content;
 
-                // 드래그 가능하도록 설정
                 makeDraggable(previewPopup);
             } catch (error) {
                 alert('미리보기를 불러오는 중 오류가 발생했습니다.');
             }
         }
 
-        // 통계 차트 표시
         async function showStatistics(id) {
             try {
                 const response = await fetch(`/api/admin/popups/${id}/statistics`);
                 const data = await response.json();
+
+                // 통계 카드 업데이트
+                document.getElementById('total-views').textContent = data.totalViews || 0;
+                document.getElementById('ctr-rate').textContent = `${data.ctr || 0}%`;
+                document.getElementById('avg-duration').textContent = `${data.avgDuration || 0}초`;
 
                 // 디바이스별 통계 차트
                 new Chart(document.getElementById('deviceChart'), {
@@ -116,7 +159,10 @@
             }
         }
 
-        // 팝업 복제
+        function closeStatisticsModal() {
+            document.getElementById('statistics-modal').classList.add('hidden');
+        }
+
         async function clonePopup(id) {
             if (!confirm('팝업을 복제하시겠습니까?')) return;
 
@@ -133,7 +179,6 @@
             }
         }
 
-        // 팝업 삭제
         async function deletePopup(id) {
             if (!confirm('정말 삭제하시겠습니까?')) return;
 
@@ -147,7 +192,6 @@
             }
         }
 
-        // 드래그 가능한 팝업
         function makeDraggable(element) {
             let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
             element.onmousedown = dragMouseDown;
@@ -179,144 +223,181 @@
         }
     </script>
 </head>
-    <body>
-        <div layout:fragment="content">
-            <div class="container mx-auto px-4 py-8">
-                <!-- 상단 메뉴 -->
-                <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-2xl font-bold">팝업 관리</h1>
-                    <div class="space-x-2">
-                        <a th:href="@{/adm/popups/templates}"
-                           class="bg-green-500 text-white px-4 py-2 rounded">
-                            템플릿 관리
-                        </a>
-                        <a th:href="@{/adm/popups/create}"
-                           class="bg-blue-500 text-white px-4 py-2 rounded">
-                            새 팝업 등록
-                        </a>
-                    </div>
-                </div>
-
-                <!-- 팝업 목록 -->
-                <div class="bg-white rounded-lg shadow overflow-hidden">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                제목/이미지
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                상태/기간
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                통계
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                관리
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                        <tr th:each="popup : ${popups}" th:id="'popup-row-' + ${popup.id}">
-                            <td class="px-6 py-4">
-                                <div class="flex items-center">
-                                    <img th:if="${popup.imageUrl}"
-                                         th:src="${popup.imageUrl}"
-                                         class="h-16 w-16 object-cover mr-3">
-                                    <div>
-                                        <div class="font-medium" th:text="${popup.title}"></div>
-                                        <div class="text-sm text-gray-500">
-                                            <span th:text="${popup.deviceType}"></span>
-                                            <span th:if="${popup.repeatType}"
-                                                  th:text="'(' + ${popup.repeatType} + ')'">
-                                                </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="mb-2">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                                              th:classappend="${popup.status == 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}"
-                                              th:text="${popup.status}">
-                                        </span>
-                                    <button th:if="${popup.status == 'INACTIVE'}"
-                                            th:onclick="'activatePopup(' + ${popup.id} + ')'"
-                                            class="ml-2 text-xs text-blue-600 hover:text-blue-900">
-                                        활성화
-                                    </button>
-                                    <button th:if="${popup.status == 'ACTIVE'}"
-                                            th:onclick="'deactivatePopup(' + ${popup.id} + ')'"
-                                            class="ml-2 text-xs text-red-600 hover:text-red-900">
-                                        비활성화
-                                    </button>
-                                </div>
-                                <div class="text-sm text-gray-500">
-                                    <div th:text="${#temporals.format(popup.startDateTime, 'yyyy-MM-dd HH:mm')}"></div>
-                                    <div th:text="${#temporals.format(popup.endDateTime, 'yyyy-MM-dd HH:mm')}"></div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm">
-                                    <div>노출수: <span th:text="${popup.statistics.viewCount}"></span></div>
-                                    <div>클릭률: <span th:text="${#numbers.formatDecimal(popup.statistics.ctr, 1, 2)}">%</span></div>
-                                    <button class="text-blue-600 hover:text-blue-900 text-xs"
-                                            th:onclick="'showStatistics(' + ${popup.id} + ')'">
-                                        상세 통계
-                                    </button>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="space-y-2">
-                                    <button class="block text-blue-600 hover:text-blue-900"
-                                            th:onclick="'previewPopup(' + ${popup.id} + ')'">
-                                        미리보기
-                                    </button>
-                                    <a th:href="@{/adm/popups/edit/{id}(id=${popup.id})}"
-                                       class="block text-blue-600 hover:text-blue-900">
-                                        수정
-                                    </a>
-                                    <button class="block text-blue-600 hover:text-blue-900"
-                                            th:onclick="'clonePopup(' + ${popup.id} + ')'">
-                                        복제
-                                    </button>
-                                    <button class="block text-red-600 hover:text-red-900"
-                                            th:onclick="'deletePopup(' + ${popup.id} + ')'">
-                                        삭제
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
+<body>
+<div layout:fragment="content">
+    <div class="container mx-auto px-4 py-8">
+        <!-- 상단 메뉴 -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">팝업 관리</h1>
+                <p class="mt-2 text-gray-600">팝업을 생성하고 관리하세요</p>
             </div>
-
-            <!-- 통계 모달 -->
-            <div id="statistics-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
-                <div class="bg-white rounded-lg p-8 max-w-2xl mx-auto mt-20">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-bold">상세 통계</h2>
-                        <button onclick="closeStatisticsModal()" class="text-gray-500 hover:text-gray-700">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <canvas id="deviceChart"></canvas>
-                        </div>
-                        <div>
-                            <canvas id="closeTypeChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 미리보기 팝업 -->
-            <div id="preview-popup" class="preview-popup">
-                <div class="preview-content"></div>
+            <div class="space-x-3">
+                <a th:href="@{/adm/popups/templates}"
+                   class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+                    <i class="fas fa-layer-group mr-2"></i>
+                    템플릿 관리
+                </a>
+                <a th:href="@{/adm/popups/create}"
+                   class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                    <i class="fas fa-plus mr-2"></i>
+                    새 팝업 등록
+                </a>
             </div>
         </div>
 
-    </body>
+        <!-- 데이터가 없을 때 표시될 빈 상태 -->
+        <div th:if="${#lists.isEmpty(popups)}" class="empty-state">
+            <div class="empty-state-icon">
+                <i class="far fa-window-maximize"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">등록된 팝업이 없습니다</h3>
+            <p class="text-gray-500 mb-4">
+                새로운 팝업을 생성하여 방문자들에게 중요한 정보를 전달하세요.
+            </p>
+            <a th:href="@{/adm/popups/create}" class="btn-primary">
+                <i class="fas fa-plus mr-2"></i>첫 팝업 만들기
+            </a>
+        </div>
+
+        <!-- 팝업 목록 (데이터가 있을 때) -->
+        <div th:if="${not #lists.isEmpty(popups)}" class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        제목/이미지
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        상태/기간
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        통계
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        관리
+                    </th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                <tr th:each="popup : ${popups}" th:id="'popup-row-' + ${popup.id}">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <img th:if="${popup.imageUrl}"
+                                 th:src="${popup.imageUrl}"
+                                 class="h-16 w-16 object-cover mr-3">
+                            <div>
+                                <div class="font-medium" th:text="${popup.title}"></div>
+                                <div class="text-sm text-gray-500">
+                                    <span th:text="${popup.deviceType}"></span>
+                                    <span th:if="${popup.repeatType}"
+                                          th:text="'(' + ${popup.repeatType} + ')'">
+                                            </span>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="mb-2">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                          th:classappend="${popup.status == 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}"
+                                          th:text="${popup.status}">
+                                    </span>
+                            <button th:if="${popup.status == 'INACTIVE'}"
+                                    th:onclick="'activatePopup(' + ${popup.id} + ')'"
+                                    class="ml-2 text-xs text-blue-600 hover:text-blue-900">
+                                활성화
+                            </button>
+                            <button th:if="${popup.status == 'ACTIVE'}"
+                                    th:onclick="'deactivatePopup(' + ${popup.id} + ')'"
+                                    class="ml-2 text-xs text-red-600 hover:text-red-900">
+                                비활성화
+                            </button>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            <div th:text="${#temporals.format(popup.startDateTime, 'yyyy-MM-dd HH:mm')}"></div>
+                            <div th:text="${#temporals.format(popup.endDateTime, 'yyyy-MM-dd HH:mm')}"></div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm">
+                            <div>노출수: <span th:text="${popup.statistics.viewCount}"></span></div>
+                            <div>클릭률: <span th:text="${#numbers.formatDecimal(popup.statistics.ctr, 1, 2)}">%</span></div>
+                            <button class="text-blue-600 hover:text-blue-900 text-xs"
+                                    th:onclick="'showStatistics(' + ${popup.id} + ')'">
+                                상세 통계
+                            </button>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="space-y-2">
+                            <button class="block text-blue-600 hover:text-blue-900"
+                                    th:onclick="'previewPopup(' + ${popup.id} + ')'">
+                                미리보기
+                            </button>
+                            <a th:href="@{/adm/popups/edit/{id}(id=${popup.id})}"
+                               class="block text-blue-600 hover:text-blue-900">
+                                수정
+                            </a>
+                            <button class="block text-blue-600 hover:text-blue-900"
+                                    th:onclick="'clonePopup(' + ${popup.id} + ')'">
+                                복제
+                            </button>
+                            <button class="block text-red-600 hover:text-red-900"
+                                    th:onclick="'deletePopup(' + ${popup.id} + ')'">
+                                삭제
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 통계 모달 -->
+    <div id="statistics-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
+        <div class="bg-white rounded-lg p-8 max-w-4xl mx-auto mt-20">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">상세 통계</h2>
+                <button onclick="closeStatisticsModal()"
+                        class="text-gray-400 hover:text-gray-500 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- 통계 카드 -->
+            <div class="grid grid-cols-3 gap-4 mb-6">
+                <div class="stats-card">
+                    <div class="text-gray-500 mb-2">총 노출수</div>
+                    <div id="total-views" class="stats-number">0</div>
+                </div>
+                <div class="stats-card">
+                    <div class="text-gray-500 mb-2">클릭률 (CTR)</div>
+                    <div id="ctr-rate" class="stats-number">0%</div>
+                </div>
+                <div class="stats-card">
+                    <div class="text-gray-500 mb-2">평균 노출 시간</div>
+                    <div id="avg-duration" class="stats-number">0초</div>
+                </div>
+            </div>
+
+            <!-- 차트 영역 -->
+            <div class="grid grid-cols-2 gap-6">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <canvas id="deviceChart"></canvas>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <canvas id="closeTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 미리보기 팝업 -->
+    <div id="preview-popup" class="preview-popup">
+        <div class="preview-content"></div>
+    </div>
+</div>
+</body>
 </html>
