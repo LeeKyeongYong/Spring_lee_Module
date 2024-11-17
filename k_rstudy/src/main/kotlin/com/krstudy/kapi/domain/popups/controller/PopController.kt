@@ -5,6 +5,7 @@ import com.krstudy.kapi.global.https.ReqData
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 
 @Controller
@@ -50,4 +51,12 @@ class PopController (
 
         return "domain/home/adm/popupTemplates"
     }
+
+    @GetMapping("/adm/popups/template-preview/{id}/")
+    fun previewTemplate(@PathVariable id: Long): String {
+        val template = popupService.previewTemplate(id)
+        rq.setAttribute("template", template)
+        return "domain/home/adm/template-preview.html" // HTML 템플릿 경로 지정
+    }
+
 }

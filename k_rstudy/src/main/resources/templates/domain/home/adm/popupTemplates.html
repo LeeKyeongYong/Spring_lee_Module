@@ -203,18 +203,19 @@
                 const response = await fetch(`/api/admin/popup-templates/${templateId}`);
                 const template = await response.json();
 
-                // 팝업 생성 페이지로 이동하면서 템플릿 데이터를 쿼리 파라미터로 전달
-                const params = new URLSearchParams({
-                    templateId: template.id,
-                    name: template.name,
-                    width: template.width,
-                    height: template.height,
-                    backgroundColor: template.backgroundColor || '',
-                    borderStyle: template.borderStyle || '',
-                    content: template.content || ''
-                });
+                // URL 파라미터 생성 시 인코딩 처리
+                const params = new URLSearchParams();
+                params.append('templateId', template.id);
+                params.append('name', template.name || '');
+                params.append('width', template.width || '');
+                params.append('height', template.height || '');
+                params.append('backgroundColor', template.backgroundColor || '');
+                params.append('borderStyle', template.borderStyle || '');
+                params.append('content', template.content || '');
 
+                // 인코딩된 URL로 이동
                 window.location.href = `/adm/popups/create?${params.toString()}`;
+
             } catch (error) {
                 console.error('템플릿 사용 중 오류:', error);
                 alert('템플릿을 사용하는 중 오류가 발생했습니다.');
@@ -222,7 +223,7 @@
         }
 
         function previewTemplate(id) {
-            window.open(`/api/admin/popup-templates/${id}/preview`, 'popup_preview',
+            window.open(`/adm/popups/template-preview/${id}`, 'popup_preview',
                 `width=800,height=600,scrollbars=yes`);
         }
     </script>

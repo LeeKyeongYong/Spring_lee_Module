@@ -1,156 +1,40 @@
 <!DOCTYPE html>
 <html layout:decorate="~{admin/layout}">
 <head>
-    <title>팝업 템플릿 미리보기</title>
+    <meta charset="UTF-8">
+    <title>팝업 미리보기</title>
     <style>
-        .template-preview {
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-
-        .device-preview-buttons {
-            margin-bottom: 15px;
-        }
-
-        .device-preview-buttons button {
-            padding: 8px 16px;
-            margin-right: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background: white;
-            cursor: pointer;
-        }
-
-        .device-preview-buttons button:hover {
-            background: #e9ecef;
-        }
-
-        .preview-container {
-            border: 1px solid #ddd;
-            margin-top: 15px;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .preview-container.mobile {
-            width: 375px;
-            height: 667px;
-        }
-
-        .preview-container.tablet {
-            width: 768px;
-            height: 1024px;
-        }
-
-        .preview-container.desktop {
-            width: 1024px;
-            height: 768px;
-        }
-
-        .animation-preview {
-            margin-top: 15px;
-        }
-
-        .animation-preview select {
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
         }
 
         .popup-preview {
-            position: absolute;
-            background: white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
+            background-color: [[${template.backgroundColor}]];
+            border: [[${template.borderStyle}]];
+            width: [[${template.width}]]px;
+            height: [[${template.height}]]px;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .popup-content {
+            padding: 20px;
+            overflow: auto;
+            max-height: 100%;
         }
     </style>
 </head>
-
-<div layout:fragment="content">
-    <div class="container">
-        <h2>팝업 템플릿 미리보기</h2>
-
-        <div class="template-preview">
-            <!-- 디바이스 미리보기 버튼 -->
-            <div class="device-preview-buttons">
-                <button th:onclick="previewDevice('mobile')">모바일</button>
-                <button th:onclick="previewDevice('tablet')">태블릿</button>
-                <button th:onclick="previewDevice('desktop')">데스크톱</button>
-            </div>
-
-            <!-- 애니메이션 효과 선택 -->
-            <div class="animation-preview">
-                <select th:onchange="previewAnimation(this.value)">
-                    <option value="fade">페이드</option>
-                    <option value="slide">슬라이드</option>
-                    <option value="bounce">바운스</option>
-                </select>
-            </div>
-
-            <!-- 미리보기 영역 -->
-            <div id="previewContainer" class="preview-container desktop">
-                <div id="popupPreview" class="popup-preview"
-                     th:style="${popup != null} ? 'width:' + ${popup.width} + 'px; height:' + ${popup.height} + 'px;' : ''">
-                    <!-- 팝업 내용 미리보기 -->
-                    <div th:if="${popup != null}">
-                        <div class="popup-header">
-                            <span th:text="${popup.title}">팝업 제목</span>
-                        </div>
-                        <div class="popup-content">
-                            <div th:if="${popup.imageUrl != null}">
-                                <img th:src="${popup.imageUrl}" th:alt="${popup.altText}">
-                            </div>
-                            <div th:if="${popup.imageUrl == null}" th:text="${popup.content}">
-                                팝업 내용
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<body>
+<div class="popup-preview">
+    <div class="popup-content" th:utext="${template.content}">
+        <!-- 팝업 내용이 여기에 표시됩니다 -->
     </div>
-
-    <!-- 미리보기 관련 JavaScript -->
-    <script layout:fragment="script" th:inline="javascript">
-        function previewDevice(device) {
-            const container = document.getElementById('previewContainer');
-            container.className = 'preview-container ' + device;
-
-            // 팝업 위치 재조정
-            const popup = document.getElementById('popupPreview');
-            centerPopup(popup, container);
-        }
-
-        function previewAnimation(type) {
-            const popup = document.getElementById('popupPreview');
-
-            // 기존 애니메이션 클래스 제거
-            popup.classList.remove('fade', 'slide', 'bounce');
-
-            // 새 애니메이션 적용
-            popup.classList.add(type);
-
-            // 애니메이션 재생
-            void popup.offsetWidth; // 리플로우 트리거
-            popup.style.opacity = '1';
-        }
-
-        function centerPopup(popup, container) {
-            const left = (container.offsetWidth - popup.offsetWidth) / 2;
-            const top = (container.offsetHeight - popup.offsetHeight) / 2;
-
-            popup.style.left = left + 'px';
-            popup.style.top = top + 'px';
-        }
-
-        // 페이지 로드 시 초기화
-        document.addEventListener('DOMContentLoaded', function() {
-            const container = document.getElementById('previewContainer');
-            const popup = document.getElementById('popupPreview');
-            centerPopup(popup, container);
-        });
-    </script>
 </div>
+</body>
 </html>
