@@ -155,6 +155,24 @@
 
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', function() {
+
+            const template = {
+                width: document.getElementById('templateWidth')?.value,
+                height: document.getElementById('templateHeight')?.value,
+                backgroundColor: document.getElementById('templateBackgroundColor')?.value,
+                borderStyle: document.getElementById('templateBorderStyle')?.value,
+                content: document.getElementById('templateContent')?.value
+            };
+
+            // 템플릿 값이 있으면 폼에 적용
+            if (template.width) {
+                document.querySelector('input[name="width"]').value = template.width;
+                document.querySelector('input[name="height"]').value = template.height;
+                document.querySelector('input[name="backgroundColor"]').value = template.backgroundColor || '';
+                document.querySelector('input[name="borderStyle"]').value = template.borderStyle || '';
+                document.querySelector('textarea[name="content"]').value = template.content || '';
+            }
+
             const form = document.getElementById('popupForm');
 
             form.addEventListener('submit', async (e) => {
@@ -236,12 +254,23 @@
                 <h1 class="section-title">팝업 등록</h1>
 
                 <form id="popupForm">
+
+                    <!-- 템플릿 적용 시 기본값 설정 -->
+                    <div th:if="${template}" th:object="${template}" style="display: none;">
+                        <input type="hidden" id="templateId" th:value="*{id}">
+                        <input type="hidden" id="templateWidth" th:value="*{width}">
+                        <input type="hidden" id="templateHeight" th:value="*{height}">
+                        <input type="hidden" id="templateBackgroundColor" th:value="*{backgroundColor}">
+                        <input type="hidden" id="templateBorderStyle" th:value="*{borderStyle}">
+                        <input type="hidden" id="templateContent" th:value="*{content}">
+                    </div>
+
                     <!-- 기본 정보 섹션 -->
                     <div class="form-section">
                         <h2 class="section-title">기본 정보</h2>
                         <div class="form-group">
                             <label class="form-label">제목</label>
-                            <input type="text" name="title" class="form-input" required>
+                            <input type="text" name="title" class="form-input" th:value="${template?.name}" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">내용</label>

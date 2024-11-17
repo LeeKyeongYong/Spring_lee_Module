@@ -5,6 +5,7 @@ import com.krstudy.kapi.global.https.ReqData
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestParam
 
 @Controller
 
@@ -27,7 +28,13 @@ class PopController (
      * 팝업 생성 폼 페이지
      */
     @GetMapping("/adm/popups/create")
-    fun createPopupForm(): String {
+    fun createPopupForm(
+        @RequestParam templateId: Long?
+    ): String {
+        if (templateId != null) {
+            val template = popupService.getTemplate(templateId)
+            rq.setAttribute("template", template)
+        }
         return "domain/home/adm/createPopup"
     }
     /**

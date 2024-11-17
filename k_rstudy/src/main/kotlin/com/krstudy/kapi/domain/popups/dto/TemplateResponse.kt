@@ -6,28 +6,26 @@ import java.time.LocalDateTime
 data class TemplateResponse(
     val id: Long,
     val name: String,
-    val content: String?,
     val width: Int,
     val height: Int,
     val backgroundColor: String?,
     val borderStyle: String?,
+    val content: String?,
     val isDefault: Boolean,
-    val createdBy: String,
-    val createdAt: LocalDateTime
+    val createDate: LocalDateTime
 ) {
     companion object {
         fun from(template: PopupTemplateEntity): TemplateResponse {
             return TemplateResponse(
                 id = template.id,
                 name = template.name,
-                content = template.content,  // 이제 nullable 타입이 일치함
+                content = template.content,
                 width = template.width,
                 height = template.height,
                 backgroundColor = template.backgroundColor,
                 borderStyle = template.borderStyle,
                 isDefault = template.isDefault,
-                createdBy = template.creator.userid,
-                createdAt = template.getCreateDate() ?: LocalDateTime.now()
+                createDate = template.getCreateDate() ?: LocalDateTime.now()
             )
         }
     }

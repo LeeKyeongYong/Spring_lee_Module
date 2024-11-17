@@ -19,21 +19,104 @@
         }
 
         function renderTemplates(data) {
-            // 템플릿 렌더링 로직 구현
+            const defaultTemplatesContainer = document.querySelector('#defaultTemplates');
+            const customTemplatesContainer = document.querySelector('#customTemplates');
+
+            // 기본 템플릿 렌더링
+            if (data.defaultTemplates) {
+                defaultTemplatesContainer.innerHTML = data.defaultTemplates.map(template => `
+            <div class="template-card bg-white rounded-lg p-6 relative">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">${template.name}</h3>
+                    <span class="badge badge-blue">기본</span>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center text-gray-600">
+                        <span>${template.width}x${template.height}</span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="previewTemplate(${template.id})"
+                                class="flex-1 btn-secondary">미리보기</button>
+                        <button onclick="useTemplate(${template.id})"
+                                class="flex-1 btn-primary">사용하기</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+            }
+
+            // 사용자 템플릿 렌더링
+            if (data.customTemplates) {
+                customTemplatesContainer.innerHTML = data.customTemplates.map(template => `
+            <div class="template-card bg-white rounded-lg p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">${template.name}</h3>
+                    <div class="flex space-x-2">
+                        <button onclick="editTemplate(${template.id})"
+                                class="text-gray-600 hover:text-gray-800">
+                            <svg>...</svg>
+                        </button>
+                        <button onclick="deleteTemplate(${template.id})"
+                                class="text-red-600 hover:text-red-800">
+                            <svg>...</svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center text-gray-600">
+                        <span>${template.width}x${template.height}</span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="previewTemplate(${template.id})"
+                                class="flex-1 btn-secondary">미리보기</button>
+                        <button onclick="useTemplate(${template.id})"
+                                class="flex-1 btn-primary">사용하기</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+            }
         }
 
+
         // 페이지 로드 시 템플릿 목록 불러오기
-        document.addEventListener('DOMContentLoaded', loadTemplates);
+        document.addEventListener('DOMContentLoaded', function() {
+            // 기존의 loadTemplates 이벤트 리스너
+            loadTemplates();
+
+            // 새 템플릿 만들기 버튼에 이벤트 리스너 추가
+            document.querySelector('[onclick="showCreateTemplateModal()"]').addEventListener('click', function(e) {
+                e.preventDefault();
+                showCreateTemplateModal();
+            });
+        });
 
         // 템플릿 모달 관련 함수들
         function showCreateTemplateModal() {
-            document.getElementById('modalTitle').textContent = '새 템플릿 만들기';
-            document.getElementById('templateForm').reset();
+            // 폼 초기화
+            const form = document.getElementById('templateForm');
+            form.reset();
+
+            // 기본값 설정
             document.getElementById('templateId').value = '';
-            document.getElementById('templateModal').classList.remove('hidden');
+            document.getElementById('templateName').value = '';
+            document.getElementById('templateWidth').value = '400'; // 기본 너비
+            document.getElementById('templateHeight').value = '300'; // 기본 높이
+            document.getElementById('templateBackgroundColor').value = '#ffffff'; // 기본 배경색
+            document.getElementById('templateBorderStyle').value = '1px solid #000000'; // 기본 테두리
+
+            // 모달 제목 설정
+            document.getElementById('modalTitle').textContent = '새 템플릿 만들기';
+
+            // 모달 표시
+            const modal = document.getElementById('templateModal');
+            modal.classList.remove('hidden');
+
+            console.log('모달 열기 시도'); // 디버깅용
         }
 
         function closeTemplateModal() {
+            console.log('closeTemplateModal 함수 실행');
             document.getElementById('templateModal').classList.add('hidden');
         }
 
@@ -46,16 +129,18 @@
                 name: formData.get('name'),
                 width: parseInt(formData.get('width')),
                 height: parseInt(formData.get('height')),
-                backgroundColor: formData.get('backgroundColor'),
-                borderStyle: formData.get('borderStyle'),
-                isDefault: false
+                backgroundColor: formData.get('backgroundColor') || '#ffffff', // 기본값 추가
+                borderStyle: formData.get('borderStyle') || '1px solid #000000', // 기본값 추가
+                isDefault: false,
+                content: '' // content 필드 추가
             };
 
             try {
                 const response = await fetch(`/api/admin/popup-templates${templateId ? '/' + templateId : ''}`, {
                     method: templateId ? 'PUT' : 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'  // Accept 헤더 추가
                     },
                     body: JSON.stringify(requestData)
                 });
@@ -63,7 +148,7 @@
                 if (response.ok) {
                     alert('템플릿이 저장되었습니다.');
                     closeTemplateModal();
-                    location.reload();
+                    loadTemplates(); // location.reload() 대신 loadTemplates 호출
                 } else {
                     const error = await response.json();
                     alert(error.message || '저장 중 오류가 발생했습니다.');
@@ -113,15 +198,25 @@
             }
         }
 
-        async function useTemplate(id) {
+        async function useTemplate(templateId) {
             try {
-                const response = await fetch(`/api/admin/popup-templates/${id}`);
+                const response = await fetch(`/api/admin/popup-templates/${templateId}`);
                 const template = await response.json();
 
-                // 팝업 생성 페이지로 이동하면서 템플릿 데이터 전달
-                const params = new URLSearchParams(template);
-                location.href = `/adm/popups/create?template=${params.toString()}`;
+                // 팝업 생성 페이지로 이동하면서 템플릿 데이터를 쿼리 파라미터로 전달
+                const params = new URLSearchParams({
+                    templateId: template.id,
+                    name: template.name,
+                    width: template.width,
+                    height: template.height,
+                    backgroundColor: template.backgroundColor || '',
+                    borderStyle: template.borderStyle || '',
+                    content: template.content || ''
+                });
+
+                window.location.href = `/adm/popups/create?${params.toString()}`;
             } catch (error) {
+                console.error('템플릿 사용 중 오류:', error);
                 alert('템플릿을 사용하는 중 오류가 발생했습니다.');
             }
         }
@@ -131,7 +226,35 @@
                 `width=800,height=600,scrollbars=yes`);
         }
     </script>
+
     <style>
+
+        .form-control {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #4F46E5;
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #374151;
+            font-weight: 500;
+        }
+
         .template-card {
             transition: all 0.3s ease;
             border: 1px solid #e5e7eb;
@@ -239,7 +362,8 @@
                 <!-- 기본 템플릿 섹션 -->
                 <div class="bg-white p-6 rounded-lg shadow-sm">
                     <h2 class="text-xl font-bold text-gray-800 mb-6">기본 템플릿</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div id="defaultTemplates" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                     <!--
                         <div th:each="template : ${defaultTemplates}"
                              class="template-card bg-white rounded-lg p-6 relative">
                             <div class="flex justify-between items-start mb-4">
@@ -259,13 +383,15 @@
                                 </button>
                             </div>
                         </div>
+
+                    -->
                     </div>
                 </div>
 
                 <!-- 사용자 템플릿 섹션 -->
                 <div class="bg-white p-6 rounded-lg shadow-sm">
                     <h2 class="text-xl font-bold text-gray-800 mb-6">사용자 템플릿</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div  id="customTemplates" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div th:each="template : ${customTemplates}"
                              class="template-card bg-white rounded-lg p-6">
                             <div class="flex justify-between items-start mb-4">
@@ -316,7 +442,7 @@
         </div>
 
         <!-- 템플릿 생성/수정 모달 -->
-        <div id="templateModal" class="fixed inset-0 bg-black bg-opacity-50 modal-overlay hidden">
+        <div id="templateModal" class="fixed inset-0 bg-black bg-opacity-50 modal-overlay hidden z-50">
             <div class="flex items-center justify-center min-h-screen px-4">
                 <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full modal-content">
                     <div class="p-6">
@@ -339,27 +465,20 @@
                             </div>
                             <div class="form-group">
                                 <label for="templateBackgroundColor">배경색</label>
-                                <input type="color" class="form-control" id="templateBackgroundColor" name="backgroundColor">
+                                <input type="color" class="form-control" id="templateBackgroundColor"
+                                       name="backgroundColor" value="#ffffff">
                             </div>
                             <div class="form-group">
                                 <label for="templateBorderStyle">테두리 스타일</label>
                                 <input type="text" class="form-control" id="templateBorderStyle" name="borderStyle"
                                        placeholder="1px solid #000000">
                             </div>
-                            <button type="submit" class="btn btn-primary">저장</button>
-                            <button type="button" class="btn btn-secondary" onclick="closeTemplateModal()">취소</button>
+                            <div class="flex justify-end space-x-4 mt-6">
+                                <button type="button" class="btn-secondary px-6" onclick="closeTemplateModal()">취소</button>
+                                <button type="submit" class="btn-primary px-6">저장</button>
+                            </div>
                         </form>
 
-                    </div>
-                    <div class="bg-gray-50 px-6 py-4 flex justify-end space-x-4 rounded-b-lg">
-                        <button onclick="closeTemplateModal()"
-                                class="btn-secondary">
-                            취소
-                        </button>
-                        <button onclick="saveTemplate()"
-                                class="btn-primary">
-                            저장
-                        </button>
                     </div>
                 </div>
             </div>
