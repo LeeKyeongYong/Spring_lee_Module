@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.repository.MemberRepository
 import com.krstudy.kapi.domain.popups.dto.*
-import com.krstudy.kapi.domain.popups.entity.DeviceType
-import com.krstudy.kapi.domain.popups.entity.PopupEntity
-import com.krstudy.kapi.domain.popups.entity.PopupHistoryEntity
-import com.krstudy.kapi.domain.popups.entity.PopupTemplateEntity
+import com.krstudy.kapi.domain.popups.entity.*
 import com.krstudy.kapi.domain.popups.enums.PopupStatus
 import com.krstudy.kapi.domain.popups.exception.PopupCreationException
 import com.krstudy.kapi.domain.popups.factory.PopupFactory
@@ -15,6 +12,7 @@ import com.krstudy.kapi.domain.popups.repository.*
 import com.krstudy.kapi.domain.uploads.service.FileServiceImpl
 import jakarta.persistence.EntityNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -275,7 +273,7 @@ class PopupService(
         savePopupHistory(savedPopup, creator, "CLONE",
             mapOf("originalId" to id))
 
-        return savedPopup.toResponse()
+        return PopupResponse.from(savedPopup)  // toResponse() 대신 from() 사용
     }
 
 
@@ -346,7 +344,7 @@ class PopupService(
             popup = popup,
             editor = editor,
             action = action,
-            changeDetails = objectMapper.writeValueAsString(details)
+            changeDetails = objectMapper.writeValueAsString(details) // Map을 JSON 문자열로 변환
         )
         popupHistoryRepository.save(historyEntity)
     }
@@ -456,6 +454,94 @@ class PopupService(
         )
 
         return savedPopup.toResponse()
+    }
+
+    /**
+     * 기본 템플릿 목록 조회
+     */
+    @Transactional(readOnly = true)
+    fun getDefaultTemplates(): List<TemplateResponse> {
+        return popupTemplateRepository.findByIsDefaultTrue()
+            .map { it.toResponse() }
+    }
+
+    /**
+     * 사용자 정의 템플릿 목록 조회
+     */
+    @Transactional(readOnly = true)
+    fun getCustomTemplates(): List<TemplateResponse> {
+        return popupTemplateRepository.findByIsDefaultFalse()
+            .map { it.toResponse() }
+    }
+
+    /**
+     * 템플릿 상세 조회
+     */
+    @Transactional(readOnly = true)
+    fun getTemplate(id: Long): TemplateResponse {
+        val template = popupTemplateRepository.findById(id).orElseThrow {
+            EntityNotFoundException("템플릿을 찾을 수 없습니다: $id")
+        }
+        return template.toResponse()
+    }
+
+    /**
+     * 템플릿 수정
+     */
+    @Transactional
+    fun updateTemplate(
+        id: Long,
+        request: TemplateCreateRequest,
+        userId: String
+    ): TemplateResponse {
+        val template = popupTemplateRepository.findById(id).orElseThrow {
+            EntityNotFoundException("템플릿을 찾을 수 없습니다: $id")
+        }
+
+        // 템플릿 수정 권한 확인
+        if (!template.isDefault && template.creator.userid != userId) {
+            throw AccessDeniedException("템플릿을 수정할 권한이 없습니다.")
+        }
+
+        template.update(
+            name = request.name,
+            content = request.content,
+            width = request.width,
+            height = request.height,
+            backgroundColor = request.backgroundColor,
+            borderStyle = request.borderStyle,
+            isDefault = request.isDefault
+        )
+
+        return popupTemplateRepository.save(template).toResponse()
+    }
+
+    /**
+     * 템플릿 삭제
+     */
+    @Transactional
+    fun deleteTemplate(id: Long) {
+        val template = popupTemplateRepository.findById(id).orElseThrow {
+            EntityNotFoundException("템플릿을 찾을 수 없습니다: $id")
+        }
+
+        // 기본 템플릿은 삭제 불가
+        if (template.isDefault) {
+            throw IllegalStateException("기본 템플릿은 삭제할 수 없습니다.")
+        }
+
+        popupTemplateRepository.delete(template)
+    }
+
+    /**
+     * 템플릿 미리보기
+     */
+    @Transactional(readOnly = true)
+    fun previewTemplate(id: Long): TemplateResponse {
+        val template = popupTemplateRepository.findById(id).orElseThrow {
+            EntityNotFoundException("템플릿을 찾을 수 없습니다: $id")
+        }
+        return template.toResponse()
     }
 
 }

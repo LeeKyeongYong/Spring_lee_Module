@@ -2,233 +2,338 @@
 <html layout:decorate="~{global/admLayout}">
 <head>
     <title>팝업 템플릿 관리</title>
+
+    <script th:inline="javascript">
+        // 템플릿 모달 관련 함수들
+        function showCreateTemplateModal() {
+            document.getElementById('modalTitle').textContent = '새 템플릿 만들기';
+            document.getElementById('templateForm').reset();
+            document.getElementById('templateId').value = '';
+            document.getElementById('templateModal').classList.remove('hidden');
+        }
+
+        function closeTemplateModal() {
+            document.getElementById('templateModal').classList.add('hidden');
+        }
+
+        async function saveTemplate() {
+            const form = document.getElementById('templateForm');
+            const formData = new FormData(form);
+            const templateId = document.getElementById('templateId').value;
+
+            try {
+                const response = await fetch(`/api/admin/popup-templates${templateId ? '/' + templateId : ''}`, {
+                    method: templateId ? 'PUT' : 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert('템플릿이 저장되었습니다.');
+                    location.reload();
+                } else {
+                    const error = await response.json();
+                    alert(error.message || '저장 중 오류가 발생했습니다.');
+                }
+            } catch (error) {
+                alert('저장 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 템플릿 관리 함수들
+        async function editTemplate(id) {
+            try {
+                const response = await fetch(`/api/admin/popup-templates/${id}`);
+                const template = await response.json();
+
+                document.getElementById('modalTitle').textContent = '템플릿 수정';
+                document.getElementById('templateId').value = template.id;
+                document.getElementById('templateName').value = template.name;
+                document.getElementById('templateWidth').value = template.width;
+                document.getElementById('templateHeight').value = template.height;
+                document.getElementById('templateBackgroundColor').value = template.backgroundColor || '#ffffff';
+                document.getElementById('templateBorderStyle').value = template.borderStyle || '';
+
+                document.getElementById('templateModal').classList.remove('hidden');
+            } catch (error) {
+                alert('템플릿 정보를 불러오는 중 오류가 발생했습니다.');
+            }
+        }
+
+        async function deleteTemplate(id) {
+            if (!confirm('정말 삭제하시겠습니까?')) return;
+
+            try {
+                const response = await fetch(`/api/admin/popup-templates/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('템플릿이 삭제되었습니다.');
+                    location.reload();
+                } else {
+                    alert('삭제 중 오류가 발생했습니다.');
+                }
+            } catch (error) {
+                alert('삭제 중 오류가 발생했습니다.');
+            }
+        }
+
+        async function useTemplate(id) {
+            try {
+                const response = await fetch(`/api/admin/popup-templates/${id}`);
+                const template = await response.json();
+
+                // 팝업 생성 페이지로 이동하면서 템플릿 데이터 전달
+                const params = new URLSearchParams(template);
+                location.href = `/adm/popups/create?template=${params.toString()}`;
+            } catch (error) {
+                alert('템플릿을 사용하는 중 오류가 발생했습니다.');
+            }
+        }
+
+        function previewTemplate(id) {
+            window.open(`/api/admin/popup-templates/${id}/preview`, 'popup_preview',
+                `width=800,height=600,scrollbars=yes`);
+        }
+    </script>
+    <style>
+        .template-card {
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+
+        .template-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .btn-primary {
+            background-color: #4F46E5;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #4338CA;
+        }
+
+        .btn-secondary {
+            background-color: #9CA3AF;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #6B7280;
+        }
+
+        .btn-danger {
+            background-color: #EF4444;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+        }
+
+        .btn-danger:hover {
+            background-color: #DC2626;
+        }
+
+        .modal-overlay {
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+        }
+
+        .modal-content {
+            transform: scale(0.95);
+            transition: all 0.3s ease;
+        }
+
+        .modal-content.show {
+            transform: scale(1);
+        }
+
+        .input-field {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            padding: 0.5rem;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #4F46E5;
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-blue {
+            background-color: #EBF5FF;
+            color: #1E40AF;
+        }
+    </style>
 </head>
 <body>
-<div layout:fragment="content" class="container mx-auto px-4 py-8">
-    <div class="max-w-6xl mx-auto">
-        <!-- 상단 헤더 -->
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold">팝업 템플릿 관리</h1>
-            <button onclick="showCreateTemplateModal()"
-                    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                새 템플릿 만들기
-            </button>
-        </div>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8 bg-gray-50 min-h-screen">
+        <div class="max-w-6xl mx-auto">
+            <!-- 상단 헤더 -->
+            <div class="flex justify-between items-center mb-8 bg-white p-6 rounded-lg shadow-sm">
+                <h1 class="text-3xl font-bold text-gray-800">팝업 템플릿 관리</h1>
+                <button onclick="showCreateTemplateModal()"
+                        class="btn-primary flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                    </svg>
+                    <span>새 템플릿 만들기</span>
+                </button>
+            </div>
 
-        <!-- 템플릿 목록 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- 기본 템플릿 섹션 -->
-            <div class="col-span-full mb-6">
-                <h2 class="text-lg font-semibold mb-4">기본 템플릿</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div th:each="template : ${defaultTemplates}"
-                         class="bg-white rounded-lg shadow-md p-4 border-2 border-blue-200">
-                        <div class="flex justify-between items-start mb-3">
-                            <h3 class="font-medium" th:text="${template.name}"></h3>
-                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">기본</span>
-                        </div>
-                        <div class="space-y-2">
-                            <div class="text-sm text-gray-600">
-                                <span>크기: </span>
-                                <span th:text="${template.width + 'x' + template.height}"></span>
+            <!-- 템플릿 목록 -->
+            <div class="space-y-8">
+                <!-- 기본 템플릿 섹션 -->
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h2 class="text-xl font-bold text-gray-800 mb-6">기본 템플릿</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div th:each="template : ${defaultTemplates}"
+                             class="template-card bg-white rounded-lg p-6 relative">
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800" th:text="${template.name}"></h3>
+                                <span class="badge badge-blue">기본</span>
                             </div>
-                            <div class="flex space-x-2">
+                            <div class="space-y-3">
+                                <div class="flex items-center text-gray-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M3 3h14v14H3V3zm2 2v10h10V5H5z" />
+                                    </svg>
+                                    <span th:text="${template.width + 'x' + template.height}"></span>
+                                </div>
                                 <button th:onclick="'useTemplate(' + ${template.id} + ')'"
-                                        class="text-sm text-blue-600 hover:text-blue-800">
+                                        class="w-full btn-primary text-center">
                                     사용하기
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- 사용자 템플릿 섹션 -->
-            <div th:each="template : ${customTemplates}"
-                 class="bg-white rounded-lg shadow-md p-4">
-                <div class="flex justify-between items-start mb-3">
-                    <h3 class="font-medium" th:text="${template.name}"></h3>
-                    <div class="flex space-x-2">
-                        <button th:onclick="'editTemplate(' + ${template.id} + ')'"
-                                class="text-xs text-gray-600 hover:text-gray-800">
-                            수정
-                        </button>
-                        <button th:onclick="'deleteTemplate(' + ${template.id} + ')'"
-                                class="text-xs text-red-600 hover:text-red-800">
-                            삭제
-                        </button>
+                <!-- 사용자 템플릿 섹션 -->
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h2 class="text-xl font-bold text-gray-800 mb-6">사용자 템플릿</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div th:each="template : ${customTemplates}"
+                             class="template-card bg-white rounded-lg p-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800" th:text="${template.name}"></h3>
+                                <div class="flex space-x-2">
+                                    <button th:onclick="'editTemplate(' + ${template.id} + ')'"
+                                            class="text-gray-600 hover:text-gray-800">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                        </svg>
+                                    </button>
+                                    <button th:onclick="'deleteTemplate(' + ${template.id} + ')'"
+                                            class="text-red-600 hover:text-red-800">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center text-gray-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" />
+                                    </svg>
+                                    <span th:text="${#temporals.format(template.createDate, 'yyyy-MM-dd')}"></span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M3 3h14v14H3V3zm2 2v10h10V5H5z" />
+                                    </svg>
+                                    <span th:text="${template.width + 'x' + template.height}"></span>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button th:onclick="'previewTemplate(' + ${template.id} + ')'"
+                                            class="flex-1 btn-secondary">
+                                        미리보기
+                                    </button>
+                                    <button th:onclick="'useTemplate(' + ${template.id} + ')'"
+                                            class="flex-1 btn-primary">
+                                        사용하기
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="space-y-2">
-                    <div class="text-sm text-gray-600">
-                        <span>생성일: </span>
-                        <span th:text="${#temporals.format(template.createDate, 'yyyy-MM-dd')}"></span>
+            </div>
+        </div>
+
+        <!-- 템플릿 생성/수정 모달 -->
+        <div id="templateModal" class="fixed inset-0 bg-black bg-opacity-50 modal-overlay hidden">
+            <div class="flex items-center justify-center min-h-screen px-4">
+                <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full modal-content">
+                    <div class="p-6">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6" id="modalTitle">새 템플릿 만들기</h2>
+                        <form id="templateForm" class="space-y-6">
+                            <input type="hidden" name="id" id="templateId">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">템플릿 이름</label>
+                                <input type="text" name="name" id="templateName"
+                                       class="input-field"
+                                       required>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">너비 (px)</label>
+                                    <input type="number" name="width" id="templateWidth"
+                                           class="input-field"
+                                           required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">높이 (px)</label>
+                                    <input type="number" name="height" id="templateHeight"
+                                           class="input-field"
+                                           required>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">배경색</label>
+                                <input type="color" name="backgroundColor" id="templateBackgroundColor"
+                                       class="h-10 w-20">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">테두리 스타일</label>
+                                <input type="text" name="borderStyle" id="templateBorderStyle"
+                                       class="input-field"
+                                       placeholder="1px solid #000000">
+                            </div>
+                        </form>
                     </div>
-                    <div class="text-sm text-gray-600">
-                        <span>크기: </span>
-                        <span th:text="${template.width + 'x' + template.height}"></span>
-                    </div>
-                    <div class="flex space-x-2">
-                        <button th:onclick="'previewTemplate(' + ${template.id} + ')'"
-                                class="text-sm text-gray-600 hover:text-gray-800">
-                            미리보기
+                    <div class="bg-gray-50 px-6 py-4 flex justify-end space-x-4 rounded-b-lg">
+                        <button onclick="closeTemplateModal()"
+                                class="btn-secondary">
+                            취소
                         </button>
-                        <button th:onclick="'useTemplate(' + ${template.id} + ')'"
-                                class="text-sm text-blue-600 hover:text-blue-800">
-                            사용하기
+                        <button onclick="saveTemplate()"
+                                class="btn-primary">
+                            저장
                         </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- 템플릿 생성/수정 모달 -->
-    <div id="templateModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
-        <div class="flex items-center justify-center min-h-screen px-4">
-            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
-                <div class="p-6">
-                    <h2 class="text-xl font-semibold mb-4" id="modalTitle">새 템플릿 만들기</h2>
-                    <form id="templateForm" class="space-y-4">
-                        <input type="hidden" name="id" id="templateId">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">템플릿 이름</label>
-                            <input type="text" name="name" id="templateName"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                   required>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">너비 (px)</label>
-                            <input type="number" name="width" id="templateWidth"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                   required>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">높이 (px)</label>
-                            <input type="number" name="height" id="templateHeight"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                   required>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">배경색</label>
-                            <input type="color" name="backgroundColor" id="templateBackgroundColor"
-                                   class="mt-1 block">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">테두리 스타일</label>
-                            <input type="text" name="borderStyle" id="templateBorderStyle"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                   placeholder="1px solid #000000">
-                        </div>
-                    </form>
-                </div>
-                <div class="bg-gray-50 px-6 py-3 flex justify-end space-x-3 rounded-b-lg">
-                    <button onclick="closeTemplateModal()"
-                            class="px-4 py-2 text-gray-600 hover:text-gray-800">
-                        취소
-                    </button>
-                    <button onclick="saveTemplate()"
-                            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                        저장
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script th:inline="javascript">
-    // 템플릿 모달 관련 함수들
-    function showCreateTemplateModal() {
-        document.getElementById('modalTitle').textContent = '새 템플릿 만들기';
-        document.getElementById('templateForm').reset();
-        document.getElementById('templateId').value = '';
-        document.getElementById('templateModal').classList.remove('hidden');
-    }
-
-    function closeTemplateModal() {
-        document.getElementById('templateModal').classList.add('hidden');
-    }
-
-    async function saveTemplate() {
-        const form = document.getElementById('templateForm');
-        const formData = new FormData(form);
-        const templateId = document.getElementById('templateId').value;
-
-        try {
-            const response = await fetch(`/api/admin/popup-templates${templateId ? '/' + templateId : ''}`, {
-                method: templateId ? 'PUT' : 'POST',
-                body: formData
-            });
-
-            if (response.ok) {
-                alert('템플릿이 저장되었습니다.');
-                location.reload();
-            } else {
-                const error = await response.json();
-                alert(error.message || '저장 중 오류가 발생했습니다.');
-            }
-        } catch (error) {
-            alert('저장 중 오류가 발생했습니다.');
-        }
-    }
-
-    // 템플릿 관리 함수들
-    async function editTemplate(id) {
-        try {
-            const response = await fetch(`/api/admin/popup-templates/${id}`);
-            const template = await response.json();
-
-            document.getElementById('modalTitle').textContent = '템플릿 수정';
-            document.getElementById('templateId').value = template.id;
-            document.getElementById('templateName').value = template.name;
-            document.getElementById('templateWidth').value = template.width;
-            document.getElementById('templateHeight').value = template.height;
-            document.getElementById('templateBackgroundColor').value = template.backgroundColor || '#ffffff';
-            document.getElementById('templateBorderStyle').value = template.borderStyle || '';
-
-            document.getElementById('templateModal').classList.remove('hidden');
-        } catch (error) {
-            alert('템플릿 정보를 불러오는 중 오류가 발생했습니다.');
-        }
-    }
-
-    async function deleteTemplate(id) {
-        if (!confirm('정말 삭제하시겠습니까?')) return;
-
-        try {
-            const response = await fetch(`/api/admin/popup-templates/${id}`, {
-                method: 'DELETE'
-            });
-
-            if (response.ok) {
-                alert('템플릿이 삭제되었습니다.');
-                location.reload();
-            } else {
-                alert('삭제 중 오류가 발생했습니다.');
-            }
-        } catch (error) {
-            alert('삭제 중 오류가 발생했습니다.');
-        }
-    }
-
-    async function useTemplate(id) {
-        try {
-            const response = await fetch(`/api/admin/popup-templates/${id}`);
-            const template = await response.json();
-
-            // 팝업 생성 페이지로 이동하면서 템플릿 데이터 전달
-            const params = new URLSearchParams(template);
-            location.href = `/adm/popups/create?template=${params.toString()}`;
-        } catch (error) {
-            alert('템플릿을 사용하는 중 오류가 발생했습니다.');
-        }
-    }
-
-    function previewTemplate(id) {
-        window.open(`/api/admin/popup-templates/${id}/preview`, 'popup_preview',
-            `width=800,height=600,scrollbars=yes`);
-    }
-</script>
 </body>
 </html>

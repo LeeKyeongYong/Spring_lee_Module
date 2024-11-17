@@ -28,4 +28,11 @@ class PopController (
     fun createPopupForm(): String {
         return "domain/home/adm/createPopup"
     }
+    /**
+     * 템플릿관리 페이지
+     */
+    @GetMapping("/adm/popups/templates")
+    fun popupTemplates(): String {
+        return "domain/home/adm/popupTemplates"
+    }
 }

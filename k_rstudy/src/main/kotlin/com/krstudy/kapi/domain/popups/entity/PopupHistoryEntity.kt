@@ -9,9 +9,8 @@ import java.time.LocalDateTime
  * 팝업 수정 이력 엔티티
  */
 @Entity
-@Table(name = "popup_history")  // 테이블 이름 명시적 지정
+@Table(name = "popup_history")
 class PopupHistoryEntity(
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "popup_id")
     val popup: PopupEntity,
@@ -21,10 +20,10 @@ class PopupHistoryEntity(
     val editor: Member,
 
     @Column(nullable = false)
-    val action: String, // CREATE, UPDATE, DELETE, ACTIVATE, DEACTIVATE
+    val action: String,
 
     @Column(columnDefinition = "TEXT")
-    val changeDetails: String?, // JSON 형태로 변경 내용 저장, null 허용
+    val changeDetails: String?, // String 타입으로 변경
 
     @Column(nullable = false)
     val actionDate: LocalDateTime = LocalDateTime.now()

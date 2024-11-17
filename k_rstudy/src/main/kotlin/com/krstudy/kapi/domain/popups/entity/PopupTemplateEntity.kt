@@ -36,16 +36,10 @@ class PopupTemplateEntity(
     var isDefault: Boolean = false
 ) : BaseEntity() {
 
-    /**
-     * 템플릿 응답 DTO로 변환
-     */
     fun toResponse(): TemplateResponse {
         return TemplateResponse.from(this)
     }
 
-    /**
-     * 템플릿 정보 업데이트
-     */
     fun update(
         name: String? = null,
         content: String? = null,
@@ -62,25 +56,5 @@ class PopupTemplateEntity(
         backgroundColor?.let { this.backgroundColor = it }
         borderStyle?.let { this.borderStyle = it }
         isDefault?.let { this.isDefault = it }
-    }
-
-    /**
-     * 템플릿 복제
-     */
-    fun copy(
-        name: String = this.name,
-        creator: Member = this.creator,
-        isDefault: Boolean = false
-    ): PopupTemplateEntity {
-        return PopupTemplateEntity(
-            name = "$name (복사본)",
-            content = this.content,
-            width = this.width,
-            height = this.height,
-            backgroundColor = this.backgroundColor,
-            borderStyle = this.borderStyle,
-            creator = creator,
-            isDefault = isDefault
-        )
     }
 }
