@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 data class TemplateResponse(
     val id: Long,
     val name: String,
-    val content: String,
+    val content: String?,
     val width: Int,
     val height: Int,
     val backgroundColor: String?,
@@ -20,7 +20,7 @@ data class TemplateResponse(
             return TemplateResponse(
                 id = template.id,
                 name = template.name,
-                content = template.content,
+                content = template.content,  // 이제 nullable 타입이 일치함
                 width = template.width,
                 height = template.height,
                 backgroundColor = template.backgroundColor,

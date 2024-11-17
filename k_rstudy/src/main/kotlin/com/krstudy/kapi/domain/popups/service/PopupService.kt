@@ -287,7 +287,7 @@ class PopupService(
 
         val template = PopupTemplateEntity(
             name = request.name,
-            content = request.content,
+            content = request.content ?: "",  // 빈 문자열을 기본값으로 제공
             width = request.width,
             height = request.height,
             backgroundColor = request.backgroundColor,

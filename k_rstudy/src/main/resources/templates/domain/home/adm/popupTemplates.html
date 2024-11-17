@@ -4,6 +4,27 @@
     <title>팝업 템플릿 관리</title>
 
     <script th:inline="javascript">
+
+        async function loadTemplates() {
+            try {
+                const response = await fetch('/api/admin/popup-templates');
+                const data = await response.json();
+
+                // 템플릿 목록 렌더링 로직 구현
+                renderTemplates(data);
+            } catch (error) {
+                console.error('템플릿 로딩 실패:', error);
+                alert('템플릿 목록을 불러오는데 실패했습니다.');
+            }
+        }
+
+        function renderTemplates(data) {
+            // 템플릿 렌더링 로직 구현
+        }
+
+        // 페이지 로드 시 템플릿 목록 불러오기
+        document.addEventListener('DOMContentLoaded', loadTemplates);
+
         // 템플릿 모달 관련 함수들
         function showCreateTemplateModal() {
             document.getElementById('modalTitle').textContent = '새 템플릿 만들기';
@@ -21,21 +42,35 @@
             const formData = new FormData(form);
             const templateId = document.getElementById('templateId').value;
 
+            const requestData = {
+                name: formData.get('name'),
+                width: parseInt(formData.get('width')),
+                height: parseInt(formData.get('height')),
+                backgroundColor: formData.get('backgroundColor'),
+                borderStyle: formData.get('borderStyle'),
+                isDefault: false
+            };
+
             try {
                 const response = await fetch(`/api/admin/popup-templates${templateId ? '/' + templateId : ''}`, {
                     method: templateId ? 'PUT' : 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
                 });
 
                 if (response.ok) {
                     alert('템플릿이 저장되었습니다.');
+                    closeTemplateModal();
                     location.reload();
                 } else {
                     const error = await response.json();
                     alert(error.message || '저장 중 오류가 발생했습니다.');
                 }
             } catch (error) {
-                alert('저장 중 오류가 발생했습니다.');
+                console.error('템플릿 저장 실패:', error);
+                alert('템플릿 저장 중 오류가 발생했습니다.');
             }
         }
 
@@ -286,40 +321,35 @@
                 <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full modal-content">
                     <div class="p-6">
                         <h2 class="text-2xl font-bold text-gray-800 mb-6" id="modalTitle">새 템플릿 만들기</h2>
-                        <form id="templateForm" class="space-y-6">
-                            <input type="hidden" name="id" id="templateId">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">템플릿 이름</label>
-                                <input type="text" name="name" id="templateName"
-                                       class="input-field"
-                                       required>
+
+                        <!-- 모달 폼 수정 -->
+                        <form id="templateForm" onsubmit="event.preventDefault(); saveTemplate();">
+                            <input type="hidden" id="templateId" name="id">
+                            <div class="form-group">
+                                <label for="templateName">템플릿 이름</label>
+                                <input type="text" class="form-control" id="templateName" name="name" required>
                             </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">너비 (px)</label>
-                                    <input type="number" name="width" id="templateWidth"
-                                           class="input-field"
-                                           required>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">높이 (px)</label>
-                                    <input type="number" name="height" id="templateHeight"
-                                           class="input-field"
-                                           required>
-                                </div>
+                            <div class="form-group">
+                                <label for="templateWidth">너비 (px)</label>
+                                <input type="number" class="form-control" id="templateWidth" name="width" required min="100" max="2000">
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">배경색</label>
-                                <input type="color" name="backgroundColor" id="templateBackgroundColor"
-                                       class="h-10 w-20">
+                            <div class="form-group">
+                                <label for="templateHeight">높이 (px)</label>
+                                <input type="number" class="form-control" id="templateHeight" name="height" required min="100" max="2000">
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">테두리 스타일</label>
-                                <input type="text" name="borderStyle" id="templateBorderStyle"
-                                       class="input-field"
+                            <div class="form-group">
+                                <label for="templateBackgroundColor">배경색</label>
+                                <input type="color" class="form-control" id="templateBackgroundColor" name="backgroundColor">
+                            </div>
+                            <div class="form-group">
+                                <label for="templateBorderStyle">테두리 스타일</label>
+                                <input type="text" class="form-control" id="templateBorderStyle" name="borderStyle"
                                        placeholder="1px solid #000000">
                             </div>
+                            <button type="submit" class="btn btn-primary">저장</button>
+                            <button type="button" class="btn btn-secondary" onclick="closeTemplateModal()">취소</button>
                         </form>
+
                     </div>
                     <div class="bg-gray-50 px-6 py-4 flex justify-end space-x-4 rounded-b-lg">
                         <button onclick="closeTemplateModal()"

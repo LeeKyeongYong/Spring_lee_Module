@@ -1,6 +1,7 @@
 package com.krstudy.kapi.domain.popups.controller
 
 import com.krstudy.kapi.domain.popups.service.PopupService
+import com.krstudy.kapi.global.https.ReqData
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping
 @Controller
 
 class PopController (
+    private val rq: ReqData,
     private val popupService: PopupService
 ) {
 
@@ -17,7 +19,7 @@ class PopController (
     @GetMapping("/adm/popups")
     fun popupManagement(model: Model): String {
         val popups = popupService.getAllPopups()
-        model.addAttribute("popups", popups)
+        rq.setAttribute("popups", popups)
         return "domain/home/adm/managementPopup"
     }
 
@@ -33,6 +35,12 @@ class PopController (
      */
     @GetMapping("/adm/popups/templates")
     fun popupTemplates(): String {
+        val defaultTemplates = popupService.getDefaultTemplates()
+        val customTemplates = popupService.getCustomTemplates()
+
+        rq.setAttribute("defaultTemplates", defaultTemplates)
+        rq.setAttribute("customTemplates", customTemplates)
+
         return "domain/home/adm/popupTemplates"
     }
 }

@@ -14,7 +14,7 @@ class PopupTemplateEntity(
     var name: String,
 
     @Column(nullable = false)
-    var content: String,
+    var content: String? = null,
 
     @Column(nullable = false)
     var width: Int,
