@@ -1,5 +1,6 @@
 package com.krstudy.kapi.domain.popups.controller
 
+import com.krstudy.kapi.domain.files.service.FileService
 import com.krstudy.kapi.domain.popups.dto.*
 import com.krstudy.kapi.domain.popups.enums.PopupStatus
 import com.krstudy.kapi.domain.popups.service.PopupService
@@ -11,12 +12,14 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 
 @PreAuthorize("hasAuthority('ROLE_ADMIN')")
 @RestController
 @RequestMapping("/api/admin/popups", produces = [MediaType.APPLICATION_JSON_VALUE])
 class PopupAdminController(
-    private val popupService: PopupService
+    private val popupService: PopupService,
+    private val fileService: FileService  // FileService 주입
 ) {
 
     companion object {
@@ -68,4 +71,28 @@ class PopupAdminController(
             ResponseEntity.badRequest().body(null)
         }
     }
+
+    @DeleteMapping("/{id}")
+    @ResponseBody
+    fun deletePopup(
+        @PathVariable id: Long,
+        @AuthenticationPrincipal user: UserDetails
+    ): ResponseEntity<Map<String, Any>> {
+        return try {
+            // 팝업 삭제 (이미지 삭제 로직은 PopupService 내부에서 처리)
+            popupService.deletePopup(id, user.username)
+
+            ResponseEntity.ok(mapOf(
+                "success" to true,
+                "message" to "팝업이 성공적으로 삭제되었습니다."
+            ))
+        } catch (e: Exception) {
+            logger.error("팝업 삭제 중 오류 발생", e)
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mapOf(
+                "success" to false,
+                "message" to "팝업 삭제 중 오류가 발생했습니다."
+            ))
+        }
+    }
+
 }

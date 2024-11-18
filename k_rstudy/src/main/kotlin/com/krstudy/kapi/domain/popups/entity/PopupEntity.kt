@@ -100,8 +100,13 @@ class PopupEntity(
     var viewCount: Long = 0,
 
     @Column(nullable = false)
-    var clickCount: Long = 0
-) : BaseEntity() {
+    var clickCount: Long = 0,
+
+    @OneToMany(mappedBy = "popup", cascade = [CascadeType.ALL], orphanRemoval = true)
+    private val histories: MutableList<PopupHistoryEntity> = mutableListOf()
+
+
+    ) : BaseEntity() {
 
     @OneToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinColumn(name = "targeting_id")

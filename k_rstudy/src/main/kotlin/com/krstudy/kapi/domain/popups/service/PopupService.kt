@@ -3,6 +3,7 @@ package com.krstudy.kapi.domain.popups.service
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.repository.MemberRepository
+import com.krstudy.kapi.domain.popups.controller.PopupAdminController
 import com.krstudy.kapi.domain.popups.dto.*
 import com.krstudy.kapi.domain.popups.entity.*
 import com.krstudy.kapi.domain.popups.enums.PopupStatus
@@ -11,6 +12,7 @@ import com.krstudy.kapi.domain.popups.factory.PopupFactory
 import com.krstudy.kapi.domain.popups.repository.*
 import com.krstudy.kapi.domain.uploads.service.FileServiceImpl
 import jakarta.persistence.EntityNotFoundException
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
@@ -31,6 +33,11 @@ class PopupService(
     private val popupScheduleRepository: PopupScheduleRepository,
     @Autowired private val objectMapper: ObjectMapper
 ) {
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(PopupAdminController::class.java)
+    }
+
     /**
      * 팝업 요청 검증
      */
@@ -136,12 +143,39 @@ class PopupService(
      * 팝업 삭제
      */
     @Transactional
-    fun deletePopup(id: Long) {
+    fun deletePopup(id: Long, userId: String? = null) {
         val popup = popupRepository.findById(id).orElseThrow {
-            EntityNotFoundException("팝업을 찾을 수 없습니다: $id")
+            throw EntityNotFoundException("팝업을 찾을 수 없습니다: $id")
         }
-        popup.status = PopupStatus.DELETED
-        popupRepository.save(popup)
+
+        try {
+            // userId가 있고 이미지가 있는 경우에만 이미지 삭제 시도
+            if (userId != null && popup.image != null) {
+                try {
+                    fileService.deleteFile(popup.image!!.id, userId)
+                } catch (e: Exception) {
+                    // 이미지 삭제 실패 로깅
+                    logger.warn("이미지 삭제 실패 - 팝업 ID: $id, 이미지 ID: ${popup.image?.id}", e)
+                }
+            }
+
+            // 히스토리 기록
+            userId?.let { uid ->
+                val editor = memberRepository.findByUserid(uid)
+                editor?.let {
+                    savePopupHistory(popup, it, "DELETE",
+                        mapOf("popupId" to id, "popupTitle" to popup.title))
+                }
+            }
+
+            popupHistoryRepository.deleteById(id);
+
+            // 팝업 삭제
+            popupRepository.delete(popup)
+
+        } catch (e: Exception) {
+            throw RuntimeException("팝업 삭제 중 오류 발생: ${e.message}", e)
+        }
     }
 
     /**
@@ -253,23 +287,7 @@ class PopupService(
             mapOf("oldStatus" to popup.status, "newStatus" to status))
     }
 
-    /**
-     * 팝업 복제
-     */
-    @Transactional
-    // PopupService.kt
-    fun clonePopup(id: Long): PopupResponse {
-        val original = popupRepository.findById(id)
-            .orElseThrow { EntityNotFoundException("팝업을 찾을 수 없습니다: $id") }
 
-        val clonedEntity = popupRepository.save(original.copy(
-            title = "${original.title} (복사본)",
-            viewCount = 0,
-            clickCount = 0
-        ))
-
-        return clonedEntity.toResponse()  // Entity를 Response DTO로 변환
-    }
 
     /**
      * 템플릿 저장
@@ -406,7 +424,27 @@ class PopupService(
     }
 
     /**
-     * 설정을 상속받은 팝업 복제
+     * 팝업 복제 (기본)
+     */
+    @Transactional
+    fun clonePopup(id: Long): PopupResponse {
+        val original = popupRepository.findById(id)
+            .orElseThrow { EntityNotFoundException("팝업을 찾을 수 없습니다: $id") }
+
+        // 기본 설정으로 복제를 위한 PopupCloneSettingsDto 생성
+        val defaultSettings = PopupCloneSettingsDto(
+            newTitle = "${original.title} (복사본)",
+            inheritTargetRoles = true,
+            inheritDisplayPages = true,
+            inheritSchedule = true
+        )
+
+        // 기존의 상세 복제 메서드 호출
+        return clonePopup(id, defaultSettings, original.creator.userid)
+    }
+
+    /**
+     * 설정을 상속받은 팝업 복제 (상세)
      */
     @Transactional
     fun clonePopup(
@@ -414,6 +452,7 @@ class PopupService(
         settings: PopupCloneSettingsDto,
         userId: String
     ): PopupResponse {
+        // 기존 코드 유지
         val originalPopup = popupRepository.findById(id).orElseThrow {
             EntityNotFoundException("팝업을 찾을 수 없습니다")
         }

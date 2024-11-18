@@ -331,12 +331,33 @@
             if (!confirm('정말 삭제하시겠습니까?')) return;
 
             try {
-                await fetch(`/api/admin/popups/${id}`, {
-                    method: 'DELETE'
+                // CSRF 토큰 가져오기
+                const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+                const response = await fetch(`/api/admin/popups/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        [csrfHeader]: csrfToken
+                    },
+                    credentials: 'same-origin'  // 쿠키 포함
                 });
-                document.getElementById(`popup-row-${id}`).remove();
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                if (result.success) {
+                    toastNotice("팝업이 성공적으로 삭제되었습니다.");
+                    document.getElementById(`popup-row-${id}`).remove();
+                } else {
+                    toastWarning(result.message || "팝업 삭제 중 오류가 발생했습니다.");
+                }
             } catch (error) {
-                alert('팝업 삭제 중 오류가 발생했습니다.');
+                console.error('Delete error:', error);
+                toastWarning("팝업 삭제 중 오류가 발생했습니다.");
             }
         }
 
