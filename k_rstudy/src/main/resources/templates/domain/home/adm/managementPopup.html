@@ -167,20 +167,68 @@
 
         async function previewPopup(id) {
             try {
-                const response = await fetch(`/api/admin/popups/${id}/preview`);
-                const data = await response.json();
+                // 팝업 데이터 가져오기
+                const response = await fetch(`/api/popups/${id}`);
+                const popup = await response.json();
 
-                const previewPopup = document.getElementById('preview-popup');
-                previewPopup.style.width = data.width + 'px';
-                previewPopup.style.height = data.height + 'px';
-                previewPopup.style.display = 'block';
-                previewPopup.querySelector('.preview-content').innerHTML = data.content;
+                // 새 창으로 팝업 열기
+                const width = popup.width || 400;
+                const height = popup.height || 300;
+                const left = (window.screen.width - width) / 2;
+                const top = (window.screen.height - height) / 2;
 
-                makeDraggable(previewPopup);
+                const previewWindow = window.open(
+                    '',
+                    'popup_preview',
+                    `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`
+                );
+
+                if (previewWindow) {
+                    // 팝업 내용 설정
+                    previewWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>팝업 미리보기</title>
+                    <style>
+                        body {
+                            margin: 0;
+                            padding: 0;
+                            overflow: hidden;
+                            background-color: ${popup.backgroundColor || '#ffffff'};
+                            border: ${popup.borderStyle || '1px solid #000'};
+                        }
+                        .popup-content {
+                            width: 100%;
+                            height: 100%;
+                            padding: 15px;
+                            box-sizing: border-box;
+                        }
+                        img {
+                            max-width: 100%;
+                            height: auto;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="popup-content">
+                        ${popup.imageUrl ? `<img src="${popup.imageUrl}" alt="${popup.altText || ''}" />` : ''}
+                        ${popup.content || ''}
+                    </div>
+                </body>
+                </html>
+            `);
+                    previewWindow.document.close();
+                    previewWindow.focus();
+                } else {
+                    alert('팝업 차단이 활성화되어 있습니다. 팝업 차단을 해제해주세요.');
+                }
             } catch (error) {
+                console.error('미리보기 오류:', error);
                 alert('미리보기를 불러오는 중 오류가 발생했습니다.');
             }
         }
+
 
         async function showStatistics(id) {
             try {
@@ -319,11 +367,6 @@
                     <i class="fas fa-layer-group mr-2"></i>
                     템플릿 관리
                 </a>
-<!--                <a th:href="@{/adm/popups/create}"-->
-<!--                   class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">-->
-<!--                    <i class="fas fa-plus mr-2"></i>-->
-<!--                    새 팝업 등록-->
-<!--                </a>-->
             </div>
         </div>
 
