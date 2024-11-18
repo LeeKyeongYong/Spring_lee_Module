@@ -1,5 +1,6 @@
 package com.krstudy.kapi.domain.popups.controller
 
+import com.krstudy.kapi.domain.popups.dto.PopupCloneSettingsDto
 import com.krstudy.kapi.domain.popups.dto.PopupCreateRequest
 import com.krstudy.kapi.domain.popups.dto.PopupResponse
 import com.krstudy.kapi.domain.popups.entity.DeviceType

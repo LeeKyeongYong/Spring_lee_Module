@@ -114,10 +114,12 @@ class PopupEntity(
     fun copy(
         title: String = this.title,
         status: PopupStatus = this.status,
-        creator: Member = this.creator
+        creator: Member = this.creator,
+        viewCount: Long = this.viewCount,
+        clickCount: Long = this.clickCount
     ): PopupEntity {
         return PopupEntity(
-            title = title,
+            title = "$title (복사본)",
             content = this.content,
             startDateTime = this.startDateTime,
             endDateTime = this.endDateTime,
@@ -127,7 +129,7 @@ class PopupEntity(
             height = this.height,
             positionX = this.positionX,
             positionY = this.positionY,
-            image = this.image,
+            image = null,
             linkUrl = this.linkUrl,
             altText = this.altText,
             target = this.target,
@@ -139,15 +141,16 @@ class PopupEntity(
             borderStyle = this.borderStyle,
             shadowEffect = this.shadowEffect,
             animationType = this.animationType,
-            displayPages = this.displayPages,
-            targetRoles = this.targetRoles,
+            displayPages = this.displayPages.toSet(),  // 새로운 Set 인스턴스 생성
+            targetRoles = this.targetRoles.toSet(),    // 새로운 Set 인스턴스 생성
             maxDisplayCount = this.maxDisplayCount,
             creator = creator,
-            viewCount = 0,
-            clickCount = 0
+            viewCount = viewCount,
+            clickCount = clickCount
         ).also {
             it.targeting = null
         }
+
     }
 
     fun toResponse(): PopupResponse {

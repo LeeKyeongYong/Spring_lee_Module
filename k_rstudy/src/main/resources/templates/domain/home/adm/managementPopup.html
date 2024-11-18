@@ -293,17 +293,36 @@
         }
 
         async function clonePopup(id) {
-            if (!confirm('팝업을 복제하시겠습니까?')) return;
+            if (!confirm('이 팝업을 복제하시겠습니까?')) return;
 
             try {
+                const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
                 const response = await fetch(`/api/admin/popups/${id}/clone`, {
                     method: 'POST',
+                    credentials: 'same-origin',  // 쿠키 포함
                     headers: {
-                        'Content-Type': 'application/json'
-                    }
+                        'Content-Type': 'application/json',
+                        [csrfHeader]: csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        popupId: id
+                    })
                 });
-                location.reload();
+
+                if (!response.ok) {
+                    const errorData = await response.text();
+                    console.error('서버 응답:', errorData);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                alert('팝업이 성공적으로 복제되었습니다.');
+                window.location.reload();
             } catch (error) {
+                console.error('복제 중 오류 발생:', error);
                 alert('팝업 복제 중 오류가 발생했습니다.');
             }
         }
@@ -351,6 +370,8 @@
             }
         }
     </script>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
 <body>
 <div layout:fragment="content">
@@ -473,7 +494,7 @@
                             </form>
                             <button class="block text-blue-600 hover:text-blue-900"
                                     th:onclick="'clonePopup(' + ${popup.id} + ')'">
-                                복제
+                                <i class="fas fa-copy mr-1"></i>복제
                             </button>
                             <button class="block text-red-600 hover:text-red-900"
                                     th:onclick="'deletePopup(' + ${popup.id} + ')'">

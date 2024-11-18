@@ -257,26 +257,19 @@ class PopupService(
      * 팝업 복제
      */
     @Transactional
-    fun clonePopup(id: Long, userId: String): PopupResponse {
-        val originalPopup = popupRepository.findById(id).orElseThrow {
-            EntityNotFoundException("Popup not found")
-        }
-        val creator = memberRepository.findByUserid(userId)
-            ?: throw EntityNotFoundException("User not found")
+    // PopupService.kt
+    fun clonePopup(id: Long): PopupResponse {
+        val original = popupRepository.findById(id)
+            .orElseThrow { EntityNotFoundException("팝업을 찾을 수 없습니다: $id") }
 
-        val clonedPopup = originalPopup.copy(
-            title = "${originalPopup.title} (복사본)",
-            status = PopupStatus.INACTIVE,
-            creator = creator
-        )
+        val clonedEntity = popupRepository.save(original.copy(
+            title = "${original.title} (복사본)",
+            viewCount = 0,
+            clickCount = 0
+        ))
 
-        val savedPopup = popupRepository.save(clonedPopup)
-        savePopupHistory(savedPopup, creator, "CLONE",
-            mapOf("originalId" to id))
-
-        return PopupResponse.from(savedPopup)  // toResponse() 대신 from() 사용
+        return clonedEntity.toResponse()  // Entity를 Response DTO로 변환
     }
-
 
     /**
      * 템플릿 저장

@@ -74,6 +74,7 @@ class SecurityConfig(
 
                     // 팝업 관련 권한 설정 추가
                     .requestMatchers("/api/public/**").permitAll()
+                    .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                     .requestMatchers("/api/admin/popups/**").hasAuthority("ROLE_ADMIN")
                     .requestMatchers("/api/admin/popup-templates/**").hasAuthority("ROLE_ADMIN")
 
@@ -89,7 +90,8 @@ class SecurityConfig(
                     .ignoringRequestMatchers(
                         "/v1/**",
                         "/api/**",
-                        "/ws/**"
+                        "/ws/**",
+                        "/api/public/**"
                     )
             }
             .cors { cors ->
