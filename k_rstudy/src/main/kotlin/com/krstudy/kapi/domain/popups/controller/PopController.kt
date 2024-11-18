@@ -52,11 +52,11 @@ class PopController (
         return "domain/home/adm/popupTemplates"
     }
 
-    @GetMapping("/adm/popups/template-preview/{id}/")
+    @GetMapping("/adm/popups/template-preview/{id}")
     fun previewTemplate(@PathVariable id: Long): String {
-        val template = popupService.previewTemplate(id)
+        val template = popupService.getTemplate(id)
         rq.setAttribute("template", template)
-        return "domain/home/adm/template-preview.html" // HTML 템플릿 경로 지정
+        return "domain/home/adm/template-preview" // HTML 템플릿 경로 지정
     }
 
 }

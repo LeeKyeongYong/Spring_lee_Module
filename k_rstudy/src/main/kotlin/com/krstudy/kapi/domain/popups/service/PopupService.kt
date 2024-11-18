@@ -538,10 +538,8 @@ class PopupService(
      */
     @Transactional(readOnly = true)
     fun previewTemplate(id: Long): TemplateResponse {
-        val template = popupTemplateRepository.findById(id).orElseThrow {
-            EntityNotFoundException("템플릿을 찾을 수 없습니다: $id")
-        }
-        return template.toResponse()
+        val template = popupTemplateRepository.findById(id) .orElseThrow { EntityNotFoundException("Template not found") }
+        return TemplateResponse.from(template)
     }
 
 }
