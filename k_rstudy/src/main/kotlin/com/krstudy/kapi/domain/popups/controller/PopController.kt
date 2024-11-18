@@ -59,4 +59,15 @@ class PopController (
         return "domain/home/adm/template-preview" // HTML 템플릿 경로 지정
     }
 
+    /**
+     * 팝업 수정 폼 페이지
+     */
+    @GetMapping("/adm/popups/edit/{id}")
+    fun editPopupForm(@PathVariable id: Long): String {
+        val popup = popupService.getPopup(id)
+        rq.setAttribute("popup", popup)
+        return "domain/home/adm/editPopup"  // 수정 폼 템플릿 경로
+    }
+
+
 }

@@ -466,10 +466,11 @@
                                     th:onclick="'previewPopup(' + ${popup.id} + ')'">
                                 미리보기
                             </button>
-                            <a th:href="@{/adm/popups/edit/{id}(id=${popup.id})}"
-                               class="block text-blue-600 hover:text-blue-900">
-                                수정
-                            </a>
+                            <form th:action="@{/adm/popups/edit/{id}(id=${popup.id})}" method="get" class="inline">
+                                <button type="submit" class="block text-blue-600 hover:text-blue-900">
+                                    수정
+                                </button>
+                            </form>
                             <button class="block text-blue-600 hover:text-blue-900"
                                     th:onclick="'clonePopup(' + ${popup.id} + ')'">
                                 복제
