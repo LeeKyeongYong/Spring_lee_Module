@@ -7,6 +7,7 @@ import com.krstudy.kapi.domain.popups.exception.PopupCreationException
 import com.krstudy.kapi.domain.popups.service.PopupService
 import jakarta.persistence.EntityNotFoundException
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
@@ -19,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile
  * 팝업 REST API 컨트롤러
  */
 @RestController
-@RequestMapping("/api/popups")
+@RequestMapping("/api/popups", produces = [MediaType.APPLICATION_JSON_VALUE])
 class PopupRestController(
     private val popupService: PopupService
 ) {
@@ -31,17 +32,16 @@ class PopupRestController(
         @RequestPart("popup") request: PopupCreateRequest,
         @RequestPart("image", required = false) image: MultipartFile?,
         @AuthenticationPrincipal userDetails: UserDetails?
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<PopupResponse> {  // Any -> PopupResponse로 변경
         return try {
             if (userDetails == null) {
                 ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(mapOf("error" to "Unauthorized"))
+                    .body(null)  // PopupResponse 타입에 맞춰 null 반환
             } else {
                 val popup = popupService.createPopup(request, image, userDetails.username)
                 ResponseEntity.ok(popup)
             }
         } catch (e: Exception) {
-            // 에러 로깅 추가
             println("팝업 생성 중 에러 발생: ${e.message}")
             e.printStackTrace()
             handleException(e)
@@ -58,18 +58,6 @@ class PopupRestController(
     }
 
     /**
-     * 팝업 상태 변경 API
-     */
-    @PatchMapping("/{id}/status")
-    fun updatePopupStatus(
-        @PathVariable id: Long,
-        @RequestParam status: String
-    ): ResponseEntity<PopupResponse> {
-        val popup = popupService.updatePopupStatus(id, status)
-        return ResponseEntity.ok(popup)
-    }
-
-    /**
      * 팝업 수정 API
      */
     @PutMapping("/{id}")
@@ -82,6 +70,7 @@ class PopupRestController(
         val popup = popupService.updatePopup(id, request, image, userDetails.username)
         return ResponseEntity.ok(popup)
     }
+
 
     /**
      * 팝업 상세 조회 API
@@ -126,23 +115,23 @@ class PopupRestController(
     /**
      * 예외 처리 유틸리티 메서드
      */
-    private fun handleException(e: Exception): ResponseEntity<Any> {
+    private fun handleException(e: Exception): ResponseEntity<PopupResponse> {  // 반환 타입 변경
         return when (e) {
             is PopupCreationException -> ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(mapOf("error" to e.message))
+                .body(null)  // PopupResponse 타입에 맞춰 null 반환
 
             is IllegalArgumentException -> ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(mapOf("error" to (e.message ?: "Invalid request")))
+                .body(null)
 
             is EntityNotFoundException -> ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(mapOf("error" to (e.message ?: "Resource not found")))
+                .body(null)
 
             else -> ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(mapOf("error" to "An unexpected error occurred"))
+                .body(null)
         }
     }
 

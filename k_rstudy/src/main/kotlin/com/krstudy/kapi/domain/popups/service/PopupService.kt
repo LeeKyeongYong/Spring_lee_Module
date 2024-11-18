@@ -204,8 +204,9 @@ class PopupService(
                 borderStyle = request.borderStyle
                 shadowEffect = request.shadowEffect
                 animationType = request.animationType
-                displayPages = request.displayPages.toSet()
-                targetRoles = request.targetRoles.toSet()
+                // Set 컬렉션 업데이트 수정
+                displayPages = HashSet(request.displayPages)
+                targetRoles = HashSet(request.targetRoles)
                 maxDisplayCount = request.maxDisplayCount
             }
 
