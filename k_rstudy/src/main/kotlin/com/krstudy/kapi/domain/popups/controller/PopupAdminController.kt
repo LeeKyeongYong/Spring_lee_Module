@@ -95,4 +95,16 @@ class PopupAdminController(
         }
     }
 
+    @GetMapping("/{id}/statistics")
+    fun getPopupStatistics(@PathVariable id: Long): ResponseEntity<Map<String, Any>> {
+        return try {
+            val statistics = popupService.getPopupStatistics(id)
+            ResponseEntity.ok(statistics)
+        } catch (e: Exception) {
+            logger.error("통계 조회 중 오류 발생", e)
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf("error" to "통계를 불러오는 중 오류가 발생했습니다."))
+        }
+    }
+
 }

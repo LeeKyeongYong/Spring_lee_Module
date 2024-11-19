@@ -229,61 +229,86 @@
             }
         }
 
-
         async function showStatistics(id) {
             try {
                 const response = await fetch(`/api/admin/popups/${id}/statistics`);
+                if (!response.ok) {
+                    throw new Error('통계 데이터를 불러오는데 실패했습니다.');
+                }
+
                 const data = await response.json();
+                console.log('Statistics data:', data); // 데이터 확인용 로그
 
                 // 통계 카드 업데이트
                 document.getElementById('total-views').textContent = data.totalViews || 0;
-                document.getElementById('ctr-rate').textContent = `${data.ctr || 0}%`;
+                document.getElementById('ctr-rate').textContent = `${(data.ctr || 0).toFixed(2)}%`;
                 document.getElementById('avg-duration').textContent = `${data.avgDuration || 0}초`;
 
-                // 디바이스별 통계 차트
+                // 기존 차트 인스턴스 제거
+                const deviceChartCanvas = document.getElementById('deviceChart');
+                const closeTypeChartCanvas = document.getElementById('closeTypeChart');
+
+                // 새로운 캔버스 생성
+                deviceChartCanvas.remove();
+                closeTypeChartCanvas.remove();
+
+                const deviceChartContainer = document.querySelector('[data-chart="device"]');
+                const closeTypeChartContainer = document.querySelector('[data-chart="closeType"]');
+
+                deviceChartContainer.innerHTML = '<canvas id="deviceChart"></canvas>';
+                closeTypeChartContainer.innerHTML = '<canvas id="closeTypeChart"></canvas>';
+
+                // 차트 데이터 준비
+                const deviceData = {
+                    PC: data.deviceStats?.PC || 0,
+                    MOBILE: data.deviceStats?.MOBILE || 0,
+                    TABLET: data.deviceStats?.TABLET || 0
+                };
+
+                const closeTypeData = {
+                    NORMAL: data.closeTypeStats?.NORMAL || 0,
+                    AUTO: data.closeTypeStats?.AUTO || 0,
+                    TODAY: data.closeTypeStats?.TODAY || 0
+                };
+
+                console.log('Device Data:', deviceData); // 데이터 확인용 로그
+                console.log('Close Type Data:', closeTypeData); // 데이터 확인용 로그
+
+                // 새로운 차트 생성
                 new Chart(document.getElementById('deviceChart'), {
                     type: 'pie',
                     data: {
-                        labels: Object.keys(data.deviceStats),
+                        labels: ['PC', 'MOBILE', 'TABLET'],
                         datasets: [{
-                            data: Object.values(data.deviceStats),
+                            data: [0, 0, 0], // 초기값 설정
                             backgroundColor: ['#4B5563', '#60A5FA', '#34D399']
                         }]
                     },
                     options: {
                         responsive: true,
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: '디바이스별 통계'
-                            }
-                        }
+                        maintainAspectRatio: false
                     }
                 });
 
-                // 닫기 방식 통계 차트
                 new Chart(document.getElementById('closeTypeChart'), {
                     type: 'pie',
                     data: {
-                        labels: Object.keys(data.closeTypeStats),
+                        labels: ['일반', '자동', '오늘하루안보기'],
                         datasets: [{
-                            data: Object.values(data.closeTypeStats),
+                            data: [0, 0, 0], // 초기값 설정
                             backgroundColor: ['#F87171', '#FBBF24', '#818CF8']
                         }]
                     },
                     options: {
                         responsive: true,
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: '닫기 방식 통계'
-                            }
-                        }
+                        maintainAspectRatio: false
                     }
                 });
 
+                // 모달 표시
                 document.getElementById('statistics-modal').classList.remove('hidden');
             } catch (error) {
+                console.error('Statistics error:', error);
                 alert('통계를 불러오는 중 오류가 발생했습니다.');
             }
         }
@@ -530,8 +555,9 @@
     </div>
 
     <!-- 통계 모달 -->
-    <div id="statistics-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
-        <div class="bg-white rounded-lg p-8 max-w-4xl mx-auto mt-20">
+    <!-- 통계 모달 -->
+    <div id="statistics-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <div class="bg-white rounded-lg p-8 max-w-4xl mx-auto mt-20 relative">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-900">상세 통계</h2>
                 <button onclick="closeStatisticsModal()"
@@ -558,10 +584,10 @@
 
             <!-- 차트 영역 -->
             <div class="grid grid-cols-2 gap-6">
-                <div class="bg-gray-50 p-4 rounded-lg">
+                <div class="bg-gray-50 p-4 rounded-lg" style="height: 300px;" data-chart="device">
                     <canvas id="deviceChart"></canvas>
                 </div>
-                <div class="bg-gray-50 p-4 rounded-lg">
+                <div class="bg-gray-50 p-4 rounded-lg" style="height: 300px;" data-chart="closeType">
                     <canvas id="closeTypeChart"></canvas>
                 </div>
             </div>

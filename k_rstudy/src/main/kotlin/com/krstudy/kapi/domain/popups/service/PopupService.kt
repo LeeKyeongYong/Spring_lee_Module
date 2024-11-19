@@ -106,9 +106,10 @@ class PopupService(
     @Transactional
     fun incrementClickCount(popupId: Long) {
         val popup = popupRepository.findById(popupId).orElseThrow {
-            EntityNotFoundException("Popup not found")
+            EntityNotFoundException("팝업을 찾을 수 없습니다")
         }
         popup.clickCount++
+        updatePopupStatistics(popupId, "CLICK")
     }
 
     /**
@@ -334,17 +335,7 @@ class PopupService(
         }
     }
 
-    /**
-     * CTR 계산
-     */
-    fun calculateCTR(id: Long): Double {
-        val statistics = popupStatisticsRepository.findByPopupId(id)
-            ?: throw EntityNotFoundException("Statistics not found")
 
-        return if (statistics.viewCount > 0) {
-            (statistics.clickCount.toDouble() / statistics.viewCount) * 100
-        } else 0.0
-    }
 
     private fun savePopupHistory(
         popup: PopupEntity,
@@ -573,6 +564,99 @@ class PopupService(
     fun previewTemplate(id: Long): TemplateResponse {
         val template = popupTemplateRepository.findById(id) .orElseThrow { EntityNotFoundException("Template not found") }
         return TemplateResponse.from(template)
+    }
+
+    @Transactional
+    fun getPopupStatistics(id: Long): Map<String, Any> {
+        val popup = popupRepository.findById(id).orElseThrow {
+            EntityNotFoundException("팝업을 찾을 수 없습니다: $id")
+        }
+
+        val stats = popupStatisticsRepository.findByPopupId(id)
+            ?: createInitialStatistics(popup)
+
+        return mapOf(
+            "totalViews" to popup.viewCount,
+            "ctr" to calculateCTR(popup.clickCount, popup.viewCount),
+            "avgDuration" to (stats.viewDuration ?: 0),
+            "deviceStats" to mapOf(
+                "PC" to (stats.deviceStats["PC"] ?: 0),
+                "MOBILE" to (stats.deviceStats["MOBILE"] ?: 0),
+                "TABLET" to (stats.deviceStats["TABLET"] ?: 0)
+            ),
+            "closeTypeStats" to mapOf(
+                "NORMAL" to (stats.closeTypeStats["NORMAL"] ?: 0),
+                "AUTO" to (stats.closeTypeStats["AUTO"] ?: 0),
+                "TODAY" to (stats.closeTypeStats["TODAY"] ?: 0)
+            )
+        )
+    }
+
+    private fun calculateCTR(clicks: Long, views: Long): Double {
+        return if (views > 0) {
+            (clicks.toDouble() / views) * 100
+        } else 0.0
+    }
+
+
+    @Transactional
+    protected fun createInitialStatistics(popup: PopupEntity): PopupStatisticsEntity {
+        val stats = PopupStatisticsEntity(
+            popupId = popup.id,
+            hour = LocalDateTime.now().hour,
+            deviceType = popup.deviceType,
+            deviceStats = mutableMapOf(
+                "PC" to 0L,
+                "MOBILE" to 0L,
+                "TABLET" to 0L
+            ),
+            closeTypeStats = mutableMapOf(
+                "NORMAL" to 0L,
+                "AUTO" to 0L,
+                "TODAY" to 0L
+            )
+        )
+        return popupStatisticsRepository.save(stats)
+    }
+
+
+    @Transactional
+    protected fun updatePopupStatistics(id: Long, type: String, deviceType: String? = null) {
+        val stats = popupStatisticsRepository.findByPopupId(id)
+            ?: throw EntityNotFoundException("통계 정보를 찾을 수 없습니다.")
+
+        when (type) {
+            "VIEW" -> {
+                stats.viewCount++
+                deviceType?.let {
+                    stats.deviceStats.merge(it, 1L, Long::plus)
+                }
+            }
+            "CLICK" -> stats.clickCount++
+            "CLOSE" -> {
+                stats.closeCount++
+                val closeType = deviceType ?: "NORMAL"
+                stats.closeTypeStats.merge(closeType, 1L, Long::plus)
+            }
+        }
+
+        popupStatisticsRepository.save(stats)
+    }
+
+    @Transactional
+    fun incrementViewCount(popupId: Long, deviceType: String? = null) {
+        val popup = popupRepository.findById(popupId).orElseThrow {
+            EntityNotFoundException("팝업을 찾을 수 없습니다")
+        }
+        popup.viewCount++
+        updatePopupStatistics(popupId, "VIEW", deviceType)
+    }
+
+
+
+    @Transactional
+    fun recordPopupClose(popupId: Long, closeType: String) {
+        updatePopupStatistics(popupId, "CLOSE", closeType)
     }
 
 }
