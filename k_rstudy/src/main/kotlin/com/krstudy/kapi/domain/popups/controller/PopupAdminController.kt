@@ -4,12 +4,12 @@ import com.krstudy.kapi.domain.files.service.FileService
 import com.krstudy.kapi.domain.popups.dto.*
 import com.krstudy.kapi.domain.popups.enums.PopupStatus
 import com.krstudy.kapi.domain.popups.service.PopupService
+import com.krstudy.kapi.domain.popups.service.PopupStatisticsService  // 추가
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -19,7 +19,8 @@ import org.springframework.http.HttpStatus
 @RequestMapping("/api/admin/popups", produces = [MediaType.APPLICATION_JSON_VALUE])
 class PopupAdminController(
     private val popupService: PopupService,
-    private val fileService: FileService  // FileService 주입
+    private val statisticsService: PopupStatisticsService,
+    private val fileService: FileService
 ) {
 
     companion object {
@@ -98,12 +99,30 @@ class PopupAdminController(
     @GetMapping("/{id}/statistics")
     fun getPopupStatistics(@PathVariable id: Long): ResponseEntity<Map<String, Any>> {
         return try {
-            val statistics = popupService.getPopupStatistics(id)
+            val statistics = statisticsService.getStatistics(id)  // 이제 올바른 메서드 호출
             ResponseEntity.ok(statistics)
         } catch (e: Exception) {
             logger.error("통계 조회 중 오류 발생", e)
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(mapOf("error" to "통계를 불러오는 중 오류가 발생했습니다."))
+        }
+    }
+
+    @PostMapping("/{id}/record/{action}")
+    fun recordAction(
+        @PathVariable id: Long,
+        @PathVariable action: String,
+        @RequestParam(required = false) type: String?
+    ): ResponseEntity<Void> {
+        return try {
+            when (action) {
+                "view" -> statisticsService.recordView(id, type ?: "DESKTOP")
+                "click" -> statisticsService.recordClick(id)
+                "close" -> statisticsService.recordClose(id, type ?: "NORMAL")
+            }
+            ResponseEntity.ok().build()
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         }
     }
 

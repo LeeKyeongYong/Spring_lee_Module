@@ -615,10 +615,12 @@ class PopupService(
     protected fun createInitialStatistics(popup: PopupEntity): PopupStatisticsEntity {
         val stats = PopupStatisticsEntity(
             popupId = popup.id,
-            hour = LocalDateTime.now().hour,
             deviceType = popup.deviceType,
+            viewCount = 0,
+            clickCount = 0,
+            closeCount = 0,
             deviceStats = mutableMapOf(
-                "PC" to 0L,
+                "DESKTOP" to 0L,
                 "MOBILE" to 0L,
                 "TABLET" to 0L
             ),
@@ -626,7 +628,9 @@ class PopupService(
                 "NORMAL" to 0L,
                 "AUTO" to 0L,
                 "TODAY" to 0L
-            )
+            ),
+            viewDuration = 0.0,
+            hour = LocalDateTime.now().hour
         )
         return popupStatisticsRepository.save(stats)
     }

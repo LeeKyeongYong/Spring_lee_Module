@@ -8,52 +8,46 @@ import java.time.LocalDateTime
 @Table(name = "popup_statistics")
 class PopupStatisticsEntity(
 
+
     @Column(nullable = false)
     val popupId: Long,
 
     @Column(nullable = false)
-    val hour: Int,
+    var viewCount: Long = 0,
 
     @Column(nullable = false)
-    var viewCount: Long = 0,  // var로 변경
+    var clickCount: Long = 0,
 
     @Column(nullable = false)
-    var clickCount: Long = 0,  // var로 변경
-
-    @Column(nullable = false)
-    var closeCount: Long = 0,  // 추가
+    var closeCount: Long = 0,
 
     @ElementCollection
-    @CollectionTable(
-        name = "popup_device_stats",
-        joinColumns = [JoinColumn(name = "stats_id")]
-    )
+    @CollectionTable(name = "popup_device_stats")
     @MapKeyColumn(name = "device_type")
     @Column(name = "count")
-    var deviceStats: MutableMap<String, Long> = mutableMapOf(),
+    var deviceStats: MutableMap<String, Long> = mutableMapOf(
+        "DESKTOP" to 0,
+        "MOBILE" to 0,
+        "TABLET" to 0
+    ),
 
     @ElementCollection
-    @CollectionTable(
-        name = "popup_close_type_stats",
-        joinColumns = [JoinColumn(name = "stats_id")]
-    )
+    @CollectionTable(name = "popup_close_type_stats")
     @MapKeyColumn(name = "close_type")
     @Column(name = "count")
-    var closeTypeStats: MutableMap<String, Long> = mutableMapOf(),
+    var closeTypeStats: MutableMap<String, Long> = mutableMapOf(
+        "NORMAL" to 0,
+        "AUTO" to 0,
+        "TODAY" to 0
+    ),
 
     @Column(nullable = false)
-    val conversionCount: Long = 0,
+    var viewDuration: Double = 0.0,
 
     @Column(nullable = false)
-    val viewDuration: Double = 0.0,
+    val hour: Int = LocalDateTime.now().hour,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    val deviceType: DeviceType,
-
-    @Column(nullable = false)
-    val recordedAt: LocalDateTime = LocalDateTime.now(),
-
-    @Column(nullable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now()  // createdAt 필드 추가
+    val deviceType: DeviceType
 ) : BaseEntity()
