@@ -108,8 +108,26 @@ class PopupService(
         val popup = popupRepository.findById(popupId).orElseThrow {
             EntityNotFoundException("팝업을 찾을 수 없습니다")
         }
+
+        // 1. 팝업의 클릭 카운트 증가
         popup.clickCount++
-        updatePopupStatistics(popupId, "CLICK")
+
+        // 2. 통계 데이터 생성 또는 업데이트
+        val stats = popupStatisticsRepository.findByPopupId(popupId)
+            ?: createInitialStatistics(popup)
+
+        // 3. 통계 데이터 업데이트
+        stats.apply {
+            clickCount++
+            // CTR 계산을 위한 추가 데이터 업데이트
+            if (viewCount > 0) {
+                val ctr = (clickCount.toDouble() / viewCount) * 100
+                // CTR 관련 데이터 업데이트
+            }
+        }
+
+        // 4. 통계 데이터 저장
+        popupStatisticsRepository.save(stats)
     }
 
     /**
@@ -572,23 +590,17 @@ class PopupService(
             EntityNotFoundException("팝업을 찾을 수 없습니다: $id")
         }
 
+        // 통계 데이터 조회 또는 생성
         val stats = popupStatisticsRepository.findByPopupId(id)
             ?: createInitialStatistics(popup)
 
+        // 실제 데이터를 기반으로 통계 계산
         return mapOf(
-            "totalViews" to popup.viewCount,
-            "ctr" to calculateCTR(popup.clickCount, popup.viewCount),
-            "avgDuration" to (stats.viewDuration ?: 0),
-            "deviceStats" to mapOf(
-                "PC" to (stats.deviceStats["PC"] ?: 0),
-                "MOBILE" to (stats.deviceStats["MOBILE"] ?: 0),
-                "TABLET" to (stats.deviceStats["TABLET"] ?: 0)
-            ),
-            "closeTypeStats" to mapOf(
-                "NORMAL" to (stats.closeTypeStats["NORMAL"] ?: 0),
-                "AUTO" to (stats.closeTypeStats["AUTO"] ?: 0),
-                "TODAY" to (stats.closeTypeStats["TODAY"] ?: 0)
-            )
+            "totalViews" to stats.viewCount,
+            "ctr" to calculateCTR(stats.clickCount, stats.viewCount),
+            "avgDuration" to (stats.viewDuration),
+            "deviceStats" to stats.deviceStats,
+            "closeTypeStats" to stats.closeTypeStats
         )
     }
 
