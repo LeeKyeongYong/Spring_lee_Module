@@ -97,53 +97,58 @@
     </style>
 
     <script type="text/javascript">
+        let deviceChart, closeChart;
+        let charts = {
+            device: null,
+            close: null
+        };
 
         function initializeCharts() {
-            const deviceChart = new Chart(
-                document.getElementById('deviceChart').getContext('2d'),
-                {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['데스크톱', '모바일', '태블릿'],
-                        datasets: [{
-                            data: [0, 0, 0],
-                            backgroundColor: [
-                                '#FF6384',
-                                '#36A2EB',
-                                '#FFCE56'
-                            ]
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false
+            // 이전 차트 제거
+            if (charts.device) charts.device.destroy();
+            if (charts.close) charts.close.destroy();
+
+            // 디바이스 차트 초기화
+            charts.device = new Chart(document.getElementById('deviceChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['데스크톱', '모바일', '태블릿'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
                     }
                 }
-            );
+            });
 
-            const closeChart = new Chart(
-                document.getElementById('closeTypeChart').getContext('2d'),
-                {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['일반', '자동', '오늘 하루 보지 않기'],
-                        datasets: [{
-                            data: [0, 0, 0],
-                            backgroundColor: [
-                                '#4BC0C0',
-                                '#FF9F40',
-                                '#9966FF'
-                            ]
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false
+            // 종료 유형 차트 초기화
+            charts.close = new Chart(document.getElementById('closeTypeChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['일반', '자동', '오늘 하루 보지 않기'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: ['#4BC0C0', '#FF9F40', '#9966FF']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
                     }
                 }
-            );
-
-            return { deviceChart, closeChart };
+            });
         }
 
         async function loadStatistics(popupId) {
@@ -154,28 +159,27 @@
                 const data = await response.json();
 
                 // 기본 통계 업데이트
-                document.getElementById('total-views').textContent = data.totalViews.toLocaleString();
-                document.getElementById('ctr-rate').textContent = `${data.ctr.toFixed(2)}%`;
-                document.getElementById('avg-duration').textContent = `${data.avgDuration.toFixed(1)}초`;
+                document.getElementById('stats-views').textContent = data.totalViews.toLocaleString();
+                document.getElementById('stats-ctr').textContent = `${data.ctr.toFixed(2)}%`;
+                document.getElementById('stats-duration').textContent = `${data.avgDuration.toFixed(1)}초`;
 
-                // 차트 업데이트
-                const charts = initializeCharts();
-
-                // 디바이스 차트 업데이트
-                charts.deviceChart.data.datasets[0].data = [
+                // 차트 데이터 업데이트
+                deviceChart.data.datasets[0].data = [
                     data.deviceStats.DESKTOP || 0,
                     data.deviceStats.MOBILE || 0,
                     data.deviceStats.TABLET || 0
                 ];
-                charts.deviceChart.update();
+                deviceChart.update();
 
-                // 종료 유형 차트 업데이트
-                charts.closeChart.data.datasets[0].data = [
+                closeChart.data.datasets[0].data = [
                     data.closeStats.NORMAL || 0,
                     data.closeStats.AUTO || 0,
                     data.closeStats.TODAY || 0
                 ];
-                charts.closeChart.update();
+                closeChart.update();
+
+                // 모달 표시
+                document.getElementById('statistics-modal').classList.remove('hidden');
 
             } catch (error) {
                 console.error('Statistics error:', error);
@@ -185,15 +189,33 @@
 
         // 통계 기록 함수들
         async function recordView(popupId, deviceType) {
-            await fetch(`/api/admin/popups/${popupId}/record/view?type=${deviceType}`, { method: 'POST' });
+            try {
+                await fetch(`/api/admin/popups/${popupId}/record/view?type=${deviceType}`, {
+                    method: 'POST'
+                });
+            } catch (error) {
+                console.error('View record error:', error);
+            }
         }
 
         async function recordClick(popupId) {
-            await fetch(`/api/admin/popups/${popupId}/record/click`, { method: 'POST' });
+            try {
+                await fetch(`/api/admin/popups/${popupId}/record/click`, {
+                    method: 'POST'
+                });
+            } catch (error) {
+                console.error('Click record error:', error);
+            }
         }
 
         async function recordClose(popupId, closeType) {
-            await fetch(`/api/admin/popups/${popupId}/record/close?type=${closeType}`, { method: 'POST' });
+            try {
+                await fetch(`/api/admin/popups/${popupId}/record/close?type=${closeType}`, {
+                    method: 'POST'
+                });
+            } catch (error) {
+                console.error('Close record error:', error);
+            }
         }
 
         // 이미지 팝업 관련 함수 추가
@@ -220,21 +242,6 @@
         }
 
         // 기존 함수들...
-        async function activatePopup(id) {
-            try {
-                await fetch(`/api/admin/popups/${id}/activate`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                location.reload();
-            } catch (error) {
-                alert('팝업 활성화 중 오류가 발생했습니다.');
-            }
-        }
-
-        // 기존 JavaScript 함수들 유지
         async function activatePopup(id) {
             try {
                 await fetch(`/api/admin/popups/${id}/activate`, {
@@ -327,29 +334,52 @@
             }
         }
 
+        // showStatistics 함수 수정
         async function showStatistics(id) {
             try {
-                const response = await fetch(`/api/admin/popups/${id}/statistics`);
-                if (!response.ok) throw new Error('통계 데이터를 불러오는데 실패했습니다.');
+                const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+                const response = await fetch(`/api/admin/popups/${id}/statistics`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        [csrfHeader]: csrfToken
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('통계 데이터를 불러오는데 실패했습니다.');
+                }
 
                 const data = await response.json();
+                console.log('받은 통계 데이터:', data);
 
                 // 기본 통계 업데이트
-                document.getElementById('stats-views').textContent = data.totalViews.toLocaleString();
-                document.getElementById('stats-ctr').textContent = `${data.ctr.toFixed(1)}%`;
-                document.getElementById('stats-duration').textContent = `${data.avgDuration.toFixed(1)}초`;
+                document.getElementById('stats-views').textContent = (data.totalViews || 0).toLocaleString();
+                document.getElementById('stats-ctr').textContent = `${(data.ctr || 0).toFixed(1)}%`;
+                document.getElementById('stats-duration').textContent = `${(data.avgDuration || 0).toFixed(1)}초`;
 
-                // 디바이스별 통계 업데이트
-                Object.entries(data.deviceStats).forEach(([device, count]) => {
-                    const element = document.querySelector(`.device-stat[data-device="${device}"]`);
-                    if (element) element.textContent = count.toLocaleString();
-                });
+                // 차트 초기화
+                initializeCharts();
 
-                // 종료 유형별 통계 업데이트
-                Object.entries(data.closeTypeStats).forEach(([type, count]) => {
-                    const element = document.querySelector(`.close-stat[data-type="${type}"]`);
-                    if (element) element.textContent = count.toLocaleString();
-                });
+                // 디바이스 통계 데이터 업데이트
+                const deviceStats = data.deviceStats || { DESKTOP: 0, MOBILE: 0, TABLET: 0 };
+                charts.device.data.datasets[0].data = [
+                    deviceStats.DESKTOP || 0,
+                    deviceStats.MOBILE || 0,
+                    deviceStats.TABLET || 0
+                ];
+                charts.device.update();
+
+                // 종료 유형 통계 데이터 업데이트
+                const closeStats = data.closeStats || { NORMAL: 0, AUTO: 0, TODAY: 0 };
+                charts.close.data.datasets[0].data = [
+                    closeStats.NORMAL || 0,
+                    closeStats.AUTO || 0,
+                    closeStats.TODAY || 0
+                ];
+                charts.close.update();
 
                 // 모달 표시
                 document.getElementById('statistics-modal').classList.remove('hidden');
@@ -362,105 +392,6 @@
 
         function closeStatisticsModal() {
             document.getElementById('statistics-modal').classList.add('hidden');
-        }
-
-        async function clonePopup(id) {
-            if (!confirm('이 팝업을 복제하시겠습니까?')) return;
-
-            try {
-                const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-
-                const response = await fetch(`/api/admin/popups/${id}/clone`, {
-                    method: 'POST',
-                    credentials: 'same-origin',  // 쿠키 포함
-                    headers: {
-                        'Content-Type': 'application/json',
-                        [csrfHeader]: csrfToken,
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        popupId: id
-                    })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.text();
-                    console.error('서버 응답:', errorData);
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
-                alert('팝업이 성공적으로 복제되었습니다.');
-                window.location.reload();
-            } catch (error) {
-                console.error('복제 중 오류 발생:', error);
-                alert('팝업 복제 중 오류가 발생했습니다.');
-            }
-        }
-
-        async function deletePopup(id) {
-            if (!confirm('정말 삭제하시겠습니까?')) return;
-
-            try {
-                // CSRF 토큰 가져오기
-                const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-
-                const response = await fetch(`/api/admin/popups/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        [csrfHeader]: csrfToken
-                    },
-                    credentials: 'same-origin'  // 쿠키 포함
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
-                if (result.success) {
-                    toastNotice("팝업이 성공적으로 삭제되었습니다.");
-                    document.getElementById(`popup-row-${id}`).remove();
-                } else {
-                    toastWarning(result.message || "팝업 삭제 중 오류가 발생했습니다.");
-                }
-            } catch (error) {
-                console.error('Delete error:', error);
-                toastWarning("팝업 삭제 중 오류가 발생했습니다.");
-            }
-        }
-
-        function makeDraggable(element) {
-            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-            element.onmousedown = dragMouseDown;
-
-            function dragMouseDown(e) {
-                e = e || window.event;
-                e.preventDefault();
-                pos3 = e.clientX;
-                pos4 = e.clientY;
-                document.onmouseup = closeDragElement;
-                document.onmousemove = elementDrag;
-            }
-
-            function elementDrag(e) {
-                e = e || window.event;
-                e.preventDefault();
-                pos1 = pos3 - e.clientX;
-                pos2 = pos4 - e.clientY;
-                pos3 = e.clientX;
-                pos4 = e.clientY;
-                element.style.top = (element.offsetTop - pos2) + "px";
-                element.style.left = (element.offsetLeft - pos1) + "px";
-            }
-
-            function closeDragElement() {
-                document.onmouseup = null;
-                document.onmousemove = null;
-            }
         }
     </script>
     <meta name="_csrf" th:content="${_csrf.token}"/>
@@ -564,9 +495,7 @@
                     </td>
                     <td class="px-6 py-4">
                         <div class="text-sm">
-                            <!-- statistics.viewCount 대신 viewCount 직접 사용 -->
                             <div>노출수: <span th:text="${popup.viewCount}"></span></div>
-                            <!-- CTR 계산: (clickCount / viewCount) * 100 -->
                             <div>클릭률: <span th:text="${popup.viewCount > 0 ? #numbers.formatDecimal(popup.clickCount * 100.0 / popup.viewCount, 1, 2) : '0.00'}">%</span></div>
                             <button class="text-blue-600 hover:text-blue-900 text-xs"
                                     th:onclick="'showStatistics(' + ${popup.id} + ')'">
@@ -602,13 +531,11 @@
     </div>
 
     <!-- 통계 모달 -->
-    <!-- 통계 모달 부분 수정 -->
     <div id="statistics-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
         <div class="bg-white rounded-lg p-8 max-w-4xl mx-auto mt-20 relative">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-900">상세 통계</h2>
-                <button onclick="document.getElementById('statistics-modal').classList.add('hidden')"
-                        class="text-gray-400 hover:text-gray-500">
+                <button onclick="closeStatisticsModal()" class="text-gray-400 hover:text-gray-500">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
@@ -629,40 +556,18 @@
                 </div>
             </div>
 
-            <!-- 디바이스별 통계 -->
-            <div class="mb-8">
-                <h3 class="text-lg font-semibold mb-4">디바이스별 통계</h3>
-                <div id="device-stats" class="grid grid-cols-3 gap-4">
-                    <div class="p-4 bg-blue-50 rounded-lg">
-                        <div class="text-sm text-gray-500">데스크톱</div>
-                        <div class="device-stat text-xl font-bold" data-device="DESKTOP">0</div>
-                    </div>
-                    <div class="p-4 bg-green-50 rounded-lg">
-                        <div class="text-sm text-gray-500">모바일</div>
-                        <div class="device-stat text-xl font-bold" data-device="MOBILE">0</div>
-                    </div>
-                    <div class="p-4 bg-yellow-50 rounded-lg">
-                        <div class="text-sm text-gray-500">태블릿</div>
-                        <div class="device-stat text-xl font-bold" data-device="TABLET">0</div>
+            <!-- 차트 컨테이너 -->
+            <div class="grid grid-cols-2 gap-8">
+                <div class="p-4 bg-white rounded-lg shadow">
+                    <h3 class="text-lg font-semibold mb-4">디바이스별 통계</h3>
+                    <div style="height: 300px; position: relative;">
+                        <canvas id="deviceChart"></canvas>
                     </div>
                 </div>
-            </div>
-
-            <!-- 종료 유형별 통계 -->
-            <div>
-                <h3 class="text-lg font-semibold mb-4">종료 유형별 통계</h3>
-                <div id="close-stats" class="grid grid-cols-3 gap-4">
-                    <div class="p-4 bg-purple-50 rounded-lg">
-                        <div class="text-sm text-gray-500">일반 종료</div>
-                        <div class="close-stat text-xl font-bold" data-type="NORMAL">0</div>
-                    </div>
-                    <div class="p-4 bg-pink-50 rounded-lg">
-                        <div class="text-sm text-gray-500">자동 종료</div>
-                        <div class="close-stat text-xl font-bold" data-type="AUTO">0</div>
-                    </div>
-                    <div class="p-4 bg-indigo-50 rounded-lg">
-                        <div class="text-sm text-gray-500">오늘 하루 보지 않기</div>
-                        <div class="close-stat text-xl font-bold" data-type="TODAY">0</div>
+                <div class="p-4 bg-white rounded-lg shadow">
+                    <h3 class="text-lg font-semibold mb-4">종료 유형별 통계</h3>
+                    <div style="height: 300px; position: relative;">
+                        <canvas id="closeTypeChart"></canvas>
                     </div>
                 </div>
             </div>
