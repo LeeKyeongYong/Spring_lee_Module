@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "popup_schedules")
 class PopupScheduleEntity(
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "popup_id")
     var popup: PopupEntity? = null,
