@@ -3,6 +3,7 @@
 <head>
     <title>팝업 관리</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         .preview-popup {
@@ -337,49 +338,45 @@
         // showStatistics 함수 수정
         async function showStatistics(id) {
             try {
-                const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-
-                const response = await fetch(`/api/admin/popups/${id}/statistics`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        [csrfHeader]: csrfToken
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('통계 데이터를 불러오는데 실패했습니다.');
-                }
-
-                const data = await response.json();
-                console.log('받은 통계 데이터:', data);
-
-                // 기본 통계 업데이트
-                document.getElementById('stats-views').textContent = (data.totalViews || 0).toLocaleString();
-                document.getElementById('stats-ctr').textContent = `${(data.ctr || 0).toFixed(1)}%`;
-                document.getElementById('stats-duration').textContent = `${(data.avgDuration || 0).toFixed(1)}초`;
-
-                // 차트 초기화
+                // 차트 초기화 먼저 수행
                 initializeCharts();
 
-                // 디바이스 통계 데이터 업데이트
-                const deviceStats = data.deviceStats || { DESKTOP: 0, MOBILE: 0, TABLET: 0 };
-                charts.device.data.datasets[0].data = [
-                    deviceStats.DESKTOP || 0,
-                    deviceStats.MOBILE || 0,
-                    deviceStats.TABLET || 0
-                ];
-                charts.device.update();
+                const response = await fetch(`/api/admin/popups/${id}/statistics`);
+                if (!response.ok) throw new Error('통계 데이터를 불러오는데 실패했습니다.');
 
-                // 종료 유형 통계 데이터 업데이트
-                const closeStats = data.closeStats || { NORMAL: 0, AUTO: 0, TODAY: 0 };
-                charts.close.data.datasets[0].data = [
-                    closeStats.NORMAL || 0,
-                    closeStats.AUTO || 0,
-                    closeStats.TODAY || 0
-                ];
-                charts.close.update();
+                const data = await response.json();
+                console.log('Statistics data:', data); // 데이터 확인용 로그
+
+                // 기본 통계 업데이트 전에 null 체크
+                if (data) {
+                    document.getElementById('stats-views').textContent = (data.totalViews || 0).toLocaleString();
+                    document.getElementById('stats-ctr').textContent = `${(data.ctr || 0).toFixed(1)}%`;
+                    document.getElementById('stats-duration').textContent = `${(data.avgDuration || 0).toFixed(1)}초`;
+
+                    // 디바이스 차트 데이터 업데이트
+                    if (charts.device) {
+                        const deviceData = [
+                            data.deviceStats?.DESKTOP || 0,
+                            data.deviceStats?.MOBILE || 0,
+                            data.deviceStats?.TABLET || 0
+                        ];
+
+                        charts.device.data.datasets[0].data = deviceData;
+                        charts.device.update('none'); // 애니메이션 없이 즉시 업데이트
+                    }
+
+                    // 종료 유형 차트 데이터 업데이트
+                    if (charts.close) {
+                        const closeData = [
+                            data.closeStats?.NORMAL || 0,
+                            data.closeStats?.AUTO || 0,
+                            data.closeStats?.TODAY || 0
+                        ];
+
+                        charts.close.data.datasets[0].data = closeData;
+                        charts.close.update('none'); // 애니메이션 없이 즉시 업데이트
+                    }
+                }
 
                 // 모달 표시
                 document.getElementById('statistics-modal').classList.remove('hidden');

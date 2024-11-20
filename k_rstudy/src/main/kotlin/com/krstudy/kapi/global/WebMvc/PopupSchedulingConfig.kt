@@ -12,51 +12,57 @@ import org.springframework.scheduling.annotation.Scheduled
 import java.time.LocalDateTime
 
 @Configuration
-@EnableScheduling
 class PopupSchedulingConfig(
-    private val popupScheduleRepository: PopupScheduleRepository,
-    private val popupRepository: PopupRepository
+    private val popupRepository: PopupRepository,
+    private val popupScheduleRepository: PopupScheduleRepository
 ) {
-    @Scheduled(cron = "0 * * * * *") // 매분 실행
+    @Scheduled(fixedRate = 60000) // 1분마다 실행
     fun checkPopupSchedules() {
-        val now = LocalDateTime.now()
-        popupScheduleRepository.findActiveSchedules(now).forEach { schedule ->
+        val schedules = popupScheduleRepository.findAll()
+        schedules.forEach { schedule ->
             when (schedule.repeatType) {
-                RepeatType.DAILY -> handleDailyRepeat(schedule, now)
-                RepeatType.WEEKLY -> handleWeeklyRepeat(schedule, now)
-                RepeatType.MONTHLY -> handleMonthlyRepeat(schedule, now)
+                RepeatType.WEEKLY -> handleWeeklyRepeat(schedule)
+                RepeatType.MONTHLY -> handleMonthlyRepeat(schedule)
+                RepeatType.DAILY -> handleDailyRepeat(schedule)
             }
         }
     }
 
-    private fun handleDailyRepeat(schedule: PopupScheduleEntity, now: LocalDateTime) {
-        if (shouldActivatePopup(schedule, now)) {
-            activatePopup(schedule.popup)
+    private fun handleWeeklyRepeat(schedule: PopupScheduleEntity) {
+        val currentDayOfWeek = LocalDateTime.now().dayOfWeek.name.substring(0, 3)
+        val scheduleDays = schedule.repeatDays?.split(",") ?: return
+
+        val isScheduledDay = scheduleDays.any { it.trim() == currentDayOfWeek }
+        if (isScheduledDay) {
+            updatePopupStatus(schedule)
         }
     }
 
-    private fun handleWeeklyRepeat(schedule: PopupScheduleEntity, now: LocalDateTime) {
-        val currentDayOfWeek = now.dayOfWeek.value
-        if (schedule.repeatDays?.split(",")?.map { it.toInt() }
-                ?.contains(currentDayOfWeek) == true) {
-            activatePopup(schedule.popup)
+    private fun handleMonthlyRepeat(schedule: PopupScheduleEntity) {
+        val currentDayOfMonth = LocalDateTime.now().dayOfMonth
+        if (schedule.repeatMonthDay == currentDayOfMonth) {
+            updatePopupStatus(schedule)
         }
     }
 
-    private fun handleMonthlyRepeat(schedule: PopupScheduleEntity, now: LocalDateTime) {
-        if (schedule.repeatMonthDay == now.dayOfMonth) {
-            activatePopup(schedule.popup)
+    private fun handleDailyRepeat(schedule: PopupScheduleEntity) {
+        updatePopupStatus(schedule)
+    }
+
+    private fun updatePopupStatus(schedule: PopupScheduleEntity) {
+        val now = LocalDateTime.now()
+        val popup = schedule.popup ?: return
+
+        val shouldBeActive = now.isAfter(schedule.startTime) &&
+                now.isBefore(schedule.endTime) &&
+                schedule.isActive
+
+        if (shouldBeActive && popup.status != PopupStatus.ACTIVE) {
+            popup.status = PopupStatus.ACTIVE
+            popupRepository.save(popup)
+        } else if (!shouldBeActive && popup.status == PopupStatus.ACTIVE) {
+            popup.status = PopupStatus.INACTIVE
+            popupRepository.save(popup)
         }
-    }
-
-    private fun shouldActivatePopup(schedule: PopupScheduleEntity, now: LocalDateTime): Boolean {
-        val scheduleTime = now.withHour(schedule.startTime.hour)
-            .withMinute(schedule.startTime.minute)
-        return now.isEqual(scheduleTime)
-    }
-
-    private fun activatePopup(popup: PopupEntity) {
-        popup.status = PopupStatus.ACTIVE
-        popupRepository.save(popup)
     }
 }

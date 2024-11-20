@@ -11,20 +11,20 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "popup_schedules")
 class PopupScheduleEntity(
-
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "popup_id")
-    var popup: PopupEntity,
+    var popup: PopupEntity? = null,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var repeatType: RepeatType,
 
     @Column
-    var repeatDays: String? = null,  // 주간 반복 시 요일 (1,2,3,4,5,6,7)
+    var repeatDays: String? = null, // "MON,WED,FRI" 형식으로 저장
 
     @Column
-    var repeatMonthDay: Int? = null, // 월간 반복 시 일자
+    var repeatMonthDay: Int? = null,
 
     @Column(nullable = false)
     var startTime: LocalDateTime,
