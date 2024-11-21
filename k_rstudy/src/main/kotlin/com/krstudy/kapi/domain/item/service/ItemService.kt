@@ -21,8 +21,8 @@ import org.springframework.beans.factory.annotation.Value
 @RequiredArgsConstructor
 class ItemService(
     private val itemRepository: ItemRepository,
-    private val kafkaTemplate: KafkaTemplate<String, String>,
-    private val itemThreadExecutor: Executor
+    //private val kafkaTemplate: KafkaTemplate<String, ItemDTO>,  // String -> ItemDTO
+    //private val itemThreadExecutor: Executor
 ) {
 
     @Value("\${topic.name}")
@@ -63,11 +63,12 @@ class ItemService(
             )
 
             try {
-                 this.kafkaTemplate.send(topicName, objectMapper.writeValueAsString(itemDTO))
+                //this.kafkaTemplate.send(topicName, itemDTO)
+                // this.kafkaTemplate.send(topicName, objectMapper.writeValueAsString(itemDTO))
             } catch (e: JsonProcessingException) {
                 e.printStackTrace()
             }
-        }, itemThreadExecutor)
+        }, null)//itemThreadExecutor)
     }
 
 

@@ -29,15 +29,4 @@ class KafkaConfig {
         return KafkaTemplate(producerFactory())
     }
 
-    @Bean
-    fun stringKafkaTemplate(): KafkaTemplate<String, String> {
-        val configProps = mapOf(
-            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to "localhost:9092",
-            ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
-            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java
-        )
-        val producerFactory = DefaultKafkaProducerFactory<String, String>(configProps)
-        return KafkaTemplate(producerFactory)
-    }
-
 }

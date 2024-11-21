@@ -5,7 +5,7 @@ import org.springframework.batch.item.Chunk
 import org.springframework.batch.item.ItemWriter
 import org.springframework.kafka.core.KafkaTemplate
 
-class WebLogItemWriter(
+open class WebLogItemWriter(
     private val kafkaTemplate: KafkaTemplate<String, WebLog>
 ) : ItemWriter<WebLog> {
 

@@ -6,7 +6,8 @@ import org.springframework.batch.item.ItemReader
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
-class WebLogItemReader : ItemReader<WebLog> {
+// open 키워드 추가
+open class WebLogItemReader : ItemReader<WebLog> {
 
     private val faker = Faker()
     private val genCount = 100
