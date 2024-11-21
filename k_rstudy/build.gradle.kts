@@ -152,6 +152,8 @@ dependencies {
 
     //카프카 추가
     implementation ("org.springframework.kafka:spring-kafka")
+    implementation("net.datafaker:datafaker:1.8.0")
+
 
     // Resilience4j
     implementation("io.github.resilience4j:resilience4j-spring-boot2:2.2.0")
