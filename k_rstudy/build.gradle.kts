@@ -160,7 +160,7 @@ dependencies {
 
     // flink connector from kafka
     implementation ("org.apache.flink:flink-connector-kafka_2.12:1.14.0")
-    
+
     // Resilience4j
     implementation("io.github.resilience4j:resilience4j-spring-boot2:2.2.0")
     implementation("io.github.resilience4j:resilience4j-retry:2.2.0")

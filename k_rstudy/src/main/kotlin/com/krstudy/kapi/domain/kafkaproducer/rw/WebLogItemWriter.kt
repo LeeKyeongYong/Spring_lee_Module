@@ -9,9 +9,10 @@ open class WebLogItemWriter(
     private val kafkaTemplate: KafkaTemplate<String, WebLog>
 ) : ItemWriter<WebLog> {
 
+    @Throws(Exception::class)
     override fun write(items: Chunk<out WebLog>) {
         for (webLog in items) {
-            kafkaTemplate.send("web_log_topic", webLog)
+            kafkaTemplate.send("weblog_for_ad", webLog)
         }
     }
 }
