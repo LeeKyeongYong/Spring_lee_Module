@@ -154,7 +154,13 @@ dependencies {
     implementation ("org.springframework.kafka:spring-kafka")
     implementation("net.datafaker:datafaker:1.8.0")
 
+    // flink 2.12 --> 2.13 (deprecated, api, connector)
+    implementation ("org.apache.flink:flink-streaming-java_2.12:1.14.0")
+    implementation ("org.apache.flink:flink-clients_2.12:1.14.0")
 
+    // flink connector from kafka
+    implementation ("org.apache.flink:flink-connector-kafka_2.12:1.14.0")
+    
     // Resilience4j
     implementation("io.github.resilience4j:resilience4j-spring-boot2:2.2.0")
     implementation("io.github.resilience4j:resilience4j-retry:2.2.0")
