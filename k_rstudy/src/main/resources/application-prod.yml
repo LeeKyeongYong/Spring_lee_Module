@@ -8,7 +8,7 @@ server:
 spring:
   sql:
     init:
-      mode: always
+      mode: never
       separator: ;
       schema-locations: classpath:db/migration/k_db.sql
   web:
@@ -25,7 +25,7 @@ spring:
     allow-circular-references: true # 순환 참조 허용
   batch:
     jdbc:
-      initialize-schema: always
+      initialize-schema: never
     job:
       enabled: false  # 자동 실행 방지
   kafka:
@@ -56,7 +56,7 @@ spring:
     initialization-mode: always     # 초기화 모드 설정
     read-only: false
   jpa:
-    defer-datasource-initialization: true
+    defer-datasource-initialization: false
     show-sql: true
     hibernate:
       ddl-auto: create  # 기존 테이블 유지 안 하고 매번 새로 생성 후 삭제
