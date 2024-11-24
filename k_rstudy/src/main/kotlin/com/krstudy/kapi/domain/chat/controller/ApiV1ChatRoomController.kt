@@ -1,10 +1,8 @@
 package com.krstudy.kapi.domain.chat.controller
 
+import com.krstudy.kapi.domain.chat.dto.ChatCreateReqBody
 import com.krstudy.kapi.domain.chat.entity.ChatRoom
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
 
 
@@ -38,5 +36,18 @@ class ApiV1ChatRoomController {
             return chatRooms.find { it.id == id }
                 ?: throw NoSuchElementException("Chat room not found with id: $id")
 
+    }
+
+    @PostMapping
+    fun createChatRoom(@RequestBody reqBody: ChatCreateReqBody): ChatRoom {
+        val chatRoom = ChatRoom(roomName = reqBody.roomName).apply {
+            id = chatRooms.size + 1L
+            setCreateDate(LocalDateTime.now())
+            setModifyDate(LocalDateTime.now())
+        }
+
+        chatRooms.add(chatRoom)
+
+        return chatRoom
     }
 }
