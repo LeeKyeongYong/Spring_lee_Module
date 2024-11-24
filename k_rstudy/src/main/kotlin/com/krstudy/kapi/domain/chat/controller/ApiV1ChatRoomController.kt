@@ -4,6 +4,7 @@ import com.krstudy.kapi.domain.chat.dto.ChatCreateReqBody
 import com.krstudy.kapi.domain.chat.entity.ChatRoom
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
+import com.krstudy.kapi.standard.base.Ut
 
 
 @RestController
@@ -40,6 +41,10 @@ class ApiV1ChatRoomController {
 
     @PostMapping
     fun createChatRoom(@RequestBody reqBody: ChatCreateReqBody): ChatRoom {
+
+        // 통신지연을 일부러 발생시키는 코드
+        Ut.thread.sleep(500);
+
         val chatRoom = ChatRoom(roomName = reqBody.roomName).apply {
             id = chatRooms.size + 1L
             setCreateDate(LocalDateTime.now())

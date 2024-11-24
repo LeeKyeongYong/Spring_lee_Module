@@ -76,4 +76,9 @@ class Ut {
             return !isBlank(str)
         }
     }
+
+    object threa {
+        fun sleep(millis: Long) = Thread.sleep(millis)
+    }
+
 }

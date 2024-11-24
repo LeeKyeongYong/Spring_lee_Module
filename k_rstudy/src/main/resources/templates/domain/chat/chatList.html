@@ -23,7 +23,7 @@
                         // XSS 방지를 위한 이스케이프 처리가 필요할 수 있습니다
                         liElement.innerHTML = `
                     ${room.id}번방 /
-                    <a href='/api/v1/chat/rooms/${room.id}'>${room.name}</a> /
+                    <a href='/api/v1/chat/rooms/${room.id}'>${room.roomName}</a> /
                     ${createDate}
                 `;
                         ulElement.appendChild(liElement);
