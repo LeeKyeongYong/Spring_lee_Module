@@ -8,6 +8,7 @@ plugins {
     kotlin("plugin.spring") version "1.9.24"
     kotlin("plugin.jpa") version "1.9.24"
     kotlin("plugin.allopen") version "1.9.24"
+    idea
 }
 
 allOpen {
@@ -20,8 +21,29 @@ group = "com.krstudy.kapi"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_19
 
-sourceSets["main"].withConvention(org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet::class) {
-    kotlin.srcDir("$buildDir/generated/source/kapt/main")
+noArg {
+    annotation("jakarta.persistence.Entity")
+}
+
+kotlin.sourceSets.main {
+    setBuildDir("$buildDir")
+}
+
+// KAPT 설정
+kapt {
+    correctErrorTypes = true
+    arguments {
+        arg("querydsl.packageName", "com.krstudy.kapi.domain")
+    }
+}
+
+// QClass 생성 위치 설정
+idea {
+    module {
+        val kaptMain = file("$buildDir/generated/source/kapt/main")
+        sourceDirs.add(kaptMain)
+        generatedSourceDirs.add(kaptMain)
+    }
 }
 
 configurations {
@@ -66,6 +88,10 @@ dependencies {
     // QueryDSL
     implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
     kapt("com.querydsl:querydsl-apt:5.0.0:jakarta")
+    implementation("com.querydsl:querydsl-core")
+    kapt("jakarta.annotation:jakarta.annotation-api")
+    kapt("jakarta.persistence:jakarta.persistence-api")
+
 
     // SWAGGER
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript">
+        console.clear();
+
+        function loadChatRoomList() {
+            fetch("http://localhost:8090/api/v1/chat/rooms")
+                .then((response) => response.json())
+                .then((data) => {
+                    const ulElement = document.querySelector("#chat-room-list"); // ul 요소 선택
+                    ulElement.innerHTML = ""; // 기존 리스트 초기화
+
+                    data.forEach((room) => {
+                        const liElement = document.createElement("li"); // li 요소 생성
+                        const createDate = room.createDate
+                            .substring(2, 16)
+                            .replaceAll("-", ".")
+                            .replace("T", " ");
+
+                        liElement.textContent = `${room.id}번방 / ${createDate} / ${room.name}`; // 텍스트 내용 설정
+                        ulElement.appendChild(liElement); // ul에 li 추가
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error fetching chat rooms:", error);
+                });
+        }
+
+        loadChatRoomList();
+    </script>
+</head>
+<body>
+    <h1>채팅방 목록</h1>
+    <ul>
+        <li>1번방: / 2024-11-23 / 풋살하러 오세요</li>
+    </ul>
+</body>
+</html>
