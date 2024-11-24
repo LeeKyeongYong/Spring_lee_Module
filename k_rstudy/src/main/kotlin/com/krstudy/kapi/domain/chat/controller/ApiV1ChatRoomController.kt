@@ -9,7 +9,11 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v1/chat/rooms")
 class ApiV1ChatRoomController {
     @GetMapping
-    fun getChatRooms(): String {
-        return "채팅방 목록!"
+    fun getChatRooms(): List<String> {
+        return listOf(
+            "room1",
+            "room2",
+            "room3"
+        )
     }
 }
