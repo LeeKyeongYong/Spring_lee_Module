@@ -77,7 +77,7 @@ class Ut {
         }
     }
 
-    object threa {
+    object thread {
         fun sleep(millis: Long) = Thread.sleep(millis)
     }
 

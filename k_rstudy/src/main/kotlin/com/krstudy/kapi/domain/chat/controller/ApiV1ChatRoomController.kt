@@ -43,7 +43,7 @@ class ApiV1ChatRoomController {
     fun createChatRoom(@RequestBody reqBody: ChatCreateReqBody): ChatRoom {
 
         // 통신지연을 일부러 발생시키는 코드
-        Ut.thread.sleep(500);
+        //Ut.thread.sleep(500);
 
         val chatRoom = ChatRoom(roomName = reqBody.roomName).apply {
             id = chatRooms.size + 1L
