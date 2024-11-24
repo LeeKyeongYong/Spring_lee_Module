@@ -18,10 +18,11 @@
             chatRoomList.innerHTML = "";
 
             chatRooms.forEach(chatRoom => {
-            const li = document.createElement("li");
-            li.textContent = `${chatRoom.id} / ${chatRoom.roomName}`;
-            chatRoomList.appendChild(li);
-        });
+                 const li = document.createElement("li");
+                li.textContent = ` ${room.id}번방 / <a href='/api/v1/chat/rooms/${room.id}'>${room.roomName}</a> / ${createDate}`;
+
+                chatRoomList.appendChild(li);
+            });
         }
 
             function submitAddChatRoom(event) {
