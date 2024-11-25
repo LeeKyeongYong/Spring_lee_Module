@@ -24,6 +24,12 @@ class CustomWebMvcConfig : WebMvcConfigurer {
             .allowedMethods("*")
             .allowedHeaders("*")
             .allowCredentials(true)
+
+        registry.addMapping("/api/**")  // api 경로에 대한 CORS 설정
+            .allowedOrigins("https://cdpn.io")
+            .allowedMethods("*")
+            .allowedHeaders("*")
+            .allowCredentials(true)
     }
 
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {

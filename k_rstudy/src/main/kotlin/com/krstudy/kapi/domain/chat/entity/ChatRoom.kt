@@ -1,13 +1,19 @@
 package com.krstudy.kapi.domain.chat.entity
 
+import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.global.jpa.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.ManyToOne
 
 @Entity
 data class ChatRoom(
 
     @Column(name = "room_name")
-    val roomName: String? = null
+    val roomName: String? = null,
 
-) : BaseEntity() {}
+    @ManyToOne(fetch = FetchType.EAGER)
+    var author: Member? = null,
+
+    ) : BaseEntity() {}

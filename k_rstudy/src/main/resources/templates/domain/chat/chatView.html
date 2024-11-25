@@ -8,7 +8,7 @@
 
         // GET http://localhost:8070/api/v1/chat/rooms : 조회
         // GET은 기본 메서드라서 생략해도 됩니다.
-        fetch("http://localhost:8070/api/v1/chat/rooms")
+        fetch("/api/v1/chat/rooms")
             .then((response) => response.json())
             .then((data) => {
                 console.log("GET(조회) 성공");
@@ -19,19 +19,22 @@
         // POST는 기본 메서드가 아니라서 생략하면 안됨.
         // 등록이기 때문에 body에 등록될 새 채팅방 정보를 포함.
         // "Content-Type": "application/json" 은 body 의 형태, 이걸 스프링부트에 알려줘야 스프링부트가 해당 데이터를 제대로 이해할 수 있음
-        fetch("http://localhost:8070/api/v1/chat/rooms", {
+        fetch("/api/v1/chat/rooms", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                name: "새 채팅방"
+                roomName: "새 채팅방"  // name -> roomName으로 변경
             })
         })
             .then((response) => response.json())
             .then((data) => {
                 console.log("POST(생성/추가) 성공");
                 console.log(data);
+            })
+            .catch(error => {
+                console.error("Error:", error);
             });
     </script>
 </head>
