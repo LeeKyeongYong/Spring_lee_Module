@@ -1,6 +1,8 @@
-<html layout:decorate="~{global/usrLayout}">
+<!DOCTYPE html>
+<html layout:decorate="~{global/usrLayout}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
-    <script type="text/javascript">
+    <script th:inline="javascript">
+        /*<![CDATA[*/
         function loadChatRooms() {
             fetch("/api/v1/chat/rooms")
                 .then(response => {
@@ -22,54 +24,83 @@
         function renderChatRooms(chatRooms) {
             const chatRoomList = document.getElementById("chat-room-list");
             chatRoomList.innerHTML = chatRooms.map(chatRoom => `
-        <li>
-            ${chatRoom.id}번방 /
-            <a href='/chat/rooms/${chatRoom.id}'>${chatRoom.roomName}</a> /
-            ${formatDateTime(chatRoom.createDate)}
-        </li>
-    `).join('');
+                <li class="flex gap-2 items-center my-2">
+                    <span>${chatRoom.id}번방</span>
+                    <a href='/chat/rooms/${chatRoom.id}' class="text-blue-500 hover:underline">${chatRoom.roomName}</a>
+                    <span>${dateForPrint(chatRoom.createDate)}</span>
+                </li>
+            `).join('');
         }
 
-        function formatDateTime(dateTimeStr) {
-            if (!dateTimeStr) return '';
-            const date = new Date(dateTimeStr);
-            return date.toLocaleString('ko-KR', {
-                year: '2-digit',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+        function dateForPrint(date) {
+            return date.substring(2, 16).replaceAll("-", ".").replace("T", " ");
+        }
+
+        function submitAddChatRoom(e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const roomNameInput = document.getElementById("chat-room-name");
+            const roomName = roomNameInput.value.trim();
+
+            if (roomName.length == 0) {
+                alert("채팅방 이름을 입력해주세요.");
+                roomNameInput.focus();
+                return;
+            }
+
+            fetch("/api/v1/chat/rooms", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    roomName: roomName
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(`${data.id}번 채팅방이 생성되었습니다.`);
+                    roomNameInput.value = "";
+                    loadChatRooms();  // 목록 새로고침
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("채팅방 생성에 실패했습니다.");
+                });
         }
 
         // 페이지 로드 시 채팅방 목록 불러오기
         document.addEventListener("DOMContentLoaded", function() {
             loadChatRooms();
+            setInterval(loadChatRooms, 3000);  // 3초마다 목록 갱신
         });
+        /*]]>*/
     </script>
 </head>
-    <body>
-        <div layout:fragment="content">
-            <h1 style="font-weight: bold; font-size: 1.125rem;">채팅방 생성</h1>
+<body>
+<div layout:fragment="content" class="container mx-auto p-4">
+    <h1 class="font-bold text-lg mb-4">채팅방 생성</h1>
 
-            <form onsubmit="submitAddChatRoom(event)" style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">
-                <input
-                        id="chat-room-name"
-                        type="text"
-                        placeholder="채팅방 이름"
-                        style="border: 1px solid #ccc; border-radius: 0.25rem; padding: 0.5rem;"
-                >
-                <input
-                        type="submit"
-                        value="채팅방 생성"
-                        style="border: 1px solid #ccc; padding: 0.5rem;"
-                >
-            </form>
+    <form onsubmit="submitAddChatRoom(event)" class="flex gap-2 mb-4">
+        <input
+                id="chat-room-name"
+                type="text"
+                placeholder="채팅방 이름"
+                class="border rounded p-2 flex-grow"
+                autocomplete="off"
+        >
+        <input
+                type="submit"
+                value="채팅방 생성"
+                class="border rounded p-2 hover:bg-gray-100 cursor-pointer"
+        >
+    </form>
 
-            <hr style="margin: 0.5rem 0;">
+    <hr class="my-4">
 
-            <h1 style="font-weight: bold; font-size: 1.125rem;">채팅방 목록</h1>
-            <ul id="chat-room-list"></ul>
-        </div>
-    </body>
+    <h1 class="font-bold text-lg mb-4">채팅방 목록</h1>
+    <ul id="chat-room-list" class="space-y-2"></ul>
+</div>
+</body>
 </html>
