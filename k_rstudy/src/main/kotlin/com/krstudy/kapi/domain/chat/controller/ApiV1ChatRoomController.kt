@@ -9,7 +9,7 @@ import com.krstudy.kapi.domain.chat.dto.ChatMessageWriteReqBody
 
 
 @RestController
-@RequestMapping("/api/1/chat/rooms")
+@RequestMapping("/api/v1/chat/rooms")
 class ApiV1ChatRoomController ( private val chatService: ChatService) {
     @GetMapping
     fun getChatRooms(): List<ChatRoom> = chatService.getChatRooms()

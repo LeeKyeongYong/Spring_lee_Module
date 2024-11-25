@@ -3,10 +3,19 @@
     <script type="text/javascript">
         function loadChatRooms() {
             fetch("/api/v1/chat/rooms")
-                .then(response => response.json())
+                .then(response => {
+                    const contentType = response.headers.get("content-type");
+                    if (contentType && contentType.includes("application/json")) {
+                        return response.json();
+                    }
+                    throw new TypeError("서버에서 JSON이 아닌 다른 데이터를 반환했습니다.");
+                })
                 .then(data => {
                     data.reverse();
                     renderChatRooms(data);
+                })
+                .catch(error => {
+                    console.error("Error:", error);
                 });
         }
 
