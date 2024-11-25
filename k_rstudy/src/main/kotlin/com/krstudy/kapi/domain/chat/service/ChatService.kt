@@ -7,19 +7,22 @@ import java.time.LocalDateTime
 
 @Service
 class ChatService {
+    // var로 변경하고 Long 타입으로 지정
+    private var lastChatMessageId: Long = 0L
+
     private val chatRooms = mutableListOf(
         ChatRoom(roomName = "풋살하실 분?").apply {
-            id = 1
+            id = ++lastChatMessageId
             setCreateDate(LocalDateTime.now())
             setModifyDate(LocalDateTime.now())
         },
         ChatRoom(roomName = "농구 하실 분?").apply {
-            id = 2
+            id = ++lastChatMessageId
             setCreateDate(LocalDateTime.now())
             setModifyDate(LocalDateTime.now())
         },
         ChatRoom(roomName = "야구 하실 분?").apply {
-            id = 3
+            id = ++lastChatMessageId
             setCreateDate(LocalDateTime.now())
             setModifyDate(LocalDateTime.now())
         }
@@ -32,7 +35,7 @@ class ChatService {
                 writerName = "김철수",
                 content = "풋살하실 분 계신가요?"
             ).apply {
-                id = 1L
+                id = ++lastChatMessageId
                 setCreateDate(LocalDateTime.now())
                 setModifyDate(LocalDateTime.now())
             },
@@ -41,7 +44,7 @@ class ChatService {
                 writerName = "이영희",
                 content = "네, 저요!"
             ).apply {
-                id = 2L
+                id = ++lastChatMessageId
                 setCreateDate(LocalDateTime.now())
                 setModifyDate(LocalDateTime.now())
             }
@@ -52,7 +55,7 @@ class ChatService {
                 writerName = "박철수",
                 content = "농구하실 분 계신가요?"
             ).apply {
-                id = 3L
+                id = ++lastChatMessageId
                 setCreateDate(LocalDateTime.now())
                 setModifyDate(LocalDateTime.now())
             },
@@ -61,7 +64,7 @@ class ChatService {
                 writerName = "김영희",
                 content = "네, 저요!"
             ).apply {
-                id = 4L
+                id = ++lastChatMessageId
                 setCreateDate(LocalDateTime.now())
                 setModifyDate(LocalDateTime.now())
             }
@@ -72,7 +75,7 @@ class ChatService {
                 writerName = "이철수",
                 content = "야구하실 분 계신가요?"
             ).apply {
-                id = 5L
+                id = ++lastChatMessageId
                 setCreateDate(LocalDateTime.now())
                 setModifyDate(LocalDateTime.now())
             },
@@ -81,7 +84,7 @@ class ChatService {
                 writerName = "박영희",
                 content = "네, 저요!"
             ).apply {
-                id = 6L
+                id = ++lastChatMessageId
                 setCreateDate(LocalDateTime.now())
                 setModifyDate(LocalDateTime.now())
             }
@@ -97,7 +100,7 @@ class ChatService {
 
     fun createChatRoom(roomName: String): ChatRoom {
         val chatRoom = ChatRoom(roomName = roomName).apply {
-            id = chatRooms.size + 1L
+            id = ++lastChatMessageId
             setCreateDate(LocalDateTime.now())
             setModifyDate(LocalDateTime.now())
         }
@@ -120,7 +123,7 @@ class ChatService {
             writerName = writerName,
             content = content
         ).apply {
-            id = chatMessages.size + 1L
+            id = ++lastChatMessageId  // chatMessages.size + 1L 대신 lastChatMessageId 사용
             setCreateDate(LocalDateTime.now())
             setModifyDate(LocalDateTime.now())
         }
@@ -137,5 +140,4 @@ class ChatService {
 
         return chatMessages.filter { it.id > afterChatMessageId }
     }
-
 }
