@@ -25,7 +25,9 @@ class ApiV1ChatRoomController(
                 ChatRoomDTO(
                     id = room.id, // ID 포함
                     roomName = room.roomName,
-                    authorName = room.author?.nickname // 필요한 정보만 포함
+                    authorId = room.author?.userid,
+                    authorName = room.author?.nickname, // 필요한 정보만 포함
+                    createDate = room.getCreateDate()
                 )
             }
             ResponseEntity.ok()
@@ -41,8 +43,11 @@ class ApiV1ChatRoomController(
     fun getChatRoom(@PathVariable id: Long): ChatRoomDTO {
         val room = chatService.getChatRoom(id)
         return ChatRoomDTO(
+            id = room.id, // ID 포함
             roomName = room.roomName,
-            authorName = room.author?.nickname // 필요한 정보만 포함
+            authorId = room.author?.userid,
+            authorName = room.author?.nickname, // 필요한 정보만 포함
+            createDate = room.getCreateDate()
         )
     }
 
@@ -62,8 +67,11 @@ class ApiV1ChatRoomController(
                 author = member
             )
             val roomDTO = ChatRoomDTO(
+                id = chatRoom.id, // ID 포함
                 roomName = chatRoom.roomName,
-                authorName = chatRoom.author?.nickname // 필요한 정보만 포함
+                authorId = chatRoom.author?.userid,
+                authorName = chatRoom.author?.nickname, // 필요한 정보만 포함
+                createDate = chatRoom.getCreateDate()
             )
             ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)

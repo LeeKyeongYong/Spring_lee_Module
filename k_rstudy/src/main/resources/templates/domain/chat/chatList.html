@@ -78,10 +78,10 @@
             const chatRoomList = document.getElementById("chat-room-list");
             chatRoomList.innerHTML = chatRooms.map((chatRoom, index) => `
         <li class="chat-room-item">
-            <span class="room-number">${index + 1}번방</span> <!-- 인덱스를 사용하여 번호 설정 -->
+            <span class="room-number">${index + 1}번방</span>
             <a href='/chat/rooms/${chatRoom.id}' class="room-title">${chatRoom.roomName}</a>
             <span class="room-info">
-                ${chatRoom.authorName ? `${chatRoom.authorName} (${chatRoom.author.userid})` : '익명'} ·
+                ${chatRoom.authorName ? `${chatRoom.authorName} (${chatRoom.authorId || '익명'})` : '익명'} ·
                 ${dateForPrint(chatRoom.createDate)}
             </span>
         </li>
