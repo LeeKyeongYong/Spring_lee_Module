@@ -1,44 +1,145 @@
-<!DOCTYPE html>
-<html lang="en">
+<html layout:decorate="~{global/usrLayout}">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <style>
+        .font-bold { font-weight: bold; }
+        .text-lg { font-size: 1.125rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .my-2 { margin-top: 0.5rem; margin-bottom: 0.5rem; }
+        .flex { display: flex; }
+        .gap-2 { gap: 0.5rem; }
+        .border { border: 1px solid #ccc; }
+        .p-2 { padding: 0.5rem; }
+        .w-20 { width: 5rem; }
+    </style>
     <script type="text/javascript">
+        // 순수 JavaScript 버전
         console.clear();
 
-        // GET http://localhost:8070/api/v1/chat/rooms : 조회
-        // GET은 기본 메서드라서 생략해도 됩니다.
-        fetch("/api/v1/chat/rooms")
-            .then((response) => response.json())
-            .then((data) => {
-                console.log("GET(조회) 성공");
-                console.log(data);
-            });
+        function dateForPrint(date) {
+            return date.substring(2, 16).replaceAll("-", ".").replace("T", " ");
+        }
 
-        // POST http://localhost:8070/api/v1/chat/rooms : 등록
-        // POST는 기본 메서드가 아니라서 생략하면 안됨.
-        // 등록이기 때문에 body에 등록될 새 채팅방 정보를 포함.
-        // "Content-Type": "application/json" 은 body 의 형태, 이걸 스프링부트에 알려줘야 스프링부트가 해당 데이터를 제대로 이해할 수 있음
-        fetch("/api/v1/chat/rooms", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                roomName: "새 채팅방"  // name -> roomName으로 변경
-            })
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                console.log("POST(생성/추가) 성공");
-                console.log(data);
-            })
-            .catch(error => {
-                console.error("Error:", error);
+        function initApp() {
+            const chatRoomId = 2;
+            let chatRoom = null;
+            let chatMessages = [];
+
+            // DOM 요소들
+            const loadingEl = document.createElement('div');
+            loadingEl.textContent = '로딩중...';
+            const appEl = document.getElementById('root');
+
+            function renderApp() {
+                if (!chatRoom) {
+                    appEl.innerHTML = '';
+                    appEl.appendChild(loadingEl);
+                    return;
+                }
+
+                appEl.innerHTML = `
+            <h1 class="font-bold text-lg">
+                채팅방(No ${chatRoom.id} : ${chatRoom.roomName})
+            </h1>
+            <div class="mt-2">개설날짜 : ${dateForPrint(chatRoom.createDate)}</div>
+
+            <hr class="my-2" />
+
+            <h1 class="font-bold text-lg">채팅 메세지 작성</h1>
+
+            <form class="flex gap-2" id="chatMessageForm">
+                <input
+                    class="border p-2 w-20"
+                    type="text"
+                    placeholder="작성자"
+                    name="writerName"
+                />
+                <input
+                    class="border p-2"
+                    type="text"
+                    placeholder="메세지"
+                    name="content"
+                />
+                <input class="border p-2" type="submit" value="작성" />
+            </form>
+
+            <hr class="my-2" />
+
+            <h1 class="font-bold text-lg">채팅 메세지</h1>
+
+            <ul>
+                ${chatMessages.map(chatMessage => `
+                    <li>
+                        ${chatMessage.id}(${dateForPrint(chatMessage.createDate)}) :
+                        ${chatMessage.writerName} : ${chatMessage.content}
+                    </li>
+                `).join('')}
+            </ul>
+        `;
+
+                // 폼 제출 이벤트 리스너 추가
+                document.getElementById('chatMessageForm').addEventListener('submit', onChatMessageFormSubmit);
+            }
+
+            function onChatMessageFormSubmit(e) {
+                e.preventDefault();
+
+                const form = e.target;
+
+                form.writerName.value = form.writerName.value.trim();
+
+                if (form.writerName.value.length == 0) {
+                    alert("작성자를 입력해주세요.");
+                    form.writerName.focus();
+                    return;
+                }
+
+                form.content.value = form.content.value.trim();
+
+                if (form.content.value.length == 0) {
+                    alert("메세지를 입력해주세요.");
+                    form.content.focus();
+                    return;
+                }
+
+                const writerName = form.writerName.value;
+                const content = form.content.value;
+
+                form.content.value = "";
+                form.content.focus();
+
+                fetch(`/api/v1/chat/rooms/${chatRoomId}/messages`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        writerName,
+                        content
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        chatMessages = [data, ...chatMessages];
+                        renderApp();
+                    });
+            }
+
+            // 초기 데이터 로드
+            Promise.all([
+                fetch(`/api/v1/chat/rooms/${chatRoomId}`).then(response => response.json()),
+                fetch(`/api/v1/chat/rooms/${chatRoomId}/messages`).then(response => response.json())
+            ]).then(([roomData, messagesData]) => {
+                chatRoom = roomData;
+                chatMessages = messagesData.reverse();
+                renderApp();
             });
+        }
+
+        // 앱 초기화
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </head>
-<body>
-
-</body>
+    <body>
+        <div id="root"></div>
+    </body>
 </html>
