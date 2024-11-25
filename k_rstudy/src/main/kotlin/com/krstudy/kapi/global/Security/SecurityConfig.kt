@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import org.springframework.http.HttpMethod
 
 @Configuration
 @EnableWebSecurity
@@ -71,6 +72,8 @@ class SecurityConfig(
                     .requestMatchers("/member/join").hasAnyRole("ADMIN")
                     .requestMatchers("/image/**").permitAll()
                     .requestMatchers("/api/messages/**").authenticated()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/chat/rooms").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/v1/chat/rooms").authenticated()
 
                     // 팝업 관련 권한 설정 추가
                     .requestMatchers("/api/public/**").permitAll()

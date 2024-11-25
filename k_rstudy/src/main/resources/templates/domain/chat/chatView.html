@@ -11,6 +11,9 @@
         .border { border: 1px solid #ccc; }
         .p-2 { padding: 0.5rem; }
         .w-20 { width: 5rem; }
+        .flex-grow { flex-grow: 1; }
+        .cursor-pointer { cursor: pointer; }
+        .hover\:bg-gray-100:hover { background-color: #f3f4f6; }
     </style>
     <script th:inline="javascript">
         /*<![CDATA[*/
@@ -45,12 +48,9 @@
             return date.substring(2, 16).replaceAll("-", ".").replace("T", " ");
         }
 
-        function onChatMessageFormSubmit(e) {
-            e.preventDefault();
-
-            const form = e.target;
-            const writerNameInput = form.writerName;
-            const contentInput = form.content;
+        function onChatMessageFormSubmit() {
+            const writerNameInput = document.querySelector('input[name="writerName"]');
+            const contentInput = document.querySelector('input[name="content"]');
 
             const writerName = writerNameInput.value.trim();
             const content = contentInput.value.trim();
@@ -83,11 +83,10 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log(`${data.id}번 메세지가 작성되었습니다.`);
-                    loadMoreChatMessages();  // 메시지 전송 후 즉시 목록 갱신
+                    loadMoreChatMessages();
                 });
         }
 
-        // 초기 데이터 로드 및 주기적 갱신 설정
         document.addEventListener("DOMContentLoaded", function() {
             loadMoreChatMessages();
             setInterval(loadMoreChatMessages, 1000);
@@ -109,27 +108,33 @@
 
     <h1 class="font-bold text-lg">채팅 메세지 작성</h1>
 
-    <form class="flex gap-2" onsubmit="onChatMessageFormSubmit(event)">
-        <input
-                class="border p-2 w-20"
-                type="text"
-                placeholder="작성자"
-                name="writerName"
-                autocomplete="off"
-        />
-        <input
-                class="border p-2"
-                type="text"
-                placeholder="메세지"
-                name="content"
-                autocomplete="off"
-        />
-        <input
-                class="border p-2"
-                type="submit"
-                value="작성"
-        />
-    </form>
+    <div class="flex gap-2">
+        <div class="flex gap-2 flex-grow">
+            <input
+                    class="border p-2 w-20"
+                    type="text"
+                    placeholder="작성자"
+                    name="writerName"
+                    autocomplete="off"
+            />
+            <input
+                    class="border p-2 flex-grow"
+                    type="text"
+                    placeholder="메세지"
+                    name="content"
+                    autocomplete="off"
+            />
+            <button
+                    class="border p-2 cursor-pointer hover:bg-gray-100"
+                    onclick="onChatMessageFormSubmit()"
+            >
+                작성
+            </button>
+        </div>
+        <a href="/chat/rooms" class="border p-2 cursor-pointer hover:bg-gray-100">
+            나가기
+        </a>
+    </div>
 
     <hr class="my-2"/>
 

@@ -1,50 +1,168 @@
 <!DOCTYPE html>
 <html layout:decorate="~{global/usrLayout}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        function loadChatRooms() {
-            fetch("/api/v1/chat/rooms")
-                .then(response => {
-                    const contentType = response.headers.get("content-type");
-                    if (contentType && contentType.includes("application/json")) {
-                        return response.json();
-                    }
-                    throw new TypeError("서버에서 JSON이 아닌 다른 데이터를 반환했습니다.");
-                })
-                .then(data => {
-                    data.reverse();
-                    renderChatRooms(data);
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                });
+    <style>
+        .chat-room-list {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
         }
+        .chat-room-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .chat-room-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .room-number {
+            background-color: #4a5568;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            margin-right: 1rem;
+        }
+        .room-title {
+            flex-grow: 1;
+            font-weight: 500;
+            color: #2d3748;
+            text-decoration: none;
+        }
+        .room-title:hover {
+            color: #4299e1;
+        }
+        .room-info {
+            color: #718096;
+            font-size: 0.875rem;
+            margin-left: 1rem;
+        }
+        .create-room-form {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        .create-room-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            margin-right: 1rem;
+        }
+        .create-room-button {
+            padding: 0.75rem 1.5rem;
+            background-color: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .create-room-button:hover {
+            background-color: #3182ce;
+        }
+    </style>
+
+    <script>
+        // CSRF 토큰 가져오기
+        const csrfToken = document.querySelector("meta[name='_csrf']").content;
+        const csrfHeader = document.querySelector("meta[name='_csrf_header']").content;
 
         function renderChatRooms(chatRooms) {
             const chatRoomList = document.getElementById("chat-room-list");
             chatRoomList.innerHTML = chatRooms.map(chatRoom => `
-                <li class="flex gap-2 items-center my-2">
-                    <span>${chatRoom.id}번방</span>
-                    <a href='/chat/rooms/${chatRoom.id}' class="text-blue-500 hover:underline">${chatRoom.roomName}</a>
-                    <span>${dateForPrint(chatRoom.createDate)}</span>
-                </li>
-            `).join('');
+            <li class="chat-room-item">
+                <span class="room-number">${chatRoom.id}번방</span>
+                <a href='/chat/rooms/${chatRoom.id}' class="room-title">${chatRoom.roomName}</a>
+                <span class="room-info">
+                    ${chatRoom.author ? `${chatRoom.author.nickname || chatRoom.author.username} (${chatRoom.author.userid})` : '익명'} ·
+                    ${dateForPrint(chatRoom.createDate)}
+                </span>
+            </li>
+        `).join('');
+        }
+
+        function loadChatRooms() {
+            const token = document.querySelector("meta[name='_csrf']").content;
+            const header = document.querySelector("meta[name='_csrf_header']").content;
+
+            fetch("/api/v1/chat/rooms", {
+                method: "GET",
+                headers: {
+                    [header]: token,
+                    'Accept': 'application/json'
+                },
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (Array.isArray(data)) {
+                        data.reverse();
+                        renderChatRooms(data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    toastWarning('채팅방 목록을 불러오는데 실패했습니다.');
+                });
         }
 
         function dateForPrint(date) {
-            return date.substring(2, 16).replaceAll("-", ".").replace("T", " ");
+            if (!date) return '';
+            const now = new Date();
+            const chatDate = new Date(date);
+            const diffTime = Math.floor((now - chatDate) / 1000);
+
+            if (diffTime < 60) return "방금 전";
+            if (diffTime < 3600) return `${Math.floor(diffTime / 60)}분 전`;
+            if (diffTime < 86400) return `${Math.floor(diffTime / 3600)}시간 전`;
+
+            return chatDate.toLocaleDateString('ko-KR', {
+                year: '2-digit',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // 로그인 상태 체크 함수
+        function isLoggedIn() {
+            // header에 로그인 링크가 있으면 비로그인 상태
+            return !document.querySelector('a[href="/member/login"]');
         }
 
         function submitAddChatRoom(e) {
             e.preventDefault();
 
-            const form = e.target;
+            // 로그인 체크
+            if (!isLoggedIn()) {
+                toastWarning("로그인이 필요합니다.");
+                window.location.href = '/member/login';  // 로그인 페이지로 리다이렉트
+                return;
+            }
+
+            const token = document.querySelector("meta[name='_csrf']").content;
+            const header = document.querySelector("meta[name='_csrf_header']").content;
+
             const roomNameInput = document.getElementById("chat-room-name");
             const roomName = roomNameInput.value.trim();
 
-            if (roomName.length == 0) {
-                alert("채팅방 이름을 입력해주세요.");
+            if (!roomName) {
+                toastWarning("채팅방 이름을 입력해주세요.");
                 roomNameInput.focus();
                 return;
             }
@@ -52,55 +170,65 @@
             fetch("/api/v1/chat/rooms", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    [header]: token,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
-                body: JSON.stringify({
-                    roomName: roomName
-                })
+                credentials: 'include',
+                body: JSON.stringify({ roomName })
             })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('채팅방 생성에 실패했습니다.');
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    console.log(`${data.id}번 채팅방이 생성되었습니다.`);
+                    toastNotice("채팅방이 생성되었습니다.");
                     roomNameInput.value = "";
-                    loadChatRooms();  // 목록 새로고침
+                    loadChatRooms();
                 })
                 .catch(error => {
-                    console.error("Error:", error);
-                    alert("채팅방 생성에 실패했습니다.");
+                    console.error('Error:', error);
+                    toastWarning(error.message);
                 });
         }
 
         // 페이지 로드 시 채팅방 목록 불러오기
         document.addEventListener("DOMContentLoaded", function() {
             loadChatRooms();
-            setInterval(loadChatRooms, 3000);  // 3초마다 목록 갱신
+            setInterval(loadChatRooms, 3000);
         });
-        /*]]>*/
     </script>
 </head>
 <body>
-<div layout:fragment="content" class="container mx-auto p-4">
-    <h1 class="font-bold text-lg mb-4">채팅방 생성</h1>
+    <div layout:fragment="content" class="container mx-auto p-4" style="background-color: #f7fafc;">
+       <div class="container mx-auto p-4" style="background-color: #f7fafc;">
+            <div th:if="${@rq.logined}" class="create-room-form">
+                <h1 class="font-bold text-lg mb-4">새로운 채팅방 만들기</h1>
+                <form onsubmit="submitAddChatRoom(event)" class="flex gap-2">
+                    <input
+                            id="chat-room-name"
+                            type="text"
+                            placeholder="채팅방 이름을 입력하세요"
+                            class="create-room-input"
+                            autocomplete="off"
+                    >
+                    <button type="submit" class="create-room-button">
+                        채팅방 생성
+                    </button>
+                </form>
+            </div>
 
-    <form onsubmit="submitAddChatRoom(event)" class="flex gap-2 mb-4">
-        <input
-                id="chat-room-name"
-                type="text"
-                placeholder="채팅방 이름"
-                class="border rounded p-2 flex-grow"
-                autocomplete="off"
-        >
-        <input
-                type="submit"
-                value="채팅방 생성"
-                class="border rounded p-2 hover:bg-gray-100 cursor-pointer"
-        >
-    </form>
+           <!-- 비로그인 시 안내 메시지 -->
+           <div th:unless="${@rq.logined}" class="create-room-form">
+               <h1 class="font-bold text-lg mb-4">채팅방 생성</h1>
+               <p class="text-gray-600">채팅방을 생성하려면 <a href="/member/login" class="text-blue-500 hover:underline">로그인</a>이 필요합니다.</p>
+           </div>
 
-    <hr class="my-4">
-
-    <h1 class="font-bold text-lg mb-4">채팅방 목록</h1>
-    <ul id="chat-room-list" class="space-y-2"></ul>
-</div>
+           <h1 class="font-bold text-lg mb-4">전체 채팅방 목록</h1>
+           <ul id="chat-room-list" class="chat-room-list"></ul>
+       </div>
+    </div>
 </body>
 </html>

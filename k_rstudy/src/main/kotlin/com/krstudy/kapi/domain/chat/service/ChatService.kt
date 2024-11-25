@@ -2,6 +2,7 @@ package com.krstudy.kapi.domain.chat.service
 
 import com.krstudy.kapi.domain.chat.entity.ChatMessage
 import com.krstudy.kapi.domain.chat.entity.ChatRoom
+import com.krstudy.kapi.domain.member.entity.Member
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
@@ -98,8 +99,8 @@ class ChatService {
             ?: throw NoSuchElementException("Chat room not found with id: $id")
     }
 
-    fun createChatRoom(roomName: String): ChatRoom {
-        val chatRoom = ChatRoom(roomName = roomName).apply {
+    fun createChatRoom(roomName: String, author: Member): ChatRoom {
+        val chatRoom = ChatRoom(roomName = roomName, author = author).apply {
             id = ++lastChatMessageId
             setCreateDate(LocalDateTime.now())
             setModifyDate(LocalDateTime.now())
