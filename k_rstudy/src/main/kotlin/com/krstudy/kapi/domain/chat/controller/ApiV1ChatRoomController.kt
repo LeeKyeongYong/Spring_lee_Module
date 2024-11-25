@@ -102,4 +102,28 @@ class ApiV1ChatRoomController(
             content = reqBody.content
         )
     }
+
+    @DeleteMapping("/{id}")
+    fun deleteChatRoom(@PathVariable id: Long): ResponseEntity<Void> {
+        val member = rq.getMember()
+        val chatRoom = chatService.getChatRoom(id)
+
+        if (member == null || (chatRoom.author?.userid != member.userid && !rq.isAdmin())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+        }
+
+        chatService.deleteChatRoom(id)
+        return ResponseEntity.noContent().build()
+    }
+
+    @PostMapping("/{id}/restore")
+    fun restoreChatRoom(@PathVariable id: Long): ResponseEntity<Void> {
+        if (!rq.isAdmin()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+        }
+
+        chatService.restoreChatRoom(id)
+        return ResponseEntity.noContent().build()
+    }
+
 }

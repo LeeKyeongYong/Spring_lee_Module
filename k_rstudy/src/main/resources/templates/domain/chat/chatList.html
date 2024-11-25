@@ -77,15 +77,18 @@
         function renderChatRooms(chatRooms) {
             const chatRoomList = document.getElementById("chat-room-list");
             chatRoomList.innerHTML = chatRooms.map((chatRoom, index) => `
-        <li class="chat-room-item">
-            <span class="room-number">${index + 1}번방</span>
-            <a href='/chat/rooms/${chatRoom.id}' class="room-title">${chatRoom.roomName}</a>
-            <span class="room-info">
-                ${chatRoom.authorName ? `${chatRoom.authorName} (${chatRoom.authorId || '익명'})` : '익명'} ·
-                ${dateForPrint(chatRoom.createDate)}
-            </span>
-        </li>
-    `).join('');
+                <li class="chat-room-item">
+                    <span class="room-number">${index + 1}번방</span>
+                    <a href='/chat/rooms/${chatRoom.id}' class="room-title">${chatRoom.roomName}</a>
+                    <span class="room-info">
+                        ${chatRoom.authorName ? `${chatRoom.authorName} (${chatRoom.authorId || '익명'})` : '익명'} ·
+                        ${dateForPrint(chatRoom.createDate)}
+                    </span>
+                    <button th:if="${chatRoom.authorId == @reqData.getMember()?.userid || @reqData.isAdmin()}"
+                            th:data-id="${chatRoom.id}"
+                            class="delete-room-button">삭제</button>
+                </li>
+            `).join('');
         }
 
         function loadChatRooms() {
@@ -194,6 +197,31 @@
             loadChatRooms();
             setInterval(loadChatRooms, 3000);
         });
+
+        document.querySelectorAll('.delete-room-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const roomId = this.getAttribute('data-id');
+                fetch(`/api/v1/chat/rooms/${roomId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken // CSRF 토큰 추가
+                    }
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            toastNotice("채팅방이 삭제되었습니다.");
+                            loadChatRooms(); // 채팅방 목록 새로 고침
+                        } else {
+                            toastWarning("삭제 권한이 없습니다.");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        toastWarning("채팅방 삭제에 실패했습니다.");
+                    });
+            });
+        });
     </script>
 </head>
 <body>
@@ -221,7 +249,19 @@
         </div>
 
         <h1 class="font-bold text-lg mb-4">전체 채팅방 목록</h1>
-        <ul id="chat-room-list" class="chat-room-list"></ul>
+        <ul id="chat-room-list" class="chat-room-list">
+            <li th:each="room : ${chatRooms}" class="chat-room-item">
+                <span class="room-number" th:text="${room.id} + '번방'"></span>
+                <a th:href="@{/chat/rooms/{id}(id=${room.id})}" class="room-title" th:text="${room.roomName}"></a>
+                <span class="room-info">
+                    <span th:text="${room.authorName} + ' (' + (room.authorId != null ? room.authorId : '익명') + ')'"></span> ·
+                    <span th:text="${#temporals.format(room.createDate, 'yy.MM.dd HH:mm')}"></span>
+                </span>
+                <button th:if="${room.authorId == @reqData.getMember()?.userid || @reqData.isAdmin()}"
+                        th:data-id="${room.id}"
+                        class="delete-room-button">삭제</button>
+            </li>
+        </ul>
     </div>
 </div>
 </body>

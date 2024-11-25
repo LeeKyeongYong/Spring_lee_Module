@@ -13,7 +13,7 @@ class ChatService(
     private val chatRoomRepository: ChatRoomRepository,
     private val chatMessageRepository: ChatMessageRepository
 ) {
-    fun getChatRooms(): List<ChatRoom> = chatRoomRepository.findAll()
+    fun getChatRooms(): List<ChatRoom> = chatRoomRepository.findAll().filter { !it.isDeleted }
 
     fun getChatRoom(id: Long): ChatRoom {
         return chatRoomRepository.findById(id).orElseThrow { NoSuchElementException("Chat room not found with id: $id") }
@@ -22,6 +22,18 @@ class ChatService(
     fun createChatRoom(roomName: String, author: Member): ChatRoom {
         val chatRoom = ChatRoom(roomName = roomName, author = author)
         return chatRoomRepository.save(chatRoom)
+    }
+
+    fun deleteChatRoom(id: Long) {
+        val chatRoom = getChatRoom(id)
+        chatRoom.isDeleted = true
+        chatRoomRepository.save(chatRoom)
+    }
+
+    fun restoreChatRoom(id: Long) {
+        val chatRoom = getChatRoom(id)
+        chatRoom.isDeleted = false
+        chatRoomRepository.save(chatRoom)
     }
 
     fun getChatMessages(chatRoomId: Long): List<ChatMessage> {
@@ -42,5 +54,4 @@ class ChatService(
 
         return chatMessages.filter { it.id > afterChatMessageId }
     }
-
 }

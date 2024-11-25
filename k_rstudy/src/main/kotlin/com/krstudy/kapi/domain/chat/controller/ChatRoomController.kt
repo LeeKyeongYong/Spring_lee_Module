@@ -15,15 +15,14 @@ class ChatRoomController(
 ) {
     @GetMapping
     fun getChatRooms(): String {
-        //rq.setAttribute("",1)
         return "domain/chat/chatList"
     }
 
     @GetMapping("/{id}")
     fun showChatRoom(@PathVariable id: Long): String {
         val chatRoom = chatService.getChatRoom(id)
-        rq.setAttribute("chatRoom",chatRoom)
-        return "domain/chat/chatView"  // templates/chat/room.html을 찾음
+        rq.setAttribute("chatRoom", chatRoom)
+        return "domain/chat/chatView"
     }
 
 }
