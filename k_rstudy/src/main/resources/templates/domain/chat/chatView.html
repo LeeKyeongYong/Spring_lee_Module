@@ -50,12 +50,19 @@
             padding: 0.5rem;
         }
 
+        .username {
+            min-width: 100px; /* 최소 너비를 200px로 설정 */
+            font-size: 1.2rem; /* 글자 크기 증가 */
+        }
+
         .input-field {
+            flex: 1; /* 남은 공간을 차지하도록 설정 */
             border: 1px solid #ccc;
             border-radius: 4px;
-            padding: 10px;
-            width: 100%;
+            padding: 12px; /* 패딩을 늘려서 크기 증가 */
+            font-size: 1.2rem; /* 글자 크기 증가 */
             box-sizing: border-box;
+            min-width: 540px;
         }
 
         .button {
@@ -175,10 +182,10 @@
 
     <div class="flex gap-2">
         <div class="flex gap-2 flex-grow">
-            <span th:if="${reqData.getMember() != null}"
-                  th:text="${reqData.getMember().username}"
-                  th:attr="data-username=${reqData.getMember().username}"></span>
-            <span th:if="${reqData.getMember() == null}">익명</span>
+        <span class="username" th:if="${@reqData != null and @reqData.getMember() != null}"
+              th:text="${@reqData.getMember().username}"
+              th:attr="data-username=${@reqData.getMember().username}"></span>
+            <span th:if="${@reqData == null or @reqData.getMember() == null}">익명</span>
             <input
                     class="input-field"
                     type="text"
