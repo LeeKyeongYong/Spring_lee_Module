@@ -1,16 +1,15 @@
 package com.krstudy.kapi.domain.chat.controller
 
-import com.krstudy.kapi.domain.chat.service.*
+import com.krstudy.kapi.domain.chat.service.ChatService
 import com.krstudy.kapi.domain.chat.dto.ChatCreateReqBody
-import com.krstudy.kapi.domain.chat.entity.ChatMessage
-import com.krstudy.kapi.domain.chat.entity.ChatRoom
-import org.springframework.web.bind.annotation.*
 import com.krstudy.kapi.domain.chat.dto.ChatMessageWriteReqBody
+import com.krstudy.kapi.domain.chat.entity.ChatMessage
+import com.krstudy.kapi.com.krstudy.kapi.domain.chat.dto.ChatRoomDTO
 import com.krstudy.kapi.global.https.ReqData
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/chat/rooms")
@@ -19,23 +18,36 @@ class ApiV1ChatRoomController(
     private val rq: ReqData
 ) {
     @GetMapping
-    fun getChatRooms(): ResponseEntity<List<ChatRoom>> {
+    fun getChatRooms(): ResponseEntity<List<ChatRoomDTO>> {
         return try {
             val rooms = chatService.getChatRooms()
+            val roomDTOs = rooms.map { room ->
+                ChatRoomDTO(
+                    id = room.id, // ID 포함
+                    roomName = room.roomName,
+                    authorName = room.author?.nickname // 필요한 정보만 포함
+                )
+            }
             ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(rooms)
+                .body(roomDTOs)
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .contentType(MediaType.APPLICATION_JSON)
                 .body(emptyList())
         }
     }
+
     @GetMapping("/{id}")
-    fun getChatRoom(@PathVariable id: Long): ChatRoom = chatService.getChatRoom(id)
+    fun getChatRoom(@PathVariable id: Long): ChatRoomDTO {
+        val room = chatService.getChatRoom(id)
+        return ChatRoomDTO(
+            roomName = room.roomName,
+            authorName = room.author?.nickname // 필요한 정보만 포함
+        )
+    }
 
     @PostMapping
-    fun createChatRoom(@RequestBody reqBody: ChatCreateReqBody): ResponseEntity<ChatRoom> {
+    fun createChatRoom(@RequestBody reqBody: ChatCreateReqBody): ResponseEntity<ChatRoomDTO> {
         val member = rq.getMember()
 
         if (member == null) {
@@ -49,16 +61,19 @@ class ApiV1ChatRoomController(
                 roomName = reqBody.roomName,
                 author = member
             )
+            val roomDTO = ChatRoomDTO(
+                roomName = chatRoom.roomName,
+                authorName = chatRoom.author?.nickname // 필요한 정보만 포함
+            )
             ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(chatRoom)
+                .body(roomDTO)
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(null)
         }
     }
-
 
     @GetMapping("/{chatRoomId}/messages")
     fun getChatMessages(

@@ -74,6 +74,9 @@ class SecurityConfig(
                     .requestMatchers("/api/messages/**").authenticated()
                     .requestMatchers(HttpMethod.GET, "/api/v1/chat/rooms").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/v1/chat/rooms").authenticated()
+                    .requestMatchers(HttpMethod.GET, "/chat/rooms").permitAll()
+                    .requestMatchers("/chat/rooms/**").permitAll()
+
 
                     // 팝업 관련 권한 설정 추가
                     .requestMatchers("/api/public/**").permitAll()

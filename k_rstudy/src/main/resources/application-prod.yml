@@ -2,10 +2,18 @@ server:
   shutdown: graceful               # 서버 종료 방식
   port: 8090                       # 서버 포트 설정
   servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
     session:
       timeout: 30m                 # 세션 타임아웃 설정
 
 spring:
+  http:
+    encoding:
+      charset: UTF-8
+      force: true
   sql:
     init:
       mode: never

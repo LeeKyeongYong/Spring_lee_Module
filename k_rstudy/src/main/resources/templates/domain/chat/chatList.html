@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html layout:decorate="~{global/usrLayout}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html layout:decorate="~{global/usrLayout}">
 <head>
     <style>
         .chat-room-list {
@@ -70,7 +69,6 @@
             background-color: #3182ce;
         }
     </style>
-
     <script>
         // CSRF 토큰 가져오기
         const csrfToken = document.querySelector("meta[name='_csrf']").content;
@@ -78,16 +76,16 @@
 
         function renderChatRooms(chatRooms) {
             const chatRoomList = document.getElementById("chat-room-list");
-            chatRoomList.innerHTML = chatRooms.map(chatRoom => `
-            <li class="chat-room-item">
-                <span class="room-number">${chatRoom.id}번방</span>
-                <a href='/chat/rooms/${chatRoom.id}' class="room-title">${chatRoom.roomName}</a>
-                <span class="room-info">
-                    ${chatRoom.author ? `${chatRoom.author.nickname || chatRoom.author.username} (${chatRoom.author.userid})` : '익명'} ·
-                    ${dateForPrint(chatRoom.createDate)}
-                </span>
-            </li>
-        `).join('');
+            chatRoomList.innerHTML = chatRooms.map((chatRoom, index) => `
+        <li class="chat-room-item">
+            <span class="room-number">${index + 1}번방</span> <!-- 인덱스를 사용하여 번호 설정 -->
+            <a href='/chat/rooms/${chatRoom.id}' class="room-title">${chatRoom.roomName}</a>
+            <span class="room-info">
+                ${chatRoom.authorName ? `${chatRoom.authorName} (${chatRoom.author.userid})` : '익명'} ·
+                ${dateForPrint(chatRoom.createDate)}
+            </span>
+        </li>
+    `).join('');
         }
 
         function loadChatRooms() {
@@ -141,17 +139,15 @@
 
         // 로그인 상태 체크 함수
         function isLoggedIn() {
-            // header에 로그인 링크가 있으면 비로그인 상태
             return !document.querySelector('a[href="/member/login"]');
         }
 
         function submitAddChatRoom(e) {
             e.preventDefault();
 
-            // 로그인 체크
             if (!isLoggedIn()) {
                 toastWarning("로그인이 필요합니다.");
-                window.location.href = '/member/login';  // 로그인 페이지로 리다이렉트
+                window.location.href = '/member/login';
                 return;
             }
 
@@ -194,7 +190,6 @@
                 });
         }
 
-        // 페이지 로드 시 채팅방 목록 불러오기
         document.addEventListener("DOMContentLoaded", function() {
             loadChatRooms();
             setInterval(loadChatRooms, 3000);
@@ -202,33 +197,32 @@
     </script>
 </head>
 <body>
-    <div layout:fragment="content" class="container mx-auto p-4" style="background-color: #f7fafc;">
-       <div class="container mx-auto p-4" style="background-color: #f7fafc;">
-            <div th:if="${@rq.logined}" class="create-room-form">
-                <h1 class="font-bold text-lg mb-4">새로운 채팅방 만들기</h1>
-                <form onsubmit="submitAddChatRoom(event)" class="flex gap-2">
-                    <input
-                            id="chat-room-name"
-                            type="text"
-                            placeholder="채팅방 이름을 입력하세요"
-                            class="create-room-input"
-                            autocomplete="off"
-                    >
-                    <button type="submit" class="create-room-button">
-                        채팅방 생성
-                    </button>
-                </form>
-            </div>
+<div layout:fragment="content" class="container mx-auto p-4" style="background-color: #f7fafc;">
+    <div class="container mx-auto p-4" style="background-color: #f7fafc;">
+        <div th:if="${@reqData.login}" class="create-room-form">
+            <h1 class="font-bold text-lg mb-4">새로운 채팅방 만들기</h1>
+            <form onsubmit="submitAddChatRoom(event)" class="flex gap-2">
+                <input
+                        id="chat-room-name"
+                        type="text"
+                        placeholder="채팅방 이름을 입력하세요"
+                        class="create-room-input"
+                        autocomplete="off"
+                >
+                <button type="submit" class="create-room-button">
+                    채팅방 생성
+                </button>
+            </form>
+        </div>
 
-           <!-- 비로그인 시 안내 메시지 -->
-           <div th:unless="${@rq.logined}" class="create-room-form">
-               <h1 class="font-bold text-lg mb-4">채팅방 생성</h1>
-               <p class="text-gray-600">채팅방을 생성하려면 <a href="/member/login" class="text-blue-500 hover:underline">로그인</a>이 필요합니다.</p>
-           </div>
+        <div th:unless="${@reqData.login}" class="create-room-form">
+            <h1 class="font-bold text-lg mb-4">채팅방 생성</h1>
+            <p class="text-gray-600">채팅방을 생성하려면 <a href="/member/login" class="text-blue-500 hover:underline">로그인</a>이 필요합니다.</p>
+        </div>
 
-           <h1 class="font-bold text-lg mb-4">전체 채팅방 목록</h1>
-           <ul id="chat-room-list" class="chat-room-list"></ul>
-       </div>
+        <h1 class="font-bold text-lg mb-4">전체 채팅방 목록</h1>
+        <ul id="chat-room-list" class="chat-room-list"></ul>
     </div>
+</div>
 </body>
 </html>
