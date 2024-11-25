@@ -127,4 +127,15 @@ class ChatService {
         chatMessages.add(chatMessage)
         return chatMessage
     }
+
+    fun getChatMessagesAfter(chatRoomId: Long, afterChatMessageId: Long): List<ChatMessage> {
+        val chatMessages = chatMessagesByRoomId.getOrDefault(chatRoomId, emptyList())
+
+        if (afterChatMessageId == -1L) {
+            return chatMessages
+        }
+
+        return chatMessages.filter { it.id > afterChatMessageId }
+    }
+
 }

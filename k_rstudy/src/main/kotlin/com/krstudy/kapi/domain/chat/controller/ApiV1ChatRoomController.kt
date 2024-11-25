@@ -23,8 +23,11 @@ class ApiV1ChatRoomController ( private val chatService: ChatService) {
     }
 
     @GetMapping("/{chatRoomId}/messages")
-    fun getChatMessages(@PathVariable chatRoomId: Long): List<ChatMessage> {
-        return chatService.getChatMessages(chatRoomId)
+    fun getChatMessages(
+        @PathVariable chatRoomId: Long,
+        @RequestParam(defaultValue = "-1") afterChatMessageId: Long
+    ): List<ChatMessage> {
+        return chatService.getChatMessagesAfter(chatRoomId, afterChatMessageId)
     }
 
     @PostMapping("/{chatRoomId}/messages")
