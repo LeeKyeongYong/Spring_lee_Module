@@ -104,17 +104,19 @@ class ApiV1ChatRoomController(
     }
 
     @DeleteMapping("/{id}")
-    fun deleteChatRoom(@PathVariable id: Long): ResponseEntity<Void> {
+    fun deleteChatRoom(@PathVariable id: Long): ResponseEntity<Map<String, String>> {
         val member = rq.getMember()
         val chatRoom = chatService.getChatRoom(id)
 
         if (member == null || (chatRoom.author?.userid != member.userid && !rq.isAdmin())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(mapOf("message" to "삭제 권한이 없습니다."))
         }
 
         chatService.deleteChatRoom(id)
-        return ResponseEntity.noContent().build()
+        return ResponseEntity.ok(mapOf("message" to "채팅방이 삭제되었습니다."))
     }
+
 
     @PostMapping("/{id}/restore")
     fun restoreChatRoom(@PathVariable id: Long): ResponseEntity<Void> {

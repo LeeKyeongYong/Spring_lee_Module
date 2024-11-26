@@ -1,5 +1,6 @@
 <html layout:decorate="~{global/usrLayout}">
 <head>
+
     <style>
         .chat-room-list {
             width: 100%;
@@ -68,27 +69,88 @@
         .create-room-button:hover {
             background-color: #3182ce;
         }
+
+        .chat-room-item button.delete-room-button {
+            margin-left: 12px; /* 왼쪽 여백 추가 */
+            padding: 6px 12px; /* 버튼 크기 확대 */
+            background-color: #e53e3e; /* 버튼 배경색 */
+            color: white; /* 텍스트 색상 */
+            border: none;
+            border-radius: 6px; /* 둥근 모서리 */
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .chat-room-item button.delete-room-button:hover {
+            background-color: #c53030; /* 호버 시 어두운 색상 */
+        }
+
     </style>
+
     <script>
-        // CSRF 토큰 가져오기
-        const csrfToken = document.querySelector("meta[name='_csrf']").content;
-        const csrfHeader = document.querySelector("meta[name='_csrf_header']").content;
 
         function renderChatRooms(chatRooms) {
             const chatRoomList = document.getElementById("chat-room-list");
-            chatRoomList.innerHTML = chatRooms.map((chatRoom, index) => `
-                <li class="chat-room-item">
-                    <span class="room-number">${index + 1}번방</span>
-                    <a href='/chat/rooms/${chatRoom.id}' class="room-title">${chatRoom.roomName}</a>
-                    <span class="room-info">
-                        ${chatRoom.authorName ? `${chatRoom.authorName} (${chatRoom.authorId || '익명'})` : '익명'} ·
-                        ${dateForPrint(chatRoom.createDate)}
-                    </span>
-                    <button th:if="${chatRoom.authorId == @reqData.getMember()?.userid || @reqData.isAdmin()}"
-                            th:data-id="${chatRoom.id}"
-                            class="delete-room-button">삭제</button>
-                </li>
-            `).join('');
+            chatRoomList.innerHTML = chatRooms.map((chatRoom, index) => {
+                const isAuthor = chatRoom.authorId && window.currentUserId &&
+                    chatRoom.authorId.toString() === window.currentUserId.toString();
+                return `
+            <li class="chat-room-item">
+                <span class="room-number">${index + 1} 번방</span>
+                <a href="/chat/rooms/${chatRoom.id}" class="room-title">${chatRoom.roomName}</a>
+                <span class="room-info">
+                    ${chatRoom.authorName ? `${chatRoom.authorName} (${chatRoom.authorId || '익명'})` : '익명'} ·
+                    ${dateForPrint(chatRoom.createDate)}
+                </span>
+                ${isAuthor ? `<button data-id="${chatRoom.id}" class="delete-room-button">삭제</button>` : ''}
+            </li>
+        `;
+            }).join("");
+
+            // 삭제 버튼에 이벤트 핸들러 추가
+            addDeleteRoomEventHandlers();
+        }
+
+
+        function addDeleteRoomEventHandlers() {
+            const deleteButtons = document.querySelectorAll(".delete-room-button");
+            deleteButtons.forEach(button => {
+                button.addEventListener("click", function () {
+                    const roomId = this.getAttribute("data-id");
+                    if (confirm("정말로 삭제하시겠습니까?")) {
+                        deleteChatRoom(roomId);
+                    }
+                });
+            });
+        }
+
+        function deleteChatRoom(roomId) {
+            const token = document.querySelector("meta[name='_csrf']").content;
+            const header = document.querySelector("meta[name='_csrf_header']").content;
+
+            fetch(`/api/v1/chat/rooms/${roomId}`, {
+                method: "DELETE",
+                headers: {
+                    [header]: token,
+                    Accept: "application/json",
+                },
+                credentials: "include",
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("삭제 권한이 없거나 삭제에 실패했습니다.");
+                    }
+                    // 응답 본문이 비어있는 경우 처리
+                    return response.text().then((text) => (text ? JSON.parse(text) : null));
+                })
+                .then(() => {
+                    toastNotice("채팅방이 삭제되었습니다.");
+                    loadChatRooms();
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    toastWarning(error.message);
+                });
         }
 
         function loadChatRooms() {
@@ -196,38 +258,41 @@
         document.addEventListener("DOMContentLoaded", function() {
             loadChatRooms();
             setInterval(loadChatRooms, 3000);
+
+            const usernameElement = document.querySelector(".username");
+            if (usernameElement) {
+                window.currentUserId = usernameElement.getAttribute('value');
+                console.log("현재 사용자 ID:", window.currentUserId);
+            } else {
+                console.error("username 요소를 찾을 수 없습니다. 로그인 상태를 확인해주세요.");
+            }
+
         });
 
-        document.querySelectorAll('.delete-room-button').forEach(button => {
-            button.addEventListener('click', function() {
-                const roomId = this.getAttribute('data-id');
-                fetch(`/api/v1/chat/rooms/${roomId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken // CSRF 토큰 추가
-                    }
-                })
-                    .then(response => {
-                        if (response.ok) {
-                            toastNotice("채팅방이 삭제되었습니다.");
-                            loadChatRooms(); // 채팅방 목록 새로 고침
-                        } else {
-                            toastWarning("삭제 권한이 없습니다.");
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        toastWarning("채팅방 삭제에 실패했습니다.");
-                    });
-            });
+        $(window).bind("pageshow", function (event) {
+            if (sessionStorage.getItem("historyBackFailMsg")) {
+                toastWarning(sessionStorage.getItem("historyBackFailMsg"));
+                sessionStorage.removeItem("historyBackFailMsg");
+            }
         });
+
+        if (urlParams.msg) {
+            toastNotice(urlParams.msg);
+        }
+
+        if (urlParams.failMsg) {
+            toastWarning(urlParams.failMsg);
+        }
+
     </script>
+
 </head>
 <body>
 <div layout:fragment="content" class="container mx-auto p-4" style="background-color: #f7fafc;">
+    <input type="text" class="username" th:attr="value=${@reqData.getMember().userid}" style="display:none;"/>
+
     <div class="container mx-auto p-4" style="background-color: #f7fafc;">
-        <div th:if="${@reqData.login}" class="create-room-form">
+        <div class="create-room-form">
             <h1 class="font-bold text-lg mb-4">새로운 채팅방 만들기</h1>
             <form onsubmit="submitAddChatRoom(event)" class="flex gap-2">
                 <input
@@ -243,25 +308,8 @@
             </form>
         </div>
 
-        <div th:unless="${@reqData.login}" class="create-room-form">
-            <h1 class="font-bold text-lg mb-4">채팅방 생성</h1>
-            <p class="text-gray-600">채팅방을 생성하려면 <a href="/member/login" class="text-blue-500 hover:underline">로그인</a>이 필요합니다.</p>
-        </div>
-
         <h1 class="font-bold text-lg mb-4">전체 채팅방 목록</h1>
-        <ul id="chat-room-list" class="chat-room-list">
-            <li th:each="room : ${chatRooms}" class="chat-room-item">
-                <span class="room-number" th:text="${room.id} + '번방'"></span>
-                <a th:href="@{/chat/rooms/{id}(id=${room.id})}" class="room-title" th:text="${room.roomName}"></a>
-                <span class="room-info">
-                    <span th:text="${room.authorName} + ' (' + (room.authorId != null ? room.authorId : '익명') + ')'"></span> ·
-                    <span th:text="${#temporals.format(room.createDate, 'yy.MM.dd HH:mm')}"></span>
-                </span>
-                <button th:if="${room.authorId == @reqData.getMember()?.userid || @reqData.isAdmin()}"
-                        th:data-id="${room.id}"
-                        class="delete-room-button">삭제</button>
-            </li>
-        </ul>
+        <ul id="chat-room-list" class="chat-room-list"></ul>
     </div>
 </div>
 </body>
