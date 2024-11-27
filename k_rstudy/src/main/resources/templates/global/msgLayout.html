@@ -8,10 +8,12 @@
         <h1 th:text="|${@appConfig.siteName} 관리자|"></h1>
         <a href="/">홈</a>
         <a th:if="${@reqData.login}" href="/messages">보낸메세지 함</a>
-        <a th:if="${@reqData.login}" href="/messages/writerForm">받은메세지 함</a>
+        <a th:if="${@reqData.login}" href="/messages/writerForm">받은메세지 함 X0</a>
         <a th:if="${@reqData.admin}" href="/mymail/sendForm">메일발송</a>
         <a th:if="${@reqData.login}" href="/mymail/verifyCode">메일인증발송</a>
         <a th:if="${@reqData.admin}" href="/uploadPdf">pdf 보기</a>
+        <a th:if="${@reqData.admin}" href="#">카프카연계 연습 이해 완료(내용없음)</a>
+        <a th:if="${@reqData.login}" href="#">spark Basic</a>
         <a th:if="${@reqData.admin}" href="#">크롤링보기</a>
         <a th:if="${@reqData.admin}" href="#">주소록 보기</a>
         <br/>
