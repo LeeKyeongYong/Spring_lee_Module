@@ -98,12 +98,22 @@ class ApiV1ChatRoomController(
     fun writeChatMessage(
         @PathVariable chatRoomId: Long,
         @RequestBody reqBody: ChatMessageWriteReqBody
-    ): ChatMessage {
-        return chatService.writeChatMessage(
-            chatRoomId = chatRoomId,
-            writerName = reqBody.writerName,
-            content = reqBody.content
-        )
+    ): ResponseEntity<ChatMessage> {
+        // 채팅방 ID가 유효한지 확인
+        val chatRoom = chatService.getChatRoom(chatRoomId) ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(null)
+
+        // 메시지 작성
+        return try {
+            val message = chatService.writeChatMessage(
+                chatRoomId = chatRoomId,
+                writerName = reqBody.writerName,
+                content = reqBody.content
+            )
+            ResponseEntity.ok(message)
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null)
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -131,13 +141,13 @@ class ApiV1ChatRoomController(
         return ResponseEntity.noContent().build()
     }
 
-    @PostMapping("/{roomId}/write")
+    @PostMapping("/{chatRoomId}/write")
     fun write(
-        @PathVariable roomId: Long,
+        @PathVariable chatRoomId: Long,
         @RequestBody requestBody: ChatMessageWriteReqBody
     ): RespData<Any> {
         val chatMessage = chatService.writeChatMessage(
-            chatRoomId = roomId,
+            chatRoomId = chatRoomId,
             writerName = requestBody.writerName,
             content = requestBody.content
         )
@@ -150,7 +160,7 @@ class ApiV1ChatRoomController(
         )
 
         messagingTemplate.convertAndSend(
-            "/topic/api/v1/chat/rooms/$roomId/messageCreated",
+            "/topic/api/v1/chat/rooms/$chatRoomId/messageCreated",
             writeRs
         )
 
