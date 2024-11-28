@@ -99,18 +99,18 @@
         let lastChatMessageId = 0;
         let chatMessages = [];
 
-        function loadMoreChatMessages() {
-            fetch(`/api/v1/chat/rooms/${chatRoomId}/messages?afterChatMessageId=${lastChatMessageId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.length > 0) {
-                        data.reverse();
-                        lastChatMessageId = data[0].id;
-                        chatMessages = [...data, ...chatMessages];
-                        renderChatMessages();
-                    }
-                });
-        }
+        // function loadMoreChatMessages() {
+        //     fetch(`/api/v1/chat/rooms/${chatRoomId}/messages?afterChatMessageId=${lastChatMessageId}`)
+        //         .then(response => response.json())
+        //         .then(data => {
+        //             if (data.length > 0) {
+        //                 data.reverse();
+        //                 lastChatMessageId = data[0].id;
+        //                 chatMessages = [...data, ...chatMessages];
+        //                 renderChatMessages();
+        //             }
+        //         });
+        // }
 
         function renderChatMessages() {
             const chatMessagesList = document.getElementById("chat-messages-list");
@@ -156,13 +156,56 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log(`${data.id}번 메세지가 작성되었습니다.`);
-                    loadMoreChatMessages();
+                    fetchAndRenderMessages(); // 메시지 다시 불러오기
                 });
         }
 
+        function fetchAndRenderMessages() {
+            fetch(`/api/v1/chat/rooms/${chatRoomId}/messages`)
+                .then(response => response.json())
+                .then(data => {
+                    chatMessages = data;
+                    renderChatMessages();
+                });
+        }
+
+        function drawMoreChatMessage(message) {
+            const chatMessageContainer = document.getElementById('chat-messages');
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('chat-message');
+            messageElement.innerHTML = `
+        <strong>${message.writerName}</strong>
+        <p>${message.content}</p>
+        <small>${formatTime(message.createdAt)}</small>
+    `;
+            chatMessageContainer.appendChild(messageElement);
+            chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString('ko-KR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+
         document.addEventListener("DOMContentLoaded", function () {
-            loadMoreChatMessages();
-            setInterval(loadMoreChatMessages, 1000);
+            //loadMoreChatMessages();
+            //setInterval(loadMoreChatMessages, 1000);
+            const socket = new SockJS('/ws');
+            const stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, function (frame) {
+                console.log('Connected: ' + frame);
+
+                stompClient.subscribe(`/topic/api/v1/chat/rooms/${chatRoomId}/messageCreated`, function (data) {
+                    const jsonData = JSON.parse(data.body);
+                    drawMoreChatMessage(jsonData.data.message);
+                    renderChatMessages();
+                });
+            });
         });
     </script>
 </head>

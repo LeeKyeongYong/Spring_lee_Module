@@ -148,15 +148,15 @@ dependencies {
     //runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.3")
 
     //qrcode
-    implementation ("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.15.2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.17.0")
     implementation ("org.jetbrains.kotlin:kotlin-reflect")
     implementation("com.google.zxing:core:3.5.0")
     implementation("com.google.zxing:javase:3.5.0")
 
     // redis - LocalDateTime
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-    implementation("com.fasterxml.jackson.core:jackson-databind")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.0")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.0")
    // implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
     //log4j

@@ -6,16 +6,19 @@ import com.krstudy.kapi.domain.chat.dto.ChatMessageWriteReqBody
 import com.krstudy.kapi.domain.chat.entity.ChatMessage
 import com.krstudy.kapi.com.krstudy.kapi.domain.chat.dto.ChatRoomDTO
 import com.krstudy.kapi.global.https.ReqData
+import com.krstudy.kapi.global.https.RespData
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/chat/rooms")
 class ApiV1ChatRoomController(
     private val chatService: ChatService,
-    private val rq: ReqData
+    private val rq: ReqData,
+    private val messagingTemplate: SimpMessagingTemplate
 ) {
     @GetMapping
     fun getChatRooms(): ResponseEntity<List<ChatRoomDTO>> {
@@ -127,5 +130,32 @@ class ApiV1ChatRoomController(
         chatService.restoreChatRoom(id)
         return ResponseEntity.noContent().build()
     }
+
+    @PostMapping("/{roomId}/write")
+    fun write(
+        @PathVariable roomId: Long,
+        @RequestBody requestBody: ChatMessageWriteReqBody
+    ): RespData<Any> {
+        val chatMessage = chatService.writeChatMessage(
+            chatRoomId = roomId,
+            writerName = requestBody.writerName,
+            content = requestBody.content
+        )
+
+        val writeResponseBody = ChatMessageWriteReqBody(chatMessage)
+        val writeRs = RespData.of(
+            resultCode  = "S-1",
+            msg = "${chatMessage.id}번 메시지를 작성하였습니다.",
+            data = writeResponseBody
+        )
+
+        messagingTemplate.convertAndSend(
+            "/topic/api/v1/chat/rooms/$roomId/messageCreated",
+            writeRs
+        )
+
+        return RespData.of("S-1", "성공")
+    }
+
 
 }

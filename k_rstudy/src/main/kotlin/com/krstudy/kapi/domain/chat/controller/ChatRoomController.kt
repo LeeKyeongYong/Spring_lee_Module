@@ -2,10 +2,9 @@ package com.krstudy.kapi.domain.chat.controller
 
 import com.krstudy.kapi.domain.chat.service.ChatService
 import com.krstudy.kapi.global.https.ReqData
+import com.krstudy.kapi.global.https.RespData
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.*
 
 @Controller
 @RequestMapping("/chat/rooms")
@@ -24,5 +23,7 @@ class ChatRoomController(
         rq.setAttribute("chatRoom", chatRoom)
         return "domain/chat/chatView"
     }
+
+
 
 }
