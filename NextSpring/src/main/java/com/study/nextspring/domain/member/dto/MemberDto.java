@@ -14,16 +14,19 @@ public class MemberDto {
     private long id;
     private LocalDateTime createDate;
     private LocalDateTime modifyDate;
-    private String name; // nickname
+    private String username; // nickname
     private String profileImgUrl; // refreshToken
     private List<String> authorities;
+    private String nickname;
+
     private boolean social;
 
     public MemberDto(Member member) {
         this.id = member.getId();
         this.createDate = member.getCreateDate();
         this.modifyDate = member.getModifyDate();
-        this.name = member.getName(); // nickname
+        this.username = member.getUsername(); // nickname
+        this.nickname = member.getNickname();
         this.profileImgUrl = member.getProfileImgUrlOrDefault(); // profileImgUrl
         this.authorities = member.getAuthoritiesAsStringList();
         this.social = member.isSocial();

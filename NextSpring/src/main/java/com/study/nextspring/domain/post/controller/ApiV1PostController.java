@@ -10,6 +10,8 @@ import com.study.nextspring.domain.post.service.PostService;
 import com.study.nextspring.global.app.AppConfig;
 import com.study.nextspring.global.base.KwTypeV1;
 import com.study.nextspring.global.httpsdata.ReqData;
+import com.study.nextspring.global.httpsdata.RespData;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -108,9 +111,11 @@ public class ApiV1PostController {
 
 
     @PutMapping("/{id}")
-    public Post modifyItem(
+    @Transactional
+    @Operation(summary = "수정")
+    public RespData<PostDto> modifyItem(
             @PathVariable long id,
-            @RequestBody @Valid PostModifyItemReqBody reqBody
+            @Valid @RequestBody PostModifyItemReqBody reqBody
     ) {
         Member actor = rq.getMember();
 
@@ -118,9 +123,9 @@ public class ApiV1PostController {
 
         postService.checkCanModify(actor, post);
 
-        postService.modify(post, reqBody.title, reqBody.body);
+        postService.modify(post, reqBody.title, reqBody.body, reqBody.isPublished(), reqBody.isListed());
 
-        return post;
+        return RespData.of("%d번 글이 수정되었습니다.".formatted(id), toPostDto(actor, post));
     }
 
     @PostMapping

@@ -7,7 +7,7 @@ public enum KwTypeV1 {
     ALL("all"),
     TITLE("title"),
     BODY("body"),
-    NAME("name");
+    username("username");
 
     private final String value;
 }

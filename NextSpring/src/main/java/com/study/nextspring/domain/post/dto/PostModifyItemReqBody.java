@@ -10,6 +10,7 @@ import lombok.Getter;
 public class PostModifyItemReqBody {
     @NotBlank
     public String title;
+
     @NotBlank
     public String body;
 
@@ -18,4 +19,13 @@ public class PostModifyItemReqBody {
 
     @NotNull
     boolean listed;
+
+    // boolean 필드에 대한 getter 메서드 추가
+    public boolean isPublished() {
+        return published;
+    }
+
+    public boolean isListed() {
+        return listed;
+    }
 }

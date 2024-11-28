@@ -3,22 +3,33 @@ package com.study.nextspring.domain.post.dto;
 import com.study.nextspring.domain.post.entity.Post;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.lang.NonNull;
 
 import java.time.LocalDateTime;
 
 
 @Getter
 public class PostDto {
-    private Long id;
-    private String title;
-    private String body;
-    private Boolean published;
-    private Boolean listed;
+    @NonNull
+    private long id;
+    @NonNull
     private LocalDateTime createDate;
+    @NonNull
     private LocalDateTime modifyDate;
+    @NonNull
     private long authorId;
+    @NonNull
     private String authorName;
+    @NonNull
     private String authorProfileImgUrl;
+    @NonNull
+    private String title;
+    @NonNull
+    private String body;
+    @NonNull
+    private boolean published;
+    @NonNull
+    private boolean listed;
 
 
     @Setter

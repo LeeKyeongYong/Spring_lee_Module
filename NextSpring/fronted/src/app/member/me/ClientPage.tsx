@@ -60,7 +60,7 @@ export default function ClientPage() {
     return (
         <div>
             <h1>me</h1>
-            <p>{loginMember?.name}</p>
+            <p>{loginMember?.username}</p>
             <p>{loginMember?.nickname}</p>
         </div>
     );

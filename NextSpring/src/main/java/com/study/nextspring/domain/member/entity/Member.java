@@ -89,7 +89,7 @@ public class Member {
 
     // MemberDto를 Member로 변환하는 메서드
     public void updateFromDto(MemberDto dto) {
-        this.nickname = dto.getName(); // name을 nickname으로 설정
+        this.nickname = dto.getUsername();
         this.refreshToken = dto.getProfileImgUrl(); // profileImgUrl을 refreshToken에 적용하고 싶다면
         // authorities와 social은 이미 Member에서 관리되므로 적절하게 처리해줍니다.
         this.social = dto.isSocial();
