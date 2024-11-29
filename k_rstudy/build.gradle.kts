@@ -54,6 +54,9 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://repo.spring.io/milestone")
+    }
 }
 
 extra["snippetsDir"] = file("build/generated-snippets")
@@ -239,6 +242,10 @@ dependencies {
     //spark 코드
     implementation ("org.apache.spark:spark-core_2.12:3.4.0")     // Apache Spark Core 의존성
     implementation ("org.apache.spark:spark-sql_2.12:3.4.0")    // Apache Spark SQL 의존성
+
+    //AI
+    implementation ("com.alibaba.cloud.ai:spring-ai-alibaba-starter:1.0.0-M3.1") //중국알리바바 AI 사용
+
 
 
 }

@@ -1,0 +1,146 @@
+<html layout:decorate="~{global/usrLayout}">
+<head>
+   <style>
+     .container {
+       width: 1200px;
+       height: 100vh;
+       background-color: white;
+       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+       padding: 20px;
+       border-radius: 8px;
+       display: flex;
+       flex-direction: column;
+     }
+
+     .chat-box {
+       max-height: 70vh;
+       overflow-y: auto;
+       border: 1px solid #ccc;
+       padding: 10px;
+       margin-bottom: 10px;
+       border-radius: 4px;
+       background-color: #fafafa;
+     }
+
+     .input-container {
+       width: 100%;
+       background-color: white;
+       padding: 10px;
+       box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+       display: flex;
+       align-items: center;
+       justify-content: space-between;
+     }
+
+     .input-container input {
+       height: 50px;
+       flex: 1;
+       padding: 5px;
+       margin-right: 10px;
+       border: 1px solid #ccc;
+       border-radius: 5px;
+     }
+
+     .input-container button {
+       height: 50px;
+       padding: 5px 15px;
+       background-color: #007bff;
+       color: white;
+       border: none;
+       border-radius: 5px;
+       cursor: pointer;
+     }
+
+     .input-container button:hover {
+       background-color: #0056b3;
+     }
+
+     .message {
+       align-items: flex-start;
+       margin-bottom: 10px;
+     }
+
+     .user {
+       text-align: right;
+       font-weight: bold;
+       color: #c23eac;
+     }
+
+     .bot {
+       text-align: left;
+       font-weight: normal;
+       color: #030303;
+     }
+
+     .bot .avatar {
+       margin-right: 10px;
+     }
+
+     .avatar img {
+       width: 40px;
+       height: 40px;
+       border-radius: 50%;
+       object-fit: cover;
+     }
+
+     .text {
+       max-width: 100%;
+     }
+
+     .footer {
+       padding: 10px;
+       background-color: #f1f1f1;
+       color: #555;
+       font-size: 14px;
+       position: fixed;
+       bottom: 0;
+       left: 1px;
+       width: 100%;
+       text-align: center;
+     }
+
+     h3 {
+       font-size: 36px;
+       color: #eaa9dc;
+       padding: 15px 30px;
+       border-radius: 10px;
+       text-align: center;
+       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+       letter-spacing: 2px;
+       transition: transform 0.3s ease-in-out;
+     }
+
+     h3:hover {
+       transform: scale(1.05);
+     }
+   </style>
+    <script>
+
+    </script>
+</head>
+<body>
+  <div layout:fragment="content" class="container mx-auto p-4" style="background-color: #f7fafc;">
+    <h3 align="center" th:text="${@appConfig.siteName}">챗봇을 사용해 주셔서 환영합니다</h3>
+
+    <div id="chatBox" class="chat-box">
+      <div th:each="msg : ${messages}"
+           th:classappend="${msg.sender == 'bot' ? 'bot' : 'user'}"
+           class="message">
+        <div th:if="${msg.sender == 'bot'}" class="avatar">
+          <img th:src="@{/member/image/3}" alt=" 챗 Gpt 입니다!" />
+        </div>
+        <div class="text" th:utext="${msg.text}"></div>
+      </div>
+    </div>
+
+    <div class="input-container">
+      <input type="text" id="userMessage" placeholder="대화를 여기에 입력하세요" />
+      <button onclick="sendMessage()">전송</button>
+    </div>
+
+    <footer class="footer">
+      <p align="center">© sleekydz86 챗봇 공룡 판권 소유 </p>
+    </footer>
+  </div>
+</body>
+</html>
