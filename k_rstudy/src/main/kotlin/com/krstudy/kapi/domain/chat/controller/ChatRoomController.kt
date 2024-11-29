@@ -24,6 +24,11 @@ class ChatRoomController(
         return "domain/chat/chatView"
     }
 
+    @GetMapping("/mygpt")
+    fun getChatGpt(): String {
+        return "domain/chat/MyGpt"
+    }
+
 
 
 }
