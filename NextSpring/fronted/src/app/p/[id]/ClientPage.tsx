@@ -1,24 +1,26 @@
 "use client";
 
-import { Post } from "@/types/Post";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { components } from "@/lib/backend/apiV1/schema";
 
-export default function ClientPage({ id, post }: { id: string; post: Post }) {
-    const router = useRouter();
-
-    const deletePost = async () => {
-        await fetch(`${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/posts/${id}`, {
-            credentials: "include",
-            method: "DELETE",
-        });
-
-        alert("삭제되었습니다.");
-
-        router.back();
-    };
-
+export default function ClientPage({
+                                       id,
+                                       post,
+                                   }: {
+    id: number;
+    post: components["schemas"]["PostDto"];
+}) {
     return (
+        <div>
+            <h1>{post.title}</h1>
+            <p>
+                {post.id} : {post.body}
+            </p>
+        </div>
+    );
+}
+
+
+/*
         <div className="grid">
             {post && (
                 <div>
@@ -33,5 +35,5 @@ export default function ClientPage({ id, post }: { id: string; post: Post }) {
                 </div>
             )}
         </div>
-    );
-}
+
+ */
