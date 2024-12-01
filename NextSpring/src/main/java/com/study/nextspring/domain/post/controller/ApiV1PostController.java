@@ -8,9 +8,11 @@ import com.study.nextspring.domain.post.dto.PostWriteItemReqBody;
 import com.study.nextspring.domain.post.entity.Post;
 import com.study.nextspring.domain.post.service.PostService;
 import com.study.nextspring.global.app.AppConfig;
+import com.study.nextspring.global.base.Empty;
 import com.study.nextspring.global.base.KwTypeV1;
 import com.study.nextspring.global.httpsdata.ReqData;
 import com.study.nextspring.global.httpsdata.RespData;
+import com.study.nextspring.global.pagination.PageDto;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -20,13 +22,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.jaxb.SpringDataJaxb;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,22 +55,27 @@ public class ApiV1PostController {
         return new ResponseEntity<>(postDtoPage, HttpStatus.OK);
     }
 
-//    @GetMapping
-//    public ResponseEntity<Page<PostDto>> getPosts(
-//            @RequestParam(name = "page", defaultValue = "0") int page,
-//            @RequestParam(name = "size", defaultValue = "10") int size,
-//            @RequestParam(name = "kw", defaultValue = "") String kw,
-//            @RequestParam(name = "kwType", defaultValue = "ALL") KwTypeV1 kwType,
-//            @RequestParam(name = "published", defaultValue = "false") Boolean published,
-//            @RequestParam(name = "listed", defaultValue = "false") Boolean listed
-//    ) {
-//        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-//        Page<Post> postPage = postService.findByKw(kwType, kw, null, published, listed, pageable);
-//        Page<PostDto> postDtoPage = postPage.map(PostDto::new);
-//        return new ResponseEntity<>(postDtoPage, HttpStatus.OK);
-//    }
+    @GetMapping
+    @Operation(summary = "다건 조회")
+    public PageDto<PostDto> getItems(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "") String kw,
+            @RequestParam(defaultValue = "ALL") KwTypeV1 kwType
+    ) {
+        List<Sort.Order> sorts = new ArrayList<>();
+        sorts.add(Sort.Order.desc("id"));
+        Pageable pageable = PageRequest.of(page - 1, AppConfig.getBasePageSize(), Sort.by(sorts));
+        Page<Post> itemPage = postService.findByKw(kwType, kw, null, true, true, pageable);
+
+        Member actor = rq.getMember();
+
+        return new PageDto(
+                itemPage.map(post -> toPostDto(actor, post))
+        );
+    }
 
     @GetMapping("/{id}")
+    @Operation(summary = "단건 조회")
     public PostDto getItem(
             @PathVariable long id
     ) {
@@ -96,7 +102,9 @@ public class ApiV1PostController {
 
 
     @DeleteMapping("/{id}")
-    public void deleteItem(
+    @Transactional
+    @Operation(summary = "삭제")
+    public RespData<Empty> deleteItem(
             @PathVariable long id
     ) {
         Member actor = rq.getMember();
@@ -106,6 +114,8 @@ public class ApiV1PostController {
         postService.checkCanDelete(actor, post);
 
         postService.delete(post);
+
+        return RespData.of("삭제 성공");
     }
 
 
@@ -129,16 +139,15 @@ public class ApiV1PostController {
     }
 
     @PostMapping
-    public ResponseEntity<Post> writeItem(@RequestBody @Valid PostWriteItemReqBody reqBody, @AuthenticationPrincipal Member author) {
-        // 로그인된 사용자가 없다면 에러 반환
-        if (author == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+    @Transactional
+    @Operation(summary = "작성")
+    public RespData<PostDto> writeItem(
+            @Valid @RequestBody PostWriteItemReqBody reqBody
+    ) {
+        Member author = rq.getMember();
 
-        // 새 게시글 작성
-        Post post = postService.write(author, reqBody.getTitle(), reqBody.getBody(), reqBody.isPublished(), reqBody.isListed());
+        Post post = postService.write(author, reqBody.title, reqBody.body, reqBody.isPublished(), reqBody.isListed());
 
-        // 작성한 게시글 반환
-        return ResponseEntity.status(HttpStatus.CREATED).body(post);
+        return RespData.of("%d번 글이 생성되었습니다.".formatted(post.getId()), toPostDto(author, post));
     }
 }
