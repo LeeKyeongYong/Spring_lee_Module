@@ -4,21 +4,28 @@ import com.study.nextspring.domain.member.auth.MeResponseBody;
 import com.study.nextspring.domain.member.auth.MemberAuthAndMakeTokensResBody;
 import com.study.nextspring.domain.member.auth.MemberLoginReqBody;
 import com.study.nextspring.domain.member.auth.MemberLoginResBody;
+import com.study.nextspring.domain.member.dto.AccessTokenMemberInfoDto;
 import com.study.nextspring.domain.member.dto.MemberDto;
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.member.service.MemberService;
 import com.study.nextspring.global.base.Empty;
 import com.study.nextspring.global.httpsdata.ReqData;
 import com.study.nextspring.global.httpsdata.RespData;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.service.spi.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/members")
@@ -51,20 +58,28 @@ public class ApiV1MemberController {
     }
 
     @GetMapping("/me")
-    public RespData<MeResponseBody> getMe() {
-        try {
-            Member member = rq.getMember();
-            if (member == null) {
-                return RespData.of("로그인이 필요합니다.", null);
-            }
+    @Operation(summary = "내 정보")
+    public RespData<MemberDto> getMe() {
+        String headerAuthorization = rq.getHeader("Authorization", "");
 
-            MemberDto memberDto = member.toDto();
-            return RespData.of(new MeResponseBody(memberDto));
-        } catch (Exception e) {
-            // 로그 추가
-            log.error("Error in getMe: ", e);
-            return RespData.of("서버 오류가 발생했습니다.", null);
+        if (headerAuthorization.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
         }
+
+        String accessToken = headerAuthorization.replace("Bearer ", "");
+
+        AccessTokenMemberInfoDto accessTokenMemberInfoDto = memberService.getMemberInfoFromAccessToken(accessToken);
+
+        Optional<Member> opMember = memberService.findById(accessTokenMemberInfoDto.getId());
+
+        Member member = opMember.orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."));
+
+        return RespData
+                .of(
+                        "S-200-1",
+                        "%s님의 정보입니다.".formatted(member.getName()),
+                        new MemberDto(member)
+                );
     }
 
     @PostMapping("/logout")

@@ -1,6 +1,7 @@
 package com.study.nextspring.domain.member.service;
 
 import com.study.nextspring.domain.member.auth.MemberAuthAndMakeTokensResBody;
+import com.study.nextspring.domain.member.dto.AccessTokenMemberInfoDto;
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.member.repository.MemberRepository;
 import com.study.nextspring.global.httpsdata.RespData;
@@ -102,6 +103,10 @@ public class MemberService {
         String accessToken = authTokenService.genAccessToken(member);
 
         return RespData.of("200-1", "토큰 갱신 성공", accessToken);
+    }
+
+    public AccessTokenMemberInfoDto getMemberInfoFromAccessToken(String accessToken) {
+        return authTokenService.getMemberInfoFromAccessToken(accessToken);
     }
 
 }

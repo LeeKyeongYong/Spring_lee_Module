@@ -1,62 +1,80 @@
 package com.study.nextspring.domain.member.service;
 
+import com.study.nextspring.domain.member.dto.AccessTokenMemberInfoDto;
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.global.app.AppConfig;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import java.security.Key;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class AuthTokenService {
+class AuthTokenService {
 
-    private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(
-                AppConfig.getJwtSecretKey().getBytes(StandardCharsets.UTF_8)
-        );
+    private Key getSigningKey() {
+        String secretKey = AppConfig.getJwtSecretKey();
+        return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    // JWT 토큰 생성
     public String genToken(Member member, long expireSeconds) {
-        Claims claims = Jwts.claims();
-        claims.setSubject(member.getUsername());
-        claims.setIssuer("NextSpring");
-        claims.put("id", member.getId());  // add() 대신 put() 사용
-        claims.put("username", member.getUsername());
-        claims.put("authorities", member.getAuthoritiesAsStringList());
+        Claims claims = Jwts.claims()
+                .add("id", member.getId())
+                .add("username", member.getUsername())
+                .add("authorities", member.getAuthoritiesAsStringList())
+                .build();
 
         Date issuedAt = new Date();
         Date expiration = new Date(issuedAt.getTime() + 1000 * expireSeconds);
 
         return Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(issuedAt)
-                .setExpiration(expiration)
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)  // 수정된 signWith
+                .claims(claims)
+                .issuedAt(issuedAt)
+                .expiration(expiration)
+                .signWith(getSigningKey())
                 .compact();
     }
 
-    // 액세스 토큰 생성
     public String genAccessToken(Member member) {
         return genToken(member, AppConfig.getAccessTokenExpirationSec());
     }
 
-    // 토큰에서 데이터 추출
-    public Map<String, Object> getDataFrom(String token) {
-        Claims payload = Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())  // 수정된 setSigningKey
+    public String genRefreshToken() {
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[10];
+        random.nextBytes(bytes);
+        return Base64.getUrlEncoder().encodeToString(bytes);
+    }
+
+    public AccessTokenMemberInfoDto getMemberInfoFromAccessToken(String token) {
+        Claims payload = Jwts.parser()
+                .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+
+        return new AccessTokenMemberInfoDto(
+                payload.get("id", Integer.class),
+                payload.get("username", String.class),
+                payload.get("authorities", List.class)
+        );
+    }
+
+    public Map<String, Object> getDataFrom(String token) {
+        Claims payload = Jwts.parser()
+                .setSigningKey(AppConfig.getJwtSecretKey())
+                .build()
+                .parseClaimsJws(token)
+                .getPayload();
 
         return Map.of(
                 "id", payload.get("id", Integer.class),
@@ -65,24 +83,13 @@ public class AuthTokenService {
         );
     }
 
-    // 토큰 유효성 검사
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())  // 수정된 setSigningKey
-                    .build()
-                    .parseClaimsJws(token);
+            Jwts.parser().setSigningKey(AppConfig.getJwtSecretKey()).build().parseClaimsJws(token);
             return true;
         } catch (Exception e) {
             return false;
         }
     }
 
-    // 리프레시 토큰 생성
-    public String genRefreshToken() {
-        SecureRandom random = new SecureRandom();
-        byte[] bytes = new byte[10];
-        random.nextBytes(bytes);
-        return Base64.getUrlEncoder().encodeToString(bytes);
-    }
 }

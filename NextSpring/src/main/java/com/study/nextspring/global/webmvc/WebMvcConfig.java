@@ -10,10 +10,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins(AppConfig.getSiteFrontUrl())
+                .allowedOrigins(AppConfig.getSiteFrontUrl()) // 프론트엔드 URL
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowedHeaders("*")
-                .allowCredentials(true)
-                .exposedHeaders("*");
+                .allowCredentials(true);
     }
 }

@@ -38,6 +38,8 @@ public class SecurityConfig {
                                 .permitAll()
                                 .requestMatchers("/actuator/**")
                                 .permitAll()
+                                .requestMatchers("/api/*/members/me")  // /me 엔드포인트 추가
+                                .permitAll()  // 임시로 permitAll 설정
                                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
                                 .permitAll()
                                 .requestMatchers(HttpMethod.GET, "/")

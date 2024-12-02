@@ -3,7 +3,7 @@
 import Link from "next/link";
 import React from "react";
 import { MemberContext, useLoginMember } from "@/stores/member";
-import api from '@/lib/axios';
+import client from '@/lib/axios';
 
 interface ClientLayoutProps {
     children: React.ReactNode;
@@ -28,14 +28,13 @@ export default function ClientLayout({ children }: Readonly<ClientLayoutProps>) 
 
     const logout = async () => {
         try {
-            await api.post('/members/logout');
+            await client.post('/members/logout');
             removeLoginMember();
         } catch (error) {
             console.error('Logout failed:', error);
         }
     };
 
-    // 로딩 중일 때는 간단한 로딩 표시
     if (isLoginMemberPending) {
         return <div>Loading...</div>;
     }

@@ -26,7 +26,7 @@ public class JwtTokenProvider {
 
     // JWT 토큰에서 사용자 이름 추출
     public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()  // 변경된 부분
+        Claims claims = Jwts.parser()  // 변경된 부분
                 .setSigningKey(secretKey)
                 .build()  // builder 사용해야 함
                 .parseClaimsJws(token)
@@ -37,7 +37,7 @@ public class JwtTokenProvider {
     // JWT 토큰 유효성 검사
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()  // 변경된 부분
+            Jwts.parser()  // 변경된 부분
                     .setSigningKey(secretKey)
                     .build()  // builder 사용해야 함
                     .parseClaimsJws(token);
