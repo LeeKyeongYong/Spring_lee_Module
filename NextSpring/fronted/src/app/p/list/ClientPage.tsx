@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 export default function ClientPage() {
-    const apiUrl = `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}`;
+    //const apiUrl = `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}`;
     const searchParams = useSearchParams();
     const [posts, setPosts] = useState<components["schemas"]["PostDto"][]>([]);
     const [pageable, setPageable] =
@@ -19,7 +19,7 @@ export default function ClientPage() {
 
     useEffect(() => {
         client
-            .GET(apiUrl+"/posts", {
+            .GET("/posts", {
                 params: {
                     query: {
                         page: currentPage,

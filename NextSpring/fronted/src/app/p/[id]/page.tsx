@@ -11,14 +11,14 @@ export const metadata: Metadata = {
 export default async function Page({ params }: { params: { id: string } }) {
     const { id } = await params;
     const apiUrl = `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}`;
-    const { data, error } = await client.GET(apiUrl+"/posts/{id}", {
+    const { data, error } = await client.GET("/posts/{id}", {
         params: {
             path: {
                 id: parseInt(id),
             },
         },
         headers: {
-            cookie: (await cookies()).toString(),
+            cookie: (await cookies()).toString(), // 쿠키 정보 전달
         },
     });
 

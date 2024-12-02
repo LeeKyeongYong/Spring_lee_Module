@@ -1,16 +1,15 @@
 "use client";
 
 import Link from "next/link";
-
-import client from "@/lib/openapi_fetch";
+import React from "react";
 import { MemberContext, useLoginMember } from "@/stores/member";
-import { useEffect } from "react";
+import api from '@/lib/axios';
 
-export default function ClientLayout({
-                                         children,
-                                     }: Readonly<{
+interface ClientLayoutProps {
     children: React.ReactNode;
-}>) {
+}
+
+export default function ClientLayout({ children }: Readonly<ClientLayoutProps>) {
     const {
         setLoginMember,
         isLogin,
@@ -27,23 +26,19 @@ export default function ClientLayout({
         isLoginMemberPending,
     };
 
-    useEffect(() => {
-        client.GET("/api/v1/members/me").then(({ data }) => {
-            if (data) {
-                setLoginMember(data.data);
-            }
-        });
-    }, []);
-
-    const logout = () => {
-        client.POST("/api/v1/members/logout").then(({ error }) => {
-            if (error) {
-                alert(error.msg);
-            } else {
-                removeLoginMember();
-            }
-        });
+    const logout = async () => {
+        try {
+            await api.post('/members/logout');
+            removeLoginMember();
+        } catch (error) {
+            console.error('Logout failed:', error);
+        }
     };
+
+    // 로딩 중일 때는 간단한 로딩 표시
+    if (isLoginMemberPending) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <>
@@ -52,7 +47,7 @@ export default function ClientLayout({
                 <Link href="/p/list">글 목록</Link>
                 {isLogin ? (
                     <>
-                        <Link href={`/member/me`}>{loginMember.name}님 정보</Link>
+                        <Link href={`/member/me`}>{loginMember?.nickname}님 정보</Link>
                         <button onClick={logout}>로그아웃</button>
                     </>
                 ) : (
@@ -65,7 +60,7 @@ export default function ClientLayout({
             <MemberContext.Provider value={memberContextValue}>
                 <main className="flex-1">{children}</main>
             </MemberContext.Provider>
-            <footer>- GB4 -</footer>
+            <footer>- NextSpring -</footer>
         </>
     );
 }

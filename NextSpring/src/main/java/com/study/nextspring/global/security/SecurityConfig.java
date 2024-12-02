@@ -32,7 +32,7 @@ public class SecurityConfig {
                         authorizeRequests -> authorizeRequests
                                 .requestMatchers(HttpMethod.GET, "/api/*/posts/{id:\\d+}", "/api/*/posts")
                                 .permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/*/members/login", "/api/*/members/logout")
+                                .requestMatchers("/api/*/members/login", "/api/*/members/logout")
                                 .permitAll()
                                 .requestMatchers("/h2-console/**")
                                 .permitAll()

@@ -27,11 +27,11 @@ export default function ClientPage() {
         const title = formData.get("title") as string;
         const body = formData.get("body") as string;
         const postData = { title, body, published: true, listed: true }; // 필드 이름 수정
-
+        const apiUrl = `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}`;
         try {
             const accessToken = await getAccessToken(); // 토큰을 여기서만 호출
             console.log('Access Token:', accessToken); // 토큰 값 확인
-            const response = await fetch(`${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/posts`, { // URL 수정
+            const response = await fetch(apiUrl+'/posts', { // URL 수정
                 method: "POST",
                 body: JSON.stringify(postData),
                 headers: {

@@ -41,21 +41,6 @@ public class ApiV1PostController {
     private final ReqData rq;
 
     @GetMapping
-    public ResponseEntity<Page<PostDto>> getPosts(
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "${app.config.basePageSize:20}") int size,
-            @RequestParam(name = "kw", defaultValue = "") String kw,
-            @RequestParam(name = "kwType", defaultValue = "ALL") KwTypeV1 kwType,
-            @RequestParam(name = "published", defaultValue = "false") Boolean published,
-            @RequestParam(name = "listed", defaultValue = "false") Boolean listed
-    ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-        Page<Post> postPage = postService.findByKw(kwType, kw, null, published, listed, pageable);
-        Page<PostDto> postDtoPage = postPage.map(PostDto::new);
-        return new ResponseEntity<>(postDtoPage, HttpStatus.OK);
-    }
-
-    @GetMapping
     @Operation(summary = "다건 조회")
     public PageDto<PostDto> getItems(
             @RequestParam(defaultValue = "1") int page,
