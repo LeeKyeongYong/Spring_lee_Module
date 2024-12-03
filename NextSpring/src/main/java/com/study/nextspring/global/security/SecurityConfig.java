@@ -44,6 +44,7 @@ public class SecurityConfig {
                                 .permitAll()
                                 .requestMatchers(HttpMethod.GET, "/")
                                 .permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v1/posts").permitAll()
                                 .anyRequest()
                                 .authenticated()
                 )
@@ -96,4 +97,6 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+
 }

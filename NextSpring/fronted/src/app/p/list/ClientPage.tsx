@@ -9,16 +9,16 @@ import { useSearchParams } from "next/navigation";
 export default function ClientPage() {
     const searchParams = useSearchParams();
     const [posts, setPosts] = useState<components["schemas"]["PostDto"][]>([]);
-    const [pageable, setPageable] =
-        useState<components["schemas"]["PageableDto"]>();
+    const [pageable, setPageable] = useState<components["schemas"]["PageableDto"]>();
 
     const currentPage = parseInt(searchParams.get("page") ?? "1");
     const kwType = searchParams.get("kwType") ?? "ALL";
     const kw = searchParams.get("kw") ?? "";
-    const apiUrl = "${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}/posts";
+    const apiUrl = `${process.env.NEXT_PUBLIC_CORE_API_BASE_URL}`; // 수정된 부분
+
     useEffect(() => {
         client
-            .GET(apiUrl, {
+            .GET(apiUrl + "/posts", {
                 params: {
                     query: {
                         page: currentPage,

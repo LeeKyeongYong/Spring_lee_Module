@@ -31,8 +31,8 @@ export default function ClientLayout({
     useEffect(() => {
         // 로그인 상태일 때만 API 호출
         if (isLogin) {
-            const apiUrl = process.env.NEXT_PUBLIC_CORE_API_BASE_URL;
-            client.GET(`${apiUrl}/members/me`).then(({ data }) => {
+
+            client.GET(apiUrl+"/members/me").then(({ data }) => {
                 if (data) {
                     setLoginMember(data.data);
                 }
@@ -44,7 +44,7 @@ export default function ClientLayout({
     }, [isLogin]);
 
     const logout = () => {
-        client.POST("/api/v1/members/logout").then(({ error }) => {
+        client.POST(apiUrl+"/members/logout").then(({ error }) => {
             if (error) {
                 alert(error.msg);
             } else {

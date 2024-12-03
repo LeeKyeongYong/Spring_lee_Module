@@ -52,19 +52,9 @@ public class ApiV1MemberController {
     @GetMapping("/me")
     @Operation(summary = "내 정보")
     public RespData<MemberDto> getMe() {
-        String headerAuthorization = rq.getHeader("Authorization", "");
-        log.info("Authorization Header: {}", headerAuthorization); // Log the header
-
-        if (headerAuthorization.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
-        }
-
-        String accessToken = headerAuthorization.replace("Bearer ", "");
-        AccessTokenMemberInfoDto accessTokenMemberInfoDto = memberService.getMemberInfoFromAccessToken(accessToken);
-        Optional<Member> opMember = memberService.findById(accessTokenMemberInfoDto.getId());
-        Member member = opMember.orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."));
-
-        return RespData.of("S-200-1", "%s님의 정보입니다.".formatted(member.getName()), new MemberDto(member));
+        return RespData.of(
+                new MemberDto(rq.getMember())
+        );
     }
 
 

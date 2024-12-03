@@ -40,13 +40,18 @@ public class ApiV1PostController {
     private final MemberService memberService;
     private final ReqData rq;
 
-    @GetMapping
+    @GetMapping("/api/v1/posts")
     @Operation(summary = "다건 조회")
     public PageDto<PostDto> getItems(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "") String kw,
             @RequestParam(defaultValue = "ALL") KwTypeV1 kwType
     ) {
+        // 기본값을 처리하기 위한 코드
+        if (page <= 0) page = 1;
+        if (kw == null || kw.isEmpty()) kw = "";
+        if (kwType == null) kwType = KwTypeV1.ALL;
+
         List<Sort.Order> sorts = new ArrayList<>();
         sorts.add(Sort.Order.desc("id"));
         Pageable pageable = PageRequest.of(page - 1, AppConfig.getBasePageSize(), Sort.by(sorts));
@@ -58,6 +63,7 @@ public class ApiV1PostController {
                 itemPage.map(post -> toPostDto(actor, post))
         );
     }
+
 
     @GetMapping("/{id}")
     @Operation(summary = "단건 조회")
