@@ -246,6 +246,10 @@ dependencies {
     //AI
     implementation ("com.alibaba.cloud.ai:spring-ai-alibaba-starter:1.0.0-M3.1") //중국알리바바 AI 사용
 
+    //arrow 사용
+    implementation("io.arrow-kt:arrow-core:1.1.3")
+    implementation("io.arrow-kt:arrow-fx-coroutines:1.1.3")
+    implementation("org.jdom:jdom2:2.0.6")
 
 
 }

@@ -11,7 +11,7 @@ const pretendard = localFont({
 });
 
 export const metadata: Metadata = {
-    title: "NextSpring",
+    title: "GB4",
     description: "개발자를 위한 블로그 솔루션",
 };
 

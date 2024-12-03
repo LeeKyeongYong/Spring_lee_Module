@@ -11,7 +11,6 @@ export default function ClientLayout({
                                      }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const apiUrl = process.env.NEXT_PUBLIC_CORE_API_BASE_URL;
     const {
         setLoginMember,
         isLogin,
@@ -29,22 +28,15 @@ export default function ClientLayout({
     };
 
     useEffect(() => {
-        // 로그인 상태일 때만 API 호출
-        if (isLogin) {
-
-            client.GET(apiUrl+"/members/me").then(({ data }) => {
-                if (data) {
-                    setLoginMember(data.data);
-                }
-            }).catch(error => {
-                console.error("Failed to fetch member info:", error);
-                removeLoginMember(); // Reset login state
-            });
-        }
-    }, [isLogin]);
+        client.GET("/api/v1/members/me").then(({ data }) => {
+            if (data) {
+                setLoginMember(data.data);
+            }
+        });
+    }, []);
 
     const logout = () => {
-        client.POST(apiUrl+"/members/logout").then(({ error }) => {
+        client.POST("/api/v1/members/logout").then(({ error }) => {
             if (error) {
                 alert(error.msg);
             } else {
@@ -60,7 +52,7 @@ export default function ClientLayout({
                 <Link href="/p/list">글 목록</Link>
                 {isLogin ? (
                     <>
-                        <Link href={`/member/me`}>{loginMember.username}님 정보</Link>
+                        <Link href={`/member/me`}>{loginMember.name}님 정보</Link>
                         <button onClick={logout}>로그아웃</button>
                     </>
                 ) : (
@@ -73,7 +65,7 @@ export default function ClientLayout({
             <MemberContext.Provider value={memberContextValue}>
                 <main className="flex-1">{children}</main>
             </MemberContext.Provider>
-            <footer>- NextSpring -</footer>
+            <footer>- GB4 -</footer>
         </>
     );
 }
