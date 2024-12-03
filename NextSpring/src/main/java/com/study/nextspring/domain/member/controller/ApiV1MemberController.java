@@ -39,48 +39,34 @@ public class ApiV1MemberController {
     @Autowired
     private ReqData rq;
 
-    @PostMapping(value = "/login")
+    @PostMapping("/login")
     public RespData<MemberLoginResBody> login(@Valid @RequestBody MemberLoginReqBody body) {
-        RespData<MemberAuthAndMakeTokensResBody> authAndMakeTokensRs = memberService.authAndMakeTokens(
-                body.username(),
-                body.password()
-        );
-
+        RespData<MemberAuthAndMakeTokensResBody> authAndMakeTokensRs = memberService.authAndMakeTokens(body.username(), body.password());
         rq.setCrossDomainCookie("refreshToken", authAndMakeTokensRs.getData().refreshToken());
         rq.setCrossDomainCookie("accessToken", authAndMakeTokensRs.getData().accessToken());
 
-        // Member 엔티티를 MemberDto로 변환
         MemberDto memberDto = new MemberDto(authAndMakeTokensRs.getData().member());
-
-        return authAndMakeTokensRs.newDataOf(
-                new MemberLoginResBody(memberDto)
-        );
+        return authAndMakeTokensRs.newDataOf(new MemberLoginResBody(memberDto));
     }
 
     @GetMapping("/me")
     @Operation(summary = "내 정보")
     public RespData<MemberDto> getMe() {
         String headerAuthorization = rq.getHeader("Authorization", "");
+        log.info("Authorization Header: {}", headerAuthorization); // Log the header
 
         if (headerAuthorization.isBlank()) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
         }
 
         String accessToken = headerAuthorization.replace("Bearer ", "");
-
         AccessTokenMemberInfoDto accessTokenMemberInfoDto = memberService.getMemberInfoFromAccessToken(accessToken);
-
         Optional<Member> opMember = memberService.findById(accessTokenMemberInfoDto.getId());
-
         Member member = opMember.orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."));
 
-        return RespData
-                .of(
-                        "S-200-1",
-                        "%s님의 정보입니다.".formatted(member.getName()),
-                        new MemberDto(member)
-                );
+        return RespData.of("S-200-1", "%s님의 정보입니다.".formatted(member.getName()), new MemberDto(member));
     }
+
 
     @PostMapping("/logout")
     public RespData<Empty> logout() {

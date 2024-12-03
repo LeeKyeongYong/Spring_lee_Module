@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import React from "react";
+
+import client from "@/lib/openapi_fetch";
 import { MemberContext, useLoginMember } from "@/stores/member";
-import client from '@/lib/axios';
+import { useEffect } from "react";
 
-interface ClientLayoutProps {
+export default function ClientLayout({
+                                         children,
+                                     }: Readonly<{
     children: React.ReactNode;
-}
-
-export default function ClientLayout({ children }: Readonly<ClientLayoutProps>) {
+}>) {
+    const apiUrl = process.env.NEXT_PUBLIC_CORE_API_BASE_URL;
     const {
         setLoginMember,
         isLogin,
@@ -26,18 +28,30 @@ export default function ClientLayout({ children }: Readonly<ClientLayoutProps>) 
         isLoginMemberPending,
     };
 
-    const logout = async () => {
-        try {
-            await client.post('/members/logout');
-            removeLoginMember();
-        } catch (error) {
-            console.error('Logout failed:', error);
+    useEffect(() => {
+        // 로그인 상태일 때만 API 호출
+        if (isLogin) {
+            const apiUrl = process.env.NEXT_PUBLIC_CORE_API_BASE_URL;
+            client.GET(`${apiUrl}/members/me`).then(({ data }) => {
+                if (data) {
+                    setLoginMember(data.data);
+                }
+            }).catch(error => {
+                console.error("Failed to fetch member info:", error);
+                removeLoginMember(); // Reset login state
+            });
         }
-    };
+    }, [isLogin]);
 
-    if (isLoginMemberPending) {
-        return <div>Loading...</div>;
-    }
+    const logout = () => {
+        client.POST("/api/v1/members/logout").then(({ error }) => {
+            if (error) {
+                alert(error.msg);
+            } else {
+                removeLoginMember();
+            }
+        });
+    };
 
     return (
         <>
@@ -46,7 +60,7 @@ export default function ClientLayout({ children }: Readonly<ClientLayoutProps>) 
                 <Link href="/p/list">글 목록</Link>
                 {isLogin ? (
                     <>
-                        <Link href={`/member/me`}>{loginMember?.nickname}님 정보</Link>
+                        <Link href={`/member/me`}>{loginMember.username}님 정보</Link>
                         <button onClick={logout}>로그아웃</button>
                     </>
                 ) : (

@@ -26,7 +26,7 @@ export default function ClientPage() {
                     method: 'GET',
                     credentials: 'include',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
                         'Content-Type': 'application/json',
                     }
                 });
