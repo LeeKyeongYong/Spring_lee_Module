@@ -40,13 +40,23 @@ public class ApiV1MemberController {
     private ReqData rq;
 
     @PostMapping("/login")
-    public RespData<MemberLoginResBody> login(@Valid @RequestBody MemberLoginReqBody body) {
-        RespData<MemberAuthAndMakeTokensResBody> authAndMakeTokensRs = memberService.authAndMakeTokens(body.username(), body.password());
-        rq.setCrossDomainCookie("refreshToken", authAndMakeTokensRs.getData().refreshToken());
-        rq.setCrossDomainCookie("accessToken", authAndMakeTokensRs.getData().accessToken());
+    @Operation(summary = "로그인")
+    public RespData<MemberLoginResBody> login(@Valid @RequestBody MemberLoginReqBody reqBody) {
+        RespData<MemberService.MemberAuthAndMakeTokensResBody> authAndMakeTokensRs = memberService.authAndMakeTokens(
+                reqBody.username(),
+                reqBody.password()
+        );
 
-        MemberDto memberDto = new MemberDto(authAndMakeTokensRs.getData().member());
-        return authAndMakeTokensRs.newDataOf(new MemberLoginResBody(memberDto));
+        String accessToken = authAndMakeTokensRs.getData().accessToken();
+        String refreshToken = authAndMakeTokensRs.getData().refreshToken();
+
+        rq.makeAuthCookies(accessToken, refreshToken);
+
+        return authAndMakeTokensRs.newDataOf(
+                new MemberLoginResBody(
+                        new MemberDto(authAndMakeTokensRs.getData().member())
+                )
+        );
     }
 
     @GetMapping("/me")

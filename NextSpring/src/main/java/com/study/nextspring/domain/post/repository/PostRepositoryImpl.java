@@ -45,7 +45,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         switch (kwType) {
             case TITLE -> builder.and(post.title.containsIgnoreCase(kw));
             case BODY -> builder.and(post.body.containsIgnoreCase(kw));
-            case username -> builder.and(post.author.nickname.containsIgnoreCase(kw));
+            case NAME -> builder.and(post.author.nickname.containsIgnoreCase(kw));
             case ALL -> builder.and(
                     post.title.containsIgnoreCase(kw)
                             .or(post.body.containsIgnoreCase(kw))

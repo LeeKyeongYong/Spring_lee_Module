@@ -1,15 +1,25 @@
-// member-context.tsx
 import { components } from "@/lib/backend/apiV1/schema";
-import React, { useState } from "react";
+import React from "react";
+import { useState } from "react";
+
+type Member = components["schemas"]["MemberDto"];
 
 export const MemberContext = React.createContext<{
-    loginMember: components["schemas"]["MemberDto"];
-    setLoginMember: (member: components["schemas"]["MemberDto"]) => void;
+    loginMember: Member;
+    setLoginMember: (member: Member) => void;
     removeLoginMember: () => void;
     isLogin: boolean;
     isLoginMemberPending: boolean;
 }>({
-    loginMember: {
+    loginMember: createEmptyMember(),
+    setLoginMember: () => {},
+    removeLoginMember: () => {},
+    isLogin: false,
+    isLoginMemberPending: true,
+});
+
+function createEmptyMember(): Member {
+    return {
         id: 0,
         createDate: "",
         modifyDate: "",
@@ -17,35 +27,15 @@ export const MemberContext = React.createContext<{
         profileImgUrl: "",
         authorities: [],
         social: false,
-    },
-    setLoginMember: () => {},
-    removeLoginMember: () => {},
-    isLogin: false,
-    isLoginMemberPending: true,
-});
+    };
+}
 
 export function useLoginMember() {
     const [isLoginMemberPending, setLoginMemberPending] = useState(true);
-    const [loginMember, setLoginMember] = useState<components["schemas"]["MemberDto"]>({
-        id: 0,
-        createDate: "",
-        modifyDate: "",
-        username: "",
-        profileImgUrl: "",
-        authorities: [],
-        social: false,
-    });
+    const [loginMember, _setLoginMember] = useState<Member>(createEmptyMember());
 
     const removeLoginMember = () => {
-        setLoginMember({
-            id: 0,
-            createDate: "",
-            modifyDate: "",
-            username: "",
-            profileImgUrl: "",
-            authorities: [],
-            social: false,
-        });
+        _setLoginMember(createEmptyMember());
         setLoginMemberPending(false);
     };
 
@@ -56,8 +46,8 @@ export function useLoginMember() {
         removeLoginMember,
         isLogin,
         isLoginMemberPending,
-        setLoginMember: (member: components["schemas"]["MemberDto"]) => {
-            setLoginMember(member);
+        setLoginMember: (member: Member) => {
+            _setLoginMember(member);
             setLoginMemberPending(false);
         },
     };

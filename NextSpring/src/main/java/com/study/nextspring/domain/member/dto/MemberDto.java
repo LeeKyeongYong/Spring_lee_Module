@@ -20,7 +20,7 @@ public class MemberDto {
     @NonNull
     private LocalDateTime modifyDate;
     @NonNull
-    private String username; // nickname
+    private String name; // nickname
     @NonNull
     private String profileImgUrl; // refreshToken
     @NonNull
@@ -34,7 +34,7 @@ public class MemberDto {
         this.id = member.getId();
         this.createDate = member.getCreateDate();
         this.modifyDate = member.getModifyDate();
-        this.username = member.getUsername(); // nickname
+        this.name = member.getName(); // nickname
         this.nickname = member.getNickname();
         this.profileImgUrl = member.getProfileImgUrlOrDefault(); // profileImgUrl
         this.authorities = member.getAuthoritiesAsStringList();

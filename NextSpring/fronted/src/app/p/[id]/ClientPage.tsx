@@ -18,23 +18,3 @@ export default function ClientPage({
         </div>
     );
 }
-
-
-
-/*
-        <div className="grid">
-            {post && (
-                <div>
-                    <div>{post.id}</div>
-                    <div>{post.title}</div>
-                    <div>{post.createDate}</div>
-                    <div>{post.modifyDate}</div>
-                    <div>{post.body}</div>
-                    <button onClick={() => router.back()}>뒤로가기</button>
-                    {post.actorCanModify && <Link href={`/p/${post.id}/edit`}>수정</Link>}
-                    {post.actorCanDelete && <button onClick={deletePost}>삭제</button>}
-                </div>
-            )}
-        </div>
-
- */

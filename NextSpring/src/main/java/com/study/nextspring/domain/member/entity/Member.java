@@ -50,10 +50,6 @@ public class Member {
     @Transient
     private Boolean _isAdmin;
 
-    public MemberDto toDto() {
-        return new MemberDto(this);
-    }
-
     public void setModified() {
         setModifyDate(LocalDateTime.now());
     }
@@ -68,14 +64,16 @@ public class Member {
     }
 
     private boolean isAdmin() {
-        if(this._isAdmin != null)
+        if (this._isAdmin != null)
             return this._isAdmin;
+
         this._isAdmin = List.of("system", "admin").contains(getUsername());
+
         return this._isAdmin;
     }
 
     public String getName() {
-        return nickname; // nickname 필드 반환
+        return nickname;
     }
 
     public String getProfileImgUrlOrDefault() {
@@ -84,14 +82,5 @@ public class Member {
 
     public void setAdmin(boolean admin) {
         this._isAdmin = admin;
-    }
-
-    // MemberDto를 Member로 변환하는 메서드
-    public void updateFromDto(MemberDto dto) {
-        this.nickname = dto.getUsername();
-        this.refreshToken = dto.getProfileImgUrl(); // profileImgUrl을 refreshToken에 적용하고 싶다면
-        // authorities와 social은 이미 Member에서 관리되므로 적절하게 처리해줍니다.
-        this.social = dto.isSocial();
-        this.modifyDate = LocalDateTime.now(); // 수정일시 갱신
     }
 }

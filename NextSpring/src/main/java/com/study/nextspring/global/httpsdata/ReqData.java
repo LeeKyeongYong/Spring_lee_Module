@@ -193,4 +193,9 @@ import java.util.Optional;
         public void destroySession() {
             req.getSession().invalidate();
         }
+
+        public void makeAuthCookies(String accessToken, String refreshToken) {
+            setCrossDomainCookie("accessToken", accessToken);
+            setCrossDomainCookie("refreshToken", refreshToken);
+        }
 }

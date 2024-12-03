@@ -29,7 +29,7 @@ class AuthTokenService {
     public String genToken(Member member, long expireSeconds) {
         Claims claims = Jwts.claims()
                 .add("id", member.getId())
-                .add("username", member.getUsername())
+                .add("username", member.getName())
                 .add("authorities", member.getAuthoritiesAsStringList())
                 .build();
 

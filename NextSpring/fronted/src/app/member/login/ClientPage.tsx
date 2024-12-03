@@ -19,10 +19,8 @@ export default function ClientPage() {
         const formData = new FormData(e.target as HTMLFormElement);
         const username = formData.get("username") as string;
         const password = formData.get("password") as string;
-        const apiUrl = process.env.NEXT_PUBLIC_CORE_API_BASE_URL;
 
-
-        const { data, error } = await client.POST(apiUrl+"/members/login", {
+        const { data, error } = await client.POST("/api/v1/members/login", {
             body: {
                 username,
                 password,

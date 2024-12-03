@@ -1,6 +1,5 @@
 package com.study.nextspring.global.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.nextspring.global.app.AppConfig;
 import com.study.nextspring.global.base.UtClass;
 import com.study.nextspring.global.httpsdata.RespData;
@@ -10,15 +9,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
@@ -32,19 +25,16 @@ public class SecurityConfig {
                         authorizeRequests -> authorizeRequests
                                 .requestMatchers(HttpMethod.GET, "/api/*/posts/{id:\\d+}", "/api/*/posts")
                                 .permitAll()
-                                .requestMatchers("/api/*/members/login", "/api/*/members/logout")
+                                .requestMatchers(HttpMethod.POST, "/api/*/members/login", "/api/*/members/logout")
                                 .permitAll()
                                 .requestMatchers("/h2-console/**")
                                 .permitAll()
                                 .requestMatchers("/actuator/**")
                                 .permitAll()
-                                .requestMatchers("/api/*/members/me")  // /me 엔드포인트 추가
-                                .permitAll()  // 임시로 permitAll 설정
                                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
                                 .permitAll()
                                 .requestMatchers(HttpMethod.GET, "/")
                                 .permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/v1/posts").permitAll()
                                 .anyRequest()
                                 .authenticated()
                 )
@@ -97,6 +87,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-
 }

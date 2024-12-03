@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 export default async function Page({ params }: { params: { id: string } }) {
     const { id } = await params;
 
-    const { data, error } = await client.GET("/posts/{id}", {
+    const { data, error } = await client.GET("/api/v1/posts/{id}", {
         params: {
             path: {
                 id: parseInt(id),
