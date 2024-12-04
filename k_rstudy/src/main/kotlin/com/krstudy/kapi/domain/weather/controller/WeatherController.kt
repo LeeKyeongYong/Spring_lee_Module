@@ -16,9 +16,9 @@ class WeatherController(
 
     @GetMapping("/weather")
     fun getWeather(model: Model): String {
-        val weather = weatherService.getWeather(59, 125)
+        val weather = weatherService.getRecentWeatherList(59, 125)
         model.addAttribute("weather", weather)
-        return "weather"
+        return "domain/weather/weather"
     }
 
     @GetMapping("/weather/image/{x}/{y}")

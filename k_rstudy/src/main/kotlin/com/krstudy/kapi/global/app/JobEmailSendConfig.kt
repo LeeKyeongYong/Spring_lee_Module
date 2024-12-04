@@ -1,5 +1,6 @@
 package com.krstudy.kapi.com.krstudy.kapi.global.app
 
+import com.krstudy.kapi.domain.weather.service.WeatherService
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Async
 import jakarta.annotation.PostConstruct
@@ -9,6 +10,7 @@ import java.time.LocalDate
 
 @Component
 class JobEmailSendConfig(
+    private val weatherService: WeatherService
 //    private val resolver: JobPostingResolver,
 //    private val jobPostingService: JobPostingService,
 //    private val emailSendingService: EmailSendingService
@@ -25,10 +27,12 @@ class JobEmailSendConfig(
     }
 
     @Async
-    @Scheduled(cron = "0 30 18 * * ?")
+    //@Scheduled(cron = "0 30 18 * * ?")
+    @Scheduled(cron = "0 */3 * * * *")
     fun executeRegularUpdate() {
         log.info("{}일자 스케쥴러를 실행합니다.", LocalDate.now())
         changeServer()
+        initializeWeatherData()
 //        val postings = jobPostingService.getNewlyJobPosting()
 //        emailSendingService.sendJobPostings(postings)
     }
@@ -36,5 +40,9 @@ class JobEmailSendConfig(
     private fun changeServer() {
 //        val crawlingResults = resolver.crawling()
 //        jobPostingService.updateAll(crawlingResults)
+    }
+
+    fun initializeWeatherData(){
+        weatherService.updateWeatherData()
     }
 }

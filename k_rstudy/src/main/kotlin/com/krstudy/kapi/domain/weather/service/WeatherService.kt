@@ -10,6 +10,7 @@ import org.jdom2.Element
 import org.jdom2.input.SAXBuilder
 import org.springframework.stereotype.Service
 import java.net.URL
+import java.time.LocalDateTime
 
 @Service
 class WeatherService(private val weatherRepository: WeatherRepository) {
@@ -56,6 +57,31 @@ class WeatherService(private val weatherRepository: WeatherRepository) {
     }
 
     fun getWeather(x: Int, y: Int): Weather? {
-        return weatherRepository.findByXAndY(x, y)
+        val existingWeather = weatherRepository.findByXAndY(x, y)
+
+        // 데이터가 없거나 1시간 이상 지난 데이터라면 새로 가져오기
+        return if (existingWeather == null ||
+            existingWeather.getCreateDate() == null ||
+            existingWeather.getCreateDate()!!.isBefore(LocalDateTime.now().minusHours(1))) {
+            val result = fetchWeatherData(x, y)
+            result.fold(
+                ifLeft = { null },
+                ifRight = {
+                    weatherRepository.save(it)
+                    it
+                }
+            )
+        } else {
+            existingWeather
+        }
+    }
+
+    fun getRecentWeatherList(x: Int, y: Int, limit: Int = 10): List<Weather> {
+        return weatherRepository.findByXAndYOrderByTimestampDesc(x, y)
+            .take(limit)
+    }
+
+    fun getAllWeatherHistoryForLocation(x: Int, y: Int): List<Weather> {
+        return weatherRepository.findByXAndYOrderByTimestampDesc(x, y)
     }
 }

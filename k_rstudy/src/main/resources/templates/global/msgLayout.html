@@ -17,7 +17,7 @@
         <a th:if="${@reqData.admin}" href="#">크롤링보기</a>
         <a th:if="${@reqData.admin}" href="#">주소록 보기</a>
         <br/>
-        <a th:if="${@reqData.login}" href="#">날씨보기</a>
+        <a th:if="${@reqData.login}" href="/weather">날씨보기</a>
         <a th:if="${@reqData.login}" href="/chat/rooms/mygpt">ai대화하기</a>
         <a th:if="${@reqData.login}" href="#">추천시스템</a>
         <a th:if="${@reqData.login}" href="#">전체검색</a>
@@ -25,6 +25,7 @@
         <br/>
         <a th:if="${@reqData.admin}" href="#">통계 홈</a>
         <a th:if="${@reqData.login}" href="#">결제하기 </a>
+        <a th:if="${@reqData.admin}" href="#">관리자 결제페이지보기</a>
         <a th:if="${@reqData.login}" href="/member/logout">로그아웃</a>
     </header>
 </body>

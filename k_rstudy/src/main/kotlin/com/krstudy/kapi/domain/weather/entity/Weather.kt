@@ -2,6 +2,7 @@ package com.krstudy.kapi.domain.weather.entity
 
 import com.krstudy.kapi.global.jpa.BaseEntity
 import jakarta.persistence.*
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "weather")
@@ -24,5 +25,7 @@ class Weather(
     @Column
     val pop: Int,
     @Column
-    val reh: Int
+    val reh: Int,
+    @Column
+    val timestamp: LocalDateTime = LocalDateTime.now()
 )  : BaseEntity() {}

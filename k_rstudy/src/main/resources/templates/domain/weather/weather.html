@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html layout:decorate="~{global/msgLayout}">
+
+    <head>
+        <title th:text="|날씨|"></title>
+        <script th:inline="javascript">
+            // WebSocket 연결 설정
+            const socket = new SockJS('/ws');
+            const stompClient = Stomp.over(socket);
+
+            // 연결
+            stompClient.connect({}, function(frame) {
+                console.log('WebSocket 연결됨');
+
+                // 날씨 정보 구독
+                stompClient.subscribe('/topic/weather', function(message) {
+                    const weatherData = JSON.parse(message.body);
+                    updateWeatherDisplay(weatherData);
+                });
+
+                // 초기 날씨 정보 요청
+                requestWeatherUpdate();
+            });
+
+            // 날씨 정보 요청
+            function requestWeatherUpdate() {
+                stompClient.send("/app/weather", {},
+                    JSON.stringify({x: 59, y: 125})
+                );
+            }
+
+            // 화면 업데이트
+            function updateWeatherDisplay(weatherData) {
+                document.getElementById('temperature').textContent = weatherData.temperature;
+                document.getElementById('sky').textContent = getSkyDescription(weatherData.sky);
+                document.getElementById('description').textContent = weatherData.description;
+            }
+
+            // 하늘상태 코드를 텍스트로 변환
+            function getSkyDescription(sky) {
+                switch(sky) {
+                    case 1: return '맑음';
+                    case 2: return '구름조금';
+                    case 3: return '구름많음';
+                    case 4: return '흐림';
+                    default: return '알수없음';
+                }
+            }
+
+            // 30초마다 날씨 정보 갱신
+            setInterval(requestWeatherUpdate, 30000);
+        </script>
+    </head>
+    <body>
+        <div layout:fragment="content">
+            <h1>실시간 날씨 정보</h1>
+            <div id="weather-info">
+                <p>온도: <span id="temperature">--</span>°C</p>
+                <p>하늘상태: <span id="sky">--</span></p>
+                <p>날씨설명: <span id="description">--</span></p>
+            </div>
+
+        </div>
+    </body>
+</html>
