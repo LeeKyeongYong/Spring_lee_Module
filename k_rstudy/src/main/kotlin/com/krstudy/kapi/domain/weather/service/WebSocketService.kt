@@ -20,7 +20,7 @@ class WebSocketService {
     }
 
     fun sendWeatherUpdate(weather: Weather) {
-        val message = TextMessage("Weather update: ${weather.temp}°C, Sky: ${weather.sky}")
+        val message = TextMessage("Weather update: ${weather.getTemperature()}°C, Sky: ${weather.getSky()}")
         sessions.forEach { session ->
             session.sendMessage(message)
         }

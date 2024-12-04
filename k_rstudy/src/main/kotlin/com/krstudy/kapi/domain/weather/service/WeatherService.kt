@@ -3,11 +3,14 @@ package com.krstudy.kapi.domain.weather.service
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import com.krstudy.kapi.domain.weather.dto.LocationDTO
+import com.krstudy.kapi.domain.weather.dto.WeatherResponse
 import com.krstudy.kapi.domain.weather.entity.Weather
 import com.krstudy.kapi.domain.weather.repository.WeatherRepository
 import org.jdom2.Document
 import org.jdom2.Element
 import org.jdom2.input.SAXBuilder
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.net.URL
 import java.time.LocalDateTime
@@ -17,15 +20,19 @@ class WeatherService(private val weatherRepository: WeatherRepository) {
 
     private val rssFeed = "http://www.kma.go.kr/wid/queryDFS.jsp?gridx=%s&gridy=%s"
 
-    fun updateWeatherData(): Either<Throwable, Unit> {
+    private val logger = LoggerFactory.getLogger(WeatherService::class.java)
+
+    fun updateWeatherData(x: Int, y: Int): Either<Throwable, Unit> {
         return try {
-            val locations = listOf(Pair(59, 125)) // 예시 좌표 리스트
-            locations.forEach { (x, y) ->
-                val weatherData = fetchWeatherData(x, y)
-                weatherData.map { weatherRepository.save(it) }
+            logger.info("날씨 데이터 업데이트 시작: x=$x, y=$y")
+            val weatherData = fetchWeatherData(x, y)
+            weatherData.map {
+                weatherRepository.save(it)
+                logger.info("날씨 데이터 저장 완료")
             }
             Unit.right()
         } catch (e: Exception) {
+            logger.error("날씨 데이터 업데이트 실패: ${e.message}")
             e.left()
         }
     }
@@ -36,9 +43,9 @@ class WeatherService(private val weatherRepository: WeatherRepository) {
             val document: Document = SAXBuilder().build(URL(url))
             val root: Element = document.rootElement
             val body: Element = root.getChild("body")
-            val data: Element = body.getChildren("data").first()
+            val data: Element = body.getChildren("data").first() // 현재 시점의 날씨 데이터
 
-            val weather = Weather(
+            val weather = Weather.createWeather(
                 x = x,
                 y = y,
                 hour = data.getChildText("hour").toInt(),
@@ -52,36 +59,34 @@ class WeatherService(private val weatherRepository: WeatherRepository) {
 
             weather.right()
         } catch (e: Exception) {
+            println("날씨 데이터 가져오기 실패: ${e.message}")
             e.left()
         }
     }
 
-    fun getWeather(x: Int, y: Int): Weather? {
-        val existingWeather = weatherRepository.findByXAndY(x, y)
 
-        // 데이터가 없거나 1시간 이상 지난 데이터라면 새로 가져오기
-        return if (existingWeather == null ||
-            existingWeather.getCreateDate() == null ||
-            existingWeather.getCreateDate()!!.isBefore(LocalDateTime.now().minusHours(1))) {
-            val result = fetchWeatherData(x, y)
-            result.fold(
-                ifLeft = { null },
-                ifRight = {
-                    weatherRepository.save(it)
-                    it
-                }
+    fun getWeather(x: Int, y: Int): Weather? {
+        return weatherRepository.findByXAndY(x, y)
+    }
+
+    fun getWeatherForLocation(x: Int, y: Int): WeatherResponse {
+        val weather = getWeather(x, y)
+        return weather?.let {
+            WeatherResponse(
+                temperature = it.getTemperature(),
+                sky = it.getSky(),
+                pty = it.getPrecipitation(),
+                description = it.getDescription()
             )
-        } else {
-            existingWeather
-        }
+        } ?: WeatherResponse(
+            temperature = 0.0,
+            sky = 0,
+            pty = 0,
+            description = "정보 없음"
+        )
     }
 
     fun getRecentWeatherList(x: Int, y: Int, limit: Int = 10): List<Weather> {
-        return weatherRepository.findByXAndYOrderByTimestampDesc(x, y)
-            .take(limit)
-    }
-
-    fun getAllWeatherHistoryForLocation(x: Int, y: Int): List<Weather> {
-        return weatherRepository.findByXAndYOrderByTimestampDesc(x, y)
+        return weatherRepository.findByXAndYOrderByTimestampDesc(x, y).take(limit)
     }
 }

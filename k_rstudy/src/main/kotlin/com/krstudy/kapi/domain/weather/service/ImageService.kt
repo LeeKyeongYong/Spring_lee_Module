@@ -11,7 +11,6 @@ import java.io.ByteArrayOutputStream
 
 @Service
 class ImageService {
-
     fun generateWeatherImage(weather: Weather): ByteArray {
         val width = 200
         val height = 100
@@ -23,9 +22,9 @@ class ImageService {
 
         graphics.color = Color.BLACK
         graphics.font = Font("Arial", Font.PLAIN, 12)
-        graphics.drawString("Temperature: ${weather.temp}", 10, 20)
-        graphics.drawString("Sky: ${weather.sky}", 10, 40)
-        graphics.drawString("Precipitation: ${weather.pty}", 10, 60)
+        graphics.drawString("Temperature: ${weather.getTemperature()}", 10, 20)
+        graphics.drawString("Sky: ${weather.getSky()}", 10, 40)
+        graphics.drawString("Precipitation: ${weather.getPrecipitation()}", 10, 60)
 
         val outputStream = ByteArrayOutputStream()
         ImageIO.write(image, "png", outputStream)

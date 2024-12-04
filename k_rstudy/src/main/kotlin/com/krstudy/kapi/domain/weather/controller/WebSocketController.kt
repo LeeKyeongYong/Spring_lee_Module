@@ -11,16 +11,24 @@ import org.springframework.stereotype.Controller
 class WeatherWebSocketController(
     private val weatherService: WeatherService
 ) {
-    // /app/weather로 메시지가 오면 처리
     @MessageMapping("/weather")
-    // 처리 결과를 /topic/weather로 발송
     @SendTo("/topic/weather")
     fun handleWeatherUpdate(location: WeatherLocation): WeatherResponse {
+        // 웹소켓 요청이 올 때마다 날씨 데이터 업데이트
+        weatherService.updateWeatherData(location.x, location.y)
         val weather = weatherService.getWeather(location.x, location.y)
-        return WeatherResponse(
-            temperature = weather?.temp ?: 0.0,
-            sky = weather?.sky ?: 0,
-            description = weather?.wfKor ?: "정보 없음"
+        return weather?.let {
+            WeatherResponse(
+                temperature = it.getTemperature(),
+                sky = it.getSky(),
+                pty = it.getPrecipitation(),
+                description = it.getDescription()
+            )
+        } ?: WeatherResponse(
+            temperature = 0.0,
+            sky = 0,
+            pty = 0,
+            description = "정보 없음"
         )
     }
 }
