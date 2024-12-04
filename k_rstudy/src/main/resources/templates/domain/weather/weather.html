@@ -1,42 +1,72 @@
 <!DOCTYPE html>
 <html layout:decorate="~{global/msgLayout}">
+<head>
+    <title th:text="|날씨|"></title>
+    <style>
+        .weather-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
 
-    <head>
-        <title th:text="|날씨|"></title>
-        <script th:inline="javascript">
-            // WebSocket 연결 설정
+        .weather-info {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .weather-info p {
+            margin: 10px 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .weather-info span {
+            font-weight: bold;
+            color: #2196F3;
+        }
+
+        .weather-image {
+            width: 100px;
+            height: 100px;
+            margin: 20px auto;
+            display: block;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .refresh-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .refresh-button:hover {
+            background-color: #1976D2;
+        }
+    </style>
+    <script>
+        $(document).ready(function() {
             const socket = new SockJS('/ws');
             const stompClient = Stomp.over(socket);
 
-            // 연결
-            stompClient.connect({}, function(frame) {
-                console.log('WebSocket 연결됨');
-
-                // 날씨 정보 구독
-                stompClient.subscribe('/topic/weather', function(message) {
-                    const weatherData = JSON.parse(message.body);
-                    updateWeatherDisplay(weatherData);
-                });
-
-                // 초기 날씨 정보 요청
-                requestWeatherUpdate();
-            });
-
-            // 날씨 정보 요청
-            function requestWeatherUpdate() {
-                stompClient.send("/app/weather", {},
-                    JSON.stringify({x: 59, y: 125})
-                );
-            }
-
-            // 화면 업데이트
-            function updateWeatherDisplay(weatherData) {
-                document.getElementById('temperature').textContent = weatherData.temperature;
-                document.getElementById('sky').textContent = getSkyDescription(weatherData.sky);
-                document.getElementById('description').textContent = weatherData.description;
-            }
-
-            // 하늘상태 코드를 텍스트로 변환
             function getSkyDescription(sky) {
                 switch(sky) {
                     case 1: return '맑음';
@@ -47,19 +77,75 @@
                 }
             }
 
-            // 30초마다 날씨 정보 갱신
-            setInterval(requestWeatherUpdate, 30000);
-        </script>
-    </head>
-    <body>
-        <div layout:fragment="content">
-            <h1>실시간 날씨 정보</h1>
-            <div id="weather-info">
-                <p>온도: <span id="temperature">--</span>°C</p>
-                <p>하늘상태: <span id="sky">--</span></p>
-                <p>날씨설명: <span id="description">--</span></p>
-            </div>
+            // 날씨 상태에 따른 아이콘 URL 매핑 함수
+            function getWeatherIconUrl(sky, pty) {
+                const baseUrl = "https://openweathermap.org/img/wn/";
 
+                if (pty > 0) {
+                    switch(pty) {
+                        case 1: return `${baseUrl}10d@2x.png`; // 비
+                        case 2: return `${baseUrl}13d@2x.png`; // 비/눈
+                        case 3: return `${baseUrl}13d@2x.png`; // 눈
+                        case 4: return `${baseUrl}09d@2x.png`; // 소나기
+                    }
+                }
+
+                switch(sky) {
+                    case 1: return `${baseUrl}01d@2x.png`; // 맑음
+                    case 2: return `${baseUrl}02d@2x.png`; // 구름조금
+                    case 3: return `${baseUrl}03d@2x.png`; // 구름많음
+                    case 4: return `${baseUrl}04d@2x.png`; // 흐림
+                    default: return `${baseUrl}50d@2x.png`; // 기본값
+                }
+            }
+
+            stompClient.connect({}, function(frame) {
+                console.log('Connected: ' + frame);
+
+                stompClient.subscribe('/topic/weather', function(response) {
+                    const weatherData = JSON.parse(response.body);
+                    updateWeatherDisplay(weatherData);
+                });
+
+                requestWeatherUpdate();
+            });
+
+            function requestWeatherUpdate() {
+                stompClient.send("/app/weather", {},
+                    JSON.stringify({x: 59, y: 125})
+                );
+            }
+
+            function updateWeatherDisplay(weatherData) {
+                $('#temperature').text(weatherData.temperature);
+                $('#sky').text(getSkyDescription(weatherData.sky));
+                $('#description').text(weatherData.description);
+                // OpenWeatherMap 아이콘으로 업데이트
+                $('#weather-image').attr('src', getWeatherIconUrl(weatherData.sky, weatherData.pty));
+            }
+
+            // 수동 새로고침 버튼 이벤트 핸들러
+            $('#refresh-weather').click(function() {
+                requestWeatherUpdate();
+            });
+
+            // 30초마다 업데이트
+            setInterval(requestWeatherUpdate, 30000);
+        });
+    </script>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="weather-container">
+        <h1>실시간 날씨 정보</h1>
+        <div class="weather-info">
+            <p>온도: <span id="temperature">--</span>°C</p>
+            <p>하늘상태: <span id="sky">--</span></p>
+            <p>날씨설명: <span id="description">--</span></p>
         </div>
-    </body>
+        <img id="weather-image" class="weather-image" alt="날씨 이미지">
+        <button id="refresh-weather" class="refresh-button">날씨 새로고침</button>
+    </div>
+</div>
+</body>
 </html>
