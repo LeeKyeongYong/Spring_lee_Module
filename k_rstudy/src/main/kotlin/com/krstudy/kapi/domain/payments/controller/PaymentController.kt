@@ -1,147 +1,38 @@
 package com.krstudy.kapi.domain.payments.controller
 
-import com.krstudy.kapi.domain.payments.dto.PaymentResponse
-import com.krstudy.kapi.domain.payments.service.IdempotencyService
-import com.krstudy.kapi.domain.payments.service.PaymentService
-import com.krstudy.kapi.global.Security.SecurityUtil
-import com.krstudy.kapi.global.exception.GlobalException
-import com.krstudy.kapi.global.exception.MessageCode
+import com.krstudy.kapi.global.https.ReqData
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.ResponseEntity
-import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.web.bind.annotation.*
-import java.math.BigDecimal
-import java.net.HttpURLConnection
-import java.net.URL
-import java.util.Base64
-import org.json.JSONObject
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.io.OutputStreamWriter
+import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
 
-@RestController
+@Controller
 @RequestMapping("/payments")
-class PaymentController(
-    private val paymentService: PaymentService,
-    private val securityUtil: SecurityUtil,
-    private val idempotencyService: IdempotencyService
-) {
-    @Value("\${api.key}")
+class PaymentController (private val rq: ReqData) {
+
+    @Value("\${api.clientKey}")
     private lateinit var apiKey: String
 
-    @PostMapping("/confirm")
-    @PreAuthorize("isAuthenticated()")
-    fun confirmPayment(
-        @RequestParam paymentKey: String,
-        @RequestParam orderId: String,
-        @RequestParam amount: BigDecimal
-    ): ResponseEntity<PaymentResponse> {
-        val currentUserId = securityUtil.getCurrentUserId()
-            ?: throw GlobalException(MessageCode.UNAUTHORIZED_LOGIN_REQUIRED)
-
-        return idempotencyService.processWithIdempotency(
-            idempotencyKey = paymentKey,
-            path = "/payments/confirm",
-            method = "POST"
-        ) {
-            try {
-                val url = URL("https://api.tosspayments.com/v1/payments/confirm")
-                val connection = url.openConnection() as HttpURLConnection
-                val authorization = "Basic " + Base64.getEncoder().encodeToString("$apiKey:".toByteArray())
-
-                with(connection) {
-                    requestMethod = "POST"
-                    doOutput = true
-                    setRequestProperty("Content-Type", "application/json")
-                    setRequestProperty("Authorization", authorization)
-                }
-
-                // JSON 요청 본문 생성
-                val jsonRequest = JSONObject().apply {
-                    put("paymentKey", paymentKey)
-                    put("orderId", orderId)
-                    put("amount", amount)
-                }
-
-                // 요청 전송
-                OutputStreamWriter(connection.outputStream).use { writer ->
-                    writer.write(jsonRequest.toString())
-                    writer.flush()
-                }
-
-                // 응답 처리
-                val responseCode = connection.responseCode
-                val responseBody = BufferedReader(
-                    InputStreamReader(
-                        if (responseCode == 200) connection.inputStream
-                        else connection.errorStream
-                    )
-                ).use { it.readText() }
-
-                if (responseCode == 200) {
-                    paymentService.processPayment(paymentKey, orderId, amount, currentUserId)
-                    ResponseEntity.ok(
-                        PaymentResponse(
-                            success = true,
-                            message = "결제가 성공적으로 처리되었습니다.",
-                            orderId = orderId,
-                            amount = amount
-                        )
-                    )
-                } else {
-                    throw GlobalException("400-1", "결제 승인 실패: $responseBody")
-                }
-            } catch (e: Exception) {
-                throw GlobalException("500-1", "결제 처리 중 오류 발생: ${e.message}")
-            }
-        }
+    @GetMapping("/checkout")
+    fun index(request: HttpServletRequest): String {
+        rq.setAttribute("apiKey", apiKey)
+        return "domain/payments/checkout"
     }
 
-    @GetMapping("/history")
-    @PreAuthorize("isAuthenticated()")
-    fun getPaymentHistory(): ResponseEntity<List<PaymentResponse>> {
-        val currentUserId = securityUtil.getCurrentUserId()
-            ?: throw GlobalException(MessageCode.UNAUTHORIZED_LOGIN_REQUIRED)
+    @GetMapping("/success")
+    fun paymentRequest(request: HttpServletRequest): String {
+        return "domain/payments/success"
+    }
 
-        return try {
-            val paymentHistory = paymentService.getPaymentHistory(currentUserId)
-            ResponseEntity.ok(paymentHistory)
-        } catch (e: GlobalException) {
-            ResponseEntity.badRequest().body(
-                listOf(PaymentResponse(success = false, message = e.rsData.msg))
-            )
-        }
+    @GetMapping("/fail")
+    fun failPayment(request: HttpServletRequest): String {
+        val failCode = request.getParameter("code")
+        val failMessage = request.getParameter("message")
+
+        rq.setAttribute("code", failCode)
+        rq.setAttribute("message", failMessage)
+
+        return "domain/payments/fail"
     }
 }
-
-
-// 개선전 버전..
-//@RestController
-//@RequestMapping("/payments")
-//class PaymentController(
-//    private val paymentService: PaymentService,
-//    private val securityUtil: SecurityUtil
-//) {
-//
-//    @PostMapping("/confirm")
-//    @PreAuthorize("isAuthenticated()")  // 인증된 사용자만 접근 가능
-//    fun confirmPayment(
-//        @RequestParam paymentKey: String,
-//        @RequestParam orderId: String,
-//        @RequestParam amount: BigDecimal
-//    ): ResponseEntity<String> {
-//        // 현재 로그인한 사용자의 ID 가져오기
-//        val currentUserId = securityUtil.getCurrentUserId()
-//            ?: throw GlobalException(MessageCode.UNAUTHORIZED_LOGIN_REQUIRED)
-//
-//        return paymentService.processPayment(
-//            paymentKey = paymentKey,
-//            orderId = orderId,
-//            amount = amount,
-//            memberUserId = currentUserId
-//        ).fold(
-//            { error -> ResponseEntity.badRequest().body(error.message) },
-//            { ResponseEntity.ok("결제 성공") }
-//        )
-//    }
-//}
