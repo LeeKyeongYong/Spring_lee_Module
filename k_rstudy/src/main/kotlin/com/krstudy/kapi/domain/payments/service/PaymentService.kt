@@ -3,6 +3,7 @@ package com.krstudy.kapi.domain.payments.service
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import com.krstudy.kapi.domain.member.repository.MemberRepository
 import com.krstudy.kapi.domain.payments.client.TossPaymentClient
 import com.krstudy.kapi.domain.payments.entity.Order
 import com.krstudy.kapi.domain.payments.entity.Payment
@@ -19,19 +20,24 @@ import java.math.BigDecimal
 class PaymentService(
     private val paymentRepository: PaymentRepository,
     private val orderRepository: OrderRepository,
+    private val memberRepository: MemberRepository,
     private val tossPaymentClient: TossPaymentClient
 ) {
     @Transactional
     fun processPayment(
         paymentKey: String,
         orderId: String,
-        amount: BigDecimal
+        amount: BigDecimal,
+        memberUserId: String
     ): Either<PaymentError, Payment> {
         return Either.catch {
+            val member = memberRepository.findByUserid(memberUserId)
+                ?: throw GlobalException(MessageCode.NOT_FOUND_USER)
+
             // 1. 결제 금액 검증
             validatePaymentAmount(orderId, amount)
                 .fold(
-                    { error ->
+                    { error: PaymentError -> // 타입 명시
                         when (error) {
                             is PaymentError.OrderNotFound ->
                                 throw GlobalException(MessageCode.NOT_FOUND_RESOURCE)
@@ -39,10 +45,13 @@ class PaymentService(
                                 throw GlobalException("400-9", "결제 금액이 일치하지 않습니다.")
                             is PaymentError.ProcessingError ->
                                 throw GlobalException(MessageCode.INTERNAL_SERVER_ERROR)
+                            else -> throw GlobalException(MessageCode.BAD_REQUEST) // else 분기 추가
                         }
                     },
-                    { validOrder ->
-                        // 검증 성공 시 주문 상태 업데이트
+                    { validOrder: Order -> // 타입 명시
+                        if (validOrder.memberUserId != memberUserId) {
+                            throw GlobalException("403-2", "주문자와 결제자가 일치하지 않습니다.")
+                        }
                         validOrder.markAsPaymentPending()
                         orderRepository.save(validOrder)
                     }
@@ -64,6 +73,7 @@ class PaymentService(
                 orderId = orderId,
                 amount = amount,
                 paymentKey = paymentKey,
+                member = member,
                 customerKey = tossPaymentResult.customerKey,
                 customerName = tossPaymentResult.customerName,
                 customerEmail = tossPaymentResult.customerEmail
@@ -71,7 +81,6 @@ class PaymentService(
 
             paymentRepository.save(payment).also {
                 it.complete()
-                // 주문 상태도 함께 업데이트
                 orderRepository.findByOrderId(orderId)?.let { order ->
                     order.markAsPaymentCompleted()
                     orderRepository.save(order)
@@ -85,6 +94,7 @@ class PaymentService(
         }
     }
 
+    // validatePaymentAmount 함수 추가
     private fun validatePaymentAmount(
         orderId: String,
         amount: BigDecimal
