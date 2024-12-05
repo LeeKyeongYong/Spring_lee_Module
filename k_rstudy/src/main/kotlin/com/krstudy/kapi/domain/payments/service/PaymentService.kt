@@ -5,6 +5,7 @@ import arrow.core.left
 import arrow.core.right
 import com.krstudy.kapi.domain.member.repository.MemberRepository
 import com.krstudy.kapi.domain.payments.client.TossPaymentClient
+import com.krstudy.kapi.domain.payments.dto.PaymentResponse
 import com.krstudy.kapi.domain.payments.entity.Order
 import com.krstudy.kapi.domain.payments.entity.Payment
 import com.krstudy.kapi.domain.payments.repository.OrderRepository
@@ -110,4 +111,21 @@ class PaymentService(
             ).left()
         }
     }
+
+    @Transactional(readOnly = true)
+    fun getPaymentHistory(memberUserId: String): List<PaymentResponse> {
+        val member = memberRepository.findByUserid(memberUserId)
+            ?: throw GlobalException(MessageCode.NOT_FOUND_USER)
+
+        return paymentRepository.findByMemberUserIdOrderByCreatedAtDesc(memberUserId)
+            .map { payment ->
+                PaymentResponse(
+                    success = true,
+                    message = "결제 완료",
+                    orderId = payment.orderId,
+                    amount = payment.amount
+                )
+            }
+    }
+
 }
