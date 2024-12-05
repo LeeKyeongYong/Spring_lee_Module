@@ -1,6 +1,7 @@
 package com.krstudy.kapi.domain.payments.controller
 
 import com.krstudy.kapi.domain.payments.dto.PaymentResponse
+import com.krstudy.kapi.domain.payments.service.IdempotencyService
 import com.krstudy.kapi.domain.payments.service.PaymentService
 import com.krstudy.kapi.global.Security.SecurityUtil
 import com.krstudy.kapi.global.exception.GlobalException
@@ -15,7 +16,8 @@ import java.math.BigDecimal
 @RequestMapping("/payments")
 class PaymentController(
     private val paymentService: PaymentService,
-    private val securityUtil: SecurityUtil
+    private val securityUtil: SecurityUtil,
+    private val idempotencyService: IdempotencyService
 ) {
 
     @PostMapping("/confirm")
