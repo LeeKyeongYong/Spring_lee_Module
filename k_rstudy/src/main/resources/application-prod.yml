@@ -67,7 +67,7 @@ spring:
     defer-datasource-initialization: false
     show-sql: true
     hibernate:
-      ddl-auto: create  # 기존 테이블 유지 안 하고 매번 새로 생성 후 삭제
+      ddl-auto: create-drop  # 기존 테이블 유지 안 하고 매번 새로 생성 후 삭제
     properties:
       hibernate:
         jdbc:

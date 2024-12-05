@@ -32,18 +32,16 @@ class ApiPaymentController(
 
     @PostMapping("/confirm")
     @PreAuthorize("isAuthenticated()")
-    fun confirmPayment(
-        @RequestBody paymentRequest: PaymentRequest  // RequestBody로 변경
-    ): ResponseEntity<PaymentResponse> {
+    fun confirmPayment(@RequestBody paymentRequest: PaymentRequest): ResponseEntity<PaymentResponse> {
         val currentUserId = securityUtil.getCurrentUserId()
             ?: throw GlobalException(MessageCode.UNAUTHORIZED_LOGIN_REQUIRED)
 
-        return idempotencyService.processWithIdempotency(
-            idempotencyKey = paymentRequest.paymentKey,
-            path = "/api/v1/payments/confirm",
-            method = "POST"
-        ) {
-            try {
+        return try {
+            val result = idempotencyService.processWithIdempotency(
+                idempotencyKey = paymentRequest.paymentKey,
+                path = "/api/v1/payments/confirm",
+                method = "POST"
+            ) {
                 val url = URL("https://api.tosspayments.com/v1/payments/confirm")
                 val connection = url.openConnection() as HttpURLConnection
                 val authorization = "Basic " + Base64.getEncoder().encodeToString("$apiKey:".toByteArray())
@@ -55,20 +53,17 @@ class ApiPaymentController(
                     setRequestProperty("Authorization", authorization)
                 }
 
-                // JSON 요청 본문 생성
                 val jsonRequest = JSONObject().apply {
                     put("paymentKey", paymentRequest.paymentKey)
                     put("orderId", paymentRequest.orderId)
                     put("amount", paymentRequest.amount)
                 }
 
-                // 요청 전송
                 OutputStreamWriter(connection.outputStream).use { writer ->
                     writer.write(jsonRequest.toString())
                     writer.flush()
                 }
 
-                // 응답 처리
                 val responseCode = connection.responseCode
                 val responseBody = BufferedReader(
                     InputStreamReader(
@@ -77,27 +72,45 @@ class ApiPaymentController(
                     )
                 ).use { it.readText() }
 
-                if (responseCode == 200) {
-                    paymentService.processPayment(
-                        paymentKey = paymentRequest.paymentKey,
-                        orderId = paymentRequest.orderId,
-                        amount = paymentRequest.amount,
-                        memberUserId = currentUserId
-                    )
-                    ResponseEntity.ok(
-                        PaymentResponse(
-                            success = true,
-                            message = "결제가 성공적으로 처리되었습니다.",
-                            orderId = paymentRequest.orderId,
-                            amount = paymentRequest.amount
-                        )
-                    )
-                } else {
+                if (responseCode != 200) {
                     throw GlobalException("400-1", "결제 승인 실패: $responseBody")
                 }
-            } catch (e: Exception) {
-                throw GlobalException("500-1", "결제 처리 중 오류 발생: ${e.message}")
+
+                // 결제 처리 및 DB 저장
+                paymentService.processPayment(
+                    paymentKey = paymentRequest.paymentKey,
+                    orderId = paymentRequest.orderId,
+                    amount = paymentRequest.amount,
+                    memberUserId = currentUserId
+                )
+
+                ResponseEntity.ok(
+                    PaymentResponse(
+                        success = true,
+                        message = "결제가 성공적으로 처리되었습니다.",
+                        orderId = paymentRequest.orderId,
+                        amount = paymentRequest.amount,
+                        code = "200-0"  // 성공 코드 추가
+                    )
+                )
             }
+            result
+        }
+        catch (e: Exception) {
+            val errorCode = when (e) {
+                is GlobalException -> e.rsData.resultCode
+                else -> "500-0"
+            }
+            println("Error response being sent: code=$errorCode, message=${e.message}") // 로그 추가
+            ResponseEntity.badRequest().body(
+                PaymentResponse(
+                    success = false,
+                    message = e.message ?: "결제 처리 중 오류가 발생했습니다",
+                    orderId = paymentRequest.orderId,
+                    amount = paymentRequest.amount,
+                    code = errorCode // code가 실제로 설정되는지 확인
+                )
+            )
         }
     }
 
