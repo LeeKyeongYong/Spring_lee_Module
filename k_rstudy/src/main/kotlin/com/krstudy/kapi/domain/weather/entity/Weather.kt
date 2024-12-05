@@ -6,13 +6,18 @@ import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "weather")
+@Table(
+    name = "weather",
+    indexes = [
+        Index(name = "idx_weather_x_y_timestamp", columnList = "x,y,timestamp")
+    ]
+)
 class Weather private constructor(
-    @Column val x: Int,
-    @Column val y: Int,
+    @Column(nullable = false) val x: Int,
+    @Column(nullable = false) val y: Int,
     @Column val hour: Int,
     @Embedded val data: WeatherData,
-    @Column val timestamp: LocalDateTime = LocalDateTime.now()
+    @Column(nullable = false) val timestamp: LocalDateTime = LocalDateTime.now()
 ) : BaseEntity() {
 
     // getter 메서드 추가
@@ -49,29 +54,3 @@ class Weather private constructor(
         )
     }
 }
-
-//@Entity
-//@Table(name = "weather")
-//class Weather(
-//
-//    @Column
-//    val x: Int,
-//    @Column
-//    val y: Int,
-//    @Column
-//    val hour: Int,
-//    @Column
-//    val temp: Double,
-//    @Column
-//    val sky: Int,
-//    @Column
-//    val pty: Int,
-//    @Column(length = 255)
-//    val wfKor: String,
-//    @Column
-//    val pop: Int,
-//    @Column
-//    val reh: Int,
-//    @Column
-//    val timestamp: LocalDateTime = LocalDateTime.now()
-//)  : BaseEntity() {}

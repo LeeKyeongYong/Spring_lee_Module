@@ -87,6 +87,21 @@ class WeatherService(private val weatherRepository: WeatherRepository) {
     }
 
     fun getRecentWeatherList(x: Int, y: Int, limit: Int = 10): List<Weather> {
-        return weatherRepository.findByXAndYOrderByTimestampDesc(x, y).take(limit)
+        logger.info("최근 날씨 데이터 조회 시작: x=$x, y=$y, limit=$limit")
+
+        // 전체 데이터 수 확인
+        val totalCount = weatherRepository.count()
+        logger.info("전체 날씨 데이터 수: $totalCount")
+
+        // 특정 좌표의 데이터 조회
+        val weatherList = weatherRepository.findByXAndYOrderByTimestampDesc(x, y).take(limit)
+        logger.info("조회된 데이터 수: ${weatherList.size}")
+
+        // 첫 번째 데이터 상세 정보 출력
+        weatherList.firstOrNull()?.let {
+            logger.info("첫 번째 데이터 정보: x=${it.x}, y=${it.y}, timestamp=${it.timestamp}")
+        }
+
+        return weatherList
     }
 }

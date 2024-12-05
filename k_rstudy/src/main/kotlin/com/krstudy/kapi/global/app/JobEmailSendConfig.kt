@@ -28,8 +28,8 @@ class JobEmailSendConfig(
 
     @Async
     //@Scheduled(cron = "0 30 18 * * ?")
-    //@Scheduled(cron = "0 0 0/3 * * ?")
-    @Scheduled(cron = "0 */1 * * * ?")
+    @Scheduled(cron = "0 0 0/3 * * ?")
+    //@Scheduled(cron = "0 */1 * * * ?")
     fun executeRegularUpdate() {
         log.info("{}일자 스케쥴러를 실행합니다.", LocalDate.now())
         changeServer()
@@ -44,6 +44,6 @@ class JobEmailSendConfig(
     }
 
     fun initializeWeatherData(){
-        weatherService.updateWeatherData(95,125)
+        weatherService.updateWeatherData(59,125)
     }
 }

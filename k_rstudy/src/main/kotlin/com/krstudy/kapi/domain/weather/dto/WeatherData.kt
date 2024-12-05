@@ -1,5 +1,8 @@
 package com.krstudy.kapi.domain.weather.dto
 
+import jakarta.persistence.Embeddable
+
+@Embeddable
 data class WeatherData(
     val temperature: Double,
     val sky: Int,

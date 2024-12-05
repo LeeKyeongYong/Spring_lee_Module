@@ -18,8 +18,26 @@ class WeatherController(
 
     @GetMapping("/weather")
     fun getWeather(model: Model): String {
-        val weather = weatherService.getRecentWeatherList(59, 125)
-        model.addAttribute("weather", weather)
+        val weather = weatherService.getRecentWeatherList(59, 125).firstOrNull()
+        println("Fetched weather: $weather") // 디버깅용
+
+        val weatherResponse = weather?.let {
+            WeatherResponse(
+                temperature = it.getTemperature(),
+                sky = it.getSky(),
+                pty = it.getPrecipitation(),
+                description = it.getDescription()
+            ).also {
+                println("Weather response: $it") // 디버깅용
+            }
+        } ?: WeatherResponse(
+            temperature = 0.0,
+            sky = 0,
+            pty = 0,
+            description = "정보 없음"
+        )
+
+        model.addAttribute("weather", weatherResponse)
         return "domain/weather/weather"
     }
 
