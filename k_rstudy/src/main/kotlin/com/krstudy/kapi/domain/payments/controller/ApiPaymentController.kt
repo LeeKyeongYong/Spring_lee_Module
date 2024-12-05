@@ -1,5 +1,6 @@
 package com.krstudy.kapi.domain.payments.controller
 
+import com.krstudy.kapi.domain.payments.dto.PaymentRequest
 import com.krstudy.kapi.domain.payments.dto.PaymentResponse
 import com.krstudy.kapi.domain.payments.service.IdempotencyService
 import com.krstudy.kapi.domain.payments.service.PaymentService
@@ -32,15 +33,13 @@ class ApiPaymentController(
     @PostMapping("/confirm")
     @PreAuthorize("isAuthenticated()")
     fun confirmPayment(
-        @RequestParam paymentKey: String,
-        @RequestParam orderId: String,
-        @RequestParam amount: BigDecimal
+        @RequestBody paymentRequest: PaymentRequest  // RequestBody로 변경
     ): ResponseEntity<PaymentResponse> {
         val currentUserId = securityUtil.getCurrentUserId()
             ?: throw GlobalException(MessageCode.UNAUTHORIZED_LOGIN_REQUIRED)
 
         return idempotencyService.processWithIdempotency(
-            idempotencyKey = paymentKey,
+            idempotencyKey = paymentRequest.paymentKey,
             path = "/api/v1/payments/confirm",
             method = "POST"
         ) {
@@ -58,9 +57,9 @@ class ApiPaymentController(
 
                 // JSON 요청 본문 생성
                 val jsonRequest = JSONObject().apply {
-                    put("paymentKey", paymentKey)
-                    put("orderId", orderId)
-                    put("amount", amount)
+                    put("paymentKey", paymentRequest.paymentKey)
+                    put("orderId", paymentRequest.orderId)
+                    put("amount", paymentRequest.amount)
                 }
 
                 // 요청 전송
@@ -79,13 +78,18 @@ class ApiPaymentController(
                 ).use { it.readText() }
 
                 if (responseCode == 200) {
-                    paymentService.processPayment(paymentKey, orderId, amount, currentUserId)
+                    paymentService.processPayment(
+                        paymentKey = paymentRequest.paymentKey,
+                        orderId = paymentRequest.orderId,
+                        amount = paymentRequest.amount,
+                        memberUserId = currentUserId
+                    )
                     ResponseEntity.ok(
                         PaymentResponse(
                             success = true,
                             message = "결제가 성공적으로 처리되었습니다.",
-                            orderId = orderId,
-                            amount = amount
+                            orderId = paymentRequest.orderId,
+                            amount = paymentRequest.amount
                         )
                     )
                 } else {
@@ -113,35 +117,3 @@ class ApiPaymentController(
         }
     }
 }
-
-
-// 개선전 버전..
-//@RestController
-//@RequestMapping("/payments")
-//class PaymentController(
-//    private val paymentService: PaymentService,
-//    private val securityUtil: SecurityUtil
-//) {
-//
-//    @PostMapping("/confirm")
-//    @PreAuthorize("isAuthenticated()")  // 인증된 사용자만 접근 가능
-//    fun confirmPayment(
-//        @RequestParam paymentKey: String,
-//        @RequestParam orderId: String,
-//        @RequestParam amount: BigDecimal
-//    ): ResponseEntity<String> {
-//        // 현재 로그인한 사용자의 ID 가져오기
-//        val currentUserId = securityUtil.getCurrentUserId()
-//            ?: throw GlobalException(MessageCode.UNAUTHORIZED_LOGIN_REQUIRED)
-//
-//        return paymentService.processPayment(
-//            paymentKey = paymentKey,
-//            orderId = orderId,
-//            amount = amount,
-//            memberUserId = currentUserId
-//        ).fold(
-//            { error -> ResponseEntity.badRequest().body(error.message) },
-//            { ResponseEntity.ok("결제 성공") }
-//        )
-//    }
-//}

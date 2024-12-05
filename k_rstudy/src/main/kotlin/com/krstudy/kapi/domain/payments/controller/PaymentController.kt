@@ -27,8 +27,8 @@ class PaymentController (private val rq: ReqData) {
 
     @GetMapping("/fail")
     fun failPayment(request: HttpServletRequest): String {
-        val failCode = request.getParameter("code")
-        val failMessage = request.getParameter("message")
+        val failCode = request.getParameter("code") ?: "undefined"
+        val failMessage = request.getParameter("message") ?: "알 수 없는 오류가 발생했습니다."
 
         rq.setAttribute("code", failCode)
         rq.setAttribute("message", failMessage)

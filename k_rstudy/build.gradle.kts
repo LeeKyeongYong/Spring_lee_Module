@@ -251,6 +251,8 @@ dependencies {
     implementation("io.arrow-kt:arrow-fx-coroutines:1.1.3")
     implementation("org.jdom:jdom2:2.0.6")
 
+    implementation("com.googlecode.json-simple:json-simple:1.1.1")
+
 
 }
 

@@ -10,21 +10,17 @@ data class PaymentResponse(
     val orderId: String? = null,
     val amount: BigDecimal? = null,
     val paymentDate: LocalDateTime? = null,
-    val paymentStatus: String? = null,
-    val customerName: String? = null,
-    val customerEmail: String? = null
+    val paymentStatus: String? = null
 ) {
     companion object {
         fun fromPayment(payment: Payment): PaymentResponse {
             return PaymentResponse(
                 success = true,
-                message = "결제 완료",
+                message = "결제가 성공적으로 처리되었습니다.",
                 orderId = payment.orderId,
                 amount = payment.amount,
                 paymentDate = payment.createdAt,
-                paymentStatus = payment.status.name,
-                customerName = payment.customerName,
-                customerEmail = payment.customerEmail
+                paymentStatus = payment.status.name
             )
         }
     }

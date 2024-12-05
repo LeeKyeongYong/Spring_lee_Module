@@ -9,46 +9,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title th:text="|토스페이먼츠 결제하기|"></title>
     <script type="text/javascript">
-        //쿼리 파라미터 값이 결제 요청할 때 보낸 데이터와 동일한지 반드시 확인할것
-        //클라이언트에서 결제 금액을 조작하는 행위를 방지할수 있다.
-        const urlParams = new URLSearchParams(window.location.search);
+                        // 쿼리 파라미터 값이 결제 요청할 때 보낸 데이터와 동일한지 반드시 확인하세요.
+                        // 클라이언트에서 결제 금액을 조작하는 행위를 방지할 수 있습니다.
+                        const urlParamsPay = new URLSearchParams(window.location.search);
 
-        //서버로 결제 승인에 필요한 결제 정보를 보내기.
-        async function confirm() {
-            var requestData = {
-                paymentKey: urlParams.get("paymentKey"),
-                orderId: urlParams.get("orderId"),
-                amount: urlParams.get("amount"),
-            };
-            const response = await fetch("/api/v1/payments/confirm", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "applicaiton/json",
-                },
-                body: JSON.stringify(requestData),
-            });
+                        // 서버로 결제 승인에 필요한 결제 정보를 보내세요.
+                        async function confirm() {
+                            var requestData = {
+                                paymentKey: urlParamsPay.get("paymentKey"),
+                                orderId: urlParamsPay.get("orderId"),
+                                amount: urlParamsPay.get("amount"),
+                            };
 
-            const json = await response.json();
-            if (!response.ok) {
-                //TODO: 결제 실패 비즈니스 로직을 구현
-                console.log(json);
-                window.location.href = `/payments/fail?message=${json.message}&code=${json.code}`;
-            }
+                            const response = await fetch("/api/v1/payments/confirm", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify(requestData),
+                            });
 
-            //TODO: 결제 성공 비즈니스 로직을 구현하기.
-            console.log(json);
-        };
+                            const json = await response.json();
 
-        confirm();
+                            if (!response.ok) {
+                                // TODO: 결제 실패 비즈니스 로직을 구현하세요.
+                                console.log(json);
+                                window.location.href = `/payments/fail?message=${json.message}&code=${json.code}`;
+                            }
 
+                            // TODO: 결제 성공 비즈니스 로직을 구현하세요.
+                            console.log(json);
+                        }
 
-        const paymentKeyElement = document.getElementById("paymentKey");
-        const orderIdElement = document.getElementById("orderId");
-        const amountElement = document.getElementById("amount");
+                        confirm();
 
-        orderIdElement.textContent = "주문번호: "+urlParams.get("orderId");
-        amountElement.textContent="결제 금액: "+urlParams.get("amount");
-        paymentKeyElement.textContent="paymentKey: "+urlParams.get("paymentKey");
+                        const paymentKeyElement = document.getElementById("paymentKey");
+                        const orderIdElement = document.getElementById("orderId");
+                        const amountElement = document.getElementById("amount");
+
+                        orderIdElement.textContent = "주문번호: " + urlParamsPay.get("orderId");
+                        amountElement.textContent = "결제 금액: " + urlParamsPay.get("amount");
+                        paymentKeyElement.textContent =
+                            "paymentKey: " + urlParamsPay.get("paymentKey");
     </script>
 </head>
 <body>
