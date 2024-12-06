@@ -68,14 +68,14 @@ class PaymentController (private val paymentService: PaymentService, private val
         @PageableDefault(size = 10, sort = ["createdAt"], direction = Sort.Direction.DESC) pageable: Pageable,
     ): String {
         val member = rq.getMember()
-
-        // 관리자가 아닌 경우 자신의 결제 내역만 조회 가능
         val memberId = if (!rq.isAdmin()) member?.id else null
 
-        val payments = paymentService.getPaymentList(memberId, condition, pageable)
+        //logger.debug("Received search condition: $condition")
 
+        val payments = paymentService.getPaymentList(memberId, condition, pageable)
         rq.setAttribute("payments", payments)
         rq.setAttribute("condition", condition)
+
         return "domain/payments/list"
     }
 

@@ -36,12 +36,26 @@
             margin-top: 20px;
             text-align: center;
         }
+        .alert-info {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            text-align: center;
+            color: #666;
+        }
     </style>
 </head>
 <body>
 <div layout:fragment="content">
     <div class="payment-list">
         <h2>결제 내역</h2>
+
+        <!-- 경고 메시지 -->
+        <div th:if="${payments.empty}" class="alert alert-info">
+            검색된 결제 내역이 없습니다.
+        </div>
 
         <!-- 검색 폼 -->
         <form class="search-form" method="get" th:action="@{/payments/list}">
@@ -58,7 +72,7 @@
                     <option value="">전체</option>
                     <option th:each="status : ${T(com.krstudy.kapi.domain.payments.status.PaymentStatus).values()}"
                             th:value="${status}"
-                            th:text="${status.name()}"
+                            th:text="${status.displayName()}"
                             th:selected="${status == condition.status}">
                     </option>
                 </select>
@@ -79,11 +93,11 @@
         </form>
 
         <!-- 결제 목록 테이블 -->
-        <table class="payment-table">
+        <table th:if="${!payments.empty}" class="payment-table">
             <thead>
             <tr>
                 <th>주문번호</th>
-                <th th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">회원명</th>
+                <th th:if="${@reqData.admin}">회원명</th>
                 <th>결제금액</th>
                 <th>상태</th>
                 <th>결제일시</th>

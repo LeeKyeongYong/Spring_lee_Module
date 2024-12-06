@@ -16,16 +16,15 @@ interface PaymentRepository : JpaRepository<Payment, Long> {
     fun findByMemberId(memberId: Long): List<Payment>
     fun findByPaymentKey(paymentKey: String): Payment?
     @Query("""
-        SELECT p FROM Payment p
-        JOIN FETCH p.member m
-        WHERE (:memberId IS NULL OR m.id = :memberId)
-        AND (:startDate IS NULL OR p.createdAt >= :startDate)
-        AND (:endDate IS NULL OR p.createdAt <= :endDate)
-        AND (:status IS NULL OR p.status = :status)
-        AND (:memberName IS NULL OR m.username LIKE %:memberName%)
-        AND (:orderId IS NULL OR p.orderId LIKE %:orderId%)
-        ORDER BY p.createdAt DESC
-    """)
+    SELECT p FROM Payment p
+    LEFT JOIN p.member m
+    WHERE (:memberId IS NULL OR m.id = :memberId)
+    AND (:startDate IS NULL OR p.createdAt >= :startDate)
+    AND (:endDate IS NULL OR p.createdAt <= :endDate)
+    AND (:status IS NULL OR p.status = :status)
+    AND (:memberName IS NULL OR m.username LIKE %:memberName%)
+    AND (:orderId IS NULL OR p.orderId LIKE %:orderId%)
+""")
     fun searchPayments(
         memberId: Long?,
         startDate: LocalDateTime?,

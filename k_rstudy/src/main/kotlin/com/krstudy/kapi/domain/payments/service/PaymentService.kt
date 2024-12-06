@@ -423,15 +423,21 @@ class PaymentService(
         condition: PaymentSearchCondition,
         pageable: Pageable
     ): Page<PaymentListDto> {
+        logger.debug("Search Conditions: memberId=$memberId, startDate=${condition.startDate}, " +
+                "endDate=${condition.endDate}, status=${condition.status}, " +
+                "memberName=${condition.memberName}, orderId=${condition.orderId}")
+
         val payments = paymentRepository.searchPayments(
             memberId = memberId,
-            startDate = condition.startDate,
-            endDate = condition.endDate,
+            startDate = condition.startDate?.atStartOfDay(),
+            endDate = condition.endDate?.atTime(23, 59, 59),
             status = condition.status,
             memberName = condition.memberName,
             orderId = condition.orderId,
             pageable = pageable
         )
+
+        logger.debug("Found ${payments.totalElements} payments")
 
         return payments.map { payment ->
             PaymentListDto(
@@ -445,7 +451,7 @@ class PaymentService(
                 completedAt = payment.completedAt,
                 canceledAt = payment.cancels.firstOrNull()?.canceledAt,
                 receiptUrl = generateReceiptUrl(payment),
-                paymentKey = payment.paymentKey // 추가
+                paymentKey = payment.paymentKey
             )
         }
     }
