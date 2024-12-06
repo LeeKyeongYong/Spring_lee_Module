@@ -100,6 +100,105 @@
         }
 
     </style>
+
+    <script th:inline="javascript">
+        document.getElementById('cancelForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const cancelAmount = document.getElementById('cancelAmount')?.value;
+            const remainingAmount = [[${payment.remainingAmount}]];
+            const paymentKey = document.getElementById('paymentKey').value; // hidden input에서 paymentKey 가져오기
+
+            if (cancelAmount && (cancelAmount <= 0 || cancelAmount > remainingAmount)) {
+                alert('올바른 취소 금액을 입력해주세요.');
+                return;
+            }
+
+            const formData = {
+                paymentKey: paymentKey, // paymentKey 추가
+                cancelReason: document.getElementById('cancelReason').value,
+                cancelAmount: cancelAmount ? parseInt(cancelAmount) : null
+            };
+
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || '결제 취소에 실패했습니다.');
+                }
+
+                alert('결제가 취소되었습니다.');
+                window.location.reload();
+
+            } catch (error) {
+                alert(error.message);
+                console.error('결제 취소 중 오류 발생:', error);
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', function() {
+            const receiptForm = document.getElementById('receiptForm');
+            if (receiptForm) {
+                receiptForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const submitButton = this.querySelector('button[type="submit"]');
+                    submitButton.disabled = true;
+                    submitButton.textContent = '처리중...';
+
+                    try {
+                        const requestData = {
+                            amount: [[${payment.amount}]],
+                            orderId: [[${payment.orderId}]],
+                            orderName: "상품 구매",
+                            customerIdentityNumber: document.getElementById('customerIdentityNumber').value,
+                            type: document.getElementById('receiptType').value
+                        };
+
+                        console.log('현금영수증 발급 요청:', requestData); // 디버깅용 로그
+
+                        const response = await fetch('/api/v1/payments/cash-receipts', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
+                            },
+                            body: JSON.stringify(requestData)
+                        });
+
+                        console.log('서버 응답:', response); // 디버깅용 로그
+
+                        const result = await response.json();
+                        console.log('응답 데이터:', result); // 디버깅용 로그
+
+                        if (result.success) {
+                            alert(result.message);
+                            if (result.data?.receiptUrl) {
+                                window.open(result.data.receiptUrl, '_blank');
+                            }
+                        } else {
+                            throw new Error(result.error || '현금영수증 발급에 실패했습니다.');
+                        }
+
+                    } catch (error) {
+                        console.error('현금영수증 발급 중 오류:', error);
+                        alert(error.message || '현금영수증 발급 중 오류가 발생했습니다.');
+                    } finally {
+                        submitButton.disabled = false;
+                        submitButton.textContent = '현금영수증 발급';
+                    }
+                });
+            }
+        });
+    </script>
 </head>
 <body>
 <div layout:fragment="content">
@@ -126,14 +225,31 @@
                 <strong>취소 가능 금액:</strong>
                 <span th:text="${#numbers.formatInteger(payment.remainingAmount, 0, 'COMMA')}">0</span>원
             </p>
-            <p>
-                <a th:href="@{https://dashboard.tosspayments.com/receipts/{paymentKey}(paymentKey=${payment.paymentKey})}"
-                   target="_blank"
-                   class="receipt-button">
-                    <img width="20px" src="https://static.toss.im/3d-emojis/u1F9FE-apng.png" alt="receipt"/>
-                    영수증 출력
-                </a>
-            </p>
+        </div>
+        <!-- 현금영수증 발급 폼 추가 -->
+        <div class="receipt-form" th:if="${payment.status.name() == 'COMPLETED'}">
+            <h3>현금영수증 발급</h3>
+            <form id="receiptForm">
+                <div class="form-group">
+                    <label for="customerIdentityNumber">휴대폰 번호 또는 사업자등록번호</label>
+                    <input type="text"
+                           id="customerIdentityNumber"
+                           required
+                           placeholder="- 없이 입력해주세요">
+                </div>
+
+                <div class="form-group">
+                    <label>발급 용도</label>
+                    <select id="receiptType" required>
+                        <option value="소득공제">소득공제</option>
+                        <option value="지출증빙">지출증빙</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="receipt-button">
+                    현금영수증 발급
+                </button>
+            </form>
         </div>
 
         <!-- 취소 가능한 상태일 때만 취소 폼 표시 -->
@@ -196,49 +312,6 @@
         </div>
     </div>
 
-    <script th:inline="javascript">
-        document.getElementById('cancelForm')?.addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const cancelAmount = document.getElementById('cancelAmount')?.value;
-            const remainingAmount = [[${payment.remainingAmount}]];
-            const paymentKey = document.getElementById('paymentKey').value; // hidden input에서 paymentKey 가져오기
-
-            if (cancelAmount && (cancelAmount <= 0 || cancelAmount > remainingAmount)) {
-                alert('올바른 취소 금액을 입력해주세요.');
-                return;
-            }
-
-            const formData = {
-                paymentKey: paymentKey, // paymentKey 추가
-                cancelReason: document.getElementById('cancelReason').value,
-                cancelAmount: cancelAmount ? parseInt(cancelAmount) : null
-            };
-
-            try {
-                const response = await fetch(this.action, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || '결제 취소에 실패했습니다.');
-                }
-
-                alert('결제가 취소되었습니다.');
-                window.location.reload();
-
-            } catch (error) {
-                alert(error.message);
-                console.error('결제 취소 중 오류 발생:', error);
-            }
-        });
-    </script>
 </div>
 </body>
 </html>

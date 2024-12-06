@@ -5,9 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.service.MemberService
 import com.krstudy.kapi.domain.payments.dto.*
+import com.krstudy.kapi.domain.payments.entity.CashReceipt
 import com.krstudy.kapi.domain.payments.entity.Payment
 import com.krstudy.kapi.domain.payments.entity.PaymentCancel
+import com.krstudy.kapi.domain.payments.repository.CashReceiptRepository
 import com.krstudy.kapi.domain.payments.repository.PaymentRepository
+import com.krstudy.kapi.domain.payments.status.CashReceiptStatus
 import com.krstudy.kapi.domain.payments.status.PaymentStatus
 import net.minidev.json.JSONObject
 import org.slf4j.LoggerFactory
@@ -23,17 +26,22 @@ import java.time.LocalDateTime
 import java.util.Base64
 import com.krstudy.kapi.global.exception.GlobalException
 import com.krstudy.kapi.global.exception.MessageCode
+import java.time.LocalDate
 import java.util.UUID
 
 @Service
 @Transactional
 class PaymentService(
+    private val cashReceiptRepository: CashReceiptRepository,
     private val paymentRepository: PaymentRepository,
     private val memberService: MemberService,
     @Value("\${api.key}") private val secretKey: String
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
-    private val tossPaymentUrl = "https://api.tosspayments.com/v1/payments"
+    private val tosUrl="https://api.tosspayments.com/v1"
+    private val tossPaymentUrl = tosUrl+"/payments"
+    private val tossCashReceiptUrl = tosUrl+"/cash-receipts"
+
 
     fun confirmPayment(request: PaymentRequestDto, author: Member?): PaymentResponseDto {
         try {
@@ -181,7 +189,7 @@ class PaymentService(
             payment = payment,
             cancelReason = request.cancelReason,
             cancelAmount = cancelAmount,
-            transactionKey = tossResponse.lastTransactionKey
+            transactionKey = tossResponse.lastTransactionKey ?: throw GlobalException(MessageCode.PAYMENT_CANCEL_FAILED)
         )
 
         // 6. 결제 상태 및 잔액 업데이트
@@ -263,6 +271,121 @@ class PaymentService(
                 throw GlobalException(MessageCode.PAYMENT_CANCEL_FAILED)
             }
         }
+    }
+
+    @Transactional
+    fun issueCashReceipt(request: CashReceiptRequestDto): CashReceiptResponseDto {
+        logger.info("현금영수증 발급 시작 - 주문번호: ${request.orderId}")
+
+        try {
+            // 1. 이미 발급된 영수증이 있는지 확인
+            val existingReceipt = cashReceiptRepository.findByOrderId(request.orderId)
+            if (existingReceipt?.issueStatus == CashReceiptStatus.COMPLETED) {
+                return CashReceiptResponseDto.success(
+                    receiptKey = existingReceipt.receiptKey,
+                    receiptUrl = existingReceipt.receiptUrl,
+                    message = "이미 발급된 현금영수증이 있습니다.",
+                    issueStatus = CashReceiptStatus.COMPLETED.name
+                )
+            }
+
+            // 2. 토스 페이먼츠 API 호출
+            val response = try {
+                callTossCashReceiptApi(request)
+            } catch (e: Exception) {
+                logger.error("토스 API 호출 실패", e)
+                null
+            }
+
+            // 3. 현금영수증 정보 저장 (성공/실패 모두 저장)
+            val cashReceipt = CashReceipt(
+                receiptKey = response?.receiptKey ?: UUID.randomUUID().toString(),
+                orderId = request.orderId,
+                orderName = request.orderName,
+                type = request.type,
+                issueNumber = response?.issueNumber,
+                issueStatus = if (response != null) CashReceiptStatus.COMPLETED else CashReceiptStatus.FAILED,
+                amount = request.amount,
+                taxFreeAmount = request.taxFreeAmount,
+                customerIdentityNumber = request.customerIdentityNumber,
+                receiptUrl = response?.receiptUrl,
+                businessNumber = response?.businessNumber,
+                transactionType = response?.transactionType ?: "CONFIRM"
+            )
+
+            val savedReceipt = cashReceiptRepository.save(cashReceipt)
+            logger.info("현금영수증 정보 저장 완료 - ID: ${savedReceipt.id}, 상태: ${savedReceipt.issueStatus}")
+
+            // 4. 응답 반환
+            return if (response != null) {
+                CashReceiptResponseDto.success(
+                    receiptKey = savedReceipt.receiptKey,
+                    receiptUrl = savedReceipt.receiptUrl,
+                    message = "현금영수증이 정상적으로 발급되었습니다.",
+                    issueStatus = CashReceiptStatus.COMPLETED.name
+                )
+            } else {
+                CashReceiptResponseDto.failure(
+                    receiptKey = savedReceipt.receiptKey,
+                    message = "현금영수증 발급에 실패했습니다."
+                )
+            }
+
+        } catch (e: Exception) {
+            logger.error("현금영수증 발급 중 오류 발생", e)
+            throw GlobalException(MessageCode.CASH_RECEIPT_ISSUANCE_FAILED)
+        }
+    }
+
+    private fun callTossCashReceiptApi(request: CashReceiptRequestDto): CashReceiptResponseDto {
+        val client = HttpClient.newBuilder().build()
+
+        val requestBody = JSONObject().apply {
+            put("amount", request.amount)
+            put("orderId", request.orderId)
+            put("orderName", request.orderName)
+            put("customerIdentityNumber", request.customerIdentityNumber)
+            put("type", request.type)
+            request.taxFreeAmount?.let { put("taxFreeAmount", it) }
+        }
+
+        val httpRequest = HttpRequest.newBuilder()
+            .uri(URI(tossCashReceiptUrl))
+            .header("Authorization", "Basic ${Base64.getEncoder().encodeToString("$secretKey:".toByteArray())}")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(requestBody.toString()))
+            .build()
+
+        return try {
+            val response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString())
+            cashReceipthandleTossResponse(response)
+        } catch (e: Exception) {
+            logger.error("Toss API call failed", e)
+            throw GlobalException(MessageCode.CASH_RECEIPT_ISSUANCE_FAILED)
+        }
+    }
+
+    private fun cashReceipthandleTossResponse(response: HttpResponse<String>): CashReceiptResponseDto {
+        return when (response.statusCode()) {
+            200 -> {
+                val mapper = ObjectMapper().apply {
+                    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                }
+                mapper.readValue(response.body(), CashReceiptResponseDto::class.java)
+            }
+            else -> {
+                logger.error("Cash receipt issuance failed: ${response.body()}")
+                throw GlobalException(MessageCode.CASH_RECEIPT_ISSUANCE_FAILED)
+            }
+        }
+    }
+
+    @Transactional(readOnly = true)
+    fun getCashReceipts(requestDate: LocalDate): List<CashReceipt> {
+        return cashReceiptRepository.findByRequestedAtBetween(
+            requestDate.atStartOfDay(),
+            requestDate.plusDays(1).atStartOfDay()
+        )
     }
 
 }

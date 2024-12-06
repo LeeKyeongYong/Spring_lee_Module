@@ -4,7 +4,6 @@ enum class MessageCode(val code: String, val message: String) {
 
     // 인증 관련 오류
     UNAUTHORIZED("401-1", "인증된 사용자가 아닙니다."),
-    UNAUTHORIZED_LOGIN_REQUIRED("401-2", "로그인이 필요합니다."),
     LOGIN_DISABLED_USER("401-3", "로그인할 수 없는 아이디입니다."), // 사용자가 탈퇴하면 N으로 변경하거나 관리자가 정지시키는 용도... 관리자는 그냥 통으로 지운다.
 
     // 리소스 관련 오류
@@ -18,17 +17,11 @@ enum class MessageCode(val code: String, val message: String) {
     FORBIDDEN("403-1", "권한이 없습니다."),
 
     // 요청 관련 오류
-    // 요청 관련 오류
     BAD_REQUEST("400-1", "잘못된 요청입니다."),
     EMPTY_COMMENT_BODY("400-2", "댓글 내용이 비어 있습니다."),
     INVALID_INPUT("400-6", "입력값이 올바르지 않습니다."),
     INVALID_EMAIL("400-7", "올바른 이메일 형식이 아닙니다."),
     PASSWORD_MISMATCH("400-8", "비밀번호가 일치하지 않습니다."),
-
-
-    // 서버 오류
-    INTERNAL_SERVER_ERROR("500-1", "서버 내부 오류입니다."),
-    TOKEN_GENERATION_ERROR("500-2", "토큰 생성 중 오류가 발생했습니다."), // 추가한 토큰 생성 오류 코드
 
     // 성공적인 응답
     SUCCESS("200-1", "요청이 성공적으로 처리되었습니다."),
@@ -46,7 +39,9 @@ enum class MessageCode(val code: String, val message: String) {
     PAYMENT_NOT_FOUND("PAY_001", "결제 정보를 찾을 수 없습니다."),
     PAYMENT_NOT_CANCELABLE("400-31", "취소할 수 없는 결제 상태입니다."),
     INVALID_CANCEL_AMOUNT("400-32", "유효하지 않은 취소 금액입니다."),
-    PAYMENT_CANCEL_FAILED("400-33", "결제 취소에 실패했습니다.")
-
+    PAYMENT_CANCEL_FAILED("400-33", "결제 취소에 실패했습니다."),
+    CASH_RECEIPT_ISSUANCE_FAILED("CASH_RECEIPT_001", "현금영수증 발급에 실패했습니다."),
+    CASH_RECEIPT_ALREADY_ISSUED("CASH_002", "이미 발급된 현금영수증이 존재합니다."),
+    CASH_RECEIPT_NOT_FOUND("CASH_003", "현금영수증 정보를 찾을 수 없습니다.")
 
 }

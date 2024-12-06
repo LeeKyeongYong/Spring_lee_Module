@@ -1,9 +1,7 @@
 package com.krstudy.kapi.domain.payments.controller
 
-import com.krstudy.kapi.domain.payments.dto.PaymentCancelRequestDto
-import com.krstudy.kapi.domain.payments.dto.PaymentCancelResponseDto
-import com.krstudy.kapi.domain.payments.dto.PaymentRequestDto
-import com.krstudy.kapi.domain.payments.dto.PaymentResponseDto
+import com.krstudy.kapi.domain.payments.dto.*
+import com.krstudy.kapi.domain.payments.entity.CashReceipt
 import com.krstudy.kapi.domain.payments.service.PaymentService
 import com.krstudy.kapi.global.exception.GlobalException
 import com.krstudy.kapi.global.exception.MessageCode
@@ -11,6 +9,7 @@ import com.krstudy.kapi.global.https.ReqData
 import org.springframework.security.core.Authentication
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/v1/payments")
@@ -47,6 +46,41 @@ class PaymentApiController(
 
         val response = paymentService.cancelPayment(updatedRequest)
         return ResponseEntity.ok(response)
+    }
+
+    @PostMapping("/cash-receipts")
+    fun issueCashReceipt(
+        @RequestBody request: CashReceiptRequestDto
+    ): ResponseEntity<Map<String, Any>> {
+        return try {
+            val response = paymentService.issueCashReceipt(request)
+            ResponseEntity.ok(mapOf(
+                "success" to true,
+                "data" to response,
+                "message" to "현금영수증이 정상적으로 발급되었습니다."
+            ))
+        } catch (e: GlobalException) {
+            ResponseEntity.badRequest().body(mapOf(
+                "success" to false,
+                "error" to e.errorCode.message,
+                "code" to e.errorCode.code
+            ))
+        } catch (e: Exception) {
+            ResponseEntity.internalServerError().body(mapOf(
+                "success" to false,
+                "error" to "현금영수증 발급 중 오류가 발생했습니다.",
+                "message" to (e.message ?: "알 수 없는 오류")
+            ))
+        }
+    }
+
+    @GetMapping("/cash-receipts")
+    fun getCashReceipts(
+        @RequestParam requestDate: String
+    ): ResponseEntity<List<CashReceipt>> {
+        val date = LocalDate.parse(requestDate)
+        val receipts = paymentService.getCashReceipts(date)
+        return ResponseEntity.ok(receipts)
     }
 
 }
