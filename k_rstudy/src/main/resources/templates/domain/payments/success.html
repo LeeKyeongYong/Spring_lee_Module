@@ -23,6 +23,7 @@
             }
 
             async function confirm() {
+                const token = localStorage.getItem('accessToken');
                 var requestData = {
                     paymentKey: urlParamsPay.get("paymentKey"),
                     orderId: urlParamsPay.get("orderId"),
@@ -34,6 +35,7 @@
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`, // JWT 토큰 추가
                             "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
                         },
                         body: JSON.stringify(requestData),
@@ -55,10 +57,10 @@
                         window.location.href = `/payments/fail?message=${encodeURIComponent(json.message)}&code=${errorCode}`;
                         return;
                     }
-
                     console.log("Success response:", json);
                 } catch (error) {
                     console.error("결제 처리 중 오류 발생:", error);
+                    window.location.href = `/payments/fail?message=${encodeURIComponent("인증 오류가 발생했습니다.")}&code=AUTH_ERROR`;
                 }
             }
 

@@ -1,81 +1,44 @@
 package com.krstudy.kapi.domain.payments.entity
 
 import com.krstudy.kapi.domain.member.entity.Member
+import com.krstudy.kapi.domain.payments.dto.PaymentResponseDto
 import com.krstudy.kapi.domain.payments.status.PaymentStatus
 import com.krstudy.kapi.global.jpa.BaseEntity
-import java.math.BigDecimal
-import java.time.LocalDateTime
 import jakarta.persistence.*
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "payments")
-class Payment private constructor(
-    @Column(nullable = false)
-    val orderId: String,
+class Payment(
 
     @Column(nullable = false)
-    val amount: BigDecimal,
+    var orderId: String,
 
     @Column(nullable = false)
-    val paymentKey: String,
+    var amount: Int,
 
+    @Column(nullable = false)
+    var paymentKey: String,
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    var status: PaymentStatus,
+    var status: PaymentStatus = PaymentStatus.PENDING,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
-    val member: Member,  // 결제한 회원 정보
-
-    @Column(name = "member_userid", nullable = false)
-    val memberUserId: String, // 회원 ID (조회 최적화용)
-
-    @Column(name = "member_username", nullable = false)
-    val memberUsername: String, // 회원 이름 (조회 최적화용)
+    @JoinColumn(name = "member_id")
+    var member: Member? = null,
 
     @Column(nullable = false)
-    val customerKey: String,
+    var createdAt: LocalDateTime = LocalDateTime.now(),
 
-    @Column(nullable = false)
-    val customerName: String,
+    @Column
+    var completedAt: LocalDateTime? = null
+) : BaseEntity()
 
-    @Column(nullable = false)
-    val customerEmail: String,
-
-    @Column(nullable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now()
-) : BaseEntity() {
-
-    companion object {
-        fun create(
-            orderId: String,
-            amount: BigDecimal,
-            paymentKey: String,
-            member: Member,
-            customerKey: String,
-            customerName: String,
-            customerEmail: String
-        ): Payment {
-            return Payment(
-                orderId = orderId,
-                amount = amount,
-                paymentKey = paymentKey,
-                status = PaymentStatus.PENDING,
-                member = member,
-                memberUserId = member.userid,
-                memberUsername = member.username ?: "Unknown",
-                customerKey = customerKey,
-                customerName = customerName,
-                customerEmail = customerEmail
-            )
-        }
-    }
-
-    fun complete() {
-        this.status = PaymentStatus.COMPLETED
-    }
-
-    fun fail() {
-        this.status = PaymentStatus.FAILED
-    }
-}
+fun Payment.toDto() = PaymentResponseDto(
+    orderId = this.orderId,
+    amount = this.amount,
+    status = this.status,
+    paymentKey = this.paymentKey,
+    completedAt = this.completedAt
+)

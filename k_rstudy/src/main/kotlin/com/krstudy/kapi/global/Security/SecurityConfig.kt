@@ -77,6 +77,9 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.GET, "/chat/rooms").permitAll()
                     .requestMatchers("/chat/rooms/**").permitAll()
 
+                    .requestMatchers("/payments/success", "/payments/fail").permitAll()
+                    .requestMatchers("/api/v1/payments/**").authenticated()
+
 
                     // 팝업 관련 권한 설정 추가
                     .requestMatchers("/api/public/**").permitAll()

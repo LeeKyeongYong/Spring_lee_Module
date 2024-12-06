@@ -37,4 +37,11 @@ enum class MessageCode(val code: String, val message: String) {
     // OAuth 관련 오류
     NOT_SUPPORTED_OAUTH_VENDOR("400-4", "해당 OAuth2 벤더는 지원되지 않습니다."),
     EXPIRED_VERIFICATION_CODE("400-5", "인증 코드가 만료되었습니다."), // 만료된 인증 코드 에러 추가
+
+    // 결제 관련 오류
+    PAYMENT_FAILED("400-10", "결제 승인에 실패했습니다."),
+    PAYMENT_PROCESSING_ERROR("400-11", "결제 처리 중 오류가 발생했습니다."),
+    PAYMENT_AMOUNT_MISMATCH("400-12", "결제 금액이 일치하지 않습니다."),
+    PAYMENT_ORDER_NOT_FOUND("404-5", "주문을 찾을 수 없습니다."),
+
 }

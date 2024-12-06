@@ -1,9 +1,7 @@
 package com.krstudy.kapi.domain.payments.dto
 
-import java.math.BigDecimal
-
-data class PaymentRequest(
+data class PaymentRequestDto(
     val paymentKey: String,
     val orderId: String,
-    val amount: Long
+    val amount: Int
 )
