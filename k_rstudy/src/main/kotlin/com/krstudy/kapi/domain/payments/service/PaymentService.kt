@@ -1,5 +1,7 @@
 package com.krstudy.kapi.domain.payments.service
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.krstudy.kapi.domain.member.entity.Member
@@ -413,6 +415,43 @@ class PaymentService(
             requestDate.atStartOfDay(),
             requestDate.plusDays(1).atStartOfDay()
         )
+    }
+
+    @Transactional(readOnly = true)
+    fun getPaymentList(
+        memberId: Long?,
+        condition: PaymentSearchCondition,
+        pageable: Pageable
+    ): Page<PaymentListDto> {
+        val payments = paymentRepository.searchPayments(
+            memberId = memberId,
+            startDate = condition.startDate,
+            endDate = condition.endDate,
+            status = condition.status,
+            memberName = condition.memberName,
+            orderId = condition.orderId,
+            pageable = pageable
+        )
+
+        return payments.map { payment ->
+            PaymentListDto(
+                id = payment.id!!,
+                orderId = payment.orderId,
+                amount = payment.amount,
+                status = payment.status,
+                memberName = payment.member?.username ?: "Unknown",
+                memberId = payment.member?.userid ?: "Unknown",
+                createdAt = payment.createdAt,
+                completedAt = payment.completedAt,
+                canceledAt = payment.cancels.firstOrNull()?.canceledAt,
+                receiptUrl = generateReceiptUrl(payment),
+                paymentKey = payment.paymentKey // 추가
+            )
+        }
+    }
+
+    private fun generateReceiptUrl(payment: Payment): String {
+        return "https://dashboard.tosspayments.com/receipts/${payment.paymentKey}"
     }
 
 }

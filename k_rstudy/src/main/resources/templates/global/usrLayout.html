@@ -48,6 +48,7 @@
         <a th:if="${@reqData.login}" href="/chat/rooms">폴링채팅</a>
         <a href="/post/list">글 목록</a>
         <a th:if="${@reqData.login}" href="/payments/checkout">결제하기</a>
+        <a th:if="${@reqData.login}" href="/payments/list">나의 결제페이지 </a>
 
         <br/>
         <a th:if="${@reqData.admin}" href="/adm">관리자 홈</a>

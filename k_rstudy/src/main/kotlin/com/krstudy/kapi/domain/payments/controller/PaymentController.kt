@@ -1,5 +1,6 @@
 package com.krstudy.kapi.domain.payments.controller
 
+import com.krstudy.kapi.domain.payments.dto.PaymentSearchCondition
 import com.krstudy.kapi.domain.payments.service.PaymentService
 import com.krstudy.kapi.global.exception.GlobalException
 import com.krstudy.kapi.global.exception.MessageCode
@@ -7,10 +8,10 @@ import com.krstudy.kapi.global.https.ReqData
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.*
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.data.web.PageableDefault
 
 @Controller
 @RequestMapping("/payments")
@@ -59,6 +60,23 @@ class PaymentController (private val paymentService: PaymentService, private val
 
         rq.setAttribute("payment", payment)
         return "domain/payments/detail"
+    }
+
+    @GetMapping("/list")
+    fun paymentList(
+        @ModelAttribute condition: PaymentSearchCondition,
+        @PageableDefault(size = 10, sort = ["createdAt"], direction = Sort.Direction.DESC) pageable: Pageable,
+    ): String {
+        val member = rq.getMember()
+
+        // 관리자가 아닌 경우 자신의 결제 내역만 조회 가능
+        val memberId = if (!rq.isAdmin()) member?.id else null
+
+        val payments = paymentService.getPaymentList(memberId, condition, pageable)
+
+        rq.setAttribute("payments", payments)
+        rq.setAttribute("condition", condition)
+        return "domain/payments/list"
     }
 
 }

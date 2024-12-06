@@ -24,8 +24,7 @@
         <a th:if="${@reqData.login}" href="#">ETL</a>
         <br/>
         <a th:if="${@reqData.admin}" href="#">통계 홈</a>
-        <a th:if="${@reqData.login}" href="#">결제하기 </a>
-        <a th:if="${@reqData.admin}" href="#">관리자 결제페이지보기</a>
+        <a th:if="${@reqData.admin}" href="/payments/list">관리자 결제페이지보기</a>
         <a th:if="${@reqData.login}" href="/member/logout">로그아웃</a>
     </header>
 </body>
