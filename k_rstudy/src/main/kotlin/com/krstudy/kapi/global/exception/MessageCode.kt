@@ -43,5 +43,10 @@ enum class MessageCode(val code: String, val message: String) {
     PAYMENT_PROCESSING_ERROR("400-11", "결제 처리 중 오류가 발생했습니다."),
     PAYMENT_AMOUNT_MISMATCH("400-12", "결제 금액이 일치하지 않습니다."),
     PAYMENT_ORDER_NOT_FOUND("404-5", "주문을 찾을 수 없습니다."),
+    PAYMENT_NOT_FOUND("PAY_001", "결제 정보를 찾을 수 없습니다."),
+    PAYMENT_NOT_CANCELABLE("400-31", "취소할 수 없는 결제 상태입니다."),
+    INVALID_CANCEL_AMOUNT("400-32", "유효하지 않은 취소 금액입니다."),
+    PAYMENT_CANCEL_FAILED("400-33", "결제 취소에 실패했습니다.")
+
 
 }

@@ -32,7 +32,16 @@ class Payment(
     var createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Column
-    var completedAt: LocalDateTime? = null
+    var completedAt: LocalDateTime? = null,
+
+    @OneToMany(mappedBy = "payment", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val cancels: MutableList<PaymentCancel> = mutableListOf(),
+
+    @Column(nullable = false)
+    var remainingAmount: Int = amount, // 초기값을 amount로 설정
+
+    @Version
+    val version: Long = 0
 ) : BaseEntity()
 
 fun Payment.toDto() = PaymentResponseDto(

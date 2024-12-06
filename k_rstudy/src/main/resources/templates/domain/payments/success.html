@@ -58,6 +58,10 @@
                         return;
                     }
                     console.log("Success response:", json);
+
+                    // 결제 성공 시 상세 페이지로 이동
+                    window.location.href = `/payments/detail/${requestData.paymentKey}`;
+
                 } catch (error) {
                     console.error("결제 처리 중 오류 발생:", error);
                     window.location.href = `/payments/fail?message=${encodeURIComponent("인증 오류가 발생했습니다.")}&code=AUTH_ERROR`;

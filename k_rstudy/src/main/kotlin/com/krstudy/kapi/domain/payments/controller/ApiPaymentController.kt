@@ -1,5 +1,7 @@
 package com.krstudy.kapi.domain.payments.controller
 
+import com.krstudy.kapi.domain.payments.dto.PaymentCancelRequestDto
+import com.krstudy.kapi.domain.payments.dto.PaymentCancelResponseDto
 import com.krstudy.kapi.domain.payments.dto.PaymentRequestDto
 import com.krstudy.kapi.domain.payments.dto.PaymentResponseDto
 import com.krstudy.kapi.domain.payments.service.PaymentService
@@ -24,4 +26,27 @@ class PaymentApiController(
         val response = paymentService.confirmPayment(request, member)
         return ResponseEntity.ok(response)
     }
+
+    @PostMapping("/{paymentKey}/cancel")
+    fun cancelPayment(
+        @PathVariable paymentKey: String,
+        @RequestBody request: PaymentCancelRequestDto
+    ): ResponseEntity<PaymentCancelResponseDto> {
+        val member = rq.getMember() ?: throw GlobalException(MessageCode.UNAUTHORIZED)
+
+        // paymentKey를 URL에서 가져와서 request에 설정
+        val updatedRequest = request.copy(paymentKey = paymentKey)
+
+        // 결제 건에 대한 소유권 확인
+        val payment = paymentService.getPaymentByPaymentKey(paymentKey)
+            ?: throw GlobalException(MessageCode.PAYMENT_NOT_FOUND)
+
+        if (payment.member?.id != member.id) {
+            throw GlobalException(MessageCode.UNAUTHORIZED)
+        }
+
+        val response = paymentService.cancelPayment(updatedRequest)
+        return ResponseEntity.ok(response)
+    }
+
 }

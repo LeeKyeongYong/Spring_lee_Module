@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html layout:decorate="~{global/usrLayout}">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="https://static.toss.im/icons/png/4x/icon-toss-logo.png"/>
+    <link rel="stylesheet" type="text/css" href="/resource/global/style.css"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>결제 상세 정보</title>
+    <style>
+        .payment-detail {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .payment-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .cancel-form {
+            background: #fff;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        .cancel-button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .cancel-button:hover {
+            background: #fa5252;
+        }
+        .cancel-history {
+            margin-top: 30px;
+        }
+        .cancel-history table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .cancel-history th, .cancel-history td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .cancel-history th {
+            background: #f8f9fa;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .status-completed { background: #37b24d; color: white; }
+        .status-partial { background: #f59f00; color: white; }
+        .status-canceled { background: #ff6b6b; color: white; }
+
+        .receipt-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #4263eb;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .receipt-button:hover {
+            background: #364fc7;
+            color: white;
+            text-decoration: none;
+        }
+
+        .receipt-button img {
+            vertical-align: middle;
+        }
+
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="payment-detail">
+        <h2>
+            <img width="35px" src="https://static.toss.im/3d-emojis/u1F4B3_apng.png"/>
+            결제 상세 정보
+        </h2>
+
+        <div class="payment-info">
+            <p><strong>주문번호:</strong> <span th:text="${payment.orderId}"></span></p>
+            <p><strong>결제금액:</strong> <span th:text="${#numbers.formatInteger(payment.amount, 0, 'COMMA')}">0</span>원</p>
+            <p>
+                <strong>상태:</strong>
+                <span th:class="'status-badge ' +
+            (${payment.status.name() == 'COMPLETED'} ? 'status-completed' :
+            (${payment.status.name() == 'PARTIAL_CANCELED'} ? 'status-partial' :
+            'status-canceled'))"
+                      th:text="${payment.status.name()}">
+             </span>
+            </p>
+            <p><strong>결제일시:</strong> <span th:text="${#temporals.format(payment.completedAt, 'yyyy-MM-dd HH:mm:ss')}"></span></p>
+            <p th:if="${payment.remainingAmount > 0}">
+                <strong>취소 가능 금액:</strong>
+                <span th:text="${#numbers.formatInteger(payment.remainingAmount, 0, 'COMMA')}">0</span>원
+            </p>
+            <p>
+                <a th:href="@{https://dashboard.tosspayments.com/receipts/{paymentKey}(paymentKey=${payment.paymentKey})}"
+                   target="_blank"
+                   class="receipt-button">
+                    <img width="20px" src="https://static.toss.im/3d-emojis/u1F9FE-apng.png" alt="receipt"/>
+                    영수증 출력
+                </a>
+            </p>
+        </div>
+
+        <!-- 취소 가능한 상태일 때만 취소 폼 표시 -->
+        <div class="cancel-form" th:if="${payment.status.cancelable}">
+            <h3>결제 취소</h3>
+            <form id="cancelForm"
+                  th:action="@{/api/v1/payments/{paymentKey}/cancel(paymentKey=${payment.paymentKey})}"
+                  method="post">
+                <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                <input type="hidden" id="paymentKey" th:value="${payment.paymentKey}"/>
+
+                <div class="form-group">
+                    <label for="cancelReason">취소 사유</label>
+                    <input type="text"
+                           id="cancelReason"
+                           name="cancelReason"
+                           required
+                           placeholder="취소 사유를 입력해주세요"
+                           maxlength="200">
+                </div>
+
+                <div class="form-group" th:if="${payment.status.name() == 'COMPLETED' && payment.remainingAmount > 0}">
+                    <label for="cancelAmount">취소 금액</label>
+                    <input type="number"
+                           id="cancelAmount"
+                           name="cancelAmount"
+                           th:max="${payment.remainingAmount}"
+                           th:value="${payment.remainingAmount}"
+                           min="1">
+                    <small>최대 취소 가능 금액: <span th:text="${#numbers.formatInteger(payment.remainingAmount, 0, 'COMMA')}">0</span>원</small>
+                </div>
+
+                <button type="submit"
+                        class="cancel-button"
+                        onclick="return confirm('결제를 취소하시겠습니까? 이 작업은 되돌릴 수 없습니다.')">
+                    결제 취소하기
+                </button>
+            </form>
+        </div>
+
+        <!-- 취소 내역 표시 -->
+        <div class="cancel-history" th:if="${not #lists.isEmpty(payment.cancels)}">
+            <h3>취소 내역</h3>
+            <table>
+                <thead>
+                <tr>
+                    <th>취소일시</th>
+                    <th>취소금액</th>
+                    <th>취소사유</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="cancel : ${payment.cancels}">
+                    <td th:text="${#temporals.format(cancel.canceledAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td th:text="${#numbers.formatInteger(cancel.cancelAmount, 0, 'COMMA')} + '원'"></td>
+                    <td th:text="${cancel.cancelReason}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        document.getElementById('cancelForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const cancelAmount = document.getElementById('cancelAmount')?.value;
+            const remainingAmount = [[${payment.remainingAmount}]];
+            const paymentKey = document.getElementById('paymentKey').value; // hidden input에서 paymentKey 가져오기
+
+            if (cancelAmount && (cancelAmount <= 0 || cancelAmount > remainingAmount)) {
+                alert('올바른 취소 금액을 입력해주세요.');
+                return;
+            }
+
+            const formData = {
+                paymentKey: paymentKey, // paymentKey 추가
+                cancelReason: document.getElementById('cancelReason').value,
+                cancelAmount: cancelAmount ? parseInt(cancelAmount) : null
+            };
+
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || '결제 취소에 실패했습니다.');
+                }
+
+                alert('결제가 취소되었습니다.');
+                window.location.reload();
+
+            } catch (error) {
+                alert(error.message);
+                console.error('결제 취소 중 오류 발생:', error);
+            }
+        });
+    </script>
+</div>
+</body>
+</html>
