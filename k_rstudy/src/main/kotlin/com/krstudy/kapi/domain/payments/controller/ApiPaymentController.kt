@@ -26,26 +26,43 @@ class PaymentApiController(
         return ResponseEntity.ok(response)
     }
 
-    @PostMapping("/{paymentKey}/cancel")
+    @PostMapping("/cancel/{paymentKey}")
     fun cancelPayment(
         @PathVariable paymentKey: String,
         @RequestBody request: PaymentCancelRequestDto
-    ): ResponseEntity<PaymentCancelResponseDto> {
-        val member = rq.getMember() ?: throw GlobalException(MessageCode.UNAUTHORIZED)
+    ): ResponseEntity<Any> {
+        return try {
+            val member = rq.getMember() ?: throw GlobalException(MessageCode.UNAUTHORIZED)
 
-        // paymentKey를 URL에서 가져와서 request에 설정
-        val updatedRequest = request.copy(paymentKey = paymentKey)
+            // 결제 건에 대한 소유권 확인
+            val payment = paymentService.getPaymentByPaymentKey(paymentKey)
+                ?: throw GlobalException(MessageCode.PAYMENT_NOT_FOUND)
 
-        // 결제 건에 대한 소유권 확인
-        val payment = paymentService.getPaymentByPaymentKey(paymentKey)
-            ?: throw GlobalException(MessageCode.PAYMENT_NOT_FOUND)
+            if (payment.member?.id != member.id) {
+                throw GlobalException(MessageCode.UNAUTHORIZED)
+            }
 
-        if (payment.member?.id != member.id) {
-            throw GlobalException(MessageCode.UNAUTHORIZED)
+            // paymentKey를 request에 설정
+            val updatedRequest = request.copy(paymentKey = paymentKey)
+            val response = paymentService.cancelPayment(updatedRequest)
+            ResponseEntity.ok(mapOf(
+                "success" to true,
+                "data" to response,
+                "message" to "결제가 성공적으로 취소되었습니다."
+            ))
+        } catch (e: GlobalException) {
+            ResponseEntity.badRequest().body(mapOf(
+                "success" to false,
+                "error" to e.errorCode.message,
+                "code" to e.errorCode.code
+            ))
+        } catch (e: Exception) {
+            ResponseEntity.internalServerError().body(mapOf(
+                "success" to false,
+                "error" to "결제 취소 중 오류가 발생했습니다.",
+                "message" to (e.message ?: "알 수 없는 오류")
+            ))
         }
-
-        val response = paymentService.cancelPayment(updatedRequest)
-        return ResponseEntity.ok(response)
     }
 
     @PostMapping("/cash-receipts")

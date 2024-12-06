@@ -349,16 +349,43 @@ class PaymentService(
             request.taxFreeAmount?.let { put("taxFreeAmount", it) }
         }
 
+        // Base64 인코딩 수정
+        val encodedKey = Base64.getEncoder().encodeToString("${secretKey}:".toByteArray(Charsets.UTF_8))
+
+        logger.debug("header API: Basic ${encodedKey}")
+        // 요청 로깅 추가
+        logger.debug("Request to Toss API: ${requestBody.toString()}")
+
+        //.uri(URI(tossCashReceiptUrl))
         val httpRequest = HttpRequest.newBuilder()
-            .uri(URI(tossCashReceiptUrl))
-            .header("Authorization", "Basic ${Base64.getEncoder().encodeToString("$secretKey:".toByteArray())}")
+            .uri(URI("https://api.tosspayments.com/v1/cash-receipts"))
+            .header("Authorization", "Basic $encodedKey")
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(requestBody.toString()))
             .build()
 
         return try {
             val response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString())
-            cashReceipthandleTossResponse(response)
+
+            // 응답 로깅 추가
+            logger.debug("Toss API Response - Status: ${response.statusCode()}, Body: ${response.body()}")
+
+            when (response.statusCode()) {
+                200 -> {
+                    val mapper = ObjectMapper().apply {
+                        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    }
+                    mapper.readValue(response.body(), CashReceiptResponseDto::class.java)
+                }
+                401 -> {
+                    logger.error("Authentication failed with Toss API: ${response.body()}")
+                    throw GlobalException(MessageCode.UNAUTHORIZED)
+                }
+                else -> {
+                    logger.error("Cash receipt issuance failed: ${response.body()}")
+                    throw GlobalException(MessageCode.CASH_RECEIPT_ISSUANCE_FAILED)
+                }
+            }
         } catch (e: Exception) {
             logger.error("Toss API call failed", e)
             throw GlobalException(MessageCode.CASH_RECEIPT_ISSUANCE_FAILED)

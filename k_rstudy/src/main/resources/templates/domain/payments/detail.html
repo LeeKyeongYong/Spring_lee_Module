@@ -102,47 +102,6 @@
     </style>
 
     <script th:inline="javascript">
-        document.getElementById('cancelForm')?.addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const cancelAmount = document.getElementById('cancelAmount')?.value;
-            const remainingAmount = [[${payment.remainingAmount}]];
-            const paymentKey = document.getElementById('paymentKey').value; // hidden input에서 paymentKey 가져오기
-
-            if (cancelAmount && (cancelAmount <= 0 || cancelAmount > remainingAmount)) {
-                alert('올바른 취소 금액을 입력해주세요.');
-                return;
-            }
-
-            const formData = {
-                paymentKey: paymentKey, // paymentKey 추가
-                cancelReason: document.getElementById('cancelReason').value,
-                cancelAmount: cancelAmount ? parseInt(cancelAmount) : null
-            };
-
-            try {
-                const response = await fetch(this.action, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || '결제 취소에 실패했습니다.');
-                }
-
-                alert('결제가 취소되었습니다.');
-                window.location.reload();
-
-            } catch (error) {
-                alert(error.message);
-                console.error('결제 취소 중 오류 발생:', error);
-            }
-        });
 
         window.addEventListener('DOMContentLoaded', function() {
             const receiptForm = document.getElementById('receiptForm');
@@ -198,6 +157,46 @@
                 });
             }
         });
+
+        // 결제 취소 요청 함수
+        async function cancelPayment(paymentKey) {
+            if (!confirm('결제를 취소하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+                return;
+            }
+
+            const cancelReason = document.getElementById('cancelReason').value;
+            const cancelAmount = document.getElementById('cancelAmount')?.value;
+
+            const requestData = {
+                paymentKey: paymentKey,  // paymentKey 추가
+                cancelReason: cancelReason,
+                cancelAmount: cancelAmount ? parseInt(cancelAmount) : null
+            };
+
+            try {
+                const response = await fetch(`/api/v1/payments/cancel/${paymentKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const result = await response.json(); // 응답을 JSON으로 파싱
+
+                if (!result.success) {
+                    throw new Error(result.error || '결제 취소에 실패했습니다.');
+                }
+
+                alert('결제가 취소되었습니다.');
+                window.location.reload();
+            } catch (error) {
+                console.error('결제 취소 중 오류 발생:', error);
+                alert(error.message || '결제 취소 중 오류가 발생했습니다.');
+            }
+        }
+
     </script>
 </head>
 <body>
@@ -255,9 +254,7 @@
         <!-- 취소 가능한 상태일 때만 취소 폼 표시 -->
         <div class="cancel-form" th:if="${payment.status.cancelable}">
             <h3>결제 취소</h3>
-            <form id="cancelForm"
-                  th:action="@{/api/v1/payments/{paymentKey}/cancel(paymentKey=${payment.paymentKey})}"
-                  method="post">
+            <form id="cancelForm">
                 <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
                 <input type="hidden" id="paymentKey" th:value="${payment.paymentKey}"/>
 
@@ -282,9 +279,9 @@
                     <small>최대 취소 가능 금액: <span th:text="${#numbers.formatInteger(payment.remainingAmount, 0, 'COMMA')}">0</span>원</small>
                 </div>
 
-                <button type="submit"
+                <button type="button"
                         class="cancel-button"
-                        onclick="return confirm('결제를 취소하시겠습니까? 이 작업은 되돌릴 수 없습니다.')">
+                        onclick="return confirm('결제를 취소하시겠습니까? 이 작업은 되돌릴 수 없습니다.') && cancelPayment(document.getElementById('paymentKey').value)">
                     결제 취소하기
                 </button>
             </form>
