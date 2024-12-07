@@ -1,4 +1,4 @@
-package com.krstudy.kapi.standard.ws
+package com.krstudy.kapi.com.krstudy.kapi.standard.ws.config
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.simp.config.MessageBrokerRegistry

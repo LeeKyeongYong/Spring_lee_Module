@@ -1,5 +1,7 @@
 package com.krstudy.kapi.global.app
 
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.CacheControl
 import org.springframework.http.MediaType
@@ -9,9 +11,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import org.springframework.web.servlet.resource.PathResourceResolver  // WebMVC의 PathResourceResolver 사용
 import java.util.concurrent.TimeUnit
 import org.springframework.web.servlet.config.annotation.CorsRegistry
+import org.springframework.web.servlet.resource.VersionResourceResolver
 
 @Configuration
-class WebConfig : WebMvcConfigurer {
+class WebConfig (
+    @Value("\${spring.application.version}") private val appVersion: String
+): WebMvcConfigurer {
 
     override fun configureContentNegotiation(configurer: ContentNegotiationConfigurer) {
         configurer
@@ -29,6 +34,7 @@ class WebConfig : WebMvcConfigurer {
             .addResourceLocations("classpath:/static/css/")
             .setCachePeriod(3600)
             .resourceChain(true)
+            .addResolver(VersionResourceResolver().addContentVersionStrategy("/**"))
             .addResolver(PathResourceResolver())
 
         registry.addResourceHandler("/js/**")
@@ -43,4 +49,6 @@ class WebConfig : WebMvcConfigurer {
             .resourceChain(true)
 
     }
+    @Bean
+    fun resourceVersioning(): String = appVersion
 }

@@ -160,7 +160,7 @@ dependencies {
     // redis - LocalDateTime
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.17.0")
-   // implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
     //log4j
     implementation("ch.qos.logback:logback-classic:1.4.11")  // logback 최신 버전 사용
@@ -251,7 +251,10 @@ dependencies {
     implementation("io.arrow-kt:arrow-fx-coroutines:1.1.3")
     implementation("org.jdom:jdom2:2.0.6")
 
+    //json
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("io.github.microutils:kotlin-logging")
 
 
 }

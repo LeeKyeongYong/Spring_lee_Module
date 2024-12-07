@@ -13,19 +13,19 @@
         <a th:if="${@reqData.login}" href="/mymail/verifyCode">메일인증발송</a>
         <a th:if="${@reqData.admin}" href="/uploadPdf">pdf 보기</a>
         <a th:if="${@reqData.admin}" href="#">카프카연계 연습 이해 완료(내용없음)</a>
-        <a th:if="${@reqData.login}" href="#">spark Basic</a>
-        <a th:if="${@reqData.admin}" href="#">크롤링보기</a>
-        <a th:if="${@reqData.admin}" href="#">주소록 보기</a>
-        <br/>
-        <a th:if="${@reqData.login}" href="/weather">날씨보기</a>
-        <a th:if="${@reqData.login}" href="/chat/rooms/mygpt">ai대화하기</a>
-        <a th:if="${@reqData.login}" href="#">추천시스템</a>
-        <a th:if="${@reqData.login}" href="#">전체검색</a>
-        <a th:if="${@reqData.login}" href="#">ETL</a>
-        <br/>
-        <a th:if="${@reqData.admin}" href="#">통계 홈</a>
         <a th:if="${@reqData.admin}" href="/payments/list">관리자 결제페이지보기</a>
         <a th:if="${@reqData.login}" href="/member/logout">로그아웃</a>
     </header>
+        <br/>
+        <a th:if="${@reqData.login}" href="/weather">날씨보기</a>
+        <a th:if="${@reqData.login}" href="/chat/rooms/mygpt">ai대화하기</a>
+        <a th:if="${@reqData.login}" href="#">거래소</a>
+        <a th:if="${@reqData.admin}" href="#">대시보드</a>
+        <a th:if="${@reqData.login}" href="#">메모리/cpu보기</a>
+        <br/>
+        <a th:if="${@reqData.login}" href="#">전체검색</a>
+        <a th:if="${@reqData.admin}" href="#">크롤링보기</a>
+        <a th:if="${@reqData.admin}" href="#">주소록 보기</a>
+        <a th:if="${@reqData.login}" href="#">spark Basic(진행중)</a>
 </body>
 </html>
