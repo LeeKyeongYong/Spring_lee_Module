@@ -24,6 +24,8 @@ spring:
     cache: false
     mode: HTML5
     encoding: UTF-8
+  messages:
+    basename: messages  # 메시지 소스 설정
   profiles:
     active: prod
     include: secret
@@ -35,6 +37,7 @@ spring:
     virtual:
       enabled: true
   mvc:
+    static-path-pattern: /**
     hiddenmethod:
       filter:
         enabled: true
@@ -62,6 +65,12 @@ logging:
 
 
 custom:
+  resource:
+    version: ${spring.application.version}
+    paths:
+      - /css/**
+      - /js/**
+      - /images/**
   site:
     name: sleekydz86
     baseUrl: "http://localhost:${server.port}"

@@ -8,9 +8,8 @@ import org.springframework.http.MediaType
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
-import org.springframework.web.servlet.resource.PathResourceResolver  // WebMVC의 PathResourceResolver 사용
+import org.springframework.web.servlet.resource.PathResourceResolver
 import java.util.concurrent.TimeUnit
-import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.resource.VersionResourceResolver
 
 @Configuration
@@ -30,25 +29,29 @@ class WebConfig (
     }
 
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
-        registry.addResourceHandler("/css/**")
-            .addResourceLocations("classpath:/static/css/")
-            .setCachePeriod(3600)
+        // Global Resource 처리
+        registry.addResourceHandler("/global/**")
+            .addResourceLocations("classpath:/static/resource/global/")
+            .setCacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
             .resourceChain(true)
             .addResolver(VersionResourceResolver().addContentVersionStrategy("/**"))
             .addResolver(PathResourceResolver())
 
-        registry.addResourceHandler("/js/**")
-            .addResourceLocations("classpath:/static/js/")
-            .setCachePeriod(3600)
+        // Vendors Resource 처리
+        registry.addResourceHandler("/vendors/**")
+            .addResourceLocations("classpath:/static/resource/global/vendors/")
+            .setCacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
             .resourceChain(true)
             .addResolver(PathResourceResolver())
 
-        registry.addResourceHandler("/resource/**")
-            .addResourceLocations("classpath:/static/resource/")
+        // Images 처리
+        registry.addResourceHandler("/images/**")
+            .addResourceLocations("file:gen/images/", "classpath:/gen/images/")
             .setCacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
             .resourceChain(true)
-
+            .addResolver(PathResourceResolver())
     }
+
     @Bean
     fun resourceVersioning(): String = appVersion
 }
