@@ -161,6 +161,8 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.17.0")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("io.lettuce:lettuce-core")
+    implementation("org.apache.commons:commons-pool2")  // connection pooling 지원
 
     //log4j
     implementation("ch.qos.logback:logback-classic:1.4.11")  // logback 최신 버전 사용
