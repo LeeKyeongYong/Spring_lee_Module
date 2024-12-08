@@ -16,6 +16,26 @@
     <script src="/resource/global/js/websocket.js"></script>
     <script src="/resource/global/js/trade-service.js"></script>
     <script src="/resource/global/global.js"></script>
+    <script th:src="@{/resource/global/js/websocket.js}"></script>
+    <script th:src="@{/resource/global/js/trade-service.js}"></script>
+
+
+    <!-- Toast Grid -->
+    <script th:src="@{/resource/vendors/toast/tui-code-snippet/dist/tui-code-snippet.js}"></script>
+    <script th:src="@{/resource/vendors/toast/tui-pagination/dist/tui-pagination.js}"></script>
+    <script th:src="@{/resource/vendors/toast/tui-date-picker/dist/tui-date-picker.min.js}"></script>
+    <script th:src="@{/resource/vendors/toast/tui-time-picker/dist/tui-time-picker.min.js}"></script>
+    <script th:src="@{/resource/vendors/toast/tui-grid/dist/tui-grid.js}"></script>
+
+    <!-- Sweet Alert 2 -->
+    <script th:src="@{/resource/vendors/sweetalert2/dist/sweetalert2.all.min.js}"></script>
+
+    <!-- AmCharts -->
+    <script th:src="@{/resource/vendors/amcharts4/core.js}"></script>
+    <script th:src="@{/resource/vendors/amcharts4/charts.js}"></script>
+    <script th:src="@{/resource/vendors/amcharts4/themes/material.js}"></script>
+    <script th:src="@{/resource/vendors/amcharts4/themes/animated.js}"></script>
+
 
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>

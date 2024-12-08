@@ -6,6 +6,9 @@ import jakarta.validation.constraints.NotNull
 import java.math.BigDecimal
 
 data class OrderRequest(
+    @field:NotBlank(message = "사용자 ID는 필수입니다")
+    val userId: String,
+
     @field:NotBlank(message = "코인 코드는 필수입니다")
     val coinCode: String,
 

@@ -42,6 +42,7 @@ enum class MessageCode(val code: String, val message: String) {
     PAYMENT_CANCEL_FAILED("400-33", "결제 취소에 실패했습니다."),
     CASH_RECEIPT_ISSUANCE_FAILED("CASH_RECEIPT_001", "현금영수증 발급에 실패했습니다."),
     CASH_RECEIPT_ALREADY_ISSUED("CASH_002", "이미 발급된 현금영수증이 존재합니다."),
-    CASH_RECEIPT_NOT_FOUND("CASH_003", "현금영수증 정보를 찾을 수 없습니다.")
+    CASH_RECEIPT_NOT_FOUND("CASH_003", "현금영수증 정보를 찾을 수 없습니다."),
+    SYSTEM_ERROR("S001", "시스템 오류가 발생했습니다"),
 
 }
