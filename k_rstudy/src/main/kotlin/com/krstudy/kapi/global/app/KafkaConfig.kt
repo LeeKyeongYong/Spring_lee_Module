@@ -2,7 +2,9 @@ package com.krstudy.kapi.global.app
 
 import com.krstudy.kapi.domain.kafkaproducer.entity.WebLog
 import com.krstudy.kapi.domain.trade.event.OrderEvent
+import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
+import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -10,13 +12,14 @@ import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.*
 import org.springframework.kafka.listener.ContainerProperties
+import org.springframework.kafka.support.serializer.JsonDeserializer
 import org.springframework.kafka.support.serializer.JsonSerializer
-
 
 @Configuration
 @EnableKafka
 class KafkaConfig {
 
+    // Producer 설정
     @Bean
     fun orderProducerFactory(): ProducerFactory<String, OrderEvent> {
         val configProps = mapOf(
@@ -27,7 +30,6 @@ class KafkaConfig {
         return DefaultKafkaProducerFactory(configProps)
     }
 
-    // 기존의 파라미터가 있는 메서드는 제거하고 이 메서드만 남김
     @Bean
     fun orderKafkaTemplate(): KafkaTemplate<String, OrderEvent> {
         return KafkaTemplate(orderProducerFactory()).apply {
@@ -35,19 +37,36 @@ class KafkaConfig {
         }
     }
 
+    // Consumer 설정
     @Bean
-    fun orderKafkaListenerContainerFactory(
-        consumerFactory: ConsumerFactory<String, OrderEvent>
-    ): ConcurrentKafkaListenerContainerFactory<String, OrderEvent> {
+    fun orderConsumerFactory(): ConsumerFactory<String, OrderEvent> {
+        val props = mapOf(
+            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to "localhost:9092",
+            ConsumerConfig.GROUP_ID_CONFIG to "order-group",
+            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to JsonDeserializer::class.java,
+            // Trust packages 설정
+            JsonDeserializer.TRUSTED_PACKAGES to "*"
+        )
+        return DefaultKafkaConsumerFactory(
+            props,
+            StringDeserializer(),
+            JsonDeserializer(OrderEvent::class.java, false)
+        )
+    }
+
+    @Bean
+    fun orderKafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, OrderEvent> {
         return ConcurrentKafkaListenerContainerFactory<String, OrderEvent>().apply {
-            this.consumerFactory = consumerFactory
+            this.consumerFactory = orderConsumerFactory()
             setConcurrency(3)
             containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
         }
     }
 
+    // WebLog Producer 설정
     @Bean
-    fun webLogProducerFactory(): ProducerFactory<String, WebLog> {  // 이름 변경
+    fun webLogProducerFactory(): ProducerFactory<String, WebLog> {
         val configProps = mapOf(
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to "localhost:9092",
             ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
@@ -57,7 +76,33 @@ class KafkaConfig {
     }
 
     @Bean
-    fun webLogKafkaTemplate(): KafkaTemplate<String, WebLog> {  // 이름 변경
+    fun webLogKafkaTemplate(): KafkaTemplate<String, WebLog> {
         return KafkaTemplate(webLogProducerFactory())
+    }
+
+    // WebLog Consumer 설정
+    @Bean
+    fun webLogConsumerFactory(): ConsumerFactory<String, WebLog> {
+        val props = mapOf(
+            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to "localhost:9092",
+            ConsumerConfig.GROUP_ID_CONFIG to "weblog-group",
+            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to JsonDeserializer::class.java,
+            JsonDeserializer.TRUSTED_PACKAGES to "*"
+        )
+        return DefaultKafkaConsumerFactory(
+            props,
+            StringDeserializer(),
+            JsonDeserializer(WebLog::class.java, false)
+        )
+    }
+
+    @Bean
+    fun webLogKafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, WebLog> {
+        return ConcurrentKafkaListenerContainerFactory<String, WebLog>().apply {
+            this.consumerFactory = webLogConsumerFactory()
+            setConcurrency(3)
+            containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
+        }
     }
 }
