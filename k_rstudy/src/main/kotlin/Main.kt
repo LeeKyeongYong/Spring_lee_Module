@@ -9,11 +9,11 @@ import org.springframework.context.annotation.Primary
 import org.springframework.core.task.TaskExecutor
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
+import org.springframework.data.envers.repository.config.EnableEnversRepositories
 
 @SpringBootApplication
 @EnableJpaAuditing
-@EnableBatchProcessing
-//@ComponentScan(basePackages = ["com.krstudy.kapi"])
+@EnableEnversRepositories  // 수정된 부분
 class Main {
 
     @Bean
@@ -26,6 +26,7 @@ class Main {
         taskExecutor.initialize()
         return taskExecutor
     }
+
     @Bean
     fun allowCircularReferences(): SpringApplication {
         return SpringApplication().apply {

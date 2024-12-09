@@ -1,4 +1,6 @@
 spring:
+  main:
+    allow-bean-definition-overriding: true
   application:
     name: trade-service
     version: 1.0.0 # 애플리케이션 버전
@@ -63,6 +65,12 @@ spring:
         enabled: true
   jpa:
     properties:
+      org:
+        hibernate:
+          envers:
+            audit_table_suffix: _HISTORY
+            revision_field_name: REV
+            revision_type_field_name: REV_TYPE
       hibernate:
         default_batch_fetch_size: 100
         format_sql: true

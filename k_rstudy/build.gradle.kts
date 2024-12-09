@@ -1,5 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+buildscript {
+    dependencies {
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.24")
+    }
+}
+
 plugins {
     id("org.springframework.boot") version "3.3.1"
     id("io.spring.dependency-management") version "1.1.5"
@@ -31,20 +37,39 @@ kotlin.sourceSets.main {
 
 // KAPT 설정
 kapt {
+    keepJavacAnnotationProcessors = true
     correctErrorTypes = true
     arguments {
-        arg("querydsl.packageName", "com.krstudy.kapi.domain")
+        arg("querydsl.generatedAnnotationClass", "javax.annotation.Generated")
+        // 패키지명 수정
+        arg("querydsl.packageName", "com.krstudy.kapi")
     }
 }
 
 // QClass 생성 위치 설정
 idea {
     module {
-        val kaptMain = file("$buildDir/generated/source/kapt/main")
+        val kaptMain = file("build/generated/source/kapt/main")
         sourceDirs.add(kaptMain)
         generatedSourceDirs.add(kaptMain)
     }
 }
+
+// Clean 태스크 수정
+tasks.named("clean") {
+    doLast {
+        file("src/main/generated").deleteRecursively()
+    }
+}
+
+// QClass 생성 위치 설정
+//sourceSets {
+//    main {
+//        kotlin {
+//            srcDir("$buildDir/generated/source/kapt/main")
+//        }
+//    }
+//}
 
 configurations {
     compileOnly {
@@ -256,10 +281,22 @@ dependencies {
     //json
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("io.github.microutils:kotlin-logging")
-
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
+    implementation("org.springframework.data:spring-data-envers")
 
 }
+
+tasks.withType<JavaCompile> {
+    options.annotationProcessorPath = configurations.kapt.get()
+}
+
+//sourceSets {
+//    main {
+//        kotlin {
+//            srcDir("$buildDir/generated/source/kapt/main")
+//        }
+//    }
+//}
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {

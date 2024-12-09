@@ -18,27 +18,36 @@ import org.springframework.kafka.support.serializer.JsonSerializer
 class KafkaConfig {
 
     @Bean
-    fun orderKafkaTemplate(
-        producerFactory: ProducerFactory<String, OrderEvent>
-    ): KafkaTemplate<String, OrderEvent> {
-        return KafkaTemplate(producerFactory).apply {
+    fun orderProducerFactory(): ProducerFactory<String, OrderEvent> {
+        val configProps = mapOf(
+            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to "localhost:9092",
+            ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
+            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to JsonSerializer::class.java
+        )
+        return DefaultKafkaProducerFactory(configProps)
+    }
+
+    // 기존의 파라미터가 있는 메서드는 제거하고 이 메서드만 남김
+    @Bean
+    fun orderKafkaTemplate(): KafkaTemplate<String, OrderEvent> {
+        return KafkaTemplate(orderProducerFactory()).apply {
             defaultTopic = "order-events"
         }
     }
 
     @Bean
-    fun kafkaListenerContainerFactory(
+    fun orderKafkaListenerContainerFactory(
         consumerFactory: ConsumerFactory<String, OrderEvent>
     ): ConcurrentKafkaListenerContainerFactory<String, OrderEvent> {
         return ConcurrentKafkaListenerContainerFactory<String, OrderEvent>().apply {
             this.consumerFactory = consumerFactory
-            setConcurrency(3) // 컨슈머 스레드 수
+            setConcurrency(3)
             containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
         }
     }
 
     @Bean
-    fun producerFactory(): ProducerFactory<String, WebLog> {
+    fun webLogProducerFactory(): ProducerFactory<String, WebLog> {  // 이름 변경
         val configProps = mapOf(
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to "localhost:9092",
             ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
@@ -48,8 +57,7 @@ class KafkaConfig {
     }
 
     @Bean
-    fun kafkaTemplate(): KafkaTemplate<String, WebLog> {
-        return KafkaTemplate(producerFactory())
+    fun webLogKafkaTemplate(): KafkaTemplate<String, WebLog> {  // 이름 변경
+        return KafkaTemplate(webLogProducerFactory())
     }
-
 }

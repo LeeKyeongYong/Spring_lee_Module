@@ -104,5 +104,14 @@ interface OrderRepository : JpaRepository<CoinOrder, Long> {
     fun getLastTradePrice(
         @Param("coinCode") coinCode: String,
         pageable: Pageable
-    ): BigDecimal?
+    ): List<BigDecimal>  // BigDecimal -> List<BigDecimal>로 변경
+
+    @Query("""
+        SELECT o.price FROM CoinOrder o 
+        WHERE o.coinCode = :coinCode 
+        AND o.status = 'COMPLETED' 
+        ORDER BY o.createdAt DESC
+        LIMIT 1
+    """)
+    fun getLastTradePriceOne(@Param("coinCode") coinCode: String): BigDecimal?
 }

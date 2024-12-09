@@ -27,16 +27,15 @@ class CoinService(
     private val objectMapper = jacksonObjectMapper()
 
     @Transactional(readOnly = true)
-    suspend fun getAllCoins(): Flow<CoinDto> = withContext(Dispatchers.IO) {
-        flow {
-            try {
-                coinRepository.findAllByOrderByCodeAsc()
-                    .map { it.toDto() }
-                    .forEach { emit(it) }
-            } catch (e: Exception) {
-                logger.error("Error fetching coins: ${e.message}", e)
-                throw e
-            }
+    suspend fun getAllCoins(): Flow<CoinDto> = flow {
+        try {
+            coinRepository.findAllByOrderByCodeAsc()
+                .forEach { coin ->
+                    emit(coin.toDto())
+                }
+        } catch (e: Exception) {
+            logger.error("Error fetching all coins", e)
+            throw GlobalException(MessageCode.NOT_FOUND_RESOURCE)
         }
     }
 
@@ -44,50 +43,56 @@ class CoinService(
         val cacheKey = "hoga:$coinCode"
 
         try {
+            // 캐시에서 먼저 조회
             redisTemplate.opsForValue().get(cacheKey)?.let {
-                objectMapper.readValue(it.toString(), HogaDto::class.java)
-            } ?: marketDataClient.getHogaInfo(coinCode).also { hoga ->
-                redisTemplate.opsForValue().set(
-                    cacheKey,
-                    objectMapper.writeValueAsString(hoga),
-                    Duration.ofSeconds(1)
-                )
+                return@withContext objectMapper.readValue(it.toString(), HogaDto::class.java)
             }
+
+            // 캐시에 없으면 외부 API 호출
+            val hogaInfo = marketDataClient.getHogaInfo(coinCode)
+
+            // 캐시에 저장
+            redisTemplate.opsForValue().set(
+                cacheKey,
+                objectMapper.writeValueAsString(hogaInfo),
+                Duration.ofSeconds(1)
+            )
+
+            hogaInfo
         } catch (e: Exception) {
-            logger.error("Error fetching hoga info for $coinCode: ${e.message}", e)
-            throw e
+            logger.error("Error fetching hoga info for coin: $coinCode", e)
+            throw GlobalException(MessageCode.NOT_FOUND_RESOURCE)
         }
     }
 
     @Transactional(readOnly = true)
     suspend fun getCoinByCode(code: String): CoinDto = withContext(Dispatchers.IO) {
-        try {
-            // Redis 캐시 확인
-            val cacheKey = "coin:$code"
-            redisTemplate.opsForValue().get(cacheKey)?.let {
-                objectMapper.readValue(it.toString(), CoinDto::class.java)
-            } ?: run {
-                // DB에서 조회
-                val coin = coinRepository.findByCode(code)
-                    ?: throw GlobalException(MessageCode.NOT_FOUND_RESOURCE)
+        val cacheKey = "coin:$code"
 
-                // DTO 변환
-                coin.toDto().also { dto ->
-                    // Redis에 캐싱
-                    redisTemplate.opsForValue().set(
-                        cacheKey,
-                        objectMapper.writeValueAsString(dto),
-                        Duration.ofMinutes(5)
-                    )
-                }
+        try {
+            // 캐시에서 먼저 조회
+            redisTemplate.opsForValue().get(cacheKey)?.let {
+                return@withContext objectMapper.readValue(it.toString(), CoinDto::class.java)
+            }
+
+            // DB에서 조회
+            val coin = coinRepository.findByCode(code)
+                ?: throw GlobalException(MessageCode.NOT_FOUND_RESOURCE)
+
+            // DTO 변환 및 캐시 저장
+            coin.toDto().also { dto ->
+                redisTemplate.opsForValue().set(
+                    cacheKey,
+                    objectMapper.writeValueAsString(dto),
+                    Duration.ofMinutes(5)
+                )
             }
         } catch (e: Exception) {
-            logger.error("Error fetching coin by code $code: ${e.message}", e)
-            throw when (e) {
-                is GlobalException -> e
-                else -> GlobalException(MessageCode.NOT_FOUND_RESOURCE)
+            logger.error("Error fetching coin by code: $code", e)
+            when (e) {
+                is GlobalException -> throw e
+                else -> throw GlobalException(MessageCode.NOT_FOUND_RESOURCE)
             }
         }
     }
-
 }
