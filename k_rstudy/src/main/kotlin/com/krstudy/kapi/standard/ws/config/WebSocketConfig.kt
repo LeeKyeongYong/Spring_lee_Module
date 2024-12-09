@@ -18,13 +18,15 @@ class WebSocketConfig : WebSocketMessageBrokerConfigurer {
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
-        registry.addEndpoint("/ws/trade")
-            .setAllowedOriginPatterns("*")  // setAllowedOrigins -> setAllowedOriginPatterns
+        registry.addEndpoint("/ws/trade", "/ws/monitoring")  // 두 엔드포인트를 함께 등록
+            .setAllowedOriginPatterns("*")
             .withSockJS()
-            .setStreamBytesLimit(512 * 1024)    // 스트림 바이트 제한
-            .setHttpMessageCacheSize(1000)      // 메시지 캐시 크기
-            .setDisconnectDelay(30 * 1000)      // 연결 해제 지연
+            .setStreamBytesLimit(512 * 1024)
+            .setHttpMessageCacheSize(1000)
+            .setDisconnectDelay(30 * 1000)
     }
+
+
 
     override fun configureWebSocketTransport(registration: WebSocketTransportRegistration) {
         registration

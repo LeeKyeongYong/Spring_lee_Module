@@ -1,0 +1,221 @@
+<html layout:decorate="~{global/msgLayout}">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- moment.js -->
+    <script src="https://cdn.jsdelivr.net/npm/moment"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+
+    <th:block layout:fragment="style">
+        <style>
+            .container {
+                width: 90%;
+                margin: 20px auto;
+                padding: 20px;
+            }
+            .chart-container {
+                margin: 20px 0;
+                height: 400px;
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .search-form {
+                margin: 20px 0;
+                padding: 15px;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .search-form form {
+                display: flex;
+                gap: 15px;
+                align-items: center;
+            }
+            .search-form label {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            th, td {
+                padding: 12px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+            }
+            th {
+                background-color: #f8f9fa;
+                font-weight: 600;
+            }
+            tr:hover {
+                background-color: #f8f9fa;
+            }
+            button {
+                padding: 8px 16px;
+                background: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            button:hover {
+                background: #45a049;
+            }
+            .btn {
+                padding: 8px 16px;
+                background: #6c757d;
+                color: white;
+                text-decoration: none;
+                border-radius: 4px;
+                margin-left: 10px;
+            }
+            .btn:hover {
+                background: #5a6268;
+            }
+            input[type="datetime-local"] {
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-size: 14px;
+            }
+        </style>
+    </th:block>
+    <th:block layout:fragment="script-body">
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            // 서버에서 전달받은 데이터
+            const metrics = /*[[${metrics}]]*/ [];
+
+            // 차트 공통 옵션
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'minute',
+                            displayFormats: {
+                                minute: 'HH:mm:ss'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Percentage (%)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                }
+            };
+
+            // CPU 차트
+            new Chart(document.getElementById('cpuChart'), {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'CPU Usage (%)',
+                        data: metrics.map(m => ({
+                            x: new Date(m.timestamp),
+                            y: m.cpuUsage
+                        })),
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: chartOptions
+            });
+
+            // Memory 차트
+            new Chart(document.getElementById('memoryChart'), {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Memory Usage (%)',
+                        data: metrics.map(m => ({
+                            x: new Date(m.timestamp),
+                            y: (m.memoryUsed / m.memoryTotal) * 100
+                        })),
+                        borderColor: 'rgb(255, 99, 132)',
+                        tension: 0.1
+                    }]
+                },
+                options: chartOptions
+            });
+            /*]]>*/
+        </script>
+    </th:block>
+</head>
+<body>
+<div layout:fragment="content" class="container">
+    <h1>System Monitoring History</h1>
+
+    <div class="search-form">
+        <form th:action="@{/monitoring/history}" method="get">
+            <label>
+                Start Date:
+                <input type="datetime-local"
+                       name="startDate"
+                       th:value="${#temporals.format(param.startDate?:null, 'yyyy-MM-dd''T''HH:mm')}"
+                       required>
+            </label>
+            <label>
+                End Date:
+                <input type="datetime-local"
+                       name="endDate"
+                       th:value="${#temporals.format(param.endDate?:null, 'yyyy-MM-dd''T''HH:mm')}"
+                       required>
+            </label>
+            <button type="submit">Search</button>
+            <a th:href="@{/monitoring}" class="btn">Back to Dashboard</a>
+        </form>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="cpuChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="memoryChart"></canvas>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Timestamp</th>
+            <th>CPU Usage (%)</th>
+            <th>Memory Total (GB)</th>
+            <th>Memory Used (GB)</th>
+            <th>Memory Free (GB)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="metric : ${metrics}">
+            <td th:text="${#temporals.format(metric.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td th:text="${#numbers.formatDecimal(metric.cpuUsage, 1, 2)}"></td>
+            <td th:text="${#numbers.formatDecimal(metric.memoryTotal/1024/1024/1024, 1, 2)}"></td>
+            <td th:text="${#numbers.formatDecimal(metric.memoryUsed/1024/1024/1024, 1, 2)}"></td>
+            <td th:text="${#numbers.formatDecimal(metric.memoryFree/1024/1024/1024, 1, 2)}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

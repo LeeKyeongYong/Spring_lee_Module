@@ -1,10 +1,10 @@
 package com.krstudy.kapi.global.app
 
+import org.springframework.http.MediaType
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.CacheControl
-import org.springframework.http.MediaType
 import org.springframework.web.context.request.RequestContextListener
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
@@ -25,10 +25,10 @@ class WebConfig (
 
     override fun configureContentNegotiation(configurer: ContentNegotiationConfigurer) {
         configurer
-            .defaultContentType(MediaType.TEXT_HTML)  // 기본값을 HTML로 변경
+            .defaultContentType(MediaType.TEXT_HTML)
             .mediaType("html", MediaType.TEXT_HTML)
             .mediaType("json", MediaType.APPLICATION_JSON)
-            .mediaType("xml", MediaType.APPLICATION_XML)
+            .mediaType("js", MediaType("application", "javascript"))  // JavaScript MIME 타입 추가
             .ignoreAcceptHeader(false)
             .favorParameter(false)
     }

@@ -73,6 +73,9 @@ repositories {
     maven {
         url = uri("https://repo.spring.io/milestone")
     }
+    maven {
+        url = uri("https://mvnrepository.com/artifact/org.hyperic/sigar")
+    }
 }
 
 extra["snippetsDir"] = file("build/generated-snippets")
@@ -274,6 +277,14 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
     implementation("org.springframework.data:spring-data-envers")
+
+    implementation("com.github.oshi:oshi-core:6.4.0")
+
+    // Sigar 라이브러리 추가
+    implementation("org.hyperic:sigar:1.6.4")
+
+    // 필요한 경우 native 라이브러리도 추가
+    runtimeOnly("org.hyperic:sigar-native:1.6.4")
 
 }
 

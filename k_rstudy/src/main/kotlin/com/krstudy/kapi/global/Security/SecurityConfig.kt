@@ -91,6 +91,8 @@ class SecurityConfig(
                     .requestMatchers("/ws/**").permitAll()
                     .requestMatchers("/payments/success", "/payments/fail").permitAll()
                     .requestMatchers("/api/public/**").permitAll()
+                    .requestMatchers("/monitoring/**").authenticated()
+                    .requestMatchers("/monitoring/history/**").authenticated()
 
                     // 마지막에 한 번만 설정
                     .anyRequest().permitAll()
