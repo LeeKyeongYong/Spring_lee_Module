@@ -12,11 +12,24 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
 class WebSocketConfig : WebSocketMessageBrokerConfigurer {
 
     override fun configureMessageBroker(config: MessageBrokerRegistry) {
-        config.enableSimpleBroker("/topic") // 구독 prefix
-        config.setApplicationDestinationPrefixes("/app") // 메시지 발행 prefix
+        config.enableSimpleBroker("/topic", "/queue", "/user") // /user 추가
+        config.setApplicationDestinationPrefixes("/app")
+        config.setUserDestinationPrefix("/user") // 개인화된 메시지를 위한 prefix 추가
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
-        registry.addEndpoint("/ws").withSockJS()
+        registry.addEndpoint("/ws/trade")
+            .setAllowedOriginPatterns("*")  // setAllowedOrigins -> setAllowedOriginPatterns
+            .withSockJS()
+            .setStreamBytesLimit(512 * 1024)    // 스트림 바이트 제한
+            .setHttpMessageCacheSize(1000)      // 메시지 캐시 크기
+            .setDisconnectDelay(30 * 1000)      // 연결 해제 지연
+    }
+
+    override fun configureWebSocketTransport(registration: WebSocketTransportRegistration) {
+        registration
+            .setMessageSizeLimit(128 * 1024)     // 메시지 크기 제한 128KB
+            .setSendBufferSizeLimit(512 * 1024)  // 버퍼 크기 제한 512KB
+            .setSendTimeLimit(20 * 1000)         // 전송 시간 제한 20초
     }
 }

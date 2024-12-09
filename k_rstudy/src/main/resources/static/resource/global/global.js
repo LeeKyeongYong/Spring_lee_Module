@@ -55,21 +55,28 @@ function toastWarning(msg) {
 }
 
 /* 유틸, URL */
-function getUrlParams(urlString) {
-    // 평문 쿼리 문자열을 추출.
-    const url = new URL(urlString);
-    // URL의 쿼리 문자열 이후로 모든 키와 값을 디코딩.
-    const queryParams = new URLSearchParams(url.search);
-    // 객체를 만듬
-    const params = {};
-
-    for (let [key, value] of queryParams.entries()) {
-        // 객체에 키와 값을 추가
-        params[key] = value;
-    }
-
+function getUrlParams(url) {
+    let params = {};
+    url.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(str, key, value) {
+        params[key] = decodeURIComponent(value);
+    });
     return params;
 }
+// function getUrlParams(urlString) {
+//     // 평문 쿼리 문자열을 추출.
+//     const url = new URL(urlString);
+//     // URL의 쿼리 문자열 이후로 모든 키와 값을 디코딩.
+//     const queryParams = new URLSearchParams(url.search);
+//     // 객체를 만듬
+//     const params = {};
+//
+//     for (let [key, value] of queryParams.entries()) {
+//         // 객체에 키와 값을 추가
+//         params[key] = value;
+//     }
+//
+//     return params;
+// }
 
 $(function () {
     $('select[value]').each(function (index, el) {

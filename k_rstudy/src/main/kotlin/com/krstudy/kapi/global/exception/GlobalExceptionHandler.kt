@@ -56,10 +56,15 @@ class GlobalExceptionHandler (private val rq: ReqData){
 
     // 개발자가 명시적으로 발생시킨 예외처리
     @ExceptionHandler(GlobalException::class)
-    @ResponseStatus // 참고로 이 코드의 역할은 error 내용의 스키마를 타입스크립트화 하는데 있다.
     fun handle(ex: GlobalException): ResponseEntity<RespData<Empty>> {
-        val status = HttpStatus.valueOf(ex.rsData.statusCode)
-        rq.setStatusCode(ex.rsData.statusCode)
+        val statusCode = try {
+            ex.rsData.statusCode.takeIf { it > 0 } ?: 500
+        } catch (e: Exception) {
+            500
+        }
+
+        val status = HttpStatus.valueOf(statusCode)
+        rq.setStatusCode(statusCode)
 
         return ResponseEntity(ex.rsData, status)
     }
@@ -72,6 +77,12 @@ class GlobalExceptionHandler (private val rq: ReqData){
     @ExceptionHandler(NoHandlerFoundException::class)
     fun handleNotFound(): ModelAndView {
         return ModelAndView("redirect:/") // 루트 페이지로 리디렉션
+    }
+
+    // 추가: HTML 요청에 대한 예외 처리
+    @ExceptionHandler(Exception::class)
+    fun handleHtmlException(ex: Exception): String {
+        return "redirect:/"  // 에러 페이지 템플릿 경로
     }
 
 }

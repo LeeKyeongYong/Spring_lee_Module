@@ -46,7 +46,8 @@ class ApiCoinController(
                     coinsList.forEach { emit(it) }
                 }
             } else {
-                coinService.getAllCoins().also { coinsFlow ->
+                // getAllCoinsAsFlow() 메서드 사용
+                coinService.getAllCoinsAsFlow().also { coinsFlow ->
                     // Flow를 List로 변환하여 캐시
                     val coinsList = coinsFlow.toList()
                     redisTemplate.opsForValue().set(

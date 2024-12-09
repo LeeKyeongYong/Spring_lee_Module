@@ -1,120 +1,132 @@
-class TradeService {
+class TradeWebSocket {
     constructor() {
-        this.webSocket = new TradeWebSocket();
-        this.currentCoin = null;
-        this.initializeEventListeners();
+        this.socket = null;
+        this.subscribers = new Map();
+        this.reconnectAttempts = 0;
+        this.maxReconnectAttempts = 5;
+        this.reconnectInterval = 3000;
+        this.isConnecting = false;
+        this.connect();
     }
 
-    initializeEventListeners() {
-        // 코인 선택 이벤트
-        document.querySelectorAll('.coin-select').forEach(element => {
-            element.addEventListener('click', (e) => {
-                const coinCode = e.target.dataset.coinCode;
-                this.selectCoin(coinCode);
-            });
-        });
+    connect() {
+        if (this.isConnecting) return;
 
-        // 주문 폼 제출 이벤트
-        const buyForm = document.querySelector('#buyForm');
-        if (buyForm) {
-            buyForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.submitBuyOrder(new FormData(buyForm));
-            });
-        }
+        this.isConnecting = true;
+        const wsUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws/trade`;
 
-        // 가격/수량 입력 시 총액 자동 계산
-        const priceInput = document.querySelector('.price-input');
-        const quantityInput = document.querySelector('.quantity-input');
-        const totalInput = document.querySelector('[data-bind="total"]');
-
-        if (priceInput && quantityInput && totalInput) {
-            const calculateTotal = () => {
-                const price = parseFloat(priceInput.value) || 0;
-                const quantity = parseFloat(quantityInput.value) || 0;
-                totalInput.value = (price * quantity).toLocaleString();
-            };
-
-            priceInput.addEventListener('input', calculateTotal);
-            quantityInput.addEventListener('input', calculateTotal);
-        }
-    }
-
-    selectCoin(coinCode) {
-        // 이전 구독 해제
-        if (this.currentCoin) {
-            this.webSocket.unsubscribe(this.currentCoin);
-        }
-
-        this.currentCoin = coinCode;
-
-        // 새로운 코인 정보 구독
-        this.webSocket.subscribe(coinCode, (hogaData) => {
-            this.updateHogaDisplay(hogaData);
-        });
-
-        // 코인 정보 업데이트
-        fetch(`/api/v1/coins/${coinCode}`)
-            .then(response => response.json())
-            .then(coinInfo => {
-                this.updateCoinInfo(coinInfo);
-            });
-    }
-
-    updateHogaDisplay(hogaData) {
-        const hogaList = document.querySelector('#hogaList tbody');
-        if (!hogaList) return;
-
-        // 호가 데이터 업데이트
-        hogaList.innerHTML = hogaData.map(hoga => `
-            <tr class="${hoga.type === 'SELL' ? 'sell' : 'buy'}">
-                <td class="price">${hoga.price.toLocaleString()}</td>
-                <td class="quantity">${hoga.quantity.toLocaleString()}</td>
-            </tr>
-        `).join('');
-    }
-
-    async submitBuyOrder(formData) {
         try {
-            const response = await fetch('/api/v1/orders/buy', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(Object.fromEntries(formData))
-            });
+            this.socket = new SockJS('/ws/trade');
+            this.stompClient = Stomp.over(this.socket);
 
-            if (!response.ok) {
-                throw new Error('주문 처리 실패');
-            }
-
-            const result = await response.json();
-            this.showOrderResult(result);
+            // STOMP 클라이언트 설정
+            this.stompClient.connect(
+                {},
+                () => this.onConnect(),
+                error => this.onError(error),
+                () => this.onClose()
+            );
         } catch (error) {
-            this.showError(error.message);
+            console.error('WebSocket 연결 실패:', error);
+            this.handleReconnect();
         }
     }
 
-    showOrderResult(result) {
-        // Sweet Alert2를 사용한 결과 표시
-        Swal.fire({
-            icon: 'success',
-            title: '주문이 접수되었습니다',
-            text: `주문번호: ${result.orderId}`,
-            timer: 2000
+    onConnect() {
+        console.log('WebSocket 연결 성공');
+        this.isConnecting = false;
+        this.reconnectAttempts = 0;
+
+        // 기존 구독 복구
+        this.subscribers.forEach((callback, coinCode) => {
+            this.subscribeToCoin(coinCode);
         });
     }
 
-    showError(message) {
+    onError(error) {
+        console.error('WebSocket 에러:', error);
+        this.handleReconnect();
+    }
+
+    onClose() {
+        console.log('WebSocket 연결 종료');
+        this.handleReconnect();
+    }
+
+    handleReconnect() {
+        if (this.reconnectAttempts < this.maxReconnectAttempts) {
+            this.reconnectAttempts++;
+            console.log(`재연결 시도 ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
+            setTimeout(() => {
+                this.isConnecting = false;
+                this.connect();
+            }, this.reconnectInterval);
+        } else {
+            this.handleMaxReconnectError();
+        }
+    }
+
+    handleMaxReconnectError() {
         Swal.fire({
             icon: 'error',
-            title: '오류',
-            text: message
+            title: '연결 오류',
+            text: '서버와의 연결이 끊어졌습니다. 페이지를 새로고침해주세요.',
+            confirmButtonText: '새로고침',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.reload();
+            }
         });
     }
-}
 
-// 페이지 로드 시 TradeService 인스턴스 생성
-document.addEventListener('DOMContentLoaded', () => {
-    window.tradeService = new TradeService();
-});
+    subscribe(coinCode, callback) {
+        if (!coinCode || typeof callback !== 'function') {
+            console.error('Invalid subscription parameters');
+            return;
+        }
+
+        this.subscribers.set(coinCode, callback);
+
+        if (this.stompClient && this.stompClient.connected) {
+            this.subscribeToCoin(coinCode);
+        }
+    }
+
+    subscribeToCoin(coinCode) {
+        if (!this.stompClient || !this.stompClient.connected) {
+            console.error('STOMP client is not connected');
+            return;
+        }
+
+        this.stompClient.subscribe(`/topic/coin/${coinCode}`, message => {
+            try {
+                const data = JSON.parse(message.body);
+                const callback = this.subscribers.get(coinCode);
+                if (callback) callback(data);
+            } catch (error) {
+                console.error('Message parsing error:', error);
+            }
+        });
+    }
+
+    unsubscribe(coinCode) {
+        if (!coinCode) return;
+
+        this.subscribers.delete(coinCode);
+        if (this.stompClient && this.stompClient.connected) {
+            this.stompClient.unsubscribe(`/topic/coin/${coinCode}`);
+        }
+    }
+
+    disconnect() {
+        if (this.stompClient) {
+            this.stompClient.disconnect();
+            this.stompClient = null;
+        }
+        if (this.socket) {
+            this.socket.close();
+            this.socket = null;
+        }
+        this.subscribers.clear();
+    }
+}

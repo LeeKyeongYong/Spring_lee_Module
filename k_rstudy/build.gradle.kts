@@ -62,15 +62,6 @@ tasks.named("clean") {
     }
 }
 
-// QClass 생성 위치 설정
-//sourceSets {
-//    main {
-//        kotlin {
-//            srcDir("$buildDir/generated/source/kapt/main")
-//        }
-//    }
-//}
-
 configurations {
     compileOnly {
         extendsFrom(configurations.annotationProcessor.get())
@@ -289,14 +280,6 @@ dependencies {
 tasks.withType<JavaCompile> {
     options.annotationProcessorPath = configurations.kapt.get()
 }
-
-//sourceSets {
-//    main {
-//        kotlin {
-//            srcDir("$buildDir/generated/source/kapt/main")
-//        }
-//    }
-//}
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {

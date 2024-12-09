@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.CacheControl
 import org.springframework.http.MediaType
+import org.springframework.web.context.request.RequestContextListener
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
@@ -17,36 +18,43 @@ class WebConfig (
     @Value("\${spring.application.version}") private val appVersion: String
 ): WebMvcConfigurer {
 
+    @Bean
+    fun requestContextListener(): RequestContextListener {
+        return RequestContextListener()
+    }
+
     override fun configureContentNegotiation(configurer: ContentNegotiationConfigurer) {
         configurer
-            .defaultContentType(MediaType.APPLICATION_JSON)
-            .favorParameter(true)
-            .parameterName("mediaType")
-            .ignoreAcceptHeader(false)
-            .useRegisteredExtensionsOnly(false)
+            .defaultContentType(MediaType.TEXT_HTML)  // 기본값을 HTML로 변경
+            .mediaType("html", MediaType.TEXT_HTML)
             .mediaType("json", MediaType.APPLICATION_JSON)
             .mediaType("xml", MediaType.APPLICATION_XML)
+            .ignoreAcceptHeader(false)
+            .favorParameter(false)
     }
 
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
-        // Global Resource 처리
-        registry.addResourceHandler("/global/**")
-            .addResourceLocations("classpath:/static/resource/global/")
+        registry.addResourceHandler("/resource/**")
+            .addResourceLocations("classpath:/static/resource/")
             .setCacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
             .resourceChain(true)
             .addResolver(VersionResourceResolver().addContentVersionStrategy("/**"))
             .addResolver(PathResourceResolver())
 
-        // Vendors Resource 처리
-        registry.addResourceHandler("/vendors/**")
-            .addResourceLocations("classpath:/static/resource/global/vendors/")
+        registry.addResourceHandler("/static/**")
+            .addResourceLocations("classpath:/static/")
             .setCacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
             .resourceChain(true)
             .addResolver(PathResourceResolver())
 
-        // Images 처리
         registry.addResourceHandler("/images/**")
-            .addResourceLocations("file:gen/images/", "classpath:/gen/images/")
+            .addResourceLocations("file:gen/images/", "classpath:/static/images/")
+            .setCacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
+            .resourceChain(true)
+            .addResolver(PathResourceResolver())
+
+        registry.addResourceHandler("/templates/**")
+            .addResourceLocations("classpath:/templates/")
             .setCacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
             .resourceChain(true)
             .addResolver(PathResourceResolver())

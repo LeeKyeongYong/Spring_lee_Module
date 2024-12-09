@@ -25,27 +25,22 @@ spring:
   thymeleaf:
     prefix: classpath:/templates/
     suffix: .html
-    cache: false
-    mode: HTML5
+    mode: HTML
     encoding: UTF-8
+    cache: false
+    check-template-location: true
 
   web:
     resources:
       static-locations:
         - classpath:/static/
-        - classpath:/static/resource/
+        - classpath:/templates/
         - file:gen/
-      cache:
-        period: 3600
       chain:
         strategy:
           content:
             enabled: true
-            paths:
-              - /global/**/*.css
-              - /global/**/*.js
-              - /vendors/**
-              - /images/**
+            paths: /**
   messages:
     basename: messages  # 메시지 소스 설정
   profiles:
@@ -59,7 +54,13 @@ spring:
     virtual:
       enabled: true
   mvc:
-    static-path-pattern: /**
+    async:
+      request-timeout: 30000
+    contentnegotiation:
+      favor-parameter: true
+      media-types:
+        html: text/html
+    static-path-pattern: /**  # 변경
     hiddenmethod:
       filter:
         enabled: true

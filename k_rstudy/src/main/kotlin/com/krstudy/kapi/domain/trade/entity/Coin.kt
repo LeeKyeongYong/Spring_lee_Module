@@ -7,11 +7,16 @@ import java.math.BigDecimal
 import org.hibernate.envers.Audited
 
 @Entity
-@Table(name = "coins")
+@Table(
+    name = "coins",
+    indexes = [
+        Index(name = "uk_coins_code", columnList = "code", unique = true)
+    ]
+)
 @Audited  // Envers 감사 기능 활성화
 class Coin(
 
-    @Column(name = "code", length = 20, nullable = false)
+    @Column(name = "code", length = 20, nullable = false, unique = true)
     val code: String,
 
     @Column(name = "name", nullable = false)

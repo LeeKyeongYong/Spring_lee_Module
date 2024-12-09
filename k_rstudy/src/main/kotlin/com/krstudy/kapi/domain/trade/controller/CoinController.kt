@@ -9,32 +9,42 @@ import com.krstudy.kapi.global.exception.GlobalException
 import com.krstudy.kapi.global.exception.MessageCode
 import org.springframework.data.redis.core.RedisTemplate
 import org.slf4j.LoggerFactory
-import org.slf4j.Logger
+import org.springframework.web.bind.annotation.RequestMapping
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
 
 @Controller
+@RequestMapping("/trade")
 class CoinController(
     private val rq: ReqData,
     private val coinService: CoinService,
     private val redisTemplate: RedisTemplate<String, Any>
-
 ) {
+    init {
+        logger.info("CoinController initialized")
+    }
 
     @GetMapping("/service")
     suspend fun tradeService(): String {
-        val member = rq.getMember() ?: throw GlobalException(MessageCode.UNAUTHORIZED)
+        logger.info("거래 서비스 엔드포인트 접근")
 
         try {
-            // 현재 선택된 코인 정보 가져오기
-            val coinCode = redisTemplate.opsForValue()
-                .get("coin:${member.userid}:code")?.toString() ?: "BTC"
+            // 메인 스레드에서 request scope 빈 접근
+            val member = rq.getMember() ?: throw GlobalException(MessageCode.UNAUTHORIZED)
 
-            // 코인 정보 조회
-            val coin = coinService.getCoinByCode(coinCode)
+            // IO 작업은 IO 디스패처에서 수행
+            val (coin, hogaInfo) = withContext(Dispatchers.IO) {
+                val coinCode = redisTemplate.opsForValue()
+                    .get("coin:${member.userid}:code")?.toString() ?: "BTC"
 
-            // 호가 정보 조회
-            val hogaInfo = coinService.getHogaInfo(coinCode)
+                val coin = coinService.getCoinByCode(coinCode)
+                val hogaInfo = coinService.getHogaInfo(coinCode)
 
-            // 주문 폼 객체 생성
+                Pair(coin, hogaInfo)
+            }
+
+            // 다시 메인 스레드에서 request scope 작업 수행
             val buyOrder = OrderForm(
                 coinName = coin.name,
                 price = null,
@@ -42,7 +52,6 @@ class CoinController(
                 total = null
             )
 
-            // 모델에 데이터 추가
             rq.setAttribute("member", member)
             rq.setAttribute("coin", coin)
             rq.setAttribute("hogaList", hogaInfo)
@@ -51,7 +60,7 @@ class CoinController(
             return "domain/dashboard/tradeService"
 
         } catch (e: Exception) {
-            logger.error("Error in trade service: ${e.message}", e)
+            logger.error("거래 서비스 오류: ${e.message}", e)
             throw when (e) {
                 is GlobalException -> e
                 else -> GlobalException(MessageCode.SYSTEM_ERROR)
@@ -62,5 +71,4 @@ class CoinController(
     companion object {
         private val logger = LoggerFactory.getLogger(CoinController::class.java)
     }
-
 }

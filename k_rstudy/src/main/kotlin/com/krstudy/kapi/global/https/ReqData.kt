@@ -3,29 +3,32 @@ package com.krstudy.kapi.global.https
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.global.Security.SecurityUser
 import com.krstudy.kapi.global.app.AppConfig
-import com.krstudy.kapi.standard.base.Ut
 import jakarta.persistence.EntityManager
-import jakarta.persistence.EntityNotFoundException
 import jakarta.persistence.PersistenceContext
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import lombok.RequiredArgsConstructor
 import org.springframework.http.ResponseCookie
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
+import org.springframework.web.context.request.RequestContextHolder
+import org.springframework.web.context.request.ServletRequestAttributes
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.Optional
 
 @Component
 @RequestScope
-@RequiredArgsConstructor
 class ReqData(
-    private val req: HttpServletRequest,
     private val resp: HttpServletResponse
 ) {
+    private val req: HttpServletRequest
+        get() = (RequestContextHolder.getRequestAttributes() as ServletRequestAttributes).request
+
     @PersistenceContext
     private lateinit var entityManager: EntityManager
     private var user: SecurityUser? = null
@@ -116,7 +119,6 @@ class ReqData(
         if (isLogout()) return null
 
         if (member == null) {
-            // Member 객체를 가져온다
             member = entityManager.getReference(Member::class.java, getUser()?.id)
         }
 
@@ -130,7 +132,7 @@ class ReqData(
             isAdmin = getUser()?.authorities?.any { it.authority == "ROLE_ADMIN" } ?: false
         }
 
-        return getMember()?.isAdmin ?: false
+        return member?.isAdmin ?: false
     }
 
     fun isLogout(): Boolean {

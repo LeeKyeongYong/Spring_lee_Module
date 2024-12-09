@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.krstudy.kapi.com.krstudy.kapi.domain.trade.client.MarketDataClient
 import com.krstudy.kapi.domain.trade.dto.CoinDto
 import com.krstudy.kapi.domain.trade.dto.HogaDto
+import com.krstudy.kapi.domain.trade.entity.Coin
 import com.krstudy.kapi.domain.trade.repository.CoinRepository
 import com.krstudy.kapi.global.exception.GlobalException
 import com.krstudy.kapi.global.exception.MessageCode
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
+import java.math.BigDecimal
 
 @Service
 class CoinService(
@@ -26,8 +28,9 @@ class CoinService(
     private val logger = LoggerFactory.getLogger(this::class.java)
     private val objectMapper = jacksonObjectMapper()
 
+    // Flow를 반환하는 메서드 (DTO 반환)
     @Transactional(readOnly = true)
-    suspend fun getAllCoins(): Flow<CoinDto> = flow {
+    suspend fun getAllCoinsAsFlow(): Flow<CoinDto> = flow {
         try {
             coinRepository.findAllByOrderByCodeAsc()
                 .forEach { coin ->
@@ -36,6 +39,17 @@ class CoinService(
         } catch (e: Exception) {
             logger.error("Error fetching all coins", e)
             throw GlobalException(MessageCode.NOT_FOUND_RESOURCE)
+        }
+    }
+
+    // List를 반환하는 메서드 (Entity 반환)
+    @Transactional(readOnly = true)
+    suspend fun getAllCoins(): List<Coin> = withContext(Dispatchers.IO) {
+        try {
+            coinRepository.findAll()
+        } catch (e: Exception) {
+            logger.error("Error fetching all coins", e)
+            throw GlobalException(MessageCode.SYSTEM_ERROR)
         }
     }
 
@@ -66,33 +80,31 @@ class CoinService(
     }
 
     @Transactional(readOnly = true)
-    suspend fun getCoinByCode(code: String): CoinDto = withContext(Dispatchers.IO) {
-        val cacheKey = "coin:$code"
-
+    suspend fun getCoinByCode(code: String): Coin = withContext(Dispatchers.IO) {
         try {
-            // 캐시에서 먼저 조회
-            redisTemplate.opsForValue().get(cacheKey)?.let {
-                return@withContext objectMapper.readValue(it.toString(), CoinDto::class.java)
-            }
-
-            // DB에서 조회
-            val coin = coinRepository.findByCode(code)
-                ?: throw GlobalException(MessageCode.NOT_FOUND_RESOURCE)
-
-            // DTO 변환 및 캐시 저장
-            coin.toDto().also { dto ->
-                redisTemplate.opsForValue().set(
-                    cacheKey,
-                    objectMapper.writeValueAsString(dto),
-                    Duration.ofMinutes(5)
-                )
-            }
+            // findById 대신 findByCode 사용
+            coinRepository.findByCode(code)?.let { coin ->
+                return@withContext coin
+            } ?: throw GlobalException(MessageCode.NOT_FOUND_RESOURCE)
         } catch (e: Exception) {
             logger.error("Error fetching coin by code: $code", e)
             when (e) {
                 is GlobalException -> throw e
-                else -> throw GlobalException(MessageCode.NOT_FOUND_RESOURCE)
+                else -> throw GlobalException(MessageCode.SYSTEM_ERROR)
             }
+        }
+    }
+
+    // 코인 정보 업데이트
+    @Transactional
+    suspend fun updateCoinPrice(code: String, newPrice: BigDecimal) = withContext(Dispatchers.IO) {
+        try {
+            val coin = getCoinByCode(code)
+            coin.currentPrice = newPrice
+            coinRepository.save(coin)
+        } catch (e: Exception) {
+            logger.error("Error updating coin price: $code", e)
+            throw GlobalException(MessageCode.SYSTEM_ERROR)
         }
     }
 }

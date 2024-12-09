@@ -60,33 +60,39 @@ class SecurityConfig(
         http
             .authorizeHttpRequests { authorizeRequests ->
                 authorizeRequests
-                    // 기존 권한 설정
+                    // 관리자 권한
                     .requestMatchers("/adm/**").hasAuthority("ROLE_ADMIN")
                     .requestMatchers("/api/banners/**").hasAuthority("ROLE_ADMIN")
-                    .requestMatchers("/resource/**").permitAll()
-                    .requestMatchers("/v1/qrcode/**").permitAll()
-                    .requestMatchers("/api/**").permitAll()
-                    .requestMatchers("/v1/**").authenticated()
-                    .requestMatchers("/login/oauth2/**").permitAll()
-                    .requestMatchers("/member/login").anonymous()
-                    .requestMatchers("/member/join").hasAnyRole("ADMIN")
-                    .requestMatchers("/image/**").permitAll()
-                    .requestMatchers("/api/messages/**").authenticated()
-                    .requestMatchers(HttpMethod.GET, "/api/v1/chat/rooms").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/v1/chat/rooms").authenticated()
-                    .requestMatchers(HttpMethod.GET, "/chat/rooms").permitAll()
-                    .requestMatchers("/chat/rooms/**").permitAll()
-
-                    .requestMatchers("/payments/success", "/payments/fail").permitAll()
-                    .requestMatchers("/api/v1/payments/**").authenticated()
-
-
-                    // 팝업 관련 권한 설정 추가
-                    .requestMatchers("/api/public/**").permitAll()
                     .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                     .requestMatchers("/api/admin/popups/**").hasAuthority("ROLE_ADMIN")
                     .requestMatchers("/api/admin/popup-templates/**").hasAuthority("ROLE_ADMIN")
 
+                    // 인증 필요
+                    .requestMatchers("/v1/**").authenticated()
+                    .requestMatchers("/api/messages/**").authenticated()
+                    .requestMatchers("/api/v1/payments/**").authenticated()
+                    .requestMatchers("/trade/**").authenticated()
+                    .requestMatchers(HttpMethod.POST, "/api/v1/chat/rooms").authenticated()
+
+                    // 익명 사용자만
+                    .requestMatchers("/member/login").anonymous()
+
+                    // 특정 역할
+                    .requestMatchers("/member/join").hasAnyRole("ADMIN")
+
+                    // 모든 사용자 허용
+                    .requestMatchers("/resource/**").permitAll()
+                    .requestMatchers("/v1/qrcode/**").permitAll()
+                    .requestMatchers("/api/**").permitAll()
+                    .requestMatchers("/login/oauth2/**").permitAll()
+                    .requestMatchers("/image/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/chat/rooms").permitAll()
+                    .requestMatchers("/chat/rooms/**").permitAll()
+                    .requestMatchers("/ws/**").permitAll()
+                    .requestMatchers("/payments/success", "/payments/fail").permitAll()
+                    .requestMatchers("/api/public/**").permitAll()
+
+                    // 마지막에 한 번만 설정
                     .anyRequest().permitAll()
             }
             .headers { headers ->
