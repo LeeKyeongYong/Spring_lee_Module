@@ -7,6 +7,8 @@ import com.krstudy.kapi.domain.member.datas.M_Role
 import com.krstudy.kapi.domain.member.datas.RegistrationData
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.repository.MemberRepository
+import com.krstudy.kapi.domain.passwd.dto.MemberSearchDto
+import com.krstudy.kapi.domain.passwd.service.PasswordChangeHistoryService
 import com.krstudy.kapi.domain.post.repository.PostRepository
 import com.krstudy.kapi.domain.post.repository.PostlikeRepository
 import com.krstudy.kapi.global.Security.SecurityUser
@@ -32,6 +34,8 @@ import java.util.*
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.support.TransactionTemplate
 import org.slf4j.Logger
+import org.springframework.web.multipart.MultipartFile
+import java.util.function.Predicate
 
 
 @Service
@@ -44,7 +48,8 @@ class MemberService(
     private val postlikeRepository: PostlikeRepository,
     private val authTokenService: AuthTokenService,
     private val jwtTokenProvider: JwtTokenProvider,
-    private val transactionManager: PlatformTransactionManager
+    private val transactionManager: PlatformTransactionManager,
+    private val passwordChangeHistoryService: PasswordChangeHistoryService
 ) {
 
     @PersistenceContext
@@ -338,6 +343,65 @@ class MemberService(
             val updatedMember = memberRepository.save(member)
             entityManager.flush()
             updatedMember
+        }
+    }
+
+    @Transactional
+    fun changePassword(
+        memberId: Long,
+        currentPassword: String,
+        newPassword: String,
+        changeReason: String,
+        signature: MultipartFile?
+    ) {
+        val member = memberRepository.findById(memberId)
+            .orElseThrow { IllegalArgumentException("회원을 찾을 수 없습니다") }
+
+        if (!passwordEncoder.matches(currentPassword, member.password)) {
+            throw IllegalArgumentException("현재 비밀번호가 일치하지 않습니다")
+        }
+
+        member.password = passwordEncoder.encode(newPassword)
+        memberRepository.save(member)
+
+        passwordChangeHistoryService.savePasswordChangeHistory(
+            member = member,
+            changeReason = changeReason,
+            signature = signature
+        )
+    }
+
+    fun searchMembers(searchDto: MemberSearchDto): List<Member> {
+        return memberRepository.findAll { root, query, cb ->
+            val predicates = mutableListOf<Predicate>()
+
+            searchDto.username?.let {
+                predicates.add(cb.like(root.get("username"), "%$it%"))
+            }
+
+            searchDto.fromDate?.let { fromDate ->
+                predicates.add(cb.greaterThanOrEqualTo(
+                    root.get("createDate"),
+                    fromDate.atStartOfDay()
+                ))
+            }
+
+            searchDto.toDate?.let { toDate ->
+                predicates.add(cb.lessThanOrEqualTo(
+                    root.get("createDate"),
+                    toDate.plusDays(1).atStartOfDay()
+                ))
+            }
+
+            searchDto.roleType?.let {
+                predicates.add(cb.equal(root.get<String>("roleType"), it))
+            }
+
+            searchDto.useYn?.let {
+                predicates.add(cb.equal(root.get<String>("useYn"), it))
+            }
+
+            cb.and(*predicates.toTypedArray())
         }
     }
 

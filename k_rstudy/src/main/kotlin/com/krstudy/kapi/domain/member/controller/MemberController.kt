@@ -6,6 +6,8 @@ import com.krstudy.kapi.domain.member.datas.JoinForm
 import com.krstudy.kapi.domain.member.datas.RegistrationQueue
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.service.MemberService
+import com.krstudy.kapi.domain.passwd.dto.PasswordChangeDto
+import com.krstudy.kapi.domain.passwd.service.PasswordChangeHistoryService
 import com.krstudy.kapi.global.https.ReqData
 import com.krstudy.kapi.global.lgexecution.LogExecutionTime
 import com.krstudy.kapi.standard.base.MemberPdfView
@@ -45,7 +47,8 @@ class MemberController(
     private val rq: ReqData, // 요청 데이터에 대한 의존성 주입
     private val registrationQueue: RegistrationQueue, // 가입 요청 큐에 대한 의존성 주입
     private val passwordEncoder: PasswordEncoder, // 비밀번호 인코더 주입
-    private val emailService: EmailService
+    private val emailService: EmailService,
+    private val passwordChangeHistoryService: PasswordChangeHistoryService
 ) {
 
     @Value("\${spring.mail.username}")
@@ -260,5 +263,43 @@ class MemberController(
         return Base64.getUrlEncoder().encodeToString(path.toByteArray(StandardCharsets.UTF_8))
     }
 
+    @GetMapping("/myinfo")
+    fun showMyInfo(model: Model): String {
+        val member = rq.getMember() ?: throw IllegalStateException("로그인이 필요합니다")
+        val passwordHistory = passwordChangeHistoryService.getPasswordChangeHistory(member.id)
+
+        model.addAttribute("member", member)
+        model.addAttribute("passwordHistory", passwordHistory)
+
+        return "domain/member/myinfo"
+    }
+
+    @PostMapping("/password/change")
+    fun changePassword(
+        @Valid @ModelAttribute passwordChangeDto: PasswordChangeDto,
+        bindingResult: BindingResult,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "입력값이 올바르지 않습니다")
+            return "redirect:/member/myinfo"
+        }
+
+        try {
+            val member = rq.getMember() ?: throw IllegalStateException("로그인이 필요합니다")
+            memberService.changePassword(
+                member.id,
+                passwordChangeDto.currentPassword,
+                passwordChangeDto.newPassword,
+                passwordChangeDto.changeReason,
+                passwordChangeDto.signature
+            )
+            redirectAttributes.addFlashAttribute("message", "비밀번호가 성공적으로 변경되었습니다")
+        } catch (e: Exception) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.message)
+        }
+
+        return "redirect:/member/myinfo"
+    }
 
 }
