@@ -1,10 +1,7 @@
 <html layout:decorate="~{global/msgLayout}">
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- moment.js -->
-    <script src="https://cdn.jsdelivr.net/npm/moment"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
-
+    <link rel="icon" href="data:,">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <th:block layout:fragment="style">
         <style>
             .container {
@@ -88,77 +85,154 @@
         </style>
     </th:block>
     <th:block layout:fragment="script-body">
-        <script th:inline="javascript">
+        <script type="application/javascript" th:inline="javascript">
             /*<![CDATA[*/
             // 서버에서 전달받은 데이터
             const metrics = /*[[${metrics}]]*/ [];
+            console.log('Initial metrics:', metrics);
+            let cpuChart, memoryChart;
 
-            // 차트 공통 옵션
-            const chartOptions = {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        type: 'time',
-                        time: {
-                            unit: 'minute',
-                            displayFormats: {
-                                minute: 'HH:mm:ss'
+            // 차트 초기화 함수
+            function initializeCharts() {
+                // 차트 공통 옵션
+                const chartOptions = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'minute',
+                                displayFormats: {
+                                    minute: 'HH:mm:ss'
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Time'
                             }
                         },
-                        title: {
-                            display: true,
-                            text: 'Time'
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Percentage (%)'
+                            }
                         }
                     },
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        title: {
-                            display: true,
-                            text: 'Percentage (%)'
+                    plugins: {
+                        legend: {
+                            position: 'top'
                         }
                     }
-                },
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    }
+                };
+
+                // CPU 차트
+                cpuChart = new Chart(document.getElementById('cpuChart'), {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            label: 'CPU Usage (%)',
+                            data: metrics.map(m => ({
+                                x: new Date(m.timestamp),
+                                y: m.cpuUsage
+                            })),
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1
+                        }]
+                    },
+                    options: chartOptions
+                });
+
+                // Memory 차트
+                memoryChart = new Chart(document.getElementById('memoryChart'), {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            label: 'Memory Usage (%)',
+                            data: metrics.map(m => ({
+                                x: new Date(m.timestamp),
+                                y: (m.memoryUsed / m.memoryTotal) * 100
+                            })),
+                            borderColor: 'rgb(255, 99, 132)',
+                            tension: 0.1
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
+
+            // WebSocket 연결 및 데이터 수신 처리
+            function connectWebSocket() {
+                const socket = new SockJS('/ws/monitoring');
+                const stompClient = Stomp.over(socket);
+
+                stompClient.connect({}, function(frame) {
+                    console.log('Connected: ' + frame);
+
+                    stompClient.subscribe('/topic/metrics', function(message) {
+                        const newMetric = JSON.parse(message.body);
+                        updateCharts(newMetric);
+                        updateTable(newMetric);
+                    });
+                }, function(error) {
+                    console.error('STOMP error:', error);
+                    // 3초 후 재연결 시도
+                    setTimeout(connectWebSocket, 3000);
+                });
+
+                socket.onerror = function(error) {
+                    console.error('SockJS error:', error);
+                };
+            }
+
+            // 차트 업데이트 함수
+            function updateCharts(newMetric) {
+                // CPU 차트 업데이트
+                cpuChart.data.datasets[0].data.push({
+                    x: new Date(newMetric.timestamp),
+                    y: newMetric.cpuUsage
+                });
+                if (cpuChart.data.datasets[0].data.length > 60) {
+                    cpuChart.data.datasets[0].data.shift();
                 }
-            };
+                cpuChart.update();
 
-            // CPU 차트
-            new Chart(document.getElementById('cpuChart'), {
-                type: 'line',
-                data: {
-                    datasets: [{
-                        label: 'CPU Usage (%)',
-                        data: metrics.map(m => ({
-                            x: new Date(m.timestamp),
-                            y: m.cpuUsage
-                        })),
-                        borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.1
-                    }]
-                },
-                options: chartOptions
-            });
+                // Memory 차트 업데이트
+                memoryChart.data.datasets[0].data.push({
+                    x: new Date(newMetric.timestamp),
+                    y: (newMetric.memoryUsed / newMetric.memoryTotal) * 100
+                });
+                if (memoryChart.data.datasets[0].data.length > 60) {
+                    memoryChart.data.datasets[0].data.shift();
+                }
+                memoryChart.update();
+            }
 
-            // Memory 차트
-            new Chart(document.getElementById('memoryChart'), {
-                type: 'line',
-                data: {
-                    datasets: [{
-                        label: 'Memory Usage (%)',
-                        data: metrics.map(m => ({
-                            x: new Date(m.timestamp),
-                            y: (m.memoryUsed / m.memoryTotal) * 100
-                        })),
-                        borderColor: 'rgb(255, 99, 132)',
-                        tension: 0.1
-                    }]
-                },
-                options: chartOptions
+            // 테이블 업데이트 함수
+            function updateTable(newMetric) {
+                const tbody = document.querySelector('table tbody');
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${moment(newMetric.timestamp).format('YYYY-MM-DD HH:mm:ss')}</td>
+                    <td>${newMetric.cpuUsage.toFixed(2)}</td>
+                    <td>${(newMetric.memoryTotal/1024/1024/1024).toFixed(2)}</td>
+                    <td>${(newMetric.memoryUsed/1024/1024/1024).toFixed(2)}</td>
+                    <td>${(newMetric.memoryFree/1024/1024/1024).toFixed(2)}</td>
+                `;
+
+                tbody.insertBefore(row, tbody.firstChild);
+                if (tbody.children.length > 60) {
+                    tbody.removeChild(tbody.lastChild);
+                }
+            }
+
+            // 페이지 로드 시 실행
+            document.addEventListener('DOMContentLoaded', function() {
+                initializeCharts();
+                connectWebSocket();
             });
             /*]]>*/
         </script>

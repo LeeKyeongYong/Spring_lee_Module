@@ -101,6 +101,8 @@ class SecurityConfig(
                 headers.frameOptions { frameOptions ->
                     frameOptions.sameOrigin()
                 }
+                headers.contentTypeOptions { }        // X-Frame-Options
+                headers.xssProtection { }       // X-XSS-Protection
             }
             .csrf { csrf ->
                 csrf

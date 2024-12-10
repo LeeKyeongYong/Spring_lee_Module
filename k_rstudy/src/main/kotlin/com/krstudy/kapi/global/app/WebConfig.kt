@@ -14,23 +14,23 @@ import java.util.concurrent.TimeUnit
 import org.springframework.web.servlet.resource.VersionResourceResolver
 
 @Configuration
-class WebConfig (
+class WebConfig(
     @Value("\${spring.application.version}") private val appVersion: String
-): WebMvcConfigurer {
+) : WebMvcConfigurer {
 
     @Bean
     fun requestContextListener(): RequestContextListener {
         return RequestContextListener()
     }
 
+
     override fun configureContentNegotiation(configurer: ContentNegotiationConfigurer) {
         configurer
             .defaultContentType(MediaType.TEXT_HTML)
             .mediaType("html", MediaType.TEXT_HTML)
             .mediaType("json", MediaType.APPLICATION_JSON)
-            .mediaType("js", MediaType("application", "javascript"))  // JavaScript MIME 타입 추가
-            .ignoreAcceptHeader(false)
-            .favorParameter(false)
+            .mediaType("js", MediaType("application", "javascript"))
+            .mediaType("javascript", MediaType("application", "javascript"))
     }
 
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
@@ -58,6 +58,19 @@ class WebConfig (
             .setCacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
             .resourceChain(true)
             .addResolver(PathResourceResolver())
+
+        registry.addResourceHandler("/**/*.js")
+            .addResourceLocations("classpath:/static/", "classpath:/templates/")
+            .setCacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
+            .resourceChain(true)
+            .addResolver(PathResourceResolver())
+
+        registry.addResourceHandler("/favicon.ico")
+            .addResourceLocations("classpath:/static/")
+            .setCacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
+            .resourceChain(true)
+            .addResolver(PathResourceResolver())
+
     }
 
     @Bean

@@ -59,7 +59,10 @@ spring:
     contentnegotiation:
       favor-parameter: true
       media-types:
+        js: application/javascript
         html: text/html
+    pathmatch:
+      matching-strategy: ant_path_matcher
     static-path-pattern: /**  # 변경
     hiddenmethod:
       filter:
