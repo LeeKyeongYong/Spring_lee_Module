@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
+import com.krstudy.kapi.domain.passwd.repository.PasswordChangeAlertRepository;
 
 @Service
 @Transactional(readOnly = true)
@@ -14,21 +15,18 @@ class PasswordChangeAlertService(
     private val memberService: MemberService,
     private val passwordChangeHistoryService: PasswordChangeHistoryService
 ) {
-
     fun checkPasswordChangeNeeded(memberId: Long): PasswordChangeAlertDto? {
-        val member = memberService.getMemberByNo(memberId)
-            ?: return null
+        val member = memberService.getMemberByNo(memberId) ?: return null
 
         val lastPasswordChange = passwordChangeHistoryService
             .getPasswordChangeHistory(memberId)
             .maxByOrNull { it.changedAt }
-            ?.changedAt
-            ?: member.createDate
+            ?.changedAt ?: member.getCreateDate() // Member 클래스에 getCreateDate() 메서드 필요
 
-        val nextChangeDate = lastPasswordChange.plusMonths(3)
+        val nextChangeDate = lastPasswordChange?.plusMonths(3)
         val now = LocalDateTime.now()
 
-        if (now.isAfter(nextChangeDate)) {
+        if (nextChangeDate != null && now.isAfter(nextChangeDate)) {
             return PasswordChangeAlertDto(
                 memberId = memberId,
                 lastPasswordChangeDate = lastPasswordChange,
@@ -36,16 +34,13 @@ class PasswordChangeAlertService(
                 daysUntilChange = ChronoUnit.DAYS.between(now, nextChangeDate)
             )
         }
-
         return null
     }
 
     @Transactional
     fun autoChangePassword(memberId: Long): Boolean {
         return try {
-            val member = memberService.getMemberByNo(memberId)
-                ?: return false
-
+            val member = memberService.getMemberByNo(memberId) ?: return false
             val newPassword = generateRandomPassword()
 
             memberService.changePassword(
@@ -57,9 +52,10 @@ class PasswordChangeAlertService(
             )
 
             // 알림 상태 업데이트
-            passwordChangeAlertRepository.findByMemberId(memberId)?.let {
-                it.isDismissed = true
-                passwordChangeAlertRepository.save(it)
+            val alert = passwordChangeAlertRepository.findByMemberId(memberId)
+            if (alert != null) {
+                alert.isDismissed = true
+                passwordChangeAlertRepository.save(alert)
             }
 
             true

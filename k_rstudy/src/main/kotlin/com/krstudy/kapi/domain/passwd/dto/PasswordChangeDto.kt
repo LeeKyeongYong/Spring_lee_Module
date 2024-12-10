@@ -3,11 +3,9 @@ package com.krstudy.kapi.domain.passwd.dto
 import org.springframework.web.multipart.MultipartFile
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
-import jakarta.validation.constraints.Size
 import jakarta.validation.constraints.AssertTrue
 
 data class PasswordChangeDto(
-
     @field:NotBlank(message = "현재 비밀번호는 필수입니다")
     val currentPassword: String,
 
@@ -24,10 +22,8 @@ data class PasswordChangeDto(
     @field:NotBlank(message = "변경 사유는 필수입니다")
     val changeReason: String,
 
-    val signature: MultipartFile? = null,
-
+    val signature: MultipartFile? = null
+) {
     @AssertTrue(message = "새 비밀번호와 비밀번호 확인이 일치해야 합니다")
-    fun isPasswordMatch(): Boolean {
-        return newPassword == confirmPassword
-    }
-)
+    fun isPasswordMatch(): Boolean = newPassword == confirmPassword
+}

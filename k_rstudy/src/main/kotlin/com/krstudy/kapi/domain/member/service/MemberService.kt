@@ -1,5 +1,6 @@
 package com.krstudy.kapi.domain.member.service
 
+import org.springframework.data.jpa.domain.Specification.where
 import com.krstudy.kapi.com.krstudy.kapi.global.Security.datas.JwtTokenProvider
 import com.krstudy.kapi.domain.comment.repository.PostCommentRepository
 import com.krstudy.kapi.domain.member.datas.AuthAndMakeTokensResponseBody
@@ -372,37 +373,41 @@ class MemberService(
     }
 
     fun searchMembers(searchDto: MemberSearchDto): List<Member> {
-        return memberRepository.findAll { root, query, cb ->
-            val predicates = mutableListOf<Predicate>()
+        return memberRepository.findAll(where { root, query, criteriaBuilder ->
+            val predicates = mutableListOf<jakarta.persistence.criteria.Predicate>()
 
             searchDto.username?.let {
-                predicates.add(cb.like(root.get("username"), "%$it%"))
+                predicates.add(criteriaBuilder.like(root.get("username"), "%$it%"))
             }
 
             searchDto.fromDate?.let { fromDate ->
-                predicates.add(cb.greaterThanOrEqualTo(
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(
                     root.get("createDate"),
                     fromDate.atStartOfDay()
                 ))
             }
 
             searchDto.toDate?.let { toDate ->
-                predicates.add(cb.lessThanOrEqualTo(
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(
                     root.get("createDate"),
                     toDate.plusDays(1).atStartOfDay()
                 ))
             }
 
             searchDto.roleType?.let {
-                predicates.add(cb.equal(root.get<String>("roleType"), it))
+                predicates.add(criteriaBuilder.equal(root.get<String>("roleType"), it))
             }
 
             searchDto.useYn?.let {
-                predicates.add(cb.equal(root.get<String>("useYn"), it))
+                predicates.add(criteriaBuilder.equal(root.get<String>("useYn"), it))
             }
 
-            cb.and(*predicates.toTypedArray())
-        }
+            if (predicates.isEmpty()) {
+                criteriaBuilder.conjunction()
+            } else {
+                criteriaBuilder.and(*predicates.toTypedArray())
+            }
+        })
     }
 
 }

@@ -23,13 +23,13 @@ class PasswordChangeHistoryService(
         signature: MultipartFile?
     ): PasswordChangeHistory {
         var signatureBytes: ByteArray? = null
-        var signatureType: String? = null
+        var signatureType: String = ""
 
         if (signature != null && !signature.isEmpty) {
             signatureBytes = signature.bytes
-            signatureType = signature.contentType
+            signatureType = signature.contentType ?: ""
 
-            // 서명 저장
+            // Save signature
             val memberSignature = MemberSignature(
                 member = member,
                 signature = signatureBytes,
