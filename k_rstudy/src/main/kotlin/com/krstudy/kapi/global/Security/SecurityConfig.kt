@@ -93,6 +93,13 @@ class SecurityConfig(
                     .requestMatchers("/api/public/**").permitAll()
                     .requestMatchers("/monitoring/**").authenticated()
                     .requestMatchers("/monitoring/history/**").authenticated()
+                    .requestMatchers(
+                        "/monitoring/**",
+                        "/resource/**",
+                        "/**/*.js",
+                        "/static/**",
+                        "/templates/**"
+                    ).permitAll()
 
                     // 마지막에 한 번만 설정
                     .anyRequest().permitAll()
@@ -100,6 +107,14 @@ class SecurityConfig(
             .headers { headers ->
                 headers.frameOptions { frameOptions ->
                     frameOptions.sameOrigin()
+                }.contentSecurityPolicy { csp ->
+                    csp.policyDirectives(
+                        "default-src 'self'; " +
+                                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; " +
+                                "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; " +
+                                "img-src 'self' data: https:; " +
+                                "connect-src 'self' ws: wss:;"
+                    )
                 }
                 headers.contentTypeOptions { }        // X-Frame-Options
                 headers.xssProtection { }       // X-XSS-Protection

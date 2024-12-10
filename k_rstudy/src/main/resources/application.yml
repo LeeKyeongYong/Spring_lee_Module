@@ -32,15 +32,13 @@ spring:
 
   web:
     resources:
-      static-locations:
-        - classpath:/static/
-        - classpath:/templates/
-        - file:gen/
+      add-mappings: true
       chain:
+        enabled: true
         strategy:
           content:
             enabled: true
-            paths: /**
+            paths: /**/*.js
   messages:
     basename: messages  # 메시지 소스 설정
   profiles:
@@ -54,13 +52,11 @@ spring:
     virtual:
       enabled: true
   mvc:
-    async:
-      request-timeout: 30000
     contentnegotiation:
       favor-parameter: true
       media-types:
         js: application/javascript
-        html: text/html
+        javascript: application/javascript
     pathmatch:
       matching-strategy: ant_path_matcher
     static-path-pattern: /**  # 변경

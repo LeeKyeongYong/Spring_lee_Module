@@ -66,7 +66,7 @@
             color: #721c24;
         }
     </style>
-    <script th:inline="javascript">
+    <script type="text/javascript" th:inline="javascript">
         /*<![CDATA[*/
         // 서버에서 전달한 사용자 ID를 JavaScript 변수로 저장하고 인코딩
         const userId = /*[[${#authentication.principal.username}]]*/ 'defaultUserId';

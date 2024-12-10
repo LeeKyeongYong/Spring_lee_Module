@@ -9,7 +9,7 @@
     <title th:text="|토스페이먼츠 결제하기|"></title>
     <script src="https://js.tosspayments.com/v1/payment-widget"></script>
 
-    <script th:inline="javascript">
+    <script type="text/javascript" th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function() {
             const button = document.getElementById("payment-button");
             const coupon = document.getElementById("coupon-box");
