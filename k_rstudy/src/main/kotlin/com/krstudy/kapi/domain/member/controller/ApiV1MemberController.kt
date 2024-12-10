@@ -3,6 +3,7 @@ package com.krstudy.kapi.domain.member.controller
 import com.krstudy.kapi.domain.member.dto.MemberInfo
 import com.krstudy.kapi.domain.member.entity.Member
 import com.krstudy.kapi.domain.member.service.MemberService
+import com.krstudy.kapi.domain.passwd.service.PasswordChangeAlertService
 import com.krstudy.kapi.global.exception.MessageCode
 import com.krstudy.kapi.global.https.ReqData
 import com.krstudy.kapi.global.https.RespData
@@ -27,7 +28,8 @@ import javax.imageio.ImageIO
 @Transactional(readOnly = true)
 class ApiV1MemberController(
     private val memberService: MemberService,
-    @Autowired private val rq: ReqData
+    @Autowired private val rq: ReqData,
+    private val passwordChangeAlertService: PasswordChangeAlertService
 ) {
 
     private val logger = LoggerFactory.getLogger(ApiV1MemberController::class.java)
@@ -113,6 +115,25 @@ class ApiV1MemberController(
     // 이미지 파일을 ByteArray로 변환
     private fun getImageBytes(image: MultipartFile): ByteArray {
         return image.bytes // 이미지 파일 바이트 반환
+    }
+
+    @PostMapping("/password/auto-change")
+    fun autoChangePassword(): ResponseEntity<RespData<Map<String, String>>> {
+        val member = rq.getMember() ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(RespData.fromErrorCode(MessageCode.UNAUTHORIZED))
+
+        val success = passwordChangeAlertService.autoChangePassword(member.id)
+
+        return if (success) {
+            ResponseEntity.ok(RespData.of(
+                MessageCode.SUCCESS.code,
+                "비밀번호가 성공적으로 변경되었습니다.",
+                mapOf("message" to "비밀번호가 변경되었습니다.")
+            ))
+        } else {
+            ResponseEntity.badRequest()
+                .body(RespData.fromErrorCode(MessageCode.PASSWORD_MISMATCH))
+        }
     }
 
 }

@@ -1,6 +1,7 @@
 package com.krstudy.kapi.domain.home.Controller
 
 import com.krstudy.kapi.domain.banners.service.BannerService
+import com.krstudy.kapi.domain.passwd.service.PasswordChangeAlertService
 import com.krstudy.kapi.domain.popups.entity.DeviceType
 import com.krstudy.kapi.domain.popups.service.PopupService
 import org.springframework.stereotype.Controller
@@ -15,7 +16,8 @@ class HomeController(
     private val rq: ReqData,
     private val postService: PostService,
     private val bannerService: BannerService,
-    private val popupService: PopupService
+    private val popupService: PopupService,
+    private val passwordChangeAlertService: PasswordChangeAlertService
 ) {
     @GetMapping("/")
     fun showMain(request: HttpServletRequest): String {
@@ -41,6 +43,12 @@ class HomeController(
             // 최신 게시물 조회
             val posts = postService.findTop30ByIsPublishedOrderByIdDesc(true)
             rq.setAttribute("posts", posts)
+
+            rq.getMember()?.let { member ->
+                passwordChangeAlertService.checkPasswordChangeNeeded(member.id)?.let { alert ->
+                    rq.setAttribute("passwordChangeAlert", alert)
+                }
+            }
 
             return "domain/home/main"
         } catch (e: Exception) {

@@ -10,7 +10,31 @@
         document.addEventListener('DOMContentLoaded', function() {
             initializePopups();
             incrementViewCount();
+            const modal = new bootstrap.Modal(document.getElementById('passwordChangeModal'));
+            modal.show();
         });
+
+        async function changePassword() {
+            try {
+                const response = await fetch('/api/v1/members/password/auto-change', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert('비밀번호가 성공적으로 변경되었습니다. 새로운 비밀번호: ' + result.newPassword);
+                    location.reload();
+                } else {
+                    alert('비밀번호 변경에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('비밀번호 변경 중 오류가 발생했습니다.');
+            }
+        }
 
         // 팝업 초기화 함수
         function initializePopups() {
@@ -307,6 +331,26 @@
     </th:block>
 
     <h1>메인</h1>
+
+    <div th:if="${passwordChangeAlert}" class="modal fade" id="passwordChangeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">비밀번호 변경 안내</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>보안을 위해 3개월마다 비밀번호를 변경하는 것을 권장합니다.</p>
+                    <p>마지막 변경일: <span th:text="${#temporals.format(passwordChangeAlert.lastPasswordChangeDate, 'yyyy-MM-dd')}"></span></p>
+                    <p>다음 변경 예정일: <span th:text="${#temporals.format(passwordChangeAlert.nextChangeDate, 'yyyy-MM-dd')}"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">나중에</button>
+                    <button type="button" class="btn btn-primary" onclick="changePassword()">비밀번호 변경</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- 배너 슬라이드 -->
     <div th:replace="~{global/fragments/banner :: bannerSlide}"></div>
