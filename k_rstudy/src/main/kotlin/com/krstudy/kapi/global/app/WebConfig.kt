@@ -27,16 +27,44 @@ class WebConfig(
     }
 
 
+    override fun configureContentNegotiation(configurer: ContentNegotiationConfigurer) {
+        configurer
+            .defaultContentType(MediaType.TEXT_HTML)
+            .mediaType("html", MediaType.TEXT_HTML)
+            .mediaType("js", MediaType("application", "javascript"))
+            .mediaType("css", MediaType("text", "css"))
+    }
+
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
+        // 정적 리소스 핸들러
+        registry.addResourceHandler("/resource/**")
+            .addResourceLocations(
+                "classpath:/static/resource/",
+                "https://cdn.jsdelivr.net/",
+                "https://cdnjs.cloudflare.com/"
+            )
+            .setCacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
+            .resourceChain(true)
+            .addResolver(VersionResourceResolver().addContentVersionStrategy("/**"))
+            .addResolver(PathResourceResolver())
+
+        // 정적 파일들
+        registry.addResourceHandler("/static/**")
+            .addResourceLocations("classpath:/static/")
+            .setCacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
+
+        // JS 파일들 (패턴 수정)
+        registry.addResourceHandler("/js/**")
+            .addResourceLocations(
+                "classpath:/static/js/",
+                "classpath:/templates/js/"
+            )
+            .setCacheControl(CacheControl.noCache())
+
+        // 모니터링
         registry.addResourceHandler("/monitoring/**")
             .addResourceLocations("classpath:/templates/domain/monitoring/")
             .setCacheControl(CacheControl.noCache())
-            .resourceChain(false)  // 리소스 체인 비활성화
-
-        registry.addResourceHandler("/**/*.js")
-            .addResourceLocations("classpath:/static/", "classpath:/templates/")
-            .setCacheControl(CacheControl.noCache())
-            .resourceChain(false)
     }
 
     @Bean

@@ -1146,9 +1146,13 @@
 
 
         function getUrlParams() {
-            const params = new URLSearchParams(window.location.search);
-            return Object.fromEntries(params);
+            const params = {};
+            window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,
+                function(str, key, value) { params[key] = value; }
+            );
+            return params;
         }
+        const urlParams = getUrlParams();
 
         // 메시지 읽음 처리 함수 구현
         async function markMessageAsRead(messageId) {

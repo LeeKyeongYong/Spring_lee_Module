@@ -32,13 +32,16 @@ spring:
 
   web:
     resources:
-      add-mappings: true
+      static-locations:
+        - classpath:/static/
+        - classpath:/public/
+        - classpath:/resources/
+        - classpath:/META-INF/resources/
       chain:
-        enabled: true
         strategy:
           content:
             enabled: true
-            paths: /**/*.js
+            paths: /**
   messages:
     basename: messages  # 메시지 소스 설정
   profiles:
@@ -52,17 +55,8 @@ spring:
     virtual:
       enabled: true
   mvc:
-    contentnegotiation:
-      favor-parameter: true
-      media-types:
-        js: application/javascript
-        javascript: application/javascript
     pathmatch:
       matching-strategy: ant_path_matcher
-    static-path-pattern: /**  # 변경
-    hiddenmethod:
-      filter:
-        enabled: true
   jpa:
     properties:
       org:
