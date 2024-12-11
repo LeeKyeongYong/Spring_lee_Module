@@ -353,7 +353,7 @@ class MemberService(
         currentPassword: String,
         newPassword: String,
         changeReason: String,
-        signature: MultipartFile?
+        signatureData: String? // MultipartFile 대신 String으로 변경
     ) {
         val member = memberRepository.findById(memberId)
             .orElseThrow { IllegalArgumentException("회원을 찾을 수 없습니다") }
@@ -368,7 +368,7 @@ class MemberService(
         passwordChangeHistoryService.savePasswordChangeHistory(
             member = member,
             changeReason = changeReason,
-            signature = signature
+            signatureData = signatureData // signatureData 전달
         )
     }
 

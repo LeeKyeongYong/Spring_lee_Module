@@ -9,13 +9,11 @@ import java.time.LocalDateTime
 class MemberSignature(
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)  // Ensure this is not nullable
+    @JoinColumn(name = "member_id", nullable = false)
     val member: Member,
 
     @Lob
-    @Column(columnDefinition = "LONGBLOB", nullable = false)  // Ensure signature is not nullable
-    val signature: ByteArray,
+    @Column(columnDefinition = "LONGTEXT", nullable = false)
+    val signatureData: String, // Base64로 인코딩된 Canvas 데이터
 
-    @Column(nullable = false)  // Make signatureType required
-    val signatureType: String,
 ): BaseEntity(){}

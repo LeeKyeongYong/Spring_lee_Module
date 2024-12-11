@@ -48,7 +48,7 @@ class PasswordChangeAlertService(
                 currentPassword = member.password,
                 newPassword = newPassword,
                 changeReason = "3개월 마다 변경으로 인한 사유",
-                signature = null
+                signatureData = null  // signature 대신 signatureData로 변경
             )
 
             // 알림 상태 업데이트

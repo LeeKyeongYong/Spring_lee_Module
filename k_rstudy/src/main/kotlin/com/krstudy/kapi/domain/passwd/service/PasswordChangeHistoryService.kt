@@ -20,20 +20,13 @@ class PasswordChangeHistoryService(
     fun savePasswordChangeHistory(
         member: Member,
         changeReason: String,
-        signature: MultipartFile?
+        signatureData: String?
     ): PasswordChangeHistory {
-        var signatureBytes: ByteArray? = null
-        var signatureType: String = ""
-
-        if (signature != null && !signature.isEmpty) {
-            signatureBytes = signature.bytes
-            signatureType = signature.contentType ?: ""
-
-            // Save signature
+        // 서명 데이터가 있는 경우 저장
+        if (!signatureData.isNullOrBlank()) {
             val memberSignature = MemberSignature(
                 member = member,
-                signature = signatureBytes,
-                signatureType = signatureType
+                signatureData = signatureData
             )
             memberSignatureRepository.save(memberSignature)
         }
@@ -41,8 +34,7 @@ class PasswordChangeHistoryService(
         val history = PasswordChangeHistory(
             member = member,
             changeReason = changeReason,
-            signature = signatureBytes,
-            signatureType = signatureType
+            signatureData = signatureData
         )
 
         return passwordChangeHistoryRepository.save(history)

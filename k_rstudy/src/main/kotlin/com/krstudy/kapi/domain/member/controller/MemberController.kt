@@ -288,11 +288,11 @@ class MemberController(
         try {
             val member = rq.getMember() ?: throw IllegalStateException("로그인이 필요합니다")
             memberService.changePassword(
-                member.id,
-                passwordChangeDto.currentPassword,
-                passwordChangeDto.newPassword,
-                passwordChangeDto.changeReason,
-                passwordChangeDto.signature
+                memberId = member.id,
+                currentPassword = passwordChangeDto.currentPassword,
+                newPassword = passwordChangeDto.newPassword,
+                changeReason = passwordChangeDto.changeReason,
+                signatureData = passwordChangeDto.signatureData // Canvas 데이터 전달
             )
             redirectAttributes.addFlashAttribute("message", "비밀번호가 성공적으로 변경되었습니다")
         } catch (e: Exception) {

@@ -16,13 +16,10 @@ class PasswordChangeHistory(
     @Column(nullable = false)
     val changeReason: String,
 
-    @Column(nullable = false)
-    val changedAt: LocalDateTime = LocalDateTime.now(),
-
     @Lob
-    @Column(columnDefinition = "LONGBLOB")
-    val signature: ByteArray? = null,
+    @Column(columnDefinition = "LONGTEXT")
+    val signatureData: String? = null,  // Canvas 서명 데이터를 저장할 필드 추가
 
-    @Column
-    val signatureType: String? = null
+    @Column(nullable = false)
+    val changedAt: LocalDateTime = LocalDateTime.now()
 ):BaseEntity(){}
