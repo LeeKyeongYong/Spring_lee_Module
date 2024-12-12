@@ -1,3 +1,5 @@
+jooq-config.xml
+*.yml
 HELP.md
 .gradle
 build/
