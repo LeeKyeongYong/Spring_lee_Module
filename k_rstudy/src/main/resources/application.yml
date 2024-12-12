@@ -32,11 +32,6 @@ spring:
 
   web:
     resources:
-      static-locations:
-        - classpath:/static/
-        - classpath:/public/
-        - classpath:/resources/
-        - classpath:/META-INF/resources/
       chain:
         strategy:
           content:
@@ -55,8 +50,10 @@ spring:
     virtual:
       enabled: true
   mvc:
-    pathmatch:
-      matching-strategy: ant_path_matcher
+    contentnegotiation:
+      media-types:
+        js: application/javascript
+        css: text/css
   jpa:
     properties:
       org:

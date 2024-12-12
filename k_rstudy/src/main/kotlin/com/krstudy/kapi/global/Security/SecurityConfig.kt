@@ -109,12 +109,11 @@ class SecurityConfig(
                     frameOptions.sameOrigin()
                 }.contentSecurityPolicy { csp ->
                     csp.policyDirectives(
-                        "default-src 'self' http: https: data: blob: 'unsafe-inline' 'unsafe-eval'; " +
-                                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; " +
-                                "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; " +
+                        "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; " +
+                                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http: cdnjs.cloudflare.com cdn.jsdelivr.net; " +
+                                "style-src 'self' 'unsafe-inline' https: http: cdnjs.cloudflare.com; " +
                                 "img-src 'self' data: https: http:; " +
-                                "font-src 'self' data: https://cdnjs.cloudflare.com; " +
-                                "connect-src 'self' ws: wss: http: https:;"
+                                "font-src 'self' data: https: http: cdnjs.cloudflare.com;"
                     )
                 }
                 headers.contentTypeOptions { }        // X-Frame-Options
