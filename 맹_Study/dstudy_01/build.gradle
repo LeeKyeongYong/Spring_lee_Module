@@ -16,24 +16,38 @@ repositories {
 }
 
 dependencies {
+    // Spring Boot 관련 의존성
     implementation 'org.springframework.boot:spring-boot-starter'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.projectlombok:lombok:1.18.24'
-    annotationProcessor 'org.projectlombok:lombok:1.18.24'
-    implementation 'org.apache.poi:poi:5.2.3'
-    implementation 'com.itextpdf:itextpdf:5.5.13.3'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.postgresql:postgresql:42.5.0'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
+
+    // Lombok (컴파일 타임에만 필요)
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+    // PDF 처리
+    implementation 'org.apache.pdfbox:pdfbox:2.0.27'
+    implementation 'com.itextpdf:itextpdf:5.5.13.3'
+    implementation 'org.apache.poi:poi:5.2.3'
     implementation 'org.apache.poi:poi-ooxml:5.2.3'
-    implementation 'com.github.ulisesbocchio:jasypt-spring-boot:3.0.5'
+
+    // PostgreSQL 데이터베이스 의존성
+    implementation 'org.postgresql:postgresql:42.5.0'
+
+    // Thymeleaf 레이아웃 다이얼렉트
+    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
+
+    // Jasypt (암호화 라이브러리)
+    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
     implementation 'org.jasypt:spring-boot-starter-jasypt'
+
+
+
+    // 테스트 관련 의존성
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
     testImplementation 'org.testng:testng:7.8.0'
-
 }
 
 tasks.named('test') {
