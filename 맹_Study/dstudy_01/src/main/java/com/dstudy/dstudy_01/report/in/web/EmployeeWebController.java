@@ -1,7 +1,9 @@
 package com.dstudy.dstudy_01.report.in.web;
 
+import com.dstudy.dstudy_01.global.https.ReqData;
 import com.dstudy.dstudy_01.report.domain.Employee;
 import com.dstudy.dstudy_01.report.in.GetEmployeeUseCase;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,17 +18,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EmployeeWebController {
     private final GetEmployeeUseCase getEmployeeUseCase;
+    private final ReqData rq;
 
     @GetMapping
     public String listEmployees(Model model) {
         List<Employee> employees = getEmployeeUseCase.getAllEmployees();
-        model.addAttribute("employees", employees);
-        return "employee/list";
+        rq.setAttribute("employees", employees);
+        return "domain/employee/list";
     }
 
     @PostMapping("/excel")
-    public String generateExcelReport() {
-        getEmployeeUseCase.generateExcelReport();
+    public String generateExcelReport(HttpServletResponse response) {
+        getEmployeeUseCase.generateExcelReport(response);
         return "redirect:/employees";
     }
 

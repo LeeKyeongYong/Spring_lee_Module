@@ -13,10 +13,10 @@ public class EmployeeRestController {
     private final GetEmployeeUseCase getEmployeeUseCase;
 
     @GetMapping
-    public ResponseEntity<?> getEmployees(@RequestParam(required = false) String type,
+    public ResponseEntity<?> getEmployees(@RequestParam(value = "type", required = false) String type,
                                           HttpServletResponse response) {
         if ("xls".equals(type)) {
-            getEmployeeUseCase.generateExcelReport();
+            getEmployeeUseCase.generateExcelReport(response);
             return ResponseEntity.ok().build();
         } else if ("pdf".equals(type)) {
             getEmployeeUseCase.generatePdfReport();

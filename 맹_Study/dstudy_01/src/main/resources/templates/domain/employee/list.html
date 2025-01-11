@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html layout:decorate="~{global/wordLayout}">
+
+<head>
+    <title th:text="|문서상세다운로드 페이지|"></title>
+
+    <style>
+        body { font-size: 12px; }
+    </style>
+    <script>
+     </script>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <h3>레포트 생성 예제</h3>
+    <a th:href="@{/api/employees(type='xls')}">[엑셀 파일(XLS)로 출력]</a>&nbsp;
+    <!--<a href="/employees/excel">Download Excel Report</a>-->
+    <a th:href="@{/api/employees(type='pdf')}">[PDF 파일로 출력]</a><br/><br/>
+
+    <table border="1">
+        <tr>
+            <th>employee_id</th>
+            <th>first_name</th>
+            <th>last_name</th>
+            <th>email</th>
+            <th>phone_number</th>
+            <th>hire_date</th>
+            <th>job_id</th>
+            <th>salary</th>
+            <th>commission_pct</th>
+            <th>manager_id</th>
+            <th>department_id</th>
+        </tr>
+        <tr th:each="employee : ${employees}">
+            <td th:text="${employee.employeeId}"></td>
+            <td th:text="${employee.firstName}"></td>
+            <td th:text="${employee.lastName}"></td>
+            <td th:text="${employee.email}"></td>
+            <td th:text="${employee.phoneNumber}"></td>
+            <td th:text="${#dates.format(employee.hireDate, 'yyyy/MM/dd')}"></td>
+            <td th:text="${employee.jobId}"></td>
+            <td th:text="${employee.salary}" align="right"></td>
+            <td th:text="${employee.commissionPct}" align="right"></td>
+            <td th:text="${employee.managerId}" align="right"></td>
+            <td th:text="${employee.departmentId}" align="right"></td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

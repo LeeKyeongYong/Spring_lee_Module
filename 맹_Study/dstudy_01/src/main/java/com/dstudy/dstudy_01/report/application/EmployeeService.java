@@ -3,6 +3,7 @@ package com.dstudy.dstudy_01.report.application;
 import com.dstudy.dstudy_01.report.domain.Employee;
 import com.dstudy.dstudy_01.report.in.GetEmployeeUseCase;
 import com.dstudy.dstudy_01.report.out.LoadEmployeePort;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,9 +23,9 @@ class EmployeeService implements GetEmployeeUseCase {
     }
 
     @Override
-    public void generateExcelReport() {
+    public void generateExcelReport(HttpServletResponse response) {
         List<Employee> employees = getAllEmployees();
-        excelReportGenerator.generate(employees);
+        excelReportGenerator.generate(employees, response);
     }
 
     @Override

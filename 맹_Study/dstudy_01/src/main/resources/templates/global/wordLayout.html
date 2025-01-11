@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html layout:decorate="~{global/layout}">
+
+<head>
+  <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE" th:text="'문서 다운로드'"></title>
+</head>
+
+<body>
+
+  <header layout:fragment="header">
+    <a href="/employees">문서별 다운로드</a>
+    <a href="/">문서 상세내용 보기</a>
+  </header>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package com.dstudy.dstudy_01.report.application;
 
 import com.dstudy.dstudy_01.report.domain.Employee;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
@@ -11,7 +12,7 @@ import java.util.List;
 
 @Component
 public class ExcelReportGenerator {
-    public void generate(List<Employee> employees) {
+    public void generate(List<Employee> employees, HttpServletResponse response) {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Employees");
 
@@ -51,9 +52,14 @@ public class ExcelReportGenerator {
                 sheet.autoSizeColumn(i);
             }
 
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setHeader("Content-Disposition", "attachment; filename=employees.xlsx");
+
+
             // Write to file
-            try (FileOutputStream fileOut = new FileOutputStream("employees.xlsx")) {
-                workbook.write(fileOut);
+            try (var outputStream = response.getOutputStream()) {
+                workbook.write(outputStream);
+                outputStream.flush();
             }
         } catch (IOException e) {
             throw new RuntimeException("Failed to generate Excel report", e);

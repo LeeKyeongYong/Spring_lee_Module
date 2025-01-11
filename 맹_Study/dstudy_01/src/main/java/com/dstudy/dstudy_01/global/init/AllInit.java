@@ -17,7 +17,8 @@ public class AllInit {
     @Bean
     CommandLineRunner initDatabase(EmployeeRepository employeeRepository) {
         return args -> {
-            List<EmployeeJpaEntity> employees = generateEmployees(1000000);
+            //List<EmployeeJpaEntity> employees = generateEmployees(1000000);
+            List<EmployeeJpaEntity> employees = generateEmployees(10);
             employeeRepository.saveAll(employees);
         };
     }
