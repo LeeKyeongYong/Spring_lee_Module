@@ -29,8 +29,8 @@ class EmployeeService implements GetEmployeeUseCase {
     }
 
     @Override
-    public void generatePdfReport() {
+    public void generatePdfReport(HttpServletResponse response) {
         List<Employee> employees = getAllEmployees();
-        pdfReportGenerator.generate(employees);
+        pdfReportGenerator.generate(employees,response);
     }
 }

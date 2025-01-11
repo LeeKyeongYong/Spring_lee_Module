@@ -8,5 +8,5 @@ import java.util.List;
 public interface GetEmployeeUseCase {
     List<Employee> getAllEmployees();
     void generateExcelReport(HttpServletResponse response);
-    void generatePdfReport();
+    void generatePdfReport(HttpServletResponse response);
 }

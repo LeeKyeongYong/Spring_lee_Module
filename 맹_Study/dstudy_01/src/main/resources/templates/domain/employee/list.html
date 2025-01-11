@@ -15,8 +15,17 @@
 <div layout:fragment="content">
     <h3>레포트 생성 예제</h3>
     <a th:href="@{/api/employees(type='xls')}">[엑셀 파일(XLS)로 출력]</a>&nbsp;
-    <!--<a href="/employees/excel">Download Excel Report</a>-->
+    <!--
+    <form action="/employees/excel" method="POST">
+        <button type="submit">Download Excel Report</button>
+    </form>
+    -->
     <a th:href="@{/api/employees(type='pdf')}">[PDF 파일로 출력]</a><br/><br/>
+    <!--
+<form action="/employees/pdf" method="POST">
+    <button type="submit">Download Excel Report</button>
+</form>
+-->
 
     <table border="1">
         <tr>

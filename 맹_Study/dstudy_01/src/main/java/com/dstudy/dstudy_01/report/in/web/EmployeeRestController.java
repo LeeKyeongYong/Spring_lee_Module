@@ -19,7 +19,7 @@ public class EmployeeRestController {
             getEmployeeUseCase.generateExcelReport(response);
             return ResponseEntity.ok().build();
         } else if ("pdf".equals(type)) {
-            getEmployeeUseCase.generatePdfReport();
+            getEmployeeUseCase.generatePdfReport(response);
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.ok(getEmployeeUseCase.getAllEmployees());

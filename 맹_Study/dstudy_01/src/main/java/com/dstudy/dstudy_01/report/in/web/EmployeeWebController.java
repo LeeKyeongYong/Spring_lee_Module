@@ -34,8 +34,8 @@ public class EmployeeWebController {
     }
 
     @PostMapping("/pdf")
-    public String generatePdfReport() {
-        getEmployeeUseCase.generatePdfReport();
+    public String generatePdfReport(HttpServletResponse response) {
+        getEmployeeUseCase.generatePdfReport(response);
         return "redirect:/employees";
     }
 }

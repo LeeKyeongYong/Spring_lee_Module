@@ -4,6 +4,7 @@ import com.dstudy.dstudy_01.report.domain.Employee;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 
 import java.io.FileOutputStream;
@@ -11,10 +12,14 @@ import java.util.List;
 
 @Component
 public class PdfReportGenerator {
-    public void generate(List<Employee> employees) {
+    public void generate(List<Employee> employees, HttpServletResponse response) {
         try {
+
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=employees.pdf");
+
             Document document = new Document();
-            PdfWriter.getInstance(document, new FileOutputStream("employees.pdf"));
+            PdfWriter.getInstance(document, response.getOutputStream());
             document.open();
 
             // Add title
