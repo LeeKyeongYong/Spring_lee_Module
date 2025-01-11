@@ -4,6 +4,8 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+src/test/java/com/dstudy/dstudy_01/global/app/JasyptConfigTest.java
+src/main/java/com/dstudy/dstudy_01/global/app/JasyptConfig.java
 
 ### STS ###
 .apt_generated
