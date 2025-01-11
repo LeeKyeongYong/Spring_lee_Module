@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @RestController
 @RequestMapping("/api/employees")
 @RequiredArgsConstructor
-public class EmployeeController {
+public class EmployeeRestController {
     private final GetEmployeeUseCase getEmployeeUseCase;
 
     @GetMapping
