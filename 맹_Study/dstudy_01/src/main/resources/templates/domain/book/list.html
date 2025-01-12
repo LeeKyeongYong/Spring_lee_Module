@@ -1,10 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html layout:decorate="~{global/wordLayout}">
 
+<head>
+    <title th:text="|PDF 미리보기|"></title>
+
+    <style>
+        body { font-size: 12px; }
+        table { width: 800px; }
+        .error { color: red; }
+        a { text-decoration: none; }
+    </style>
+    <script th:inline="javascript">
+        function check(fm) {
+            if(fm.title.value.length == 0) {
+                alert("간략한 설명을 넣어주세요.");
+                return false;
+            }
+
+            if(fm.file.value.length == 0) {
+                alert("업로드 할 파일을 지정해주세요.");
+                return false;
+            }
+
+            const formData = new FormData(fm);
+
+            fetch('/api/books', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if(response.ok) {
+                        window.location.reload();
+                    } else {
+                        alert('파일 업로드에 실패했습니다.');
+                    }
+                })
+                .catch(error => {
+                    alert('오류가 발생했습니다: ' + error);
+                });
+
+            return false;
+        }
+    </script>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <h3>PDF 미리보기</h3>
+        <div>
+<!--            th:action="@{/api/books}"-->
+            <form  method="post" enctype="multipart/form-data" onsubmit="return check(this)">
+                <strong>PDF 파일만 업로드 가능합니다.</strong><br />
+                <label for="title">설명:&nbsp;</label>
+                <input type="text" id="title" name="title" size="100"><br />
+                <label for="file">파일:&nbsp;</label>
+                <input type="file" id="file" name="file" accept="application/pdf" size="100"><br /><br />
+                <input type="submit" value="업로드">
+            </form><br />
+
+            <span class="error" th:if="${error}" th:text="${error}"></span>
+
+            <table border="1">
+                <tr>
+                    <th width="60">일련번호</th>
+                    <th>설명</th>
+                    <th width="120">업로드 날짜</th>
+                </tr>
+                <tr th:each="book : ${books}">
+                    <td align="center" th:text="${book.id}"></td>
+                    <td><a th:href="@{/book/{id}(id=${book.id},page=${param.page})}" th:text="${book.title}"></a></td>
+                    <td align="center" th:text="${#temporals.format(book.uploadDate, 'yyyy/MM/dd HH:mm:ss')}"></td>
+                </tr>
+                <tr>
+                    <td colspan="3" align="center" th:utext="${navigator}"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
 </body>
 </html>

@@ -1,10 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html layout:decorate="~{global/wordLayout}">
 
+<head>
+    <title th:text="|PDF 미리 보기 상세 페이지|"></title>
+
+    <style>
+        body { font-size: 12px; }
+        a { text-decoration: none; }
+        #frame { padding: 5px; border: 1px solid gray; }
+    </style>
+    <script>
+    </script>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <h3>PDF 미리 보기</h3>
+        <strong>미리 보기는 문서의 첫 10페이지만 제공됩니다.</strong>
+        <div>
+            <table border="1">
+                <tr>
+                    <th>설명</th>
+                    <td th:text="${book.title}"></td>
+                </tr>
+                <tr>
+                    <th>업로드 일자</th>
+                    <td th:text="${#temporals.format(book.uploadDate, 'yyyy/MM/dd HH:mm:ss')}"></td>
+                </tr>
+                <tr>
+                    <th>파일명</th>
+                    <td>
+                        <span th:text="${book.fileName}"></span>&nbsp;&nbsp;
+                        <a th:href="@{/save(no=${book.id})}">[다운로드]</a>&nbsp;&nbsp;
+                        <a th:href="@{/api/books(no=${book.id}, page=${page})}">[삭제]</a>
+                    </td>
+                </tr>
+                <tr>
+                    <th>총 페이지수</th>
+                    <td th:text="${book.pageNum}"></td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <table>
+                            <tr>
+                                <td>
+                                    <a th:if="${currentPage > 1}"
+                                       th:href="@{/book/{id}(id=${book.id}, page=${page}, currentPage=${currentPage - 1})}">[이전 페이지]</a>
+                                </td>
+                                <td align="center">
+                                    <strong th:text="${currentPage + '/' + lastPage}"></strong><br />
+                                    <div id="frame">
+                                        <img th:src="@{'/previews/preview_' + ${book.id} + '_' + ${currentPage} + '.png'}" width="500">
+                                    </div>
+                                </td>
+                                <td>
+                                    <a th:if="${currentPage < lastPage}"
+                                       th:href="@{/book/{id}(id=${book.id}, page=${page}, currentPage=${currentPage + 1})}">[다음 페이지]</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table><br />
+            <a th:href="@{/book/list(page=${page})}">목록으로 돌아가기</a>
+        </div>
+    </div>
 </body>
 </html>

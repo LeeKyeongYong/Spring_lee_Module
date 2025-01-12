@@ -17,7 +17,17 @@
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
 
   <script type="text/javascript">
-    const urlParams = getUrlParams(location.href);
+    const urlParams = getUrlParams2(location.href);
+
+    function getUrlParams2(url) {
+      let params = {};
+      const searchParams = new URLSearchParams(url.split('?')[1]);
+      for (let [key, value] of searchParams) {
+        params[key] = value;
+      }
+      return params;
+    }
+
   </script>
 </head>
 <body>

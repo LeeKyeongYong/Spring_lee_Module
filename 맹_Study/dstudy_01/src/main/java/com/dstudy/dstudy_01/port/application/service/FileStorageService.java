@@ -17,7 +17,8 @@ public class FileStorageService {
     private final Path previewPath;
 
     public FileStorageService() {
-        this.rootLocation = Paths.get("upload-dir");
+        String projectDir = System.getProperty("user.dir");
+        this.rootLocation = Paths.get(projectDir, "upload-dir");
         this.documentPath = rootLocation.resolve("documents");
         this.previewPath = rootLocation.resolve("previews");
         try {
