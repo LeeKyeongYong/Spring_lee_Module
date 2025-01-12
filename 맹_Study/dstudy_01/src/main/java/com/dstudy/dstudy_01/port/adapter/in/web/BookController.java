@@ -36,9 +36,9 @@ public class BookController {
 
     @GetMapping("/{id}")
     public String viewBook(
-            @PathVariable(value = "id") Long id,
-            @RequestParam(value = "page", required = false) String page,
-            @RequestParam(value = "currentPage", required = false, defaultValue = "1") Integer currentPage
+            @PathVariable(name  = "id") Long id,
+            @RequestParam(name  = "page", required = false) String page,
+            @RequestParam(name  = "currentPage", required = false, defaultValue = "1") Integer currentPage
     ) {
         Book book = bookUseCase.getBook(id);
         rq.setAttribute("book", book);
@@ -46,6 +46,21 @@ public class BookController {
         rq.setAttribute("currentPage", currentPage);  // PDF의 현재 페이지
         rq.setAttribute("lastPage", Math.min(book.getPageNum(), 10));
         return "domain/book/view";
+    }
+
+    @GetMapping("/delete/{id}")
+    public String deleteBook(
+            @PathVariable(name = "id") Long id,
+            @RequestParam(name = "page", required = false) String page,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            bookUseCase.removeBook(id);
+            redirectAttributes.addFlashAttribute("msg", "문서가 삭제되었습니다.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "문서 삭제 중 오류가 발생했습니다.");
+        }
+        return "redirect:/book/list" + (page != null ? "?page=" + page : "");
     }
 
 }

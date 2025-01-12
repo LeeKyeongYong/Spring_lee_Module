@@ -31,8 +31,9 @@
                     <th>파일명</th>
                     <td>
                         <span th:text="${book.fileName}"></span>&nbsp;&nbsp;
-                        <a th:href="@{/save(no=${book.id})}">[다운로드]</a>&nbsp;&nbsp;
-                        <a th:href="@{/api/books(no=${book.id}, page=${page})}">[삭제]</a>
+                        <a th:href="@{/api/books/download/{id}(id=${book.id})}">[다운로드]</a>&nbsp;&nbsp;
+                        <a th:href="@{/book/delete/{id}(id=${book.id})}"
+                           onclick="return confirm('정말 삭제하시겠습니까?');">[삭제]</a>
                     </td>
                 </tr>
                 <tr>
