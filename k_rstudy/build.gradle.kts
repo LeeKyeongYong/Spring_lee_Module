@@ -31,8 +31,12 @@ noArg {
     annotation("jakarta.persistence.Entity")
 }
 
-kotlin.sourceSets.main {
-    setBuildDir("$buildDir")
+sourceSets {
+    main {
+        kotlin {
+            srcDir("$buildDir/generated/source/kapt/main")
+        }
+    }
 }
 
 // KAPT 설정
@@ -41,10 +45,10 @@ kapt {
     correctErrorTypes = true
     arguments {
         arg("querydsl.generatedAnnotationClass", "javax.annotation.Generated")
-        // 패키지명 수정
         arg("querydsl.packageName", "com.krstudy.kapi")
     }
 }
+
 
 // QClass 생성 위치 설정
 idea {
@@ -58,7 +62,7 @@ idea {
 // Clean 태스크 수정
 tasks.named("clean") {
     doLast {
-        file("src/main/generated").deleteRecursively()
+        file("build/generated/source/kapt/main").deleteRecursively()
     }
 }
 
@@ -75,6 +79,9 @@ repositories {
     }
     maven {
         url = uri("https://mvnrepository.com/artifact/org.hyperic/sigar")
+    }
+    maven {
+        url = uri("https://repository.jboss.org/nexus/content/repositories/thirdparty-releases")
     }
 }
 
@@ -108,9 +115,12 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     // QueryDSL
-    implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
-    kapt("com.querydsl:querydsl-apt:5.0.0:jakarta")
-    implementation("com.querydsl:querydsl-core")
+    implementation("com.querydsl:querydsl-jpa:5.1.0:jakarta")
+    implementation("com.querydsl:querydsl-apt:5.1.0:jakarta")
+    kapt("com.querydsl:querydsl-apt:5.1.0:jakarta")
+    kapt("org.springframework.boot:spring-boot-configuration-processor")
+    implementation("org.hibernate:hibernate-core:6.1.0.Final")
+
     kapt("jakarta.annotation:jakarta.annotation-api")
     kapt("jakarta.persistence:jakarta.persistence-api")
 
@@ -281,7 +291,9 @@ dependencies {
     implementation("com.github.oshi:oshi-core:6.4.0")
 
     // Sigar 라이브러리 추가
-    implementation("org.hyperic:sigar:1.6.4")
+    implementation("org.hyperic:sigar:1.6.5.132") {
+        exclude(group = "log4j", module = "log4j")
+    }
 
     // 필요한 경우 native 라이브러리도 추가
     runtimeOnly("org.hyperic:sigar-native:1.6.4")
