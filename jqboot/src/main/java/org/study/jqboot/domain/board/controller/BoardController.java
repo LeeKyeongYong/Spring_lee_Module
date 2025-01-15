@@ -12,17 +12,17 @@ import org.study.jqboot.domain.board.service.BoardService;
 
 @Controller
 @RequiredArgsConstructor
-public class HomeController {
+public class BoardController {
 
-    private final BoardService boardService;
+    /*private final BoardService boardService;
 
     @GetMapping(value = {"/", "index"})
     public String getAllBoardByPage(
             @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
             Model model) {
         model.addAttribute("page", page);
-        model.addAttribute("lastPage", boardService.getLastPage());
-        model.addAttribute("boards", boardService.getAllBoardByPage(page));
+        //model.addAttribute("lastPage", boardService.getLastPage());
+        //model.addAttribute("boards", boardService.getAllBoardByPage(page));
         return "list";
     }
 
@@ -41,7 +41,7 @@ public class HomeController {
 
         model.addAttribute("board", board);
         model.addAttribute("page", page);
-        model.addAttribute("replies", boardService.getAllRepliesByNo(no));
+        //model.addAttribute("replies", boardService.getAllRepliesByNo(no));
         model.addAttribute("reply", Reply.builder().build());
         return "view";
     }
@@ -93,7 +93,7 @@ public class HomeController {
                 return "redirect:/view?no=" + no + "&page=" + page + "&back=y";
             case "reply":
                 reply.setRefNo(no);
-                boardService.addReply(reply);
+               //boardService.addReply(reply);
                 return "redirect:/view?no=" + no + "&page=" + page + "&back=y";
             default:
                 throw new IllegalArgumentException("Invalid action type");
@@ -125,32 +125,32 @@ public class HomeController {
 
         switch(action) {
             case "update":
-                if(boardService.checkBoardPassword(no, password)) {
-                    model.addAttribute("title", "Edit Post");
-                    model.addAttribute("no", no);
-                    model.addAttribute("page", page);
-                    model.addAttribute("action", action);
-                    model.addAttribute("board", boardService.getBoardByNo(no));
-                    return "edit";
-                }
+//                if(boardService.checkBoardPassword(no, password)) {
+//                    model.addAttribute("title", "Edit Post");
+//                    model.addAttribute("no", no);
+//                    model.addAttribute("page", page);
+//                    model.addAttribute("action", action);
+//                    model.addAttribute("board", boardService.getBoardByNo(no));
+//                    return "edit";
+//                }
                 throw new IllegalArgumentException("Invalid password");
 
             case "delete":
-                if(boardService.checkBoardPassword(no, password)) {
+                *//*if(boardService.checkBoardPassword(no, password)) {
                     boardService.removeBoard(no);
                     return "redirect:/index?page=" + page;
-                }
+                }*//*
                 throw new IllegalArgumentException("Invalid password");
 
             case "del_repl":
-                if(boardService.checkReplyPassword(rno, password)) {
+               *//* if(boardService.checkReplyPassword(rno, password)) {
                     boardService.removeReply(rno, no);
                     return "redirect:/view?no=" + no + "&page=" + page + "&back=y";
-                }
+                }*//*
                 throw new IllegalArgumentException("Invalid password");
 
             default:
                 throw new IllegalArgumentException("Invalid action type");
         }
-    }
+    }*/
 }

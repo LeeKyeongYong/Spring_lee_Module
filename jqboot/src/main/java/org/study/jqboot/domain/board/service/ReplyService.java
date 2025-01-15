@@ -12,6 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ReplyService {
+    /*
     private final ReplyRepository replyRepository;
 
     public List<Reply> getAllRepliesByNo(Integer refNo) {
@@ -31,4 +32,5 @@ public class ReplyService {
         }
         return false;
     }
+    */
 }

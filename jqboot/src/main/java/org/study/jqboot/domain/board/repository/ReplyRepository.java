@@ -11,7 +11,7 @@ import static org.jooq.impl.DSL.currentTimestamp;
 @Repository
 @RequiredArgsConstructor
 public class ReplyRepository {
-    private final DSLContext dsl;
+    /*private final DSLContext dsl;
 
     public boolean checkReplyPassword(Integer no, String password) {
         return dsl.selectCount()
@@ -43,4 +43,5 @@ public class ReplyRepository {
                 .orderBy(REPLY2.NO)
                 .fetchInto(Reply.class);
     }
+    */
 }

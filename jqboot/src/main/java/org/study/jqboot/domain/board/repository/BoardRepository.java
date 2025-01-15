@@ -12,7 +12,7 @@ import static org.jooq.impl.DSL.*;
 @Repository
 @RequiredArgsConstructor
 public class BoardRepository {
-    private final DSLContext dsl;
+   /* private final DSLContext dsl;
 
     public Integer getSequenceNo() {
         return dsl.select(BOARD4.NO)
@@ -89,5 +89,5 @@ public class BoardRepository {
                 .set(BOARD4.READ_CNT, BOARD4.READ_CNT.add(1))
                 .where(BOARD4.NO.eq(no))
                 .execute();
-    }
+    }*/
 }

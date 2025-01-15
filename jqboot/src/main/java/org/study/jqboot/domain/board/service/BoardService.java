@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class BoardService {
-    private final BoardRepository boardRepository;
+    /*private final BoardRepository boardRepository;
 
     public List<Board> getAllBoardByPage(PageHelper pageHelper) {
         return boardRepository.getAllBoardByPage(pageHelper);
@@ -56,5 +56,5 @@ public class BoardService {
     @Transactional
     public void raiseLookup(Integer no) {
         boardRepository.raiseLookup(no);
-    }
+    }*/
 }

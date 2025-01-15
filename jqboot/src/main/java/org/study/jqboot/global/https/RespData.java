@@ -28,6 +28,7 @@ public class RespData<T> {
         return of(resultCode, msg, null);
     }
 
+    /*
     public static <T> RespData<T> fromErrorCode(MessageCode errorCode) {
         String[] parts = errorCode.getCode().split("-", 2);
         int statusCode = 0;
@@ -42,6 +43,7 @@ public class RespData<T> {
                 null
         );
     }
+    */
 
     // Method to create new RespData with different data type
     public <U> RespData<U> newDataOf(U newData) {
