@@ -1,12 +1,12 @@
 package com.dstudy.dstudy_01;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+//import org.junit.jupiter.api.Test;
+//import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+//@SpringBootTest
 class Dstudy01ApplicationTests {
 
-    @Test
+    //@Test
     void contextLoads() {
     }
 

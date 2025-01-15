@@ -10,7 +10,8 @@ import com.krstudy.kapi.domain.member.entity.Member
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.support.PageableExecutionUtils
-import com.krstudy.kapi.domain.post.entity.*
+import com.krstudy.kapi.domain.post.entity.Post
+//import com.krstudy.kapi.domain.post.entity.QPost
 @Repository
 class PostRepositoryImpl(
     private val entityManager: EntityManager

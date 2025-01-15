@@ -2,18 +2,18 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.25")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.24")
     }
 }
 
 plugins {
     id("org.springframework.boot") version "3.3.1"
     id("io.spring.dependency-management") version "1.1.5"
-    kotlin("jvm") version "1.9.25"
-    kotlin("kapt") version "1.9.25"
-    kotlin("plugin.spring") version "1.9.25"
-    kotlin("plugin.jpa") version "1.9.25"
-    kotlin("plugin.allopen") version "1.9.25"
+    kotlin("jvm") version "1.9.24"
+    kotlin("kapt") version "1.9.24"
+    kotlin("plugin.spring") version "1.9.24"
+    kotlin("plugin.jpa") version "1.9.24"
+    kotlin("plugin.allopen") version "1.9.24"
     idea
 }
 
@@ -34,7 +34,7 @@ noArg {
 sourceSets {
     main {
         kotlin {
-            srcDir("$buildDir/generated/source/kapt/main")
+            srcDir("src/main/genrated")
         }
     }
 }
@@ -49,22 +49,15 @@ kapt {
     }
 }
 
-
 // QClass 생성 위치 설정
 idea {
     module {
-        val kaptMain = file("build/generated/source/kapt/main")
+        val kaptMain = file("build/generated/source/kapt/main") // var -> val로 수정
         sourceDirs.add(kaptMain)
         generatedSourceDirs.add(kaptMain)
     }
 }
 
-// Clean 태스크 수정
-tasks.named("clean") {
-    doLast {
-        file("build/generated/source/kapt/main").deleteRecursively()
-    }
-}
 
 configurations {
     compileOnly {
@@ -74,15 +67,10 @@ configurations {
 
 repositories {
     mavenCentral()
-    maven {
-        url = uri("https://repo.spring.io/milestone")
-    }
-    maven {
-        url = uri("https://mvnrepository.com/artifact/org.hyperic/sigar")
-    }
-    maven {
-        url = uri("https://repository.jboss.org/nexus/content/repositories/thirdparty-releases")
-    }
+    jcenter() // JCenter 추가
+    maven { url = uri("https://repo.spring.io/milestone") }
+    maven { url = uri("https://repository.jboss.org/nexus/content/repositories/thirdparty-releases") }
+    maven { url = uri("https://mvnrepository.com/artifact/org.hyperic/sigar") }
 }
 
 extra["snippetsDir"] = file("build/generated-snippets")
@@ -115,11 +103,13 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     // QueryDSL
-    implementation("com.querydsl:querydsl-jpa:5.1.0:jakarta")
-    implementation("com.querydsl:querydsl-apt:5.1.0:jakarta")
-    kapt("com.querydsl:querydsl-apt:5.1.0:jakarta")
-    kapt("org.springframework.boot:spring-boot-configuration-processor")
-    implementation("org.hibernate:hibernate-core:6.1.0.Final")
+    implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
+    implementation("com.querydsl:querydsl-apt:5.0.0:jakarta")
+    kapt("com.querydsl:querydsl-apt:5.0.0:jakarta")
+    kapt("com.querydsl:querydsl-apt:5.0.0:jakarta")
+
+
+    implementation("com.querydsl:querydsl-core")
 
     kapt("jakarta.annotation:jakarta.annotation-api")
     kapt("jakarta.persistence:jakarta.persistence-api")
@@ -214,11 +204,9 @@ dependencies {
     implementation ("org.springframework.kafka:spring-kafka")
     implementation("net.datafaker:datafaker:1.8.0")
 
-    // flink 2.12 --> 2.13 (deprecated, api, connector)
     implementation ("org.apache.flink:flink-streaming-java_2.12:1.14.0")
     implementation ("org.apache.flink:flink-clients_2.12:1.14.0")
 
-    // flink connector from kafka
     implementation ("org.apache.flink:flink-connector-kafka_2.12:1.14.0")
 
     // Resilience4j
@@ -258,12 +246,10 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    // Optional: If you're using Mockito for mocking in Kotlin
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.0.0")
     testImplementation("org.mockito:mockito-core:5.0.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.4.0")
 
-    // Optional: If you need to use coroutines in testing
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")
     implementation("org.springframework.data:spring-data-envers")
 
@@ -290,19 +276,25 @@ dependencies {
 
     implementation("com.github.oshi:oshi-core:6.4.0")
 
+    implementation("com.github.oshi:oshi-core:6.4.0")
     // Sigar 라이브러리 추가
-    implementation("org.hyperic:sigar:1.6.5.132") {
-        exclude(group = "log4j", module = "log4j")
-    }
+//    implementation("org.hyperic:sigar:1.6.5.132") {
+//        exclude(group = "log4j", module = "log4j")
+//    }
 
     // 필요한 경우 native 라이브러리도 추가
-    runtimeOnly("org.hyperic:sigar-native:1.6.4")
+    //runtimeOnly("org.hyperic:sigar-native:1.6.5.132")
 
 }
+
 
 tasks.withType<JavaCompile> {
-    options.annotationProcessorPath = configurations.kapt.get()
+    options.generatedSourceOutputDirectory.set(file("src/main/generated"))
 }
+
+//tasks.withType<JavaCompile> {
+//    options.annotationProcessorPath = configurations.kapt.get()
+//}
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
