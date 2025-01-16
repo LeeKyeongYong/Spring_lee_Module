@@ -8,19 +8,43 @@ group = 'com.dstudy'
 version = '0.0.1-SNAPSHOT'
 
 java {
-    sourceCompatibility = '21'
+    sourceCompatibility = '19'
 }
 
 repositories {
     mavenCentral()
 }
 
+sourceSets {
+    main {
+        resources {
+            srcDirs = ['src/main/resources']
+        }
+    }
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Hibernate Core
+    implementation "org.hibernate.orm:hibernate-core:6.4.1.Final"
+
+    // MySQL Connector
+    implementation "mysql:mysql-connector-java:8.0.33"
+
+    // Hibernate C3P0 Connection Pool
+    implementation "org.hibernate.orm:hibernate-c3p0:6.4.1.Final"
+
+    // Logging (Log4j)
+    implementation "org.apache.logging.log4j:log4j-core:2.22.1"
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+// Encoding 설정
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }
