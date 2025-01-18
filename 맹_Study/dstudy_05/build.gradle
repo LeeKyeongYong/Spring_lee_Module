@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'maven-publish'
     id 'org.springframework.boot' version '3.3.0'
     id 'io.spring.dependency-management' version '1.1.5'
 }
@@ -8,8 +9,10 @@ group = 'com.dstudy'
 version = '0.0.1-SNAPSHOT'
 
 java {
-    sourceCompatibility = '21'
+    sourceCompatibility = '19'
+    targetCompatibility = '19'
 }
+
 
 repositories {
     mavenCentral()
@@ -19,6 +22,21 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Hibernate
+    implementation "org.hibernate.orm:hibernate-core:6.4.1.Final"
+
+    // MySQL Connector
+    implementation "mysql:mysql-connector-java:8.0.33"
+
+    // Connection Pool (C3P0)
+    implementation "org.hibernate.orm:hibernate-c3p0:6.4.1.Final"
+
+    // Logging
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'ch.qos.logback:logback-classic:1.4.14'
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
 }
 
 tasks.named('test') {
