@@ -45,8 +45,16 @@ public class AllData {
         postService.write(memberUser2, "제목 3", "내용 3", true, false);
         postService.write(memberUser3, "제목 4", "내용 4", false, false);
 
-        for (int i = 5; i <= 100; i++) {
-            postService.write(memberUser3, "제목 " + i, "내용 " + i, true, true);
+        for (int i = 5; i <= 10000; i++) {
+
+            if(i%2==0)
+            postService.write(memberUser3, "제목 " + i, "내용 " + i, false, true);
+            else if(i%6==0)
+                postService.write(memberUser3, "제목 " + i, "내용 " + i, true, false);
+            else if(i%3==0)
+                postService.write(memberUser3, "제목 " + i, "내용 " + i, true, true);
+            else
+                postService.write(memberUser3, "제목 " + i, "내용 " + i, false, false);
         }
     }
 }
