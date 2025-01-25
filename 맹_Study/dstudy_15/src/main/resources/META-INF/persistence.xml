@@ -3,12 +3,10 @@
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
 
-    <persistence-unit name="member" transaction-type="RESOURCE_LOCAL">
+    <persistence-unit name="lecture" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-        <class>com.dstudy.dstudy_01.domain1.Member</class>
-        <class>com.dstudy.dstudy_01.domain1.Address</class>
-       <class>com.dstudy.dstudy_01.domain2.Member</class>
-        <class>com.dstudy.dstudy_01.domain2.Address</class>
+        <class>com.dstudy.dstudy_01.domain.Subject</class>
+        <class>com.dstudy.dstudy_01.domain.Student</class>
         <properties>
             <!-- MySQL Connection Settings -->
             <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
