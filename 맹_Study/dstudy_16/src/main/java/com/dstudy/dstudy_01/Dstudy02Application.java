@@ -1,16 +1,16 @@
 package com.dstudy.dstudy_01;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 //@SpringBootApplication
+
+import com.dstudy.dstudy_01.domain2.Student;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 import java.util.GregorianCalendar;
 import java.util.List;
-import com.dstudy.dstudy_01.domain1.*;
-public class Dstudy01Application {
+
+public class Dstudy02Application {
 
     public static void main(String[] args) {
 
@@ -22,6 +22,7 @@ public class Dstudy01Application {
         try {
             tx.begin();
 
+            // 첫 번째 학생 생성 및 저장
             Student.Hakbun kimHakbun = new Student.Hakbun(1, 1, 1);
             Student kim = new Student();
             kim.setHakbun(kimHakbun);
@@ -30,6 +31,7 @@ public class Dstudy01Application {
             kim.setBirthDate(new GregorianCalendar(2001, 0, 1).getTime());
             em.persist(kim);
 
+            // 두 번째 학생 생성 및 저장
             Student.Hakbun leeHakbun = new Student.Hakbun(2, 5, 15);
             Student lee = new Student();
             lee.setHakbun(leeHakbun);
@@ -42,8 +44,8 @@ public class Dstudy01Application {
 
             System.out.println("입력 완료");
 
+            // 학생 검색 및 출력
             tx.begin();
-
             List<Student> students = em.createQuery(
                             "SELECT s FROM Student s ORDER BY s.hakbun.hak, s.hakbun.ban, s.hakbun.bun",
                             Student.class)
@@ -60,7 +62,6 @@ public class Dstudy01Application {
             });
 
             tx.commit();
-
         } catch (Exception e) {
             if (tx.isActive()) {
                 tx.rollback();
@@ -70,6 +71,5 @@ public class Dstudy01Application {
             em.close();
             emf.close();
         }
-
     }
 }
