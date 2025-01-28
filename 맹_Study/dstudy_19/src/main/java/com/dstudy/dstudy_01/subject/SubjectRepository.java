@@ -40,7 +40,7 @@ public class SubjectRepository {
                     .join(STUDENT)
                     .on(SUBJECT.ID.eq(STUDENT.NO))
                     .limit(pageSize)
-                    .offset((page-1)*pageSize)
+                    .offset(Math.max(0, (page-1)*pageSize))
                     .fetchInto(SubjectWithStudent.class);
         }
 }

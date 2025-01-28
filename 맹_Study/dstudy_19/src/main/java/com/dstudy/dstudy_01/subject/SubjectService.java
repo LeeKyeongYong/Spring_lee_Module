@@ -13,7 +13,7 @@ import java.util.List;
 public class SubjectService {
     private final SubjectRepository subjectRepository;
 
-    public SubjectWithStudentPagedResponse getFilmActorPageResponse (Long page, Long pageSize) {
+    public SubjectWithStudentPagedResponse getSubjectStudentPageResponse (Long page, Long pageSize) {
         List<SubjectWithStudent> filmWithActorsList = subjectRepository.findSubjectWithStudentList(page, pageSize);
         return new SubjectWithStudentPagedResponse(
                 new PagedResponse(page, pageSize),
@@ -21,7 +21,7 @@ public class SubjectService {
         );
     }
 
-    public SubjectInfo getSimpleFilmInfo (Long subjectId) {
+    public SubjectInfo getSimpleSubjectInfo (Long subjectId) {
         return subjectRepository.findByIdSubjectInfo(subjectId);
     }
 }
