@@ -1,19 +1,13 @@
 package com.bp.example;
 
-//import org.junit.jupiter.api.Test;
-//import org.springframework.boot.test.context.SpringBootTest;
-//@SpringBootTest
 import com.bp.example.domain.House;
-import junit.framework.Test;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
 class BuilderDesignPatternApplicationTests {
 
-    //@Test
-    //void contextLoads() {
-    //}
     @Test
-    public void shouldBuildHouseWithAllProperties() {
+    void shouldBuildHouseWithAllProperties() {
         // Given
         House house = new House.HouseBuilder()
                 .setStructure("Wooden")
@@ -32,7 +26,7 @@ class BuilderDesignPatternApplicationTests {
     }
 
     @Test
-    public void shouldBuildMinimalHouse() {
+    void shouldBuildMinimalHouse() {
         // Given
         House house = new House.HouseBuilder()
                 .setStructure("Brick")
@@ -46,13 +40,13 @@ class BuilderDesignPatternApplicationTests {
         assertFalse(house.isHasGarage());
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void shouldThrowExceptionWhenStructureIsMissing() {
-        // When
-        new House.HouseBuilder()
-                .setRoof("Metal")
-                .build();
+    @Test
+    void shouldThrowExceptionWhenStructureIsMissing() {
+        // When & Then
+        assertThrows(IllegalStateException.class, () -> {
+            new House.HouseBuilder()
+                    .setRoof("Metal")
+                    .build();
+        });
     }
-
-
 }
