@@ -1,9 +1,10 @@
 package com.study.nextspring.domain.member.dto.res;
 
 import com.study.nextspring.domain.member.dto.MemberDto;
+import lombok.NonNull;
 
 record MemberLoginResBody(
-        MemberDto item,
+        @NonNull MemberDto item,
         String apiKey
 ) {
 }

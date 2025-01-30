@@ -1,5 +1,6 @@
 package com.study.nextspring.domain.post.repository;
 
+import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.post.entity.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

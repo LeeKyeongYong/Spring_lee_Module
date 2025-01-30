@@ -1,5 +1,8 @@
 package com.study.nextspring.domain.post.entity;
 
+import com.study.nextspring.domain.member.entity.Member;
+import com.study.nextspring.global.exception.ServiceException;
+import com.study.nextspring.global.jpa.entity.BaseTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -8,7 +11,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.service.spi.ServiceException;
 
 @Entity
 @Getter

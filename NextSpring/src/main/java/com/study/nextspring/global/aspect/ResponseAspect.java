@@ -1,5 +1,6 @@
 package com.study.nextspring.global.aspect;
 
+import com.study.nextspring.global.httpsdata.RespData;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -38,8 +39,8 @@ public class ResponseAspect {
     public Object handleResponse(ProceedingJoinPoint joinPoint) throws Throwable {
         Object proceed = joinPoint.proceed();
 
-        if (proceed instanceof RsData<?>) {
-            RsData<?> rsData = (RsData<?>) proceed;
+        if (proceed instanceof RespData<?>) {
+            RespData<?> rsData = (RespData<?>) proceed;
             response.setStatus(rsData.getStatusCode());
         }
 

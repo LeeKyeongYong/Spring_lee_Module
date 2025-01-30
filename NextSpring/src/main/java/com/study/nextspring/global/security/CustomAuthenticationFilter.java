@@ -1,6 +1,8 @@
 package com.study.nextspring.global.security;
 
+import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.member.service.MemberService;
+import com.study.nextspring.global.httpsdata.ReqData;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,7 +18,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CustomAuthenticationFilter extends OncePerRequestFilter {
     private final MemberService memberService;
-    private final Rq rq;
+    private final ReqData rq;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

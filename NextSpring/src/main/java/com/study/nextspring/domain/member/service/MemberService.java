@@ -5,7 +5,8 @@ import com.study.nextspring.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.stereotype.Service;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,8 +22,8 @@ public class MemberService {
     public Member join(String username, String password, String nickname) {
         memberRepository
                 .findByUsername(username)
-                .ifPresent(_ -> {
-                    throw new ServiceException("409-1", "해당 username은 이미 사용중입니다.");
+                .ifPresent(existingMember -> {
+                    throw new ServiceException("해당 username은 이미 사용중입니다.");
                 });
 
         Member member = Member.builder()

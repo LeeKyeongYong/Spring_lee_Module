@@ -1,17 +1,20 @@
 package com.study.nextspring.domain.post.controller;
 
+import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.post.dto.PostCommentDto;
 import com.study.nextspring.domain.post.entity.Post;
 import com.study.nextspring.domain.post.entity.PostComment;
 import com.study.nextspring.domain.post.service.PostService;
+import com.study.nextspring.global.httpsdata.ReqData;
+import com.study.nextspring.global.httpsdata.RespData;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.service.spi.ServiceException;
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
+import com.study.nextspring.domain.post.dto.*;
 import java.util.List;
 
 @RestController
@@ -19,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ApiV1PostCommentController {
     private final PostService postService;
-    private final Rq rq;
+    private final ReqData rq;
 
     @GetMapping
     @Transactional(readOnly = true)
@@ -27,7 +30,7 @@ public class ApiV1PostCommentController {
             @PathVariable long postId
     ) {
         Post post = postService.findById(postId).orElseThrow(
-                () -> new ServiceException("404-1", "%d번 글은 존재하지 않습니다.".formatted(postId))
+                () -> new ServiceException("%d번 글은 존재하지 않습니다.".formatted(postId))
         );
 
         return post
@@ -39,25 +42,25 @@ public class ApiV1PostCommentController {
 
     @DeleteMapping("/{id}")
     @Transactional
-    public RsData<Void> delete(
+    public RespData<Void> delete(
             @PathVariable long postId,
             @PathVariable long id
     ) {
         Member actor = rq.getActor();
 
         Post post = postService.findById(postId).orElseThrow(
-                () -> new ServiceException("404-1", "%d번 글은 존재하지 않습니다.".formatted(postId))
+                () -> new ServiceException("%d번 글은 존재하지 않습니다.".formatted(postId))
         );
 
         PostComment postComment = post.getCommentById(id).orElseThrow(
-                () -> new ServiceException("404-2", "%d번 댓글은 존재하지 않습니다.".formatted(id))
+                () -> new ServiceException("%d번 댓글은 존재하지 않습니다.".formatted(id))
         );
 
         postComment.checkActorCanDelete(actor);
 
         post.removeComment(postComment);
 
-        return new RsData<>(
+        return new RespData<>(
                 "200-1",
                 "%d번 댓글이 삭제되었습니다.".formatted(id)
         );
@@ -73,7 +76,7 @@ public class ApiV1PostCommentController {
 
     @PutMapping("/{id}")
     @Transactional
-    public RsData<PostCommentDto> modify(
+    public RespData<PostCommentDto> modify(
             @PathVariable long postId,
             @PathVariable long id,
             @RequestBody @Valid PostCommentModifyReqBody reqBody
@@ -81,55 +84,44 @@ public class ApiV1PostCommentController {
         Member actor = rq.getActor();
 
         Post post = postService.findById(postId).orElseThrow(
-                () -> new ServiceException("404-1", "%d번 글은 존재하지 않습니다.".formatted(postId))
+                () -> new ServiceException("%d번 글은 존재하지 않습니다.".formatted(postId))
         );
 
         PostComment postComment = post.getCommentById(id).orElseThrow(
-                () -> new ServiceException("404-2", "%d번 댓글은 존재하지 않습니다.".formatted(id))
+                () -> new ServiceException("%d번 댓글은 존재하지 않습니다.".formatted(id))
         );
 
         postComment.checkActorCanModify(actor);
 
         postComment.modify(reqBody.content);
 
-        return new RsData<>(
-                "200-1",
-                "%d번 댓글이 수정되었습니다.".formatted(id),
-                new PostCommentDto(postComment)
-        );
+        return RespData.of("200-1", "%d번 댓글이 수정되었습니다.".formatted(id), new PostCommentDto(postComment));
     }
 
 
-    record PostCommentWriteReqBody(
-            @NotBlank
-            @Length(min = 2, max = 100)
-            String content
-    ) {
-    }
+
 
     @PostMapping
     @Transactional
-    public RsData<PostCommentDto> write(
+    public RespData<PostCommentDto> write(
             @PathVariable long postId,
             @RequestBody @Valid PostCommentWriteReqBody reqBody
     ) {
         Member actor = rq.getActor();
 
         Post post = postService.findById(postId).orElseThrow(
-                () -> new ServiceException("404-1", "%d번 글은 존재하지 않습니다.".formatted(postId))
+                () -> new ServiceException("%d번 글은 존재하지 않습니다.".formatted(postId))
         );
 
         PostComment postComment = post.addComment(
                 actor,
-                reqBody.content
+                reqBody.content()
         );
 
         postService.flush();
 
-        return new RsData<>(
-                "201-1",
-                "%d번 댓글이 생성되었습니다.".formatted(postComment.getId()),
-                new PostCommentDto(postComment)
-        );
+
+        return RespData.<PostCommentDto>of("200-1", "%d번 댓글이 수정되었습니다.".formatted(postComment.getId()), new PostCommentDto(postComment));
+
     }
 }

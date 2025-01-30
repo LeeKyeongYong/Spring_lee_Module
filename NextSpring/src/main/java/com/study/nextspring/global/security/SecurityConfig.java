@@ -64,8 +64,8 @@ public class SecurityConfig {
                                             if (is401) {
                                                 response.setStatus(401);
                                                 response.getWriter().write(
-                                                        Ut.json.toString(
-                                                                new RsData("401-1", "사용자 인증정보가 올바르지 않습니다.")
+                                                        UtClass.json.toString(
+                                                                new RespData("401-1", "사용자 인증정보가 올바르지 않습니다.")
                                                         )
                                                 );
                                                 return;
@@ -73,8 +73,8 @@ public class SecurityConfig {
 
                                             response.setStatus(403);
                                             response.getWriter().write(
-                                                    Ut.json.toString(
-                                                            new RsData("403-1", request.getRequestURI() + ", " + authException.getLocalizedMessage())
+                                                    UtClass.json.toString(
+                                                            new RespData("403-1", request.getRequestURI() + ", " + authException.getLocalizedMessage())
                                                     )
                                             );
                                         }

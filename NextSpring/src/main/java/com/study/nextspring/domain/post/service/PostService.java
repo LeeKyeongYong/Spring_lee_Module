@@ -1,7 +1,9 @@
 package com.study.nextspring.domain.post.service;
 
+import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.post.entity.Post;
 import com.study.nextspring.domain.post.repository.PostRepository;
+import com.study.nextspring.global.base.UtClass;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -72,7 +74,7 @@ public class PostService {
             int page,
             int pageSize
     ) {
-        if (Ut.str.isBlank(searchKeyword)) return findByListedPaged(listed, page, pageSize);
+        if (UtClass.str.isBlank(searchKeyword)) return findByListedPaged(listed, page, pageSize);
 
         PageRequest pageRequest = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Order.desc("id")));
 
@@ -97,7 +99,7 @@ public class PostService {
             int page,
             int pageSize
     ) {
-        if (Ut.str.isBlank(searchKeyword)) return findByAuthorPaged(author, page, pageSize);
+        if (UtClass.str.isBlank(searchKeyword)) return findByAuthorPaged(author, page, pageSize);
 
         PageRequest pageRequest = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Order.desc("id")));
 

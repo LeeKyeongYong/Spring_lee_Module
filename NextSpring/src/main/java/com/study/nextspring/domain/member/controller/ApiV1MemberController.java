@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.service.spi.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,20 +40,21 @@ public class ApiV1MemberController {
 
     @PostMapping("/login")
     @Operation(summary = "로그인")
-    public RespData<MemberLoginResBody> login(@Valid @RequestBody MemberLoginReqBody reqBody) {
-        RespData<MemberService.MemberAuthAndMakeTokensResBody> authAndMakeTokensRs = memberService.authAndMakeTokens(
-                reqBody.username(),
-                reqBody.password()
-        );
+    public RespData<MemberLoginResBody> login(
+            @RequestBody @Valid MemberLoginReqBody reqBody
+    ) {
+        Member member = memberService
+                .findByUsername(reqBody.username())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "존재하지 않는 사용자입니다."));
 
-        String accessToken = authAndMakeTokensRs.getData().accessToken();
-        String refreshToken = authAndMakeTokensRs.getData().refreshToken();
+        if (!member.matchPassword(reqBody.password()))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
 
-        rq.makeAuthCookies(accessToken, refreshToken);
-
-        return authAndMakeTokensRs.newDataOf(
+        return RespData.of(
+                "200-1",
+                "%s님 환영합니다.".formatted(member.getName()),
                 new MemberLoginResBody(
-                        new MemberDto(authAndMakeTokensRs.getData().member())
+                        new MemberDto(member)
                 )
         );
     }
@@ -66,7 +66,6 @@ public class ApiV1MemberController {
                 new MemberDto(rq.getMember())
         );
     }
-
 
     @PostMapping("/logout")
     public RespData<Empty> logout() {

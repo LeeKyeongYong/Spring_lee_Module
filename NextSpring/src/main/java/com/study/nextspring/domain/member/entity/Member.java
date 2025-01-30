@@ -5,6 +5,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -34,5 +36,12 @@ public class Member extends BaseTime {
 
     public boolean matchPassword(String password) {
         return this.password.equals(password);
+    }
+
+    public List<String> getAuthoritiesAsStringList() {
+        if (isAdmin()) {
+            return List.of("ADMIN", "MEMBER");
+        }
+        return List.of("MEMBER");
     }
 }

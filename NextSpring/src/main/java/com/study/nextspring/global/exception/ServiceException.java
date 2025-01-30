@@ -1,5 +1,7 @@
 package com.study.nextspring.global.exception;
 
+import com.study.nextspring.global.httpsdata.RespData;
+
 public class ServiceException extends RuntimeException {
     private final String resultCode;
     private final String msg;
@@ -10,7 +12,7 @@ public class ServiceException extends RuntimeException {
         this.msg = msg;
     }
 
-    public RsData<Void> getRsData() {
-        return new RsData<>(resultCode, msg);
+    public RespData<Void> getRsData() {
+        return new RespData<>(resultCode, msg);
     }
 }

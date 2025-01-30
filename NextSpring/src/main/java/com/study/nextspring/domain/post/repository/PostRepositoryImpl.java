@@ -44,11 +44,11 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     private void applyKeywordFilter(KwTypeV1 kwType, String kw, BooleanBuilder builder) {
         switch (kwType) {
             case TITLE -> builder.and(post.title.containsIgnoreCase(kw));
-            case BODY -> builder.and(post.body.containsIgnoreCase(kw));
+            case BODY -> builder.and(post.content.containsIgnoreCase(kw));
             case NAME -> builder.and(post.author.nickname.containsIgnoreCase(kw));
             case ALL -> builder.and(
                     post.title.containsIgnoreCase(kw)
-                            .or(post.body.containsIgnoreCase(kw))
+                            .or(post.content.containsIgnoreCase(kw))
                             .or(post.author.nickname.containsIgnoreCase(kw))
             );
         }

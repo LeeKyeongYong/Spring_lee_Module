@@ -1,16 +1,18 @@
 package com.study.nextspring.domain.post.controller;
 
-import com.study.nextspring.domain.post.dto.PostCommentDto;
+import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.post.dto.PostDto;
+import com.study.nextspring.domain.post.dto.PostWithContentDto;
 import com.study.nextspring.domain.post.entity.Post;
-import com.study.nextspring.domain.post.entity.PostComment;
 import com.study.nextspring.domain.post.service.PostService;
+import com.study.nextspring.global.httpsdata.ReqData;
+import com.study.nextspring.global.httpsdata.RespData;
 import com.study.nextspring.global.pagination.PageDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.service.spi.ServiceException;
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ApiV1PostController {
     private final PostService postService;
-    private final Rq rq;
+    private final ReqData rq;
 
     @GetMapping("/mine")
     @Transactional(readOnly = true)
@@ -60,7 +62,7 @@ public class ApiV1PostController {
             Member actor = rq.getActor();
 
             if (actor == null) {
-                throw new ServiceException("401-1", "로그인이 필요합니다.");
+                throw new ServiceException("로그인이 필요합니다.");
             }
 
             post.checkActorCanRead(actor);
@@ -84,7 +86,7 @@ public class ApiV1PostController {
 
     @PostMapping
     @Transactional
-    public RsData<PostWithContentDto> write(
+    public RespData<PostWithContentDto> write(
             @RequestBody @Valid PostWriteReqBody reqBody
     ) {
         Member actor = rq.getActor();
@@ -97,11 +99,7 @@ public class ApiV1PostController {
                 reqBody.listed
         );
 
-        return new RsData<>(
-                "201-1",
-                "%d번 글이 작성되었습니다.".formatted(post.getId()),
-                new PostWithContentDto(post)
-        );
+        return RespData.of("201-1", "%d번 글이 작성되었습니다.".formatted(post.getId()), new PostWithContentDto(post));
     }
 
 
@@ -119,7 +117,7 @@ public class ApiV1PostController {
 
     @PutMapping("/{id}")
     @Transactional
-    public RsData<PostWithContentDto> modify(
+    public RespData<PostWithContentDto> modify(
             @PathVariable long id,
             @RequestBody @Valid PostModifyReqBody reqBody
     ) {
@@ -133,17 +131,13 @@ public class ApiV1PostController {
 
         postService.flush();
 
-        return new RsData<>(
-                "200-1",
-                "%d번 글이 수정되었습니다.".formatted(id),
-                new PostWithContentDto(post)
-        );
+        return RespData.of("200-1", "%d번 글이 수정되었습니다.".formatted(id), new PostWithContentDto(post));
     }
 
 
     @DeleteMapping("/{id}")
     @Transactional
-    public RsData<Void> delete(
+    public RespData<Void> delete(
             @PathVariable long id
     ) {
         Member member = rq.getActor();
@@ -154,6 +148,6 @@ public class ApiV1PostController {
 
         postService.delete(post);
 
-        return new RsData<>("200-1", "%d번 글이 삭제되었습니다.".formatted(id));
+        return new RespData<>("200-1", "%d번 글이 삭제되었습니다.".formatted(id));
     }
 }

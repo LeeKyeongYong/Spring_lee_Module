@@ -1,5 +1,6 @@
 package com.study.nextspring.global.exception;
 import com.study.nextspring.global.app.AppConfig;
+import com.study.nextspring.global.httpsdata.RespData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,20 +17,20 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
     @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<RsData<Void>> handle(NoSuchElementException ex) {
+    public ResponseEntity<RespData<Void>> handle(NoSuchElementException ex) {
 
         if (AppConfig.isNotProd()) ex.printStackTrace();
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(new RsData<>(
+                .body(new RespData<>(
                         "404-1",
                         "해당 데이터가 존재하지 않습니다."
                 ));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<RsData<Void>> handle(MethodArgumentNotValidException ex) {
+    public ResponseEntity<RespData<Void>> handle(MethodArgumentNotValidException ex) {
 
         if (AppConfig.isNotProd()) ex.printStackTrace();
 
@@ -44,18 +45,18 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new RsData<>(
+                .body(new RespData<>(
                         "400-1",
                         message
                 ));
     }
 
     @ExceptionHandler(ServiceException.class)
-    public ResponseEntity<RsData<Void>> handle(ServiceException ex) {
+    public ResponseEntity<RespData<Void>> handle(ServiceException ex) {
 
         if (AppConfig.isNotProd()) ex.printStackTrace();
 
-        RsData<Void> rsData = ex.getRsData();
+        RespData<Void> rsData = ex.getRsData();
 
         return ResponseEntity
                 .status(rsData.getStatusCode())
