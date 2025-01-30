@@ -1,144 +1,159 @@
 package com.study.nextspring.domain.post.controller;
 
-import com.study.nextspring.domain.member.entity.Member;
-import com.study.nextspring.domain.member.service.MemberService;
+import com.study.nextspring.domain.post.dto.PostCommentDto;
 import com.study.nextspring.domain.post.dto.PostDto;
-import com.study.nextspring.domain.post.dto.PostModifyItemReqBody;
-import com.study.nextspring.domain.post.dto.PostWriteItemReqBody;
 import com.study.nextspring.domain.post.entity.Post;
+import com.study.nextspring.domain.post.entity.PostComment;
 import com.study.nextspring.domain.post.service.PostService;
-import com.study.nextspring.global.app.AppConfig;
-import com.study.nextspring.global.base.Empty;
-import com.study.nextspring.global.base.KwTypeV1;
-import com.study.nextspring.global.httpsdata.ReqData;
-import com.study.nextspring.global.httpsdata.RespData;
 import com.study.nextspring.global.pagination.PageDto;
-import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.jaxb.SpringDataJaxb;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.hibernate.service.spi.ServiceException;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/posts")
 @RequiredArgsConstructor
 public class ApiV1PostController {
-    @Autowired private final PostService postService;
-    private final MemberService memberService;
-    private final ReqData rq;
+    private final PostService postService;
+    private final Rq rq;
 
-    @GetMapping("/api/v1/posts")
-    @Operation(summary = "다건 조회")
-    public PageDto<PostDto> getItems(
+    @GetMapping("/mine")
+    @Transactional(readOnly = true)
+    public PageDto<PostDto> mine(
+            @RequestParam(defaultValue = "title") String searchKeywordType,
+            @RequestParam(defaultValue = "") String searchKeyword,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "") String kw,
-            @RequestParam(defaultValue = "ALL") KwTypeV1 kwType
+            @RequestParam(defaultValue = "10") int pageSize
     ) {
-        // 기본값을 처리하기 위한 코드
-        if (page <= 0) page = 1;
-        if (kw == null || kw.isEmpty()) kw = "";
-        if (kwType == null) kwType = KwTypeV1.ALL;
+        Member actor = rq.getActor();
 
-        List<Sort.Order> sorts = new ArrayList<>();
-        sorts.add(Sort.Order.desc("id"));
-        Pageable pageable = PageRequest.of(page - 1, AppConfig.getBasePageSize(), Sort.by(sorts));
-        Page<Post> itemPage = postService.findByKw(kwType, kw, null, true, true, pageable);
+        return new PageDto<>(
+                postService.findByAuthorPaged(actor, searchKeywordType, searchKeyword, page, pageSize)
+                        .map(PostDto::new)
+        );
+    }
 
-        Member actor = rq.getMember();
+    @GetMapping
+    @Transactional(readOnly = true)
+    public PageDto<PostDto> items(
+            @RequestParam(defaultValue = "title") String searchKeywordType,
+            @RequestParam(defaultValue = "") String searchKeyword,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        return new PageDto<>(
+                postService.findByListedPaged(true, searchKeywordType, searchKeyword, page, pageSize)
+                        .map(PostDto::new)
+        );
+    }
 
-        return new PageDto(
-                itemPage.map(post -> toPostDto(actor, post))
+    @GetMapping("/{id}")
+    @Transactional(readOnly = true)
+    public PostWithContentDto item(@PathVariable long id) {
+        Post post = postService.findById(id).get();
+
+        if (!post.isPublished()) {
+            Member actor = rq.getActor();
+
+            if (actor == null) {
+                throw new ServiceException("401-1", "로그인이 필요합니다.");
+            }
+
+            post.checkActorCanRead(actor);
+        }
+
+        return new PostWithContentDto(post);
+    }
+
+
+    record PostWriteReqBody(
+            @NotBlank
+            @Length(min = 2, max = 100)
+            String title,
+            @NotBlank
+            @Length(min = 2, max = 10000000)
+            String content,
+            boolean published,
+            boolean listed
+    ) {
+    }
+
+    @PostMapping
+    @Transactional
+    public RsData<PostWithContentDto> write(
+            @RequestBody @Valid PostWriteReqBody reqBody
+    ) {
+        Member actor = rq.getActor();
+
+        Post post = postService.write(
+                actor,
+                reqBody.title,
+                reqBody.content,
+                reqBody.published,
+                reqBody.listed
+        );
+
+        return new RsData<>(
+                "201-1",
+                "%d번 글이 작성되었습니다.".formatted(post.getId()),
+                new PostWithContentDto(post)
         );
     }
 
 
-    @GetMapping("/{id}")
-    @Operation(summary = "단건 조회")
-    public PostDto getItem(
-            @PathVariable long id
+    record PostModifyReqBody(
+            @NotBlank
+            @Length(min = 2, max = 100)
+            String title,
+            @NotBlank
+            @Length(min = 2, max = 10000000)
+            String content,
+            boolean published,
+            boolean listed
     ) {
-        Member actor = rq.getMember();
+    }
+
+    @PutMapping("/{id}")
+    @Transactional
+    public RsData<PostWithContentDto> modify(
+            @PathVariable long id,
+            @RequestBody @Valid PostModifyReqBody reqBody
+    ) {
+        Member actor = rq.getActor();
 
         Post post = postService.findById(id).get();
 
-        postService.checkCanRead(actor, post);
+        post.checkActorCanModify(actor);
 
-        PostDto postDto = toPostDto(actor, post);
+        postService.modify(post, reqBody.title, reqBody.content, reqBody.published, reqBody.listed);
 
-        return postDto;
-    }
+        postService.flush();
 
-    private PostDto toPostDto(Member actor, Post post) {
-        PostDto postDto = new PostDto(post);
-
-        postDto.setActorCanRead(postService.canRead(actor, post));
-        postDto.setActorCanModify(postService.canModify(actor, post));
-        postDto.setActorCanDelete(postService.canDelete(actor, post));
-
-        return postDto;
+        return new RsData<>(
+                "200-1",
+                "%d번 글이 수정되었습니다.".formatted(id),
+                new PostWithContentDto(post)
+        );
     }
 
 
     @DeleteMapping("/{id}")
     @Transactional
-    @Operation(summary = "삭제")
-    public RespData<Empty> deleteItem(
+    public RsData<Void> delete(
             @PathVariable long id
     ) {
-        Member actor = rq.getMember();
+        Member member = rq.getActor();
 
         Post post = postService.findById(id).get();
 
-        postService.checkCanDelete(actor, post);
+        post.checkActorCanDelete(member);
 
         postService.delete(post);
 
-        return RespData.of("삭제 성공");
-    }
-
-
-
-    @PutMapping("/{id}")
-    @Transactional
-    @Operation(summary = "수정")
-    public RespData<PostDto> modifyItem(
-            @PathVariable long id,
-            @Valid @RequestBody PostModifyItemReqBody reqBody
-    ) {
-        Member actor = rq.getMember();
-
-        Post post = postService.findById(id).get();
-
-        postService.checkCanModify(actor, post);
-
-        postService.modify(post, reqBody.title, reqBody.body, reqBody.isPublished(), reqBody.isListed());
-
-        return RespData.of("%d번 글이 수정되었습니다.".formatted(id), toPostDto(actor, post));
-    }
-
-    @PostMapping
-    @Transactional
-    @Operation(summary = "작성")
-    public RespData<PostDto> writeItem(
-            @Valid @RequestBody PostWriteItemReqBody reqBody
-    ) {
-        Member author = rq.getMember();
-
-        Post post = postService.write(author, reqBody.title, reqBody.body, reqBody.isPublished(), reqBody.isListed());
-
-        return RespData.of("%d번 글이 생성되었습니다.".formatted(post.getId()), toPostDto(author, post));
+        return new RsData<>("200-1", "%d번 글이 삭제되었습니다.".formatted(id));
     }
 }

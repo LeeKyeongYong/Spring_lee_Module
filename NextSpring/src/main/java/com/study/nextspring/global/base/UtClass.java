@@ -1,6 +1,7 @@
 package com.study.nextspring.global.base;
 
 import com.study.nextspring.global.app.AppConfig;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.apache.tika.Tika;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,9 +27,11 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class UtClass {
+    // 문자열 관련 유틸리티
     public static class str {
+        // 1번 코드의 isBlank 메서드로 교체 (isEmpty 대신 trim().isEmpty() 사용)
         public static boolean isBlank(String str) {
-            return str == null || str.trim().length() == 0;
+            return str == null || str.trim().isEmpty();
         }
 
         public static boolean hasLength(String str) {
@@ -36,6 +39,16 @@ public class UtClass {
         }
     }
 
+    // JSON 관련 유틸리티
+    public static class json {
+        // 1번 코드의 ObjectMapper 직접 선언 대신 AppConfig에서 가져오는 방식 유지
+        @SneakyThrows
+        public static String toString(Object obj) {
+            return AppConfig.getObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+        }
+    }
+
+    // 스레드 관련 유틸리티
     public static class thread {
         @SneakyThrows
         public static void sleep(long millis) {
@@ -43,8 +56,8 @@ public class UtClass {
         }
     }
 
+    // 명령어 실행 관련 유틸리티
     public static class cmd {
-
         public static void runAsync(String cmd) {
             new Thread(() -> {
                 run(cmd);
@@ -62,11 +75,11 @@ public class UtClass {
         }
     }
 
+    // URL 관련 유틸리티
     public static class url {
         public static String modifyQueryParam(String url, String paramName, String paramValue) {
             url = deleteQueryParam(url, paramName);
             url = addQueryParam(url, paramName, paramValue);
-
             return url;
         }
 
@@ -80,7 +93,6 @@ public class UtClass {
             }
 
             url += paramName + "=" + paramValue;
-
             return url;
         }
 
@@ -95,7 +107,6 @@ public class UtClass {
             }
 
             String urlAfter = url.substring(startPoint + endPoint + 1);
-
             return url.substring(0, startPoint) + urlAfter;
         }
 
@@ -104,13 +115,7 @@ public class UtClass {
         }
     }
 
-    public static class json {
-        @SneakyThrows
-        public static String toString(Object obj) {
-            return AppConfig.getObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(obj);
-        }
-    }
-
+    // 날짜 관련 유틸리티
     public static class date {
         private date() {
         }
@@ -121,22 +126,18 @@ public class UtClass {
         }
     }
 
+    // 파일 관련 유틸리티
     public static class file {
         private file() {
         }
 
-        private static final String ORIGIN_FILE_NAME_SEPARATOR;
-
-        static {
-            ORIGIN_FILE_NAME_SEPARATOR = "--originFileName_";
-        }
+        private static final String ORIGIN_FILE_NAME_SEPARATOR = "--originFileName_";
 
         public static String getOriginFileName(String file) {
             if (file.contains(ORIGIN_FILE_NAME_SEPARATOR)) {
                 String[] fileInfos = file.split(ORIGIN_FILE_NAME_SEPARATOR);
                 return fileInfos[fileInfos.length - 1];
             }
-
             return Paths.get(file).getFileName().toString();
         }
 
@@ -170,7 +171,6 @@ public class UtClass {
         public static String tempCopy(String file) {
             String tempPath = AppConfig.getTempDirPath() + "/" + getFileName(file);
             copy(file, tempPath);
-
             return tempPath;
         }
 
@@ -187,7 +187,6 @@ public class UtClass {
         }
 
         public static class DownloadFileFailException extends RuntimeException {
-
         }
 
         private static String getFileExt(File file) {
@@ -202,17 +201,14 @@ public class UtClass {
 
             String ext = mimeType.replace("image/", "");
             ext = ext.replace("jpeg", "jpg");
-
             return ext.toLowerCase();
         }
 
         public static String getFileExt(String fileName) {
             int pos = fileName.lastIndexOf(".");
-
             if (pos == -1) {
                 return "";
             }
-
             return fileName.substring(pos + 1).trim();
         }
 
@@ -271,7 +267,6 @@ public class UtClass {
             try {
                 Files.move(file, destFile, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException ignored) {
-
             }
         }
 
@@ -289,17 +284,14 @@ public class UtClass {
                 case "mp3" -> "audio";
                 default -> "etc";
             };
-
         }
 
         public static String getFileExtType2CodeFromFileExt(String ext) {
-
             return switch (ext) {
                 case "jpeg", "jpg" -> "jpg";
                 case "gif", "png", "mp4", "mov", "avi", "mp3" -> ext;
                 default -> "etc";
             };
-
         }
 
         public static void remove(String filePath) {

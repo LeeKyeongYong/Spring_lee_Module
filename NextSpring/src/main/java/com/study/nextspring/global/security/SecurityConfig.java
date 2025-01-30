@@ -16,25 +16,23 @@ import org.springframework.web.cors.CorsConfiguration;
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomAuthenticationFilter customAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests(
                         authorizeRequests -> authorizeRequests
-                                .requestMatchers(HttpMethod.GET, "/api/*/posts/{id:\\d+}", "/api/*/posts")
+                                // GET 요청에 대한 권한 설정
+                                .requestMatchers(HttpMethod.GET, "/api/*/posts/{id:\\d+}", "/api/*/posts", "/api/*/posts/{postId:\\d+}/comments")
                                 .permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/*/members/login", "/api/*/members/logout")
+                                // 로그인, 회원가입 관련 권한 설정
+                                .requestMatchers("/api/*/members/login", "/api/*/members/join")
                                 .permitAll()
+                                // H2 콘솔 접근 허용
                                 .requestMatchers("/h2-console/**")
                                 .permitAll()
-                                .requestMatchers("/actuator/**")
-                                .permitAll()
-                                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
-                                .permitAll()
-                                .requestMatchers(HttpMethod.GET, "/")
-                                .permitAll()
+                                // 그 외 모든 요청은 인증 필요
                                 .anyRequest()
                                 .authenticated()
                 )
@@ -48,28 +46,40 @@ public class SecurityConfig {
                 .csrf(
                         csrf ->
                                 csrf.disable()
-                ).sessionManagement(
+                )
+                .sessionManagement(
                         sessionManagement -> sessionManagement
                                 .sessionCreationPolicy(
                                         SessionCreationPolicy.STATELESS
                                 )
-                ).exceptionHandling(
+                )
+                .addFilterBefore(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(
                         exceptionHandling -> exceptionHandling
                                 .authenticationEntryPoint(
                                         (request, response, authException) -> {
                                             response.setContentType("application/json;charset=UTF-8");
+
+                                            boolean is401 = authException.getLocalizedMessage().contains("authentication is required");
+                                            if (is401) {
+                                                response.setStatus(401);
+                                                response.getWriter().write(
+                                                        Ut.json.toString(
+                                                                new RsData("401-1", "사용자 인증정보가 올바르지 않습니다.")
+                                                        )
+                                                );
+                                                return;
+                                            }
+
                                             response.setStatus(403);
-                                            response.setHeader("Access-Control-Allow-Credentials", "true"); // 쿠키 허용
-                                            response.setHeader("Access-Control-Allow-Origin", AppConfig.getSiteFrontUrl()); // 특정 출처 허용
                                             response.getWriter().write(
-                                                    UtClass.json.toString(
-                                                            RespData.of("403-1", request.getRequestURI() + ", " + authException.getLocalizedMessage())
+                                                    Ut.json.toString(
+                                                            new RsData("403-1", request.getRequestURI() + ", " + authException.getLocalizedMessage())
                                                     )
                                             );
                                         }
                                 )
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .cors(
                         cors ->
                                 cors.configurationSource(
