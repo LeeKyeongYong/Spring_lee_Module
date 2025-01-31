@@ -58,6 +58,17 @@ class AuthTokenService {
         );
     }
 
+    public Map<String, Object> payload(String secret, String accessToken) {
+        Map<String, Object> parsedPayload = UtClass.jwt.payload(secret, accessToken);
+
+        if (parsedPayload == null) return null;
+
+        long id = (long) (Integer) parsedPayload.get("id");
+        String username = (String) parsedPayload.get("username");
+
+        return Map.of("id", id, "username", username);
+    }
+
     public String genRefreshToken() {
         SecureRandom random = new SecureRandom();
         byte[] bytes = new byte[10];
