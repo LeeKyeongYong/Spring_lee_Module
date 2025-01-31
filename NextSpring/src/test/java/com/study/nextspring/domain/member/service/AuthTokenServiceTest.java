@@ -43,21 +43,21 @@ public class AuthTokenServiceTest {
     @DisplayName("jjwt 로 JWT 생성, {name=\"Paul\", age=23}")
     void t2() {
 
-        Claims claims = Jwts.claims()
-                .add("name", "Paul")
-                .add("age", 23)
-                .build();
-
         Date issuedAt = new Date();
         Date expiration = new Date(issuedAt.getTime() + 1000L * expireSeconds);
 
         Key secretKey = Keys.hmacShaKeyFor(secret.getBytes());
 
         String jwt = Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(issuedAt)
-                .setExpiration(expiration)
-                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .claims(
+                        Map.of(
+                                "name", "Paul",
+                                "age", 23
+                        )
+                )
+                .issuedAt(issuedAt)
+                .expiration(expiration)
+                .signWith(secretKey)
                 .compact();
 
         assertThat(jwt).isNotBlank();
