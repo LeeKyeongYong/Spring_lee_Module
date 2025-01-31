@@ -1,11 +1,9 @@
 package com.study.nextspring.domain.member.controller;
 
-import com.study.nextspring.domain.member.auth.MeResponseBody;
-import com.study.nextspring.domain.member.auth.MemberAuthAndMakeTokensResBody;
-import com.study.nextspring.domain.member.auth.MemberLoginReqBody;
-import com.study.nextspring.domain.member.auth.MemberLoginResBody;
-import com.study.nextspring.domain.member.dto.AccessTokenMemberInfoDto;
+
 import com.study.nextspring.domain.member.dto.MemberDto;
+import com.study.nextspring.domain.member.dto.req.MemberLoginReqBody;
+import com.study.nextspring.domain.member.dto.req.MemberLoginResBody;
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.member.service.MemberService;
 import com.study.nextspring.global.base.Empty;
@@ -23,8 +21,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/members")
