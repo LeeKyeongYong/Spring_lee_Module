@@ -3,6 +3,7 @@ package com.study.nextspring.domain.member.service;
 import com.study.nextspring.domain.member.dto.AccessTokenMemberInfoDto;
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.global.app.AppConfig;
+import com.study.nextspring.global.base.UtClass;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.Claims;
@@ -45,7 +46,16 @@ class AuthTokenService {
     }
 
     public String genAccessToken(Member member) {
-        return genToken(member, AppConfig.getAccessTokenExpirationSec());
+
+        //return genToken(member, AppConfig.getAccessTokenExpirationSec());
+        long id = member.getId();
+        String username = member.getUsername();
+
+        return UtClass.jwt.toString(
+                "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890",
+                60 * 60 * 24 * 365,
+                Map.of("id", id, "username", username)
+        );
     }
 
     public String genRefreshToken() {
