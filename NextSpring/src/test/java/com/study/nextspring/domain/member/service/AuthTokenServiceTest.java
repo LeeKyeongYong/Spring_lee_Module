@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
@@ -46,7 +48,7 @@ public class AuthTokenServiceTest {
         Date issuedAt = new Date();
         Date expiration = new Date(issuedAt.getTime() + 1000L * expireSeconds);
 
-        Key secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+        SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes());
 
         Map<String, Object> payload = Map.of(
                 "name", "Paul",
@@ -73,7 +75,6 @@ public class AuthTokenServiceTest {
         // 키로 부터 payload 를 파싱한 결과가 원래 payload 와 같은지 테스트
         assertThat(parsedPayload)
                 .containsAllEntriesOf(payload);
-
         System.out.println("jwt = " + jwtStr);
     }
 
@@ -84,6 +85,7 @@ public class AuthTokenServiceTest {
 
         assertThat(jwt).isNotBlank();
 
+        assertThat(UtClass.jwt.isValid(secret, jwt)).isTrue();
         System.out.println("jwt = " + jwt);
     }
 

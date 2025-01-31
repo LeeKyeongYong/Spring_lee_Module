@@ -11,6 +11,7 @@ import lombok.SneakyThrows;
 import org.apache.tika.Tika;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.crypto.SecretKey;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -52,7 +53,7 @@ public class UtClass {
             Date issuedAt = new Date();
             Date expiration = new Date(issuedAt.getTime() + 1000L * expireSeconds);
 
-            Key secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+            SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes());
 
             String jwt = Jwts.builder()
                     .claims(body)
@@ -63,6 +64,23 @@ public class UtClass {
 
             return jwt;
         }
+
+        public static boolean isValid(String secret, String jwtStr) {
+            SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+
+            try {
+                Jwts
+                        .parser()
+                        .verifyWith(secretKey)
+                        .build()
+                        .parse(jwtStr);
+            } catch (Exception e) {
+                return false;
+            }
+
+            return true;
+        }
+
     }
 
     // JSON 관련 유틸리티
