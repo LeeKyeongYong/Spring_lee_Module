@@ -66,7 +66,15 @@ public class ReqData {
 
     // 쿠키 관련 메서드들
     public void setCookie(String name, String value, int maxAge) {
-        cookieService.setCookie(name, value, maxAge);
+        ResponseCookie cookie = ResponseCookie.from(name, value)
+                .path("/")
+                .domain("localhost")
+                .sameSite("Strict")
+                .secure(true)
+                .httpOnly(true)
+                .build();
+
+        resp.addHeader("Set-Cookie", cookie.toString());
     }
 
     public void setCookie(String name, String value) {
@@ -163,7 +171,7 @@ public class ReqData {
     public void setLogin(String username) {
         UserDetails user = new SecurityUser(
                 member.getId(),
-                member.getUsername(),"", List.of());
+                member.getUsername(),"",member.getAuthorities());
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 user,
                 user.getPassword(),

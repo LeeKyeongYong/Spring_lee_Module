@@ -51,7 +51,7 @@ public class MemberService {
         return memberRepository.findByApiKey(apiKey);
     }
     public String genAccessToken(Member member) {
-        return authTokenService.genAccessToken(member);
+        return member.getApiKey() + " " + genAccessToken(member);
     }
 
     public Member getMemberFromAccessToken(String accessToken) {

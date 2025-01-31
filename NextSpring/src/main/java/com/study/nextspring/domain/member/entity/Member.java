@@ -4,7 +4,10 @@ import com.study.nextspring.global.jpa.entity.BaseTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.*;
-
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -42,11 +45,19 @@ public class Member extends BaseTime {
     public boolean matchPassword(String password) {
         return this.password.equals(password);
     }
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return getAuthoritiesAsStringList()
+                .stream()
+                .map(SimpleGrantedAuthority::new)
+                .toList();
+    }
 
     public List<String> getAuthoritiesAsStringList() {
-        if (isAdmin()) {
-            return List.of("ADMIN", "MEMBER");
-        }
-        return List.of("MEMBER");
+        List<String> authorities = new ArrayList<>();
+
+        if (isAdmin())
+            authorities.add("ROLE_ADMIN");
+
+        return authorities;
     }
 }

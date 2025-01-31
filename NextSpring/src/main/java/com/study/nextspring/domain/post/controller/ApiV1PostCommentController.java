@@ -2,6 +2,8 @@ package com.study.nextspring.domain.post.controller;
 
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.post.dto.PostCommentDto;
+import com.study.nextspring.domain.post.dto.req.PostCommentModifyReqBody;
+import com.study.nextspring.domain.post.dto.req.PostCommentWriteReqBody;
 import com.study.nextspring.domain.post.entity.Post;
 import com.study.nextspring.domain.post.entity.PostComment;
 import com.study.nextspring.domain.post.service.PostService;
@@ -14,7 +16,7 @@ import org.hibernate.validator.constraints.Length;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import com.study.nextspring.domain.post.dto.*;
+
 import java.util.List;
 
 @RestController
@@ -66,14 +68,6 @@ public class ApiV1PostCommentController {
         );
     }
 
-
-    record PostCommentModifyReqBody(
-            @NotBlank
-            @Length(min = 2, max = 100)
-            String content
-    ) {
-    }
-
     @PutMapping("/{id}")
     @Transactional
     public RespData<PostCommentDto> modify(
@@ -93,12 +87,10 @@ public class ApiV1PostCommentController {
 
         postComment.checkActorCanModify(actor);
 
-        postComment.modify(reqBody.content);
+        postComment.modify(reqBody.content());
 
         return RespData.of("200-1", "%d번 댓글이 수정되었습니다.".formatted(id), new PostCommentDto(postComment));
     }
-
-
 
 
     @PostMapping

@@ -3,18 +3,18 @@ package com.study.nextspring.domain.post.controller;
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.post.dto.PostDto;
 import com.study.nextspring.domain.post.dto.PostWithContentDto;
+import com.study.nextspring.domain.post.dto.res.PostStatisticsResBody;
 import com.study.nextspring.domain.post.entity.Post;
 import com.study.nextspring.domain.post.service.PostService;
+import com.study.nextspring.global.exception.ServiceException;
 import com.study.nextspring.global.httpsdata.ReqData;
 import com.study.nextspring.global.httpsdata.RespData;
 import com.study.nextspring.global.pagination.PageDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.service.spi.ServiceException;
-import org.hibernate.validator.constraints.Length;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import com.study.nextspring.domain.post.dto.req.*;
 
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -62,7 +62,7 @@ public class ApiV1PostController {
             Member actor = rq.getActor();
 
             if (actor == null) {
-                throw new ServiceException("로그인이 필요합니다.");
+                throw new ServiceException("401-1", "로그인이 필요합니다.");
             }
 
             post.checkActorCanRead(actor);
@@ -71,18 +71,6 @@ public class ApiV1PostController {
         return new PostWithContentDto(post);
     }
 
-
-    record PostWriteReqBody(
-            @NotBlank
-            @Length(min = 2, max = 100)
-            String title,
-            @NotBlank
-            @Length(min = 2, max = 10000000)
-            String content,
-            boolean published,
-            boolean listed
-    ) {
-    }
 
     @PostMapping
     @Transactional
@@ -93,27 +81,15 @@ public class ApiV1PostController {
 
         Post post = postService.write(
                 actor,
-                reqBody.title,
-                reqBody.content,
-                reqBody.published,
-                reqBody.listed
+                reqBody.title(),
+                reqBody.content(),
+                reqBody.published(),
+                reqBody.listed()
         );
 
         return RespData.of("201-1", "%d번 글이 작성되었습니다.".formatted(post.getId()), new PostWithContentDto(post));
     }
 
-
-    record PostModifyReqBody(
-            @NotBlank
-            @Length(min = 2, max = 100)
-            String title,
-            @NotBlank
-            @Length(min = 2, max = 10000000)
-            String content,
-            boolean published,
-            boolean listed
-    ) {
-    }
 
     @PutMapping("/{id}")
     @Transactional
@@ -127,7 +103,7 @@ public class ApiV1PostController {
 
         post.checkActorCanModify(actor);
 
-        postService.modify(post, reqBody.title, reqBody.content, reqBody.published, reqBody.listed);
+        postService.modify(post, reqBody.title(), reqBody.content(), reqBody.published(), reqBody.listed());
 
         postService.flush();
 
@@ -149,5 +125,18 @@ public class ApiV1PostController {
         postService.delete(post);
 
         return new RespData<>("200-1", "%d번 글이 삭제되었습니다.".formatted(id));
+    }
+
+    @GetMapping("/statistics")
+    @Transactional(readOnly = true)
+    public PostStatisticsResBody statistics() {
+        Member actor = rq.getActor();
+
+        //if (!actor.isAdmin()) throw new ServiceException("403-1", "관리자만 접근 가능합니다.");
+
+        return new PostStatisticsResBody(
+                10,
+                10,
+                10);
     }
 }
