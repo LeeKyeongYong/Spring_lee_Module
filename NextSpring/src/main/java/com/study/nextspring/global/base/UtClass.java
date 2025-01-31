@@ -81,6 +81,21 @@ public class UtClass {
             return true;
         }
 
+        public static Map<String, Object> payload(String secret, String jwtStr) {
+            SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+
+            try {
+                return (Map<String, Object>) Jwts
+                        .parser()
+                        .verifyWith(secretKey)
+                        .build()
+                        .parse(jwtStr)
+                        .getPayload();
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
     }
 
     // JSON 관련 유틸리티
