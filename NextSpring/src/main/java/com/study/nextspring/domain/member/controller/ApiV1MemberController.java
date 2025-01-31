@@ -1,12 +1,14 @@
 package com.study.nextspring.domain.member.controller;
 
 
+import com.study.nextspring.domain.auth.service.AuthTokenService;
 import com.study.nextspring.domain.member.dto.MemberDto;
 import com.study.nextspring.domain.member.dto.req.MemberLoginReqBody;
 import com.study.nextspring.domain.member.dto.req.MemberLoginResBody;
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.member.service.MemberService;
 import com.study.nextspring.global.base.Empty;
+import com.study.nextspring.global.exception.ServiceException;
 import com.study.nextspring.global.httpsdata.ReqData;
 import com.study.nextspring.global.httpsdata.RespData;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,6 +35,7 @@ public class ApiV1MemberController {
     private final MemberService memberService;
     @Autowired
     private ReqData rq;
+    private final AuthTokenService authTokenService;
 
     @PostMapping("/login")
     @Operation(summary = "로그인")
@@ -44,13 +47,17 @@ public class ApiV1MemberController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "존재하지 않는 사용자입니다."));
 
         if (!member.matchPassword(reqBody.password()))
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
+            throw new ServiceException(HttpStatus.UNAUTHORIZED, new Throwable("비밀번호가 일치하지 않습니다."));
+
+        String accessToken = authTokenService.genAccessToken(member);
 
         return RespData.of(
                 "200-1",
                 "%s님 환영합니다.".formatted(member.getName()),
                 new MemberLoginResBody(
-                        new MemberDto(member)
+                        new MemberDto(member),
+                        member.getApiKey(),
+                        accessToken
                 )
         );
     }

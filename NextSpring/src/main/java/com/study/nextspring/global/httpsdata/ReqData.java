@@ -20,7 +20,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
-
+import java.util.Optional;
 import java.util.List;
 
 @Component
@@ -147,19 +147,23 @@ public class ReqData {
     }
 
     public Member getActor() {
-        SecurityContext context = SecurityContextHolder.getContext();
-        Authentication authentication = context.getAuthentication();
-
-        if (authentication == null) return null;
-        if (authentication.getPrincipal() == null || authentication.getPrincipal() instanceof String) return null;
-
-        UserDetails user = (UserDetails) authentication.getPrincipal();
-        String username = user.getUsername();
-        return memberService.findByUsername(username).get();
+        return Optional.ofNullable(
+                        SecurityContextHolder
+                                .getContext()
+                                .getAuthentication()
+                )
+                .map(Authentication::getPrincipal)
+                .filter(principal -> principal instanceof UserDetails)
+                .map(principal -> (UserDetails) principal)
+                .map(UserDetails::getUsername)
+                .flatMap(memberService::findByUsername)
+                .orElse(null);
     }
 
     public void setLogin(String username) {
-        UserDetails user = new User(username, "", List.of());
+        UserDetails user = new SecurityUser(
+                member.getId(),
+                member.getUsername(),"", List.of());
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 user,
                 user.getPassword(),
