@@ -2,6 +2,11 @@ package com.study.nextspring.global.base;
 
 import com.study.nextspring.global.app.AppConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ClaimsBuilder;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import lombok.SneakyThrows;
 import org.apache.tika.Tika;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,8 +25,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.Key;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +43,32 @@ public class UtClass {
 
         public static boolean hasLength(String str) {
             return !isBlank(str);
+        }
+    }
+
+    public static class jwt {
+        public static String toString(String secret, int expireSeconds, Map<String, Object> body) {
+            ClaimsBuilder claimsBuilder = Jwts.claims();
+
+            for (Map.Entry<String, Object> entry : body.entrySet()) {
+                claimsBuilder.add(entry.getKey(), entry.getValue());
+            }
+
+            Claims claims = claimsBuilder.build();
+
+            Date issuedAt = new Date();
+            Date expiration = new Date(issuedAt.getTime() + 1000L * expireSeconds);
+
+            Key secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+
+            String jwt = Jwts.builder()
+                    .setClaims(claims)
+                    .setIssuedAt(issuedAt)
+                    .setExpiration(expiration)
+                    .signWith(secretKey, SignatureAlgorithm.HS256)
+                    .compact();
+
+            return jwt;
         }
     }
 
