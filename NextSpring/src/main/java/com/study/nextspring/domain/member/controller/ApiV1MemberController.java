@@ -7,7 +7,6 @@ import com.study.nextspring.domain.member.dto.req.MemberLoginReqBody;
 import com.study.nextspring.domain.member.dto.req.MemberLoginResBody;
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.member.service.MemberService;
-import com.study.nextspring.global.base.Empty;
 import com.study.nextspring.global.exception.ServiceException;
 import com.study.nextspring.global.httpsdata.ReqData;
 import com.study.nextspring.global.httpsdata.RespData;
@@ -20,11 +19,8 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/v1/members")
@@ -48,10 +44,10 @@ public class ApiV1MemberController {
     ) {
         Member member = memberService
                 .findByUsername(reqBody.username())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "존재하지 않는 사용자입니다."));
+                .orElseThrow(() -> new ServiceException("401-1", "존재하지 않는 사용자입니다."));
 
         if (!member.matchPassword(reqBody.password()))
-            throw new ServiceException(HttpStatus.UNAUTHORIZED, new Throwable("비밀번호가 일치하지 않습니다."));
+            throw new ServiceException("401-2", "비밀번호가 일치하지 않습니다.");
 
         String accessToken = authTokenService.genAccessToken(member);
 

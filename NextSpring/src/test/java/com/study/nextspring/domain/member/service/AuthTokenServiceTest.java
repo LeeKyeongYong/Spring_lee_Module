@@ -1,10 +1,9 @@
 package com.study.nextspring.domain.member.service;
 
+import com.study.nextspring.domain.auth.service.AuthTokenService;
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.global.base.UtClass;
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,7 +14,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.SecretKey;
-import java.security.Key;
 import java.util.Date;
 import java.util.Map;
 

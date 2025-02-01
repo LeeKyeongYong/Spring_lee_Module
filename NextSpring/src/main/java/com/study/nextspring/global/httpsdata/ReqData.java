@@ -20,6 +20,8 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
+
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.List;
 
@@ -75,10 +77,6 @@ public class ReqData {
         resp.addHeader("Set-Cookie", cookie.toString());
     }
 
-    public void setHeader(String name, String value) {
-        resp.setHeader(name, value);
-    }
-
     private String getSiteCookieDomain() {
         String cookieDomain = AppConfig.getSiteCookieDomain();
         if (!cookieDomain.equals("localhost")) {
@@ -116,16 +114,15 @@ public class ReqData {
         return cookieService.getCookie(name);
     }
 
-    public String getCookieValue(String name, String defaultValue) {
-        return cookieService.getCookieValue(name, defaultValue);
-    }
-
-    private long getCookieAsLong(String name, int defaultValue) {
-        String value = getCookieValue(name, null);
-        if (value == null) {
-            return defaultValue;
-        }
-        return Long.parseLong(value);
+    public String getCookieValue(String name) {
+        return Optional
+                .ofNullable(req.getCookies())
+                .stream() // 1 ~ 0
+                .flatMap(cookies -> Arrays.stream(cookies))
+                .filter(cookie -> cookie.getName().equals(name))
+                .map(cookie -> cookie.getValue())
+                .findFirst()
+                .orElse(null);
     }
 
     public void removeCookie(String name) {
@@ -166,15 +163,20 @@ public class ReqData {
                 .orElse(null);
     }
 
-    public void setLogin(String username) {
+    public void setLogin(Member member) {
         UserDetails user = new SecurityUser(
                 member.getId(),
-                member.getUsername(),"",member.getAuthorities());
+                member.getUsername(),
+                "",
+                member.getAuthorities()
+        );
+
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 user,
                 user.getPassword(),
                 user.getAuthorities()
         );
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 

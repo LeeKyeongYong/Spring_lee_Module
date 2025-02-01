@@ -1,13 +1,12 @@
 package com.study.nextspring.domain.member.service;
 
+import com.study.nextspring.domain.auth.service.AuthTokenService;
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.member.repository.MemberRepository;
+import com.study.nextspring.global.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.service.spi.ServiceException;
 import org.springframework.stereotype.Service;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
-
+import com.study.nextspring.domain.auth.service.*;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,8 +14,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class MemberService {
-    private final MemberRepository memberRepository;
     private final AuthTokenService authTokenService;
+    private final MemberRepository memberRepository;
 
     public long count() {
         return memberRepository.count();
@@ -26,7 +25,7 @@ public class MemberService {
         memberRepository
                 .findByUsername(username)
                 .ifPresent(existingMember -> {
-                    throw new ServiceException("해당 username은 이미 사용중입니다.");
+                    throw new ServiceException("409-1", "해당 username은 이미 사용중입니다.");
                 });
 
         Member member = Member.builder()
@@ -50,7 +49,12 @@ public class MemberService {
     public Optional<Member> findByApiKey(String apiKey) {
         return memberRepository.findByApiKey(apiKey);
     }
+
     public String genAccessToken(Member member) {
+        return authTokenService.genAccessToken(member);
+    }
+
+    public String genAuthToken(Member member) {
         return member.getApiKey() + " " + genAccessToken(member);
     }
 
@@ -66,5 +70,4 @@ public class MemberService {
 
         return member;
     }
-
 }

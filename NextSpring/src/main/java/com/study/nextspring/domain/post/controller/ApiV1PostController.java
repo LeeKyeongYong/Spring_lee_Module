@@ -1,6 +1,5 @@
 package com.study.nextspring.domain.post.controller;
 
-import com.study.nextspring.domain.controller.BaseController;
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.post.dto.PostDto;
 import com.study.nextspring.domain.post.dto.PostWithContentDto;

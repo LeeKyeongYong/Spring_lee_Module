@@ -22,14 +22,13 @@ import java.util.Optional;
 public class CustomAuthenticationFilter extends OncePerRequestFilter {
     private final MemberService memberService;
     private final ReqData rq;
-    private final HttpServletRequest req;
 
-    private String[] getAuthTokensFromRequest() {
+
+    record AuthTokens(String apiKey, String accessToken) {
+    }
+
+    private AuthTokens getAuthTokensFromRequest() {
         String authorization = rq.getHeader("Authorization");
-
-        String apiKey = null;
-        String accessToken = null;
-
 
         if (authorization != null && authorization.startsWith("Bearer ")) {
             String token = authorization.substring("Bearer ".length());
@@ -47,6 +46,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
         return null;
     }
+
 
     private void refreshAccessToken(Member member) {
         String newAccessToken = memberService.genAccessToken(member);
@@ -76,7 +76,6 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-
         if (List.of("/api/v1/members/login", "/api/v1/members/logout", "/api/v1/members/join").contains(request.getRequestURI())) {
             filterChain.doFilter(request, response);
             return;
@@ -89,8 +88,8 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String apiKey = authTokens.apiKey();
-        String accessToken = authTokens.accessToken();
+        String apiKey = authTokens.apiKey;
+        String accessToken = authTokens.accessToken;
 
         Member member = memberService.getMemberFromAccessToken(accessToken);
 
@@ -102,16 +101,4 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-
-    public String getCookieValue(String name) {
-        return Optional
-                .ofNullable(req.getCookies())
-                .stream() // 1 ~ 0
-                .flatMap(cookies -> Arrays.stream(cookies))
-                .filter(cookie -> cookie.getName().equals(name))
-                .map(cookie -> cookie.getValue())
-                .findFirst()
-                .orElse(null);
-    }
-
 }
