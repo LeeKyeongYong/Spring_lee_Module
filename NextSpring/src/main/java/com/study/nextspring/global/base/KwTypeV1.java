@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 public enum KwTypeV1 {
     ALL("all"),
     TITLE("title"),
-    BODY("body"),
+    CONTENT("content"),
     NAME("name");
 
     private final String value;

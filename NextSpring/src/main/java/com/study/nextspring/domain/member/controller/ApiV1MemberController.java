@@ -4,7 +4,7 @@ package com.study.nextspring.domain.member.controller;
 import com.study.nextspring.domain.auth.service.AuthTokenService;
 import com.study.nextspring.domain.member.dto.MemberDto;
 import com.study.nextspring.domain.member.dto.req.MemberLoginReqBody;
-import com.study.nextspring.domain.member.dto.req.MemberLoginResBody;
+import com.study.nextspring.domain.member.dto.res.MemberLoginResBody;
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.member.service.MemberService;
 import com.study.nextspring.global.exception.ServiceException;
