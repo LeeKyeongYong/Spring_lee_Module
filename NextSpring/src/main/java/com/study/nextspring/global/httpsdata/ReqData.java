@@ -45,9 +45,8 @@ public class ReqData {
         resp.setHeader(name, value);
     }
 
-    public String getHeader(String name, String defaultValue) {
-        String value = req.getHeader(name);
-        return value != null ? value : defaultValue;
+    public String getHeader(String name) {
+        return req.getHeader(name);
     }
 
     public void setStatusCode(int statusCode) {
@@ -64,8 +63,8 @@ public class ReqData {
         return "XMLHttpRequest".equals(xRequestedWith);
     }
 
-    // 쿠키 관련 메서드들
-    public void setCookie(String name, String value, int maxAge) {
+
+    public void setCookie(String name, String value) {
         ResponseCookie cookie = ResponseCookie.from(name, value)
                 .path("/")
                 .domain("localhost")
@@ -73,12 +72,11 @@ public class ReqData {
                 .secure(true)
                 .httpOnly(true)
                 .build();
-
         resp.addHeader("Set-Cookie", cookie.toString());
     }
 
-    public void setCookie(String name, String value) {
-        cookieService.setCookie(name, value);
+    public void setHeader(String name, String value) {
+        resp.setHeader(name, value);
     }
 
     private String getSiteCookieDomain() {
@@ -233,5 +231,28 @@ public class ReqData {
     public void makeAuthCookies(String accessToken, String refreshToken) {
         setCrossDomainCookie("accessToken", accessToken);
         setCrossDomainCookie("refreshToken", refreshToken);
+    }
+
+    // getActor 와 다르게
+    // 이 함수에서 리턴하는 것은 야매가 아니다.
+    public Optional<Member> findByActor() {
+        Member actor = getActor();
+
+        if (actor == null) return Optional.empty();
+
+        return memberService.findById(actor.getId());
+    }
+
+    public void deleteCookie(String name) {
+        ResponseCookie cookie = ResponseCookie.from(name, null)
+                .path("/")
+                .domain("localhost")
+                .sameSite("Strict")
+                .secure(true)
+                .httpOnly(true)
+                .maxAge(0)
+                .build();
+
+        resp.addHeader("Set-Cookie", cookie.toString());
     }
 }

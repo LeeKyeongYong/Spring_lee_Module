@@ -3,6 +3,7 @@ package com.study.nextspring.global.security;
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.member.service.MemberService;
 import com.study.nextspring.global.httpsdata.ReqData;
+import com.study.nextspring.global.security.dto.AuthTokens;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -19,6 +22,52 @@ import java.util.Optional;
 public class CustomAuthenticationFilter extends OncePerRequestFilter {
     private final MemberService memberService;
     private final ReqData rq;
+    private final HttpServletRequest req;
+
+    private String[] getAuthTokensFromRequest() {
+        String authorization = rq.getHeader("Authorization");
+
+        String apiKey = null;
+        String accessToken = null;
+
+
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            String token = authorization.substring("Bearer ".length());
+            String[] tokenBits = token.split(" ", 2);
+
+            if (tokenBits.length == 2)
+                return new AuthTokens(tokenBits[0], tokenBits[1]);
+        }
+
+        String apiKey = rq.getCookieValue("apiKey");
+        String accessToken = rq.getCookieValue("accessToken");
+
+        if (apiKey != null && accessToken != null)
+            return new AuthTokens(apiKey, accessToken);
+
+        return null;
+    }
+
+    private void refreshAccessToken(Member member) {
+        String newAccessToken = memberService.genAccessToken(member);
+
+        rq.setHeader("Authorization", "Bearer " + member.getApiKey() + " " + newAccessToken);
+        rq.setCookie("accessToken", newAccessToken);
+    }
+
+    private Member refreshAccessTokenByApiKey(String apiKey) {
+        Optional<Member> opMemberByApiKey = memberService.findByApiKey(apiKey);
+
+        if (opMemberByApiKey.isEmpty()) {
+            return null;
+        }
+
+        Member member = opMemberByApiKey.get();
+
+        refreshAccessToken(member);
+
+        return member;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -27,42 +76,42 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String authorization = request.getHeader("Authorization");
 
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
+        if (List.of("/api/v1/members/login", "/api/v1/members/logout", "/api/v1/members/join").contains(request.getRequestURI())) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = authorization.substring("Bearer ".length());
-        String[] tokenBits = token.split(" ", 2);
+        AuthTokens authTokens = getAuthTokensFromRequest();
 
-        if (tokenBits.length != 2) {
+        if (authTokens == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String apiKey = tokenBits[0];
-        String accessToken = tokenBits[1];
+        String apiKey = authTokens.apiKey();
+        String accessToken = authTokens.accessToken();
+
         Member member = memberService.getMemberFromAccessToken(accessToken);
 
-        if (member == null) {
-            Optional<Member> opMemberByApiKey = memberService.findByApiKey(apiKey);
+        if (member == null)
+            member = refreshAccessTokenByApiKey(apiKey);
 
-            if (opMemberByApiKey.isEmpty()) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            member = opMemberByApiKey.get();
-
-            String newAccessToken = memberService.genAccessToken(member);
-
-            response.setHeader("Authorization", "Bearer " + apiKey + " " + newAccessToken);
-        }
-
-        rq.setLogin(member);
+        if (member != null)
+            rq.setLogin(member);
 
         filterChain.doFilter(request, response);
     }
+
+    public String getCookieValue(String name) {
+        return Optional
+                .ofNullable(req.getCookies())
+                .stream() // 1 ~ 0
+                .flatMap(cookies -> Arrays.stream(cookies))
+                .filter(cookie -> cookie.getName().equals(name))
+                .map(cookie -> cookie.getValue())
+                .findFirst()
+                .orElse(null);
+    }
+
 }

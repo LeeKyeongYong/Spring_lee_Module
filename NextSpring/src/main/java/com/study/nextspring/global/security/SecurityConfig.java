@@ -27,7 +27,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/api/*/posts/{id:\\d+}", "/api/*/posts", "/api/*/posts/{postId:\\d+}/comments")
                                 .permitAll()
                                 // 로그인, 회원가입 관련 권한 설정
-                                .requestMatchers("/api/*/members/login", "/api/*/members/join")
+                                .requestMatchers("/api/*/members/login", "/api/*/members/logout", "/api/*/members/join")
                                 .permitAll()
                                 // H2 콘솔 접근 허용
                                 .requestMatchers("/h2-console/**")

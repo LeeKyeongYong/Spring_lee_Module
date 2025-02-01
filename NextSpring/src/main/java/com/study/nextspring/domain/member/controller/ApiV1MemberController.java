@@ -14,12 +14,14 @@ import com.study.nextspring.global.httpsdata.RespData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -37,9 +39,11 @@ public class ApiV1MemberController {
     private ReqData rq;
     private final AuthTokenService authTokenService;
 
+
     @PostMapping("/login")
     @Operation(summary = "로그인")
     public RespData<MemberLoginResBody> login(
+            HttpServletResponse resp,
             @RequestBody @Valid MemberLoginReqBody reqBody
     ) {
         Member member = memberService
@@ -54,7 +58,6 @@ public class ApiV1MemberController {
         rq.setCookie("accessToken", accessToken);
         rq.setCookie("apiKey", member.getApiKey());
 
-
         return RespData.of(
                 "200-1",
                 "%s님 환영합니다.".formatted(member.getName()),
@@ -68,15 +71,21 @@ public class ApiV1MemberController {
 
     @GetMapping("/me")
     @Operation(summary = "내 정보")
-    public RespData<MemberDto> getMe() {
-        return RespData.of(
-                new MemberDto(rq.getMember())
-        );
+    @Transactional(readOnly = true)
+    public MemberDto getMe() {
+        Member actor = rq.findByActor().get();
+        return new MemberDto(actor);
     }
 
-    @PostMapping("/logout")
-    public RespData<Empty> logout() {
-        rq.setLogout();
-        return RespData.of("로그아웃 성공");
+    @DeleteMapping("/logout")
+    @Transactional(readOnly = true)
+    public RespData<Void> logout() {
+        rq.deleteCookie("accessToken");
+        rq.deleteCookie("apiKey");
+
+        return new RespData<>(
+                "200-1",
+                "로그아웃 되었습니다."
+        );
     }
 }
