@@ -50,7 +50,7 @@ public class AppConfig {
     @Getter
     private static long accessTokenExpirationSec;
 
-    @Value("${custom.accessToken.expirationSec}")
+    @Value("${custom.accessToken.expirationSeconds}")
     public void setJwtSecretKey(long accessTokenExpirationSec) {
         this.accessTokenExpirationSec = accessTokenExpirationSec;
     }

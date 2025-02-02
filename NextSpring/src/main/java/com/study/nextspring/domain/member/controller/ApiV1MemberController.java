@@ -35,22 +35,25 @@ public class ApiV1MemberController {
     private ReqData rq;
     private final AuthTokenService authTokenService;
 
-
     @PostMapping("/login")
     @Operation(summary = "로그인")
     public RespData<MemberLoginResBody> login(
             HttpServletResponse resp,
             @RequestBody @Valid MemberLoginReqBody reqBody
     ) {
+        // 사용자 조회
         Member member = memberService
                 .findByUsername(reqBody.username())
                 .orElseThrow(() -> new ServiceException("401-1", "존재하지 않는 사용자입니다."));
 
-        if (!member.matchPassword(reqBody.password()))
+        // 비밀번호 확인
+        if (!memberService.validatePassword(member, reqBody.password()))
             throw new ServiceException("401-2", "비밀번호가 일치하지 않습니다.");
 
+        // JWT 토큰 생성
         String accessToken = authTokenService.genAccessToken(member);
 
+        // 쿠키에 토큰과 API 키 설정
         rq.setCookie("accessToken", accessToken);
         rq.setCookie("apiKey", member.getApiKey());
 

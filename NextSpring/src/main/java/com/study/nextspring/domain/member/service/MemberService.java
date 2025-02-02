@@ -6,16 +6,17 @@ import com.study.nextspring.domain.member.repository.MemberRepository;
 import com.study.nextspring.global.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.study.nextspring.domain.auth.service.*;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
     private final AuthTokenService authTokenService;
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public long count() {
         return memberRepository.count();
@@ -28,9 +29,11 @@ public class MemberService {
                     throw new ServiceException("409-1", "해당 username은 이미 사용중입니다.");
                 });
 
+        String encryptedPassword = passwordEncoder.encode(password);
+
         Member member = Member.builder()
                 .username(username)
-                .password(password)
+                .password(encryptedPassword)
                 .nickname(nickname)
                 .apiKey(UUID.randomUUID().toString())
                 .build();
@@ -69,5 +72,9 @@ public class MemberService {
         Member member = new Member(id, username);
 
         return member;
+    }
+
+    public boolean validatePassword(Member member, String rawPassword) {
+        return passwordEncoder.matches(rawPassword, member.getPassword());
     }
 }
