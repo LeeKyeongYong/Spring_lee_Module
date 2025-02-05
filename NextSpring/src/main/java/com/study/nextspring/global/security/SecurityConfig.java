@@ -35,8 +35,10 @@ public class SecurityConfig {
                                 // 그 외 모든 요청은 인증 필요
                                 .requestMatchers("/api/*/posts/statistics")
                                 .hasAuthority("ADMIN")
-                                .anyRequest()
+                                .requestMatchers("/api/*/**")
                                 .authenticated()
+                                .anyRequest()
+                                .permitAll()
                 )
                 .headers(
                         headers ->
