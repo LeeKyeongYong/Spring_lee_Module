@@ -9,6 +9,8 @@ import com.study.nextspring.domain.post.entity.PostComment;
 import com.study.nextspring.domain.post.service.PostService;
 import com.study.nextspring.global.httpsdata.ReqData;
 import com.study.nextspring.global.httpsdata.RespData;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.service.spi.ServiceException;
@@ -22,12 +24,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/posts/{postId}/comments")
 @RequiredArgsConstructor
+@Tag(name = "ApiV1PostCommentController", description = "API 댓글 컨트롤러")
 public class ApiV1PostCommentController {
     private final PostService postService;
     private final ReqData rq;
 
     @GetMapping
     @Transactional(readOnly = true)
+    @Operation(summary = "다건조회")
     public List<PostCommentDto> items(
             @PathVariable long postId
     ) {
@@ -44,6 +48,7 @@ public class ApiV1PostCommentController {
 
     @DeleteMapping("/{id}")
     @Transactional
+    @Operation(summary = "삭제")
     public RespData<Void> delete(
             @PathVariable long postId,
             @PathVariable long id
@@ -70,6 +75,7 @@ public class ApiV1PostCommentController {
 
     @PutMapping("/{id}")
     @Transactional
+    @Operation(summary = "수정")
     public RespData<PostCommentDto> modify(
             @PathVariable long postId,
             @PathVariable long id,
@@ -95,6 +101,7 @@ public class ApiV1PostCommentController {
 
     @PostMapping
     @Transactional
+    @Operation(summary = "작성")
     public RespData<PostCommentDto> write(
             @PathVariable long postId,
             @RequestBody @Valid PostCommentWriteReqBody reqBody

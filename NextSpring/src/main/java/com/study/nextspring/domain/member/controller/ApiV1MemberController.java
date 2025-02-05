@@ -3,6 +3,7 @@ package com.study.nextspring.domain.member.controller;
 
 import com.study.nextspring.domain.auth.service.AuthTokenService;
 import com.study.nextspring.domain.member.dto.MemberDto;
+import com.study.nextspring.domain.member.dto.req.MemberJoinReqBody;
 import com.study.nextspring.domain.member.dto.req.MemberLoginReqBody;
 import com.study.nextspring.domain.member.dto.res.MemberLoginResBody;
 import com.study.nextspring.domain.member.entity.Member;
@@ -27,7 +28,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @SecurityRequirement(name = "bearerAuth")
-@Tag(name = "ApiV1MemberController", description = "MEMBER API 컨트롤러")
+@Tag(name = "ApiV1MemberController", description = "API 회원 컨트롤러")
 public class ApiV1MemberController {
     private static final Logger log = LoggerFactory.getLogger(ApiV1MemberController.class);
     private final MemberService memberService;
@@ -36,7 +37,7 @@ public class ApiV1MemberController {
     private final AuthTokenService authTokenService;
 
     @PostMapping("/login")
-    @Operation(summary = "로그인")
+    @Operation(summary = "로그인", description = "apiKey, accessToken을 발급합니다. 해당 토큰들은 쿠키(HTTP-ONLY)로도 전달됩니다.")
     public RespData<MemberLoginResBody> login(
             HttpServletResponse resp,
             @RequestBody @Valid MemberLoginReqBody reqBody
@@ -78,6 +79,7 @@ public class ApiV1MemberController {
 
     @DeleteMapping("/logout")
     @Transactional(readOnly = true)
+    @Operation(summary = "내 정보")
     public RespData<Void> logout() {
         rq.deleteCookie("accessToken");
         rq.deleteCookie("apiKey");
@@ -87,4 +89,20 @@ public class ApiV1MemberController {
                 "로그아웃 되었습니다."
         );
     }
+
+    @PostMapping("/join")
+    @Transactional
+    @Operation(summary = "회원가입")
+    public RespData<MemberDto> join(
+            @RequestBody @Valid MemberJoinReqBody reqBody
+    ) {
+        Member member = memberService.join(reqBody.username(), reqBody.password(), reqBody.nickname());
+
+        return new RespData<>(
+                "201-1",
+                "%s님 환영합니다. 회원가입이 완료되었습니다.".formatted(member.getName()),
+                new MemberDto(member)
+        );
+    }
+
 }

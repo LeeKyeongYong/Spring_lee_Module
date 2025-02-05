@@ -1,7 +1,7 @@
 package com.study.nextspring.domain.member.dto.req;
 
 import jakarta.validation.constraints.NotBlank;
-record MemberJoinReqBody(
+public record MemberJoinReqBody(
         @NotBlank
         String username,
         @NotBlank
