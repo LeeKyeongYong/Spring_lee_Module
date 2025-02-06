@@ -1,11 +1,7 @@
 package com.study.nextspring.global.base;
 
 import com.study.nextspring.global.app.AppConfig;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ClaimsBuilder;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.SneakyThrows;
 import org.apache.tika.Tika;
@@ -18,6 +14,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -37,7 +36,6 @@ import java.util.concurrent.TimeUnit;
 public class UtClass {
     // 문자열 관련 유틸리티
     public static class str {
-        // 1번 코드의 isBlank 메서드로 교체 (isEmpty 대신 trim().isEmpty() 사용)
         public static boolean isBlank(String str) {
             return str == null || str.trim().isEmpty();
         }
@@ -94,12 +92,10 @@ public class UtClass {
                 return null;
             }
         }
-
     }
 
     // JSON 관련 유틸리티
     public static class json {
-        // 1번 코드의 ObjectMapper 직접 선언 대신 AppConfig에서 가져오는 방식 유지
         @SneakyThrows
         public static String toString(Object obj) {
             return AppConfig.getObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(obj);
@@ -175,9 +171,6 @@ public class UtClass {
 
     // 날짜 관련 유틸리티
     public static class date {
-        private date() {
-        }
-
         public static String getCurrentDateFormatted(String pattern) {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
             return simpleDateFormat.format(new Date());
@@ -186,10 +179,93 @@ public class UtClass {
 
     // 파일 관련 유틸리티
     public static class file {
+
+        private static final String ORIGIN_FILE_NAME_SEPARATOR = "--originFileName_";
+
+        // Private constructor to prevent instantiation
         private file() {
         }
 
-        private static final String ORIGIN_FILE_NAME_SEPARATOR = "--originFileName_";
+        public static void downloadByHttp(String url, String dirPath) {
+            try {
+                HttpClient client = HttpClient.newBuilder()
+                        .followRedirects(HttpClient.Redirect.NORMAL)
+                        .build();
+
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(url))
+                        .GET()
+                        .build();
+
+                // First, send a HEAD request to check headers
+                HttpResponse<Void> headResponse = client.send(
+                        HttpRequest.newBuilder(URI.create(url))
+                                .method("HEAD", HttpRequest.BodyPublishers.noBody())
+                                .build(),
+                        HttpResponse.BodyHandlers.discarding()
+                );
+
+                // Actual file download
+                HttpResponse<Path> response = client.send(request,
+                        HttpResponse.BodyHandlers.ofFile(
+                                createTargetPath(url, dirPath, headResponse)
+                        ));
+            } catch (IOException | InterruptedException e) {
+                throw new RuntimeException("Download error: " + e.getMessage(), e);
+            }
+        }
+
+        private static Path createTargetPath(String url, String dirPath, HttpResponse<?> response) {
+            // 디렉토리가 없으면 생성
+            Path directory = Path.of(dirPath);
+            if (!Files.exists(directory)) {
+                try {
+                    Files.createDirectories(directory);
+                } catch (IOException e) {
+                    throw new RuntimeException("디렉토리 생성 실패: " + e.getMessage(), e);
+                }
+            }
+
+            // 파일명 생성
+            String filename = getFilenameFromUrl(url);
+            String extension = getExtensionFromResponse(response);
+
+            return directory.resolve(filename + extension);
+        }
+
+        private static String getFilenameFromUrl(String url) {
+            try {
+                String path = new URI(url).getPath();
+                String filename = Path.of(path).getFileName().toString();
+                // 확장자 제거
+                return filename.contains(".")
+                        ? filename.substring(0, filename.lastIndexOf('.'))
+                        : filename;
+            } catch (URISyntaxException e) {
+                // URL에서 파일명을 추출할 수 없는 경우 타임스탬프 사용
+                return "download_" + System.currentTimeMillis();
+            }
+        }
+
+        private static String getExtensionFromResponse(HttpResponse<?> response) {
+            return response.headers()
+                    .firstValue("Content-Type")
+                    .map(contentType -> {
+                        // MIME 타입에 따른 확장자 매핑
+                        return switch (contentType.split(";")[0].trim().toLowerCase()) {
+                            case "application/json" -> ".json";
+                            case "text/plain" -> ".txt";
+                            case "text/html" -> ".html";
+                            case "image/jpeg" -> ".jpg";
+                            case "image/png" -> ".png";
+                            case "application/pdf" -> ".pdf";
+                            case "application/xml" -> ".xml";
+                            case "application/zip" -> ".zip";
+                            default -> "";
+                        };
+                    })
+                    .orElse("");
+        }
 
         public static String getOriginFileName(String file) {
             if (file.contains(ORIGIN_FILE_NAME_SEPARATOR)) {
@@ -200,8 +276,7 @@ public class UtClass {
         }
 
         public static String toFile(MultipartFile multipartFile, String tempDirPath) {
-            if (multipartFile == null) return "";
-            if (multipartFile.isEmpty()) return "";
+            if (multipartFile == null || multipartFile.isEmpty()) return "";
 
             String filePath = tempDirPath + "/" + UUID.randomUUID() + ORIGIN_FILE_NAME_SEPARATOR + multipartFile.getOriginalFilename();
 

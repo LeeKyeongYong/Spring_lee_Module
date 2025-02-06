@@ -3,6 +3,7 @@ package com.study.nextspring.global.init;
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.member.service.MemberService;
 import com.study.nextspring.domain.post.service.PostService;
+import com.study.nextspring.global.base.UtClass;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -27,6 +28,15 @@ public class AllData {
         };
     }
 
+    @Bean
+    public ApplicationRunner devInitDataApplicationRunner() {
+        return args -> {
+            UtClass.file.downloadByHttp("http://localhost:9090/v3/api-docs/apiV1", ".");
+            String cmd = "yes | npx --package typescript --package openapi-typescript openapi-typescript apiV1.json -o ../frontend/src/lib/backend/apiV1/schema.d.ts";
+            UtClass.cmd.runAsync(cmd);
+        };
+    }
+
     @Transactional
     public void work1() {
 
@@ -45,7 +55,7 @@ public class AllData {
         postService.write(memberUser2, "제목 3", "내용 3", true, false);
         postService.write(memberUser3, "제목 4", "내용 4", false, false);
 
-        for (int i = 5; i <= 100000; i++) {
+        for (int i = 5; i <= 10; i++) {
 
             if(i%2==0)
             postService.write(memberUser3, "제목 " + i, "내용 " + i, false, true);
@@ -58,3 +68,4 @@ public class AllData {
         }
     }
 }
+

@@ -98,7 +98,7 @@ public class ApiV1MemberController {
     ) {
         Member member = memberService.join(reqBody.username(), reqBody.password(), reqBody.nickname());
 
-        return new RespData<>(
+        return RespData.of(
                 "201-1",
                 "%s님 환영합니다. 회원가입이 완료되었습니다.".formatted(member.getName()),
                 new MemberDto(member)

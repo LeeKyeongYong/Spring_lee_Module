@@ -23,11 +23,17 @@ public class MemberService {
     }
 
     public Member join(String username, String password, String nickname) {
-        memberRepository
-                .findByUsername(username)
-                .ifPresent(existingMember -> {
-                    throw new ServiceException("409-1", "해당 username은 이미 사용중입니다.");
-                });
+        //        memberRepository
+        //                .findByUsername(username)
+        //                .ifPresent(existingMember -> {
+        //
+        //                });
+
+        Optional<Member> existingMemberOpt = memberRepository.findByUsername(username);
+
+        if (existingMemberOpt.isPresent()) {
+            throw new ServiceException("409-1", "해당 username은 이미 사용중입니다.");
+        }
 
         String encryptedPassword = passwordEncoder.encode(password);
 

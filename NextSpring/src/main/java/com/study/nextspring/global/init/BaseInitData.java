@@ -5,14 +5,17 @@ import com.study.nextspring.domain.member.service.MemberService;
 import com.study.nextspring.domain.post.entity.Post;
 import com.study.nextspring.domain.post.service.PostService;
 import com.study.nextspring.global.app.AppConfig;
+import com.study.nextspring.global.base.UtClass;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
 
+@Profile("dev")
 @Configuration
 @RequiredArgsConstructor
 public class BaseInitData {
@@ -30,27 +33,36 @@ public class BaseInitData {
         };
     }
 
+    @Bean
+    public ApplicationRunner DataInitDataApplicationRunner() {
+        return args -> {
+            UtClass.file.downloadByHttp("http://localhost:9090/v3/api-docs/apiV1", ".");
+            String cmd = "yes | npx --package typescript --package openapi-typescript openapi-typescript apiV1.json -o ../frontend/src/lib/backend/apiV1/schema.d.ts";
+            UtClass.cmd.runAsync(cmd);
+        };
+    }
+
     @Transactional
     public void work1() {
         if (memberService.count() > 0) return;
 
-        Member memberSystem = memberService.join("system", "1234", "시스템");
-        if (AppConfig.isNotProd()) memberSystem.setApiKey("system");
+        Member memberSystem = memberService.join("system2", "1234", "시스템");
+        if (AppConfig.isNotProd()) memberSystem.setApiKey("system2");
 
-        Member memberAdmin = memberService.join("admin", "1234", "관리자");
-        if (AppConfig.isNotProd()) memberAdmin.setApiKey("admin");
+        Member memberAdmin = memberService.join("admin2", "1234", "관리자");
+        if (AppConfig.isNotProd()) memberAdmin.setApiKey("admin2");
 
-        Member memberUser1 = memberService.join("user1", "1234", "유저1");
-        if (AppConfig.isNotProd()) memberUser1.setApiKey("user1");
+        Member memberUser1 = memberService.join("user5", "1234", "유저1");
+        if (AppConfig.isNotProd()) memberUser1.setApiKey("user5");
 
-        Member memberUser2 = memberService.join("user2", "1234", "유저2");
-        if (AppConfig.isNotProd()) memberUser2.setApiKey("user2");
+        Member memberUser2 = memberService.join("user6", "1234", "유저2");
+        if (AppConfig.isNotProd()) memberUser2.setApiKey("user6");
 
-        Member memberUser3 = memberService.join("user3", "1234", "유저3");
-        if (AppConfig.isNotProd()) memberUser3.setApiKey("user3");
+        Member memberUser3 = memberService.join("user7", "1234", "유저3");
+        if (AppConfig.isNotProd()) memberUser3.setApiKey("user7");
 
-        Member memberUser4 = memberService.join("user4", "1234", "유저4");
-        if (AppConfig.isNotProd()) memberUser4.setApiKey("user4");
+        Member memberUser4 = memberService.join("user8", "1234", "유저4");
+        if (AppConfig.isNotProd()) memberUser4.setApiKey("user8");
 
         Member memberUser5 = memberService.join("user5", "1234", "유저5");
         if (AppConfig.isNotProd()) memberUser5.setApiKey("user5");

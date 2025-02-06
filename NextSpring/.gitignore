@@ -9,6 +9,7 @@ build.gradle
 ### h2더미 데이터 제거 ###
 db_dev.mv.db
 db_dev.trace.db
+apiV1.json
 
 HELP.md
 .gradle

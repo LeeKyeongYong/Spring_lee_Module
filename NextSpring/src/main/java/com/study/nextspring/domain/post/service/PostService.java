@@ -3,6 +3,7 @@ package com.study.nextspring.domain.post.service;
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.post.entity.Post;
 import com.study.nextspring.domain.post.repository.PostRepository;
+import com.study.nextspring.global.base.KwTypeV1;
 import com.study.nextspring.global.base.UtClass;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -69,7 +70,7 @@ public class PostService {
 
     public Page<Post> findByListedPaged(
             boolean listed,
-            String searchKeywordType,
+            KwTypeV1 searchKeywordType,
             String searchKeyword,
             int page,
             int pageSize
@@ -81,7 +82,8 @@ public class PostService {
         searchKeyword = "%" + searchKeyword + "%";
 
         return switch (searchKeywordType) {
-            case "content" -> postRepository.findByListedAndContentLike(listed, searchKeyword, pageRequest);
+            case CONTENT ->
+                    postRepository.findByListedAndContentLike(listed, searchKeyword, pageRequest);
             default -> postRepository.findByListedAndTitleLike(listed, searchKeyword, pageRequest);
         };
     }
@@ -94,7 +96,7 @@ public class PostService {
 
     public Page<Post> findByAuthorPaged(
             Member author,
-            String searchKeywordType,
+            KwTypeV1 searchKeywordType,
             String searchKeyword,
             int page,
             int pageSize
@@ -106,7 +108,8 @@ public class PostService {
         searchKeyword = "%" + searchKeyword + "%";
 
         return switch (searchKeywordType) {
-            case "content" -> postRepository.findByAuthorAndContentLike(author, searchKeyword, pageRequest);
+            case CONTENT ->
+                    postRepository.findByAuthorAndContentLike(author, searchKeyword, pageRequest);
             default -> postRepository.findByAuthorAndTitleLike(author, searchKeyword, pageRequest);
         };
     }
