@@ -37,7 +37,7 @@ public class BaseInitData {
     public ApplicationRunner DataInitDataApplicationRunner() {
         return args -> {
             UtClass.file.downloadByHttp("http://localhost:9090/v3/api-docs/apiV1", ".");
-            String cmd = "yes | npx --package typescript --package openapi-typescript openapi-typescript apiV1.json -o ../frontend/src/lib/backend/apiV1/schema.d.ts";
+            String cmd = "yes | npx --package typescript --package openapi-typescript openapi-typescript apiV1.json -o frontend/src/lib/backend/apiV1/schema.d.ts";
             UtClass.cmd.runAsync(cmd);
         };
     }
@@ -52,30 +52,30 @@ public class BaseInitData {
         Member memberAdmin = memberService.join("admin2", "1234", "관리자");
         if (AppConfig.isNotProd()) memberAdmin.setApiKey("admin2");
 
-        Member memberUser1 = memberService.join("user5", "1234", "유저1");
+        Member memberUser1 = memberService.join("user5", "1234", "유저5");
         if (AppConfig.isNotProd()) memberUser1.setApiKey("user5");
 
-        Member memberUser2 = memberService.join("user6", "1234", "유저2");
+        Member memberUser2 = memberService.join("user6", "1234", "유저6");
         if (AppConfig.isNotProd()) memberUser2.setApiKey("user6");
 
-        Member memberUser3 = memberService.join("user7", "1234", "유저3");
+        Member memberUser3 = memberService.join("user7", "1234", "유저7");
         if (AppConfig.isNotProd()) memberUser3.setApiKey("user7");
 
-        Member memberUser4 = memberService.join("user8", "1234", "유저4");
+        Member memberUser4 = memberService.join("user8", "1234", "유저8");
         if (AppConfig.isNotProd()) memberUser4.setApiKey("user8");
 
-        Member memberUser5 = memberService.join("user5", "1234", "유저5");
-        if (AppConfig.isNotProd()) memberUser5.setApiKey("user5");
+        Member memberUser5 = memberService.join("user9", "1234", "유저9");
+        if (AppConfig.isNotProd()) memberUser5.setApiKey("user9");
     }
 
     @Transactional
     public void work2() {
         if (postService.count() > 0) return;
 
-        Member memberUser1 = memberService.findByUsername("user1").get();
-        Member memberUser2 = memberService.findByUsername("user2").get();
-        Member memberUser3 = memberService.findByUsername("user3").get();
-        Member memberUser4 = memberService.findByUsername("user4").get();
+        Member memberUser1 = memberService.findByUsername("user5").get();
+        Member memberUser2 = memberService.findByUsername("user6").get();
+        Member memberUser3 = memberService.findByUsername("user7").get();
+        Member memberUser4 = memberService.findByUsername("user8").get();
 
         Post post1 = postService.write(
                 memberUser1,

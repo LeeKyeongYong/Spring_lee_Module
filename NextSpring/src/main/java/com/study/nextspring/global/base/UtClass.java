@@ -8,9 +8,7 @@ import org.apache.tika.Tika;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.crypto.SecretKey;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -120,13 +118,33 @@ public class UtClass {
 
         public static void run(String cmd) {
             try {
-                ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", cmd);
+                String os = System.getProperty("os.name").toLowerCase();
+                ProcessBuilder processBuilder;
+
+                if (os.contains("win")) {
+                    processBuilder = new ProcessBuilder("cmd", "/c", "echo " + cmd);
+                } else {
+                    processBuilder = new ProcessBuilder("bash", "-c", cmd);
+                }
+
+                processBuilder.redirectErrorStream(true);
                 Process process = processBuilder.start();
+
+                String encoding = os.contains("win") ? "CP949" : "UTF-8";
+
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), encoding))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        System.out.println(line);
+                    }
+                }
+
                 process.waitFor(1, TimeUnit.MINUTES);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+
     }
 
     // URL 관련 유틸리티
