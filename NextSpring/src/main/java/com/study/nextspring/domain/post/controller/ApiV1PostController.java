@@ -31,10 +31,10 @@ public class ApiV1PostController {
     @Transactional(readOnly = true)
     @Operation(summary = "내글 다건 조회")
     public PageDto<PostDto> mine(
-            @RequestParam(defaultValue = "title") KwTypeV1 searchKeywordType,
-            @RequestParam(defaultValue = "") String searchKeyword,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int pageSize
+            @RequestParam(name = "searchKeywordType",defaultValue = "title") KwTypeV1 searchKeywordType,
+            @RequestParam(name = "searchKeyword",defaultValue = "") String searchKeyword,
+            @RequestParam(name = "page",defaultValue = "1") int page,
+            @RequestParam(name = "pageSize",defaultValue = "10") int pageSize
     ) {
         Member actor = rq.getActor();
 
@@ -48,10 +48,10 @@ public class ApiV1PostController {
     @Transactional(readOnly = true)
     @Operation(summary = "공개글 다건 조회")
     public PageDto<PostDto> items(
-            @RequestParam(defaultValue = "title") KwTypeV1 searchKeywordType,
-            @RequestParam(defaultValue = "") String searchKeyword,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int pageSize
+            @RequestParam(name = "searchKeywordType",defaultValue = "title") KwTypeV1 searchKeywordType,
+            @RequestParam(name = "searchKeyword",defaultValue = "") String searchKeyword,
+            @RequestParam(name = "page",defaultValue = "1") int page,
+            @RequestParam(name = "pageSize",defaultValue = "10") int pageSize
     ) {
         return new PageDto<>(
                 postService.findByListedPaged(true, searchKeywordType, searchKeyword, page, pageSize)
@@ -142,8 +142,6 @@ public class ApiV1PostController {
     @Operation(summary = "통계정보")
     public PostStatisticsResBody statistics() {
         Member actor = rq.getActor();
-
-        //if (!actor.isAdmin()) throw new ServiceException("403-1", "관리자만 접근 가능합니다.");
 
         return new PostStatisticsResBody(
                 10,

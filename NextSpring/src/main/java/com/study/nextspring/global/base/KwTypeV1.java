@@ -4,10 +4,10 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum KwTypeV1 {
-    ALL("all"),
-    TITLE("title"),
-    CONTENT("content"),
-    NAME("name");
+    all("all"),
+    title("title"),
+    content("content"),
+    name("name");
 
     private final String value;
 

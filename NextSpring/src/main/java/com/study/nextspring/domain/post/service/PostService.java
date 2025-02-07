@@ -82,7 +82,7 @@ public class PostService {
         searchKeyword = "%" + searchKeyword + "%";
 
         return switch (searchKeywordType) {
-            case CONTENT ->
+            case content ->
                     postRepository.findByListedAndContentLike(listed, searchKeyword, pageRequest);
             default -> postRepository.findByListedAndTitleLike(listed, searchKeyword, pageRequest);
         };
@@ -108,7 +108,7 @@ public class PostService {
         searchKeyword = "%" + searchKeyword + "%";
 
         return switch (searchKeywordType) {
-            case CONTENT ->
+            case content ->
                     postRepository.findByAuthorAndContentLike(author, searchKeyword, pageRequest);
             default -> postRepository.findByAuthorAndTitleLike(author, searchKeyword, pageRequest);
         };
