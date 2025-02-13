@@ -67,10 +67,7 @@ public class ApiV1PostCommentController {
 
         post.removeComment(postComment);
 
-        return new RespData<>(
-                "200-1",
-                "%d번 댓글이 삭제되었습니다.".formatted(id)
-        );
+        return RespData.of("200-1", "%d번 댓글이 삭제되었습니다.".formatted(id), null);
     }
 
     @PutMapping("/{id}")

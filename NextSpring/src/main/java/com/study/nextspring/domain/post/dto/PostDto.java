@@ -8,21 +8,21 @@ import java.time.LocalDateTime;
 @Getter
 public class PostDto {
     @NonNull
-    private long id;
+    private final long id;
     @NonNull
-    private LocalDateTime createDate;
+    private final LocalDateTime createDate;
     @NonNull
-    private LocalDateTime modifyDate;
+    private final LocalDateTime modifyDate;
     @NonNull
-    private long authorId;
+    private final long authorId;
     @NonNull
-    private String authorName;
+    private final String authorName;
     @NonNull
-    private String title;
+    private final String title;
     @NonNull
-    private boolean published;
+    private final boolean published;
     @NonNull
-    private boolean listed;
+    private final boolean listed;
 
     public PostDto(Post post) {
         this.id = post.getId();

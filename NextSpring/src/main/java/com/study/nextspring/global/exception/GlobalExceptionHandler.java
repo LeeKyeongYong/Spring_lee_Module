@@ -23,10 +23,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(new RespData<>(
-                        "404-1",
-                        "해당 데이터가 존재하지 않습니다."
-                ));
+                .body(RespData.of("404-1", "해당 데이터가 존재하지 않습니다.", null));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -45,10 +42,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new RespData<>(
-                        "400-1",
-                        message
-                ));
+                .body(RespData.of("400-1", message, null));
     }
 
     @ExceptionHandler(ServiceException.class)

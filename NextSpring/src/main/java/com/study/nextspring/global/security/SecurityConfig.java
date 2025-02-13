@@ -21,24 +21,25 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeRequests(
-                        authorizeRequests -> authorizeRequests
-                                // GET 요청에 대한 권한 설정
-                                .requestMatchers(HttpMethod.GET, "/api/*/posts/{id:\\d+}", "/api/*/posts", "/api/*/posts/{postId:\\d+}/comments")
-                                .permitAll()
-                                // 로그인, 회원가입 관련 권한 설정
-                                .requestMatchers("/api/*/members/login", "/api/*/members/logout", "/api/*/members/join")
-                                .permitAll()
-                                // H2 콘솔 접근 허용
-                                .requestMatchers("/h2-console/**")
-                                .permitAll()
-                                // 그 외 모든 요청은 인증 필요
-                                .requestMatchers("/api/*/posts/statistics")
-                                .hasAuthority("ADMIN")
-                                .requestMatchers("/api/*/**")
-                                .authenticated()
-                                .anyRequest()
-                                .permitAll()
+                .authorizeHttpRequests(authorize -> authorize
+                        // GET 요청에 대한 권한 설정
+                        .requestMatchers(HttpMethod.GET, "/api/*/posts/{id:\\d+}", "/api/*/posts", "/api/*/posts/{postId:\\d+}/comments")
+                        .permitAll()
+                        // 로그인, 회원가입 관련 권한 설정
+                        .requestMatchers("/api/*/members/login", "/api/*/members/logout", "/api/*/members/join")
+                        .permitAll()
+                        // H2 콘솔 접근 허용
+                        .requestMatchers("/h2-console/**")
+                        .permitAll()
+                        // 통계는 관리자만
+                        .requestMatchers("/api/*/posts/statistics")
+                        .hasAuthority("ADMIN")
+                        // API 요청은 인증 필요
+                        .requestMatchers("/api/*/**")
+                        .authenticated()
+                        // 나머지는 모두 허용
+                        .anyRequest()
+                        .permitAll()
                 )
                 .headers(
                         headers ->
@@ -67,7 +68,7 @@ public class SecurityConfig {
                                             response.setStatus(401);
                                             response.getWriter().write(
                                                     UtClass.json.toString(
-                                                            new RespData("403-1", "권한이 없습니다.")
+                                                         RespData.of("401-1", "권한이 없습니다.", null)
                                                     )
                                             );
                                         }
@@ -80,7 +81,7 @@ public class SecurityConfig {
                                             response.setStatus(403);
                                             response.getWriter().write(
                                                     UtClass.json.toString(
-                                                            new RespData("403-1", "접근 권한이 없습니다.")
+                                                            RespData.of("403-1", "접근 권한이 없습니다.", null)
                                                     )
                                             );
                                         }

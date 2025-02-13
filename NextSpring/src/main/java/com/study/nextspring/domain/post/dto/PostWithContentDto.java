@@ -2,27 +2,29 @@ package com.study.nextspring.domain.post.dto;
 
 import com.study.nextspring.domain.post.entity.Post;
 import lombok.Getter;
-
+import org.springframework.lang.NonNull;
 import java.time.LocalDateTime;
 
 @Getter
 public class PostWithContentDto {
+
+    @NonNull
     private long id;
-
+    @NonNull
     private LocalDateTime createDate;
-
+    @NonNull
     private LocalDateTime modifyDate;
-
+    @NonNull
     private long authorId;
-
+    @NonNull
     private String authorName;
-
+    @NonNull
     private String title;
-
+    @NonNull
     private String content;
-
+    @NonNull
     private boolean published;
-
+    @NonNull
     private boolean listed;
 
     public PostWithContentDto(Post post) {
