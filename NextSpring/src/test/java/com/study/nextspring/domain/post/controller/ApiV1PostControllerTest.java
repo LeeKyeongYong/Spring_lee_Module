@@ -440,7 +440,7 @@ public class ApiV1PostControllerTest {
                 .andExpect(handler().methodName("item"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.resultCode").value("401-1"))
-                .andExpect(jsonPath("$.msg").value("로그인이 필요합니다."));
+                .andExpect(jsonPath("$.msg").value("비밀글 입니다. 로그인 후 이용해주세요."));
     }
 
     @Test

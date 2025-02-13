@@ -7,6 +7,7 @@ import com.study.nextspring.domain.post.dto.req.PostCommentWriteReqBody;
 import com.study.nextspring.domain.post.entity.Post;
 import com.study.nextspring.domain.post.entity.PostComment;
 import com.study.nextspring.domain.post.service.PostService;
+import com.study.nextspring.global.base.Empty;
 import com.study.nextspring.global.httpsdata.ReqData;
 import com.study.nextspring.global.httpsdata.RespData;
 import io.swagger.v3.oas.annotations.Operation;
@@ -49,7 +50,7 @@ public class ApiV1PostCommentController {
     @DeleteMapping("/{id}")
     @Transactional
     @Operation(summary = "삭제")
-    public RespData<Void> delete(
+    public RespData<Empty> delete(
             @PathVariable long postId,
             @PathVariable long id
     ) {

@@ -13,6 +13,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @RequiredArgsConstructor
 public class AppConfig {
+
+
+
     private static String activeProfile;
 
     @Value("${spring.profiles.active}")

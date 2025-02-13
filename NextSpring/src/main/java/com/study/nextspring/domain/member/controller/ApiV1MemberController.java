@@ -8,6 +8,7 @@ import com.study.nextspring.domain.member.dto.req.MemberLoginReqBody;
 import com.study.nextspring.domain.member.dto.res.MemberLoginResBody;
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.member.service.MemberService;
+import com.study.nextspring.global.base.Empty;
 import com.study.nextspring.global.exception.ServiceException;
 import com.study.nextspring.global.httpsdata.ReqData;
 import com.study.nextspring.global.httpsdata.RespData;
@@ -80,7 +81,7 @@ public class ApiV1MemberController {
     @DeleteMapping("/logout")
     @Transactional(readOnly = true)
     @Operation(summary = "내 정보")
-    public RespData<Void> logout() {
+    public RespData<Empty> logout() {
         rq.deleteCookie("accessToken");
         rq.deleteCookie("apiKey");
 

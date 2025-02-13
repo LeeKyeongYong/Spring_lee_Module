@@ -1,5 +1,7 @@
 package com.study.nextspring.global.base;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.study.nextspring.global.app.AppConfig;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -94,6 +96,8 @@ public class UtClass {
 
     // JSON 관련 유틸리티
     public static class json {
+
+        private static final ObjectMapper om = AppConfig.getObjectMapper();
         @SneakyThrows
         public static String toString(Object obj) {
             return AppConfig.getObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(obj);

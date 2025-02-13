@@ -16,6 +16,10 @@ public class RespData<T> {
     @NonNull private T data;
     @NonNull private int statusCode;
 
+    public RespData(String resultCode, String msg) {
+        this(resultCode, 200, msg, (T) new Empty());
+    }
+
     // 기본 생성자
     public RespData(String resultCode, int statusCode, String msg, T data) {
         this.resultCode = resultCode;

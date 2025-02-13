@@ -1,5 +1,6 @@
 package com.study.nextspring.global.exception;
 
+import com.study.nextspring.global.base.Empty;
 import com.study.nextspring.global.httpsdata.RespData;
 
 public class ServiceException extends RuntimeException {
@@ -12,7 +13,7 @@ public class ServiceException extends RuntimeException {
         this.msg = msg;
     }
 
-    public RespData<Void> getRsData() {
+    public RespData<Empty> getRsData() {
         return RespData.of(resultCode, msg, null);
     }
 }

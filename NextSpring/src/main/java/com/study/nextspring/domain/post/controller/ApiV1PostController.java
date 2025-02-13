@@ -6,6 +6,7 @@ import com.study.nextspring.domain.post.dto.PostWithContentDto;
 import com.study.nextspring.domain.post.dto.res.PostStatisticsResBody;
 import com.study.nextspring.domain.post.entity.Post;
 import com.study.nextspring.domain.post.service.PostService;
+import com.study.nextspring.global.base.Empty;
 import com.study.nextspring.global.base.KwTypeV1;
 import com.study.nextspring.global.exception.ServiceException;
 import com.study.nextspring.global.httpsdata.ReqData;
@@ -69,7 +70,7 @@ public class ApiV1PostController {
             Member actor = rq.getActor();
 
             if (actor == null) {
-                throw new ServiceException("401-1", "로그인이 필요합니다.");
+                throw new ServiceException("401-1", "비밀글 입니다. 로그인 후 이용해주세요.");
             }
 
             post.checkActorCanRead(actor);
@@ -123,7 +124,7 @@ public class ApiV1PostController {
     @DeleteMapping("/{id}")
     @Transactional
     @Operation(summary = "글 삭제", description = "작성자 본인 뿐 아니라 관리자도 삭제 가능")
-    public RespData<Void> delete(
+    public RespData<Empty> delete(
             @PathVariable long id
     ) {
         Member member = rq.getActor();

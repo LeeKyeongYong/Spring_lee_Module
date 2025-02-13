@@ -1,5 +1,6 @@
 package com.study.nextspring.global.exception;
 import com.study.nextspring.global.app.AppConfig;
+import com.study.nextspring.global.base.Empty;
 import com.study.nextspring.global.httpsdata.RespData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -8,6 +9,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.Comparator;
 import java.util.NoSuchElementException;
@@ -16,8 +18,9 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<RespData<Void>> handle(NoSuchElementException ex) {
+    public ResponseEntity<RespData<Empty>> handle(NoSuchElementException ex) {
 
         if (AppConfig.isNotProd()) ex.printStackTrace();
 
@@ -27,7 +30,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<RespData<Void>> handle(MethodArgumentNotValidException ex) {
+    public ResponseEntity<RespData<Empty>> handle(MethodArgumentNotValidException ex) {
 
         if (AppConfig.isNotProd()) ex.printStackTrace();
 
@@ -46,11 +49,11 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ServiceException.class)
-    public ResponseEntity<RespData<Void>> handle(ServiceException ex) {
+    public ResponseEntity<RespData<Empty>> handle(ServiceException ex) {
 
         if (AppConfig.isNotProd()) ex.printStackTrace();
 
-        RespData<Void> rsData = ex.getRsData();
+        RespData<Empty> rsData = ex.getRsData();
 
         return ResponseEntity
                 .status(rsData.getStatusCode())
