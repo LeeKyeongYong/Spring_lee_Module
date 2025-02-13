@@ -1,6 +1,9 @@
-import type { components } from "@/lib/backend/apiV1/schema";
-type PostDto = components["schemas"]["PostDto"];
-type PageDtoPostDto = components["schemas"]["PageDtoPostDto"];
+import createClient from "openapi-fetch";
+import type { paths } from "@/lib/backend/apiV1/schema";
+
+const client = createClient<paths>({
+    baseUrl: "http://localhost:8080",
+});
 
 export default async function Page({
                                        searchParams,
@@ -10,18 +13,24 @@ export default async function Page({
         searchKeyword?: string;
     };
 }) {
-    const { searchKeyword = "", searchKeywordType = "title" } = searchParams;
+    const { searchKeyword = "", searchKeywordType = "title" } =
+        await searchParams;
 
-    const response = await fetch(
-        `http://localhost:8080/api/v1/posts?searchKeywordType=${searchKeywordType}&searchKeyword=${searchKeyword}`
-    );
 
-    const body:PageDtoPostDto  = await response.json();
+    const response = await client.GET("/api/v1/posts", {
+        params: {
+            query: {
+                searchKeyword: searchKeyword,
+                searchKeywordType: searchKeywordType,
+            },
+        },
+    });
+
+    const responseBody = response.data;
 
 
     return (
         <div>
-
             <form>
                 <select name="searchKeywordType" defaultValue={searchKeywordType}>
                     <option value="title">제목</option>
@@ -32,19 +41,22 @@ export default async function Page({
             </form>
 
             <div>
-                <div>currentPageNumber: {body.pageable.pageNumber}</div>
-                <div>pageSize: {body.pageable.pageSize}</div>
-                <div>totalPages: {body.pageable.totalPages}</div>
-                <div>totalItems: {body.pageable.totalElements}</div>
+                <div>currentPageNumber: {responseBody.currentPageNumber}</div>
+
+                <div>pageSize: {responseBody.pageSize}</div>
+
+                <div>totalPages: {responseBody.totalPages}</div>
+
+                <div>totalItems: {responseBody.totalItems}</div>
             </div>
 
             <hr />
 
             <ul>
-                {body.content.map((item: PostDto) => (
+                {responseBody?.items.map((item) => (
                     <li key={item.id} className="border-[2px] border-[red] my-3">
                         <div>id : {item.id}</div>
-                        <div>createDate : {item.}</div>
+                        <div>createDate : {item.createDate}</div>
                         <div>modifyDate : {item.modifyDate}</div>
                         <div>authorId : {item.authorId}</div>
                         <div>authorName : {item.authorName}</div>
