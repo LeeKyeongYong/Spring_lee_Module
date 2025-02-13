@@ -15,6 +15,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.stream.IntStream;
+
 @Profile("dev")
 @Configuration
 @RequiredArgsConstructor
@@ -66,6 +68,9 @@ public class BaseInitData {
 
         Member memberUser5 = memberService.join("user9", "1234", "유저9");
         if (AppConfig.isNotProd()) memberUser5.setApiKey("user9");
+
+        Member memberUser6 = memberService.join("user6", "1234", "유저10");
+        if (AppConfig.isNotProd()) memberUser5.setApiKey("user10");
     }
 
     @Transactional
@@ -76,6 +81,8 @@ public class BaseInitData {
         Member memberUser2 = memberService.findByUsername("user6").get();
         Member memberUser3 = memberService.findByUsername("user7").get();
         Member memberUser4 = memberService.findByUsername("user8").get();
+        Member memberUser5 = memberService.findByUsername("user9").get();
+        Member memberUser6 = memberService.findByUsername("user10").get();
 
         Post post1 = postService.write(
                 memberUser1,
@@ -143,5 +150,26 @@ public class BaseInitData {
                 false,
                 true
         );
+
+        IntStream.rangeClosed(9, 100).forEach(
+                i -> postService.write(
+                        memberUser5,
+                        "테스트 게시물 " + i,
+                        "테스트 게시물 " + i + " 내용",
+                        i % 3 != 0,
+                        i % 4 != 0
+                )
+        );
+
+        IntStream.rangeClosed(101, 200).forEach(
+                i -> postService.write(
+                        memberUser6,
+                        "테스트 게시물 " + i,
+                        "테스트 게시물 " + i + " 내용",
+                        i % 5 != 0,
+                        i % 6 != 0
+                )
+        );
+
     }
 }
