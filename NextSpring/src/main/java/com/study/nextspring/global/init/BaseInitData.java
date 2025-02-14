@@ -69,7 +69,7 @@ public class BaseInitData {
         Member memberUser5 = memberService.join("user9", "1234", "유저9");
         if (AppConfig.isNotProd()) memberUser5.setApiKey("user9");
 
-        Member memberUser6 = memberService.join("user6", "1234", "유저10");
+        Member memberUser6 = memberService.join("user10", "1234", "유저10");
         if (AppConfig.isNotProd()) memberUser5.setApiKey("user10");
     }
 
