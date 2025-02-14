@@ -1,7 +1,9 @@
 "use client";
+
 import { components } from "@/lib/backend/apiV1/schema";
-import { useRouter } from "next/navigation";
+import client from "@/lib/backend/client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function ClientPage({
                                        post,
@@ -9,6 +11,27 @@ export default function ClientPage({
     post: components["schemas"]["PostWithContentDto"];
 }) {
     const router = useRouter();
+
+    const handleDelete = async () => {
+        if (!confirm("정말로 삭제하시겠습니까?")) return;
+
+        const response = await client.DELETE("/api/v1/posts/{id}", {
+            params: {
+                path: {
+                    id: post.id,
+                },
+            },
+        });
+
+        if (response.error) {
+            alert(response.error.msg);
+            return;
+        }
+
+        alert(response.data.msg);
+
+        router.replace("/post/list");
+    };
 
     return (
         <div>
@@ -24,7 +47,11 @@ export default function ClientPage({
             <hr />
             <p>{post.content}</p>
             <div>
-                <Link href={`/post/${post.id}/edit`}>수정</Link>
+                {post.actorCanModify && (
+                    <Link href={`/post/${post.id}/edit`}>수정</Link>
+                )}
+
+                {post.actorCanDelete && <button onClick={handleDelete}>삭제</button>}
             </div>
         </div>
     );

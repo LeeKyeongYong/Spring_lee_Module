@@ -21,21 +21,20 @@ export default function ClientPage({
 
     return (
         <div>
-            form
-            onSubmit={(e) => {
-            e.preventDefault();
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
 
-            const formData = new FormData(e.target as HTMLFormElement);
-            const searchKeyword = formData.get("searchKeyword") as string;
-            const searchKeywordType = formData.get("searchKeywordType") as string;
-            const page = formData.get("page") as string;
-            const pageSize = formData.get("pageSize") as string;
+                    const formData = new FormData(e.target as HTMLFormElement);
+                    const searchKeyword = formData.get("searchKeyword") as string;
+                    const searchKeywordType = formData.get("searchKeywordType") as string;
+                    const page = formData.get("page") as string;
+                    const pageSize = formData.get("pageSize") as string;
 
-            router.push(
-                `?page=${page}&pageSize=${pageSize}&searchKeywordType=${searchKeywordType}&searchKeyword=${searchKeyword}`
-            );
-
-        }}
+                    router.push(
+                        `?page=${page}&pageSize=${pageSize}&searchKeywordType=${searchKeywordType}&searchKeyword=${searchKeyword}`
+                    );
+                }}
             >
                 <input type="hidden" name="page" value="1" />
                 <select name="pageSize" defaultValue={pageSize}>

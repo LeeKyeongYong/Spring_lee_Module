@@ -28,6 +28,21 @@ public class ApiV1PostController {
     private final PostService postService;
     private final ReqData rq;
 
+
+    private PostWithContentDto makePostWithContentDto(Post post) {
+        Member actor = rq.getActor();
+
+        PostWithContentDto postWithContentDto = new PostWithContentDto(post);
+
+        if (actor != null) {
+            postWithContentDto.setActorCanModify(post.getCheckActorCanModifyRs(actor).isSuccess());
+            postWithContentDto.setActorCanDelete(post.getCheckActorCanDeleteRs(actor).isSuccess());
+        }
+
+        return postWithContentDto;
+    }
+
+
     @GetMapping("/mine")
     @Transactional(readOnly = true)
     @Operation(summary = "내글 다건 조회")
@@ -76,7 +91,7 @@ public class ApiV1PostController {
             post.checkActorCanRead(actor);
         }
 
-        return new PostWithContentDto(post);
+        return makePostWithContentDto(post);
     }
 
 

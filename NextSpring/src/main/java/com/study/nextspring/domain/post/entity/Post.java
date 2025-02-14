@@ -1,27 +1,13 @@
 package com.study.nextspring.domain.post.entity;
 
 import com.study.nextspring.domain.member.entity.Member;
+import com.study.nextspring.global.base.Empty;
+import com.study.nextspring.global.exception.ServiceException;
+import com.study.nextspring.global.httpsdata.RespData;
 import com.study.nextspring.global.jpa.entity.BaseTime;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.service.spi.ServiceException;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
-
-import static jakarta.persistence.GenerationType.IDENTITY;
-import static jakarta.persistence.FetchType.LAZY;
-
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.util.*;
-
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -78,31 +64,48 @@ public class Post extends BaseTime {
         comments.remove(postComment);
     }
 
+    public RespData<Empty> getCheckActorCanDeleteRs(Member actor) {
+        if (actor == null) return new RespData<>("401-1", "로그인 후 이용해주세요.");
+
+        if (actor.isAdmin()) return RespData.OK;
+
+        if (actor.equals(author)) return RespData.OK;
+
+        return new RespData<>("403-1", "작성자만 글을 삭제할 수 있습니다.");
+    }
+
+
     public void checkActorCanDelete(Member actor) {
-        if (actor == null) throw new ServiceException("401-1 로그인 후 이용해주세요.");
+        Optional.of(getCheckActorCanDeleteRs(actor))
+                .filter(RespData::isFail)
+                .ifPresent(rsData -> {
+                    throw new ServiceException(rsData.getResultCode(), rsData.getMsg());
+                });
+    }
 
-        if (actor.isAdmin()) return;
+    public RespData<Empty> getCheckActorCanModifyRs(Member actor) {
+        if (actor == null) return new RespData<>("401-1", "로그인 후 이용해주세요.");
 
-        if (actor.equals(author)) return;
+        if (actor.equals(author)) return RespData.OK;
 
-        throw new ServiceException("403-1 작성자만 글을 삭제할 수 있습니다.");
+        return new RespData<>("403-1", "작성자만 글을 수정할 수 있습니다.");
     }
 
     public void checkActorCanModify(Member actor) {
-        if (actor == null) throw new ServiceException("401-1 로그인 후 이용해주세요.");
-
+        if (actor == null) {
+            throw new ServiceException("401-1", "로그인 후 이용해주세요.");
+        }
         if (actor.equals(author)) return;
 
-        throw new ServiceException( "403-1 작성자만 글을 수정할 수 있습니다.");
+        throw new ServiceException("403-1", "작성자만 글을 수정할 수 있습니다.");
     }
 
     public void checkActorCanRead(Member actor) {
-        if (actor == null) throw new ServiceException("401-1 로그인 후 이용해주세요.");
-
-        if (actor.isAdmin()) return;
-
-        if (actor.equals(author)) return;
-
-        throw new ServiceException("403-1 비공개글은 작성자만 볼 수 있습니다.");
+        Optional.of(getCheckActorCanModifyRs(actor))
+                .filter(RespData::isFail)
+                .ifPresent(rsData -> {
+                    throw new ServiceException(rsData.getResultCode(), rsData.getMsg());
+                });
     }
+
 }

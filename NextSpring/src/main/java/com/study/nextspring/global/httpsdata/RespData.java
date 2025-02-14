@@ -16,8 +16,12 @@ public class RespData<T> {
     @NonNull private T data;
     @NonNull private int statusCode;
 
+    // OK 필드에서 타입을 명확히 지정
+    public static final RespData<Empty> OK = RespData.of("200-1", "OK", new Empty());
+
+    @SuppressWarnings("unchecked")
     public RespData(String resultCode, String msg) {
-        this(resultCode, 200, msg, (T) new Empty());
+        this(resultCode, 200, msg, (T) new Empty());  // Empty를 T로 캐스팅
     }
 
     // 기본 생성자

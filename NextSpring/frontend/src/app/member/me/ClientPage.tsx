@@ -7,7 +7,6 @@ export default function ClientPage({
                                    }: {
     me: components["schemas"]["MemberDto"];
 }) {
-
     return (
         <div>
             <div>ID : {me.id}</div>

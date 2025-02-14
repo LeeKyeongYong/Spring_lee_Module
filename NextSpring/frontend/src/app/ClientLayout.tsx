@@ -1,15 +1,17 @@
 "use client";
+
 import { components } from "@/lib/backend/apiV1/schema";
-import Link from "next/link";
 import client from "@/lib/backend/client";
+import Link from "next/link";
 
 export default function ClientLayout({
                                          children,
+                                         me,
                                      }: Readonly<{
     children: React.ReactNode;
+    me: components["schemas"]["MemberDto"];
 }>) {
-
-    const router = useRouter();
+    const isLogin = me.id !== 0;
 
     const logout = async () => {
         const response = await client.DELETE("/api/v1/members/logout");
@@ -22,7 +24,6 @@ export default function ClientLayout({
         window.location.replace("/");
     };
 
-
     return (
         <>
             <header className="border-[2px] border-[red] p-5">
@@ -31,9 +32,10 @@ export default function ClientLayout({
                     <Link href="/about">소개</Link>
                     <Link href="/post/list">글</Link>
                     {isLogin && <Link href="/post/write">글 쓰기</Link>}
-                    <Link href="/member/login">로그인</Link>
-                    <button onClick={logout}>로그아웃</button>
-                    <Link href="/member/me">내 정보</Link>
+                    {!isLogin && <Link href="/member/join">회원가입</Link>}
+                    {!isLogin && <Link href="/member/login">로그인</Link>}
+                    {isLogin && <button onClick={logout}>로그아웃</button>}
+                    {isLogin && <Link href="/member/me">내 정보</Link>}
                 </div>
             </header>
 

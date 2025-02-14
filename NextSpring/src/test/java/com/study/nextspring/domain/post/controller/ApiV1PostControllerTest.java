@@ -423,7 +423,11 @@ public class ApiV1PostControllerTest {
                 .andExpect(jsonPath("$.authorId").value(post.getAuthor().getId()))
                 .andExpect(jsonPath("$.authorName").value(post.getAuthor().getName()))
                 .andExpect(jsonPath("$.title").value(post.getTitle()))
-                .andExpect(jsonPath("$.content").value(post.getContent()));
+                .andExpect(jsonPath("$.content").value(post.getContent()))
+                .andExpect(jsonPath("$.published").value(post.isPublished()))
+                .andExpect(jsonPath("$.listed").value(post.isListed()))
+                .andExpect(jsonPath("$.actorCanDelete").value(true))
+                .andExpect(jsonPath("$.actorCanModify").value(true));
     }
 
     @Test
