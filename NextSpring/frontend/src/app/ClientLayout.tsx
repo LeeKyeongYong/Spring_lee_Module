@@ -1,12 +1,29 @@
 "use client";
 
 import Link from "next/link";
+import client from "@/lib/backend/client";
+import { useRouter } from "next/navigation";
 
 export default function ClientLayout({
                                          children,
                                      }: Readonly<{
     children: React.ReactNode;
 }>) {
+
+    const router = useRouter();
+
+    const logout = async () => {
+        const response = await client.DELETE("/api/v1/members/logout");
+
+        if (response.error) {
+            alert(response.error.msg);
+            return;
+        }
+
+        router.replace("/");
+    };
+
+
     return (
         <>
             <header className="border-[2px] border-[red] p-5">
@@ -15,6 +32,8 @@ export default function ClientLayout({
                     <Link href="/about">소개</Link>
                     <Link href="/post/list">글</Link>
                     <Link href="/member/login">로그인</Link>
+                    <button onClick={logout}>로그아웃</button>
+                    <Link href="/member/me">내 정보</Link>
                 </div>
             </header>
 

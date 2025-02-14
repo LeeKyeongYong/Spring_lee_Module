@@ -36,7 +36,7 @@ export default function ClientPage() {
         }
 
         alert(response.data.msg);
-        router.push("/");
+        router.replace("/");
     };
 
     return (
