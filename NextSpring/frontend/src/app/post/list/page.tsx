@@ -1,5 +1,6 @@
 import client from "@/lib/backend/client";
 import ClientPage from "./ClientPage";
+import { cookies } from "next/headers";
 
 export default async function Page({
                                        searchParams,
@@ -27,6 +28,9 @@ export default async function Page({
                 pageSize,
                 page,
             },
+        },
+        headers: {
+            cookie: (await cookies()).toString(),
         },
     });
 

@@ -1,8 +1,7 @@
 "use client";
-
+import { components } from "@/lib/backend/apiV1/schema";
 import Link from "next/link";
 import client from "@/lib/backend/client";
-import { useRouter } from "next/navigation";
 
 export default function ClientLayout({
                                          children,
@@ -20,7 +19,7 @@ export default function ClientLayout({
             return;
         }
 
-        router.replace("/");
+        window.location.replace("/");
     };
 
 

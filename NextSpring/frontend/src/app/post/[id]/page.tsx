@@ -1,5 +1,6 @@
 import client from "@/lib/backend/client";
 import ClientPage from "./ClientPage";
+import { cookies } from "next/headers";
 
 export default async function Page({ params }: { params: { id: number } }) {
     const { id } = await params;
@@ -8,6 +9,9 @@ export default async function Page({ params }: { params: { id: number } }) {
             path: {
                 id,
             },
+        },
+        headers: {
+            cookie: (await cookies()).toString(),
         },
     });
 

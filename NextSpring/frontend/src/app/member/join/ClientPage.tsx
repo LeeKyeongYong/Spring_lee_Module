@@ -1,8 +1,10 @@
 "use client";
 
 import client from "@/lib/backend/client";
+import { useRouter } from "next/navigation";
 
 export default function ClientPage() {
+    const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -22,10 +24,32 @@ export default function ClientPage() {
             return;
         }
 
-        const response = await client.POST("/api/v1/members/login", {
+        if (form.passwordConfirm.value.length === 0) {
+            alert("비밀번호 확인을 입력해주세요.");
+            form.passwordConfirm.focus();
+
+            return;
+        }
+
+        if (form.password.value != form.passwordConfirm.value) {
+            alert("비밀번호가 일치하지 않습니다. 다시 입력해주세요.");
+            form.password.focus();
+
+            return;
+        }
+
+        if (form.nickname.value.length === 0) {
+            alert("별명을 입력해주세요.");
+            form.nickname.focus();
+
+            return;
+        }
+
+        const response = await client.POST("/api/v1/members/join", {
             body: {
                 username: form.username.value,
                 password: form.password.value,
+                nickname: form.nickname.value,
             },
         });
 
@@ -35,7 +59,8 @@ export default function ClientPage() {
         }
 
         alert(response.data.msg);
-        window.location.replace("/");
+
+        router.replace("/member/login");
     };
 
     return (
@@ -61,7 +86,25 @@ export default function ClientPage() {
                     />
                 </div>
                 <div>
-                    <input type="submit" value="로그인" />
+                    <label>비밀번호 확인</label>
+                    <input
+                        type="password"
+                        name="passwordConfirm"
+                        className="p-2"
+                        placeholder="비밀번호 확인"
+                    />
+                </div>
+                <div>
+                    <label>별명</label>
+                    <input
+                        type="text"
+                        name="nickname"
+                        className="p-2"
+                        placeholder="별명"
+                    />
+                </div>
+                <div>
+                    <input type="submit" value="회원가입" />
                 </div>
             </form>
         </>
