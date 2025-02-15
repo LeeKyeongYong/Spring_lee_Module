@@ -9,6 +9,7 @@ import com.study.nextspring.domain.member.dto.res.MemberLoginResBody;
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.member.service.MemberService;
 import com.study.nextspring.global.base.Empty;
+import com.study.nextspring.global.base.dto.PageDto;
 import com.study.nextspring.global.exception.ServiceException;
 import com.study.nextspring.global.httpsdata.ReqData;
 import com.study.nextspring.global.httpsdata.RespData;
@@ -74,13 +75,13 @@ public class ApiV1MemberController {
     @Operation(summary = "내 정보")
     @Transactional(readOnly = true)
     public MemberDto getMe() {
-        Member actor = rq.findByActor().get();
+        Member actor = rq.getActor();
         return new MemberDto(actor);
     }
 
     @DeleteMapping("/logout")
     @Transactional(readOnly = true)
-    @Operation(summary = "내 정보")
+    @Operation(summary = "로그아웃")
     public RespData<Empty> logout() {
         rq.deleteCookie("accessToken");
         rq.deleteCookie("apiKey");
@@ -104,6 +105,19 @@ public class ApiV1MemberController {
                 "201-1",
                 "%s님 환영합니다. 회원가입이 완료되었습니다.".formatted(member.getName()),
                 new MemberDto(member)
+        );
+    }
+
+    @GetMapping
+    @Transactional(readOnly = true)
+    @Operation(summary = "회원 다건 조회")
+    public PageDto<MemberDto> items(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        return new PageDto<>(
+                memberService.findByPaged(page, pageSize)
+                        .map(MemberDto::new)
         );
     }
 

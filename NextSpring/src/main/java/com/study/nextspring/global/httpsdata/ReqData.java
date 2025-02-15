@@ -236,15 +236,6 @@ public class ReqData {
         setCrossDomainCookie("refreshToken", refreshToken);
     }
 
-    // getActor 와 다르게
-    // 이 함수에서 리턴하는 것은 야매가 아니다.
-    public Optional<Member> findByActor() {
-        Member actor = getActor();
-
-        if (actor == null) return Optional.empty();
-
-        return memberService.findById(actor.getId());
-    }
 
     public void deleteCookie(String name) {
         ResponseCookie cookie = ResponseCookie.from(name, null)

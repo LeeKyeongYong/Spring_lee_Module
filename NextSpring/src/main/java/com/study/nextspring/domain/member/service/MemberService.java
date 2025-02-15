@@ -5,6 +5,9 @@ import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.member.repository.MemberRepository;
 import com.study.nextspring.global.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.Optional;
@@ -84,4 +87,11 @@ public class MemberService {
     public boolean validatePassword(Member member, String rawPassword) {
         return passwordEncoder.matches(rawPassword, member.getPassword());
     }
+
+    public Page<Member> findByPaged(int page, int pageSize) {
+        PageRequest pageRequest = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Order.desc("id")));
+
+        return memberRepository.findAll(pageRequest);
+    }
+
 }
