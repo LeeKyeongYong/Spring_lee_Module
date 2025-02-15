@@ -37,9 +37,10 @@ public class Member extends BaseTime {
         return "admin".equals(username);
     }
 
-    public Member(long id, String username) {
+    public Member(long id, String username, String nickname) {
         this.setId(id);
         this.username = username;
+        this.nickname = nickname;
     }
 
     public boolean matchPassword(String password) {

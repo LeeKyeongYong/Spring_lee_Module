@@ -156,9 +156,9 @@ public class ReqData {
                                 .getAuthentication()
                 )
                 .map(Authentication::getPrincipal)
-                .filter(principal -> principal instanceof UserDetails)
-                .map(principal -> (UserDetails) principal)
-                .map(UserDetails::getUsername)
+                .filter(principal -> principal instanceof SecurityUser)
+                .map(principal -> (SecurityUser) principal)
+                .map(securityUser -> securityUser.getUsername())
                 .flatMap(memberService::findByUsername)
                 .orElse(null);
     }
@@ -168,6 +168,7 @@ public class ReqData {
                 member.getId(),
                 member.getUsername(),
                 "",
+                member.getNickname(),
                 member.getAuthorities()
         );
 

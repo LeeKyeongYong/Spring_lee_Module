@@ -74,8 +74,9 @@ public class MemberService {
 
         long id = (long) payload.get("id");
         String username = (String) payload.get("username");
+        String nickname = (String) payload.get("nickname");
 
-        Member member = new Member(id, username);
+        Member member = new Member(id, username, nickname);
 
         return member;
     }
