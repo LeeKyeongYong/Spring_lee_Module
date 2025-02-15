@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.IntStream;
 
-@Profile("dev")
+//@Profile("dev")
 @Configuration
 @RequiredArgsConstructor
 public class BaseInitData {
