@@ -33,7 +33,9 @@ public class SecurityConfig {
                         .requestMatchers("/h2-console/**")
                         .permitAll()
                         // 통계는 관리자만
-                        .requestMatchers(HttpMethod.GET, "/api/*/posts/statistics", "/api/*/members")
+                        .requestMatchers(HttpMethod.GET, "/api/*/posts/statistics")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/*/adm/members/**")
                         .hasAuthority("ADMIN")
                         // API 요청은 인증 필요
                         .requestMatchers("/api/*/**")

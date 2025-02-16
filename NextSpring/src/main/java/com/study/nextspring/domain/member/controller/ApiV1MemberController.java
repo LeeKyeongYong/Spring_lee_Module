@@ -109,19 +109,4 @@ public class ApiV1MemberController {
         );
     }
 
-    @GetMapping
-    @Transactional(readOnly = true)
-    @Operation(summary = "회원 다건 조회")
-    public PageDto<MemberDto> items(
-            @RequestParam(defaultValue = "username") MemberSearchKeywordTypeV1 searchKeywordType,
-            @RequestParam(defaultValue = "") String searchKeyword,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int pageSize
-    ) {
-        return new PageDto<>(
-                memberService.findByPaged(searchKeywordType, searchKeyword, page, pageSize)
-                        .map(MemberDto::new)
-        );
-    }
-
 }
