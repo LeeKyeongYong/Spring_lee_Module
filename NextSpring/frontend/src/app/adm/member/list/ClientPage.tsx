@@ -3,6 +3,7 @@
 import type { components } from "@/lib/backend/apiV1/schema";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function ClientPage({
                                        searchKeyword,
@@ -17,7 +18,13 @@ export default function ClientPage({
     pageSize: number;
     itemPage: components["schemas"]["PageDtoMemberWithUsernameDto"];
 }) {
-    const router = useRouter();
+    const router = useRouter()
+
+    useEffect(() => {
+        // itemPage의 내용을 콘솔에 출력
+        console.log(itemPage);
+    }, [itemPage]);
+
 
     return (
         <div>

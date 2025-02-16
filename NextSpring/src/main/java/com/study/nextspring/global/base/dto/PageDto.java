@@ -2,20 +2,22 @@ package com.study.nextspring.global.base.dto;
 
 import lombok.Getter;
 import org.springframework.data.domain.Page;
-import java.util.List;
 import org.springframework.lang.NonNull;
+
+import java.util.List;
+
 @Getter
 public class PageDto<T> {
     @NonNull
-    private int currentPageNumber;
+    private final int currentPageNumber;
     @NonNull
-    private int pageSize;
+    private final int pageSize;
     @NonNull
-    private long totalPages;
+    private final long totalPages;
     @NonNull
-    private long totalItems;
+    private final long totalItems;
     @NonNull
-    private List<T> items;
+    private final List<T> items;
 
     public PageDto(Page<T> page) {
         this.currentPageNumber = page.getNumber() + 1;

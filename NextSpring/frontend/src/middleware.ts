@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import client from "./lib/backend/client";
 import { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
-import { parseAccessToken } from "@/lib/auth/token";
+import { parseAccessToken } from "@/lib/auth/tokens";
 
 export async function middleware(req: NextRequest) {
     const cookieStore = await cookies();

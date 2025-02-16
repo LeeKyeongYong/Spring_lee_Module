@@ -104,13 +104,15 @@ public class PostService {
         if (UtClass.str.isBlank(searchKeyword)) return findByAuthorPaged(author, page, pageSize);
 
         PageRequest pageRequest = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Order.desc("id")));
-
         searchKeyword = "%" + searchKeyword + "%";
 
+        // switch 문에서 열거형 상수 이름만 사용
         return switch (searchKeywordType) {
-            case content ->
-                    postRepository.findByAuthorAndContentLike(author, searchKeyword, pageRequest);
-            default -> postRepository.findByAuthorAndTitleLike(author, searchKeyword, pageRequest);
+            case content: // 정규화된 이름 대신 단순한 이름 사용
+                yield postRepository.findByAuthorAndContentLike(author, searchKeyword, pageRequest);
+            default:
+                yield postRepository.findByAuthorAndTitleLike(author, searchKeyword, pageRequest);
         };
     }
+
 }

@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import ClientPage from "./ClientPage";
-import { parseAccessToken } from "@/lib/auth/token";
+import { parseAccessToken } from "@/lib/auth/tokens";
 
 export default async function Page() {
     const cookieStore = await cookies();
