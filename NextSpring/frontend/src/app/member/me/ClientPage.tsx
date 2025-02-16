@@ -1,5 +1,5 @@
 "use client";
-
+import Link from "next/link";
 import { components } from "@/lib/backend/apiV1/schema";
 
 export default function ClientPage({
@@ -11,6 +11,7 @@ export default function ClientPage({
         <div>
             <div>ID : {me.id}</div>
             <div>별명 : {me.nickname}</div>
+            <Link href="me/edit">회원정보 수정</Link>
         </div>
     );
 }
