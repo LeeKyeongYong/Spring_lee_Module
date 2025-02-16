@@ -1,0 +1,31 @@
+# .next
+.next
+
+# shadcn
+src/components/**
+src/hooks/**
+
+# 빌드 결과물
+dist
+build
+coverage
+tsconfig.tsbuildinfo
+
+# 의존성 디렉토리
+node_modules
+
+# 로그 파일
+*.log
+log/**
+
+# 환경 설정 파일
+.git
+.env
+.env.*
+
+# 캐시 디렉토리
+.cache
+
+# 기타 무시할 파일
+package-lock.json
+yarn.lock
