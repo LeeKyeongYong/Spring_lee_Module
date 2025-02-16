@@ -59,13 +59,10 @@ export default function ClientPage({
             </form>
 
             <div>
-                <div>currentPageNumber: {itemPage.currentPageNumber}</div>
-
-                <div>pageSize: {itemPage.pageSize}</div>
-
-                <div>totalPages: {itemPage.totalPages}</div>
-
-                <div>totalItems: {itemPage.totalItems}</div>
+                <div>currentPageNumber: {itemPage.pageable.pageNumber + 1}</div>
+                <div>pageSize: {itemPage.pageable.pageSize}</div>
+                <div>totalPages: {itemPage.pageable.totalPages}</div>
+                <div>totalItems: {itemPage.pageable.totalElements}</div>
             </div>
 
             <hr />
@@ -89,7 +86,7 @@ export default function ClientPage({
             <hr />
 
             <ul>
-                {itemPage.items.map((item) => (
+                {itemPage.content.map((item) => (
                     <li key={item.id} className="border-[2px] border-[red] my-3">
                         <Link className="block" href={`/post/${item.id}`}>
                             <div>id : {item.id}</div>

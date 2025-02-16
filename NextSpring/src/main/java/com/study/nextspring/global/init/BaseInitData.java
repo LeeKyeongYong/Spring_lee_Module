@@ -95,7 +95,7 @@ public class BaseInitData {
         post1.addComment(memberUser3, "저도 할래요.");
 
         Post post2 = postService.write(
-                memberUser1,
+                memberUser2,
                 "배구 하실 분?",
                 "15시 까지 12명을 모아야 합니다.",
                 true,
@@ -104,7 +104,7 @@ public class BaseInitData {
         post2.addComment(memberUser4, "저요!, 저 배구 잘합니다.");
 
         Post post3 = postService.write(
-                memberUser2,
+                memberUser3,
                 "농구 하실 분?",
                 "16시 까지 10명을 모아야 합니다.",
                 true,
@@ -112,7 +112,7 @@ public class BaseInitData {
         );
 
         Post post4 = postService.write(
-                memberUser3,
+                memberUser4,
                 "발야구 하실 분?",
                 "17시 까지 14명을 모아야 합니다.",
                 true,
@@ -120,7 +120,7 @@ public class BaseInitData {
         );
 
         Post post5 = postService.write(
-                memberUser4,
+                memberUser5,
                 "피구 하실 분?",
                 "18시 까지 18명을 모아야 합니다.",
                 true,
@@ -128,7 +128,7 @@ public class BaseInitData {
         );
 
         Post post6 = postService.write(
-                memberUser4,
+                memberUser6,
                 "발야구를 밤에 하실 분?",
                 "22시 까지 18명을 모아야 합니다.",
                 false,
@@ -136,7 +136,7 @@ public class BaseInitData {
         );
 
         Post post7 = postService.write(
-                memberUser4,
+                memberUser1,
                 "발야구를 새벽 1시에 하실 분?",
                 "새벽 1시 까지 17명을 모아야 합니다.",
                 true,
@@ -144,7 +144,7 @@ public class BaseInitData {
         );
 
         Post post8 = postService.write(
-                memberUser4,
+                memberUser3,
                 "발야구를 새벽 3시에 하실 분?",
                 "새벽 3시 까지 19명을 모아야 합니다.",
                 false,
