@@ -120,6 +120,8 @@ public class ApiV1MemberController {
 
         memberService.modify(actor, reqBody.nickname());
 
+        rq.refreshAccessToken(actor);
+
         return RespData.of(
                 "200-1",
                 "회원정보가 수정되었습니다.",

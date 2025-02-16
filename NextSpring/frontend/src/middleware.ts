@@ -3,12 +3,12 @@ import type { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import client from "./lib/backend/client";
 import { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
+import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import { parseAccessToken } from "@/lib/auth/token";
 
 export async function middleware(req: NextRequest) {
-
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("accessToken")?.value;
-
 
     const { isLogin, isAdmin, isAccessTokenExpired } =
         parseAccessToken(accessToken);
@@ -26,31 +26,6 @@ export async function middleware(req: NextRequest) {
             cookie: cookieStore.toString(),
         },
     });
-}
-
-function parseAccessToken(accessToken: string | undefined) {
-
-    let isAccessTokenExpired = true;
-    let accessTokenPayload = null;
-
-    if (accessToken) {
-        try {
-            const tokenParts = accessToken.split(".");
-            accessTokenPayload = JSON.parse(
-                Buffer.from(tokenParts[1], "base64").toString()
-            );
-
-            const expTimestamp = accessTokenPayload.exp * 1000;
-            isAccessTokenExpired = Date.now() > expTimestamp;
-        } catch (e) {
-            console.error("토큰 파싱 중 오류 발생:", e);
-        }
-    }
-
-    const isLogin =
-        typeof accessTokenPayload === "object" && accessTokenPayload !== null;
-
-    return { isLogin, isAccessTokenExpired, accessTokenPayload };
 }
 
 async function refreshTokens(cookieStore: ReadonlyRequestCookies) {
@@ -73,11 +48,10 @@ async function refreshTokens(cookieStore: ReadonlyRequestCookies) {
                 if (name !== "accessToken" && name !== "apiKey") return null;
 
                 cookieStore.set(name, value, options);
-
             }
         }
     }
- }
+}
 
 function parseCookie(cookieStr: string) {
     const parts = cookieStr.split(";").map((p) => p.trim());
@@ -119,7 +93,8 @@ function requiresAdmin(pathname: string): boolean {
 function createUnauthorizedResponse(msg: string): NextResponse {
     return new NextResponse(msg, {
         status: 401,
-        "Content-Type": "text/html; charset=utf-8",
+        headers: {
+            "Content-Type": "text/html; charset=utf-8",
         },
     });
 }

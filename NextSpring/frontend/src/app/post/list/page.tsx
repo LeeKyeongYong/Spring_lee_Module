@@ -43,7 +43,7 @@ export default async function Page({
                 searchKeywordType={searchKeywordType}
                 page={page}
                 pageSize={pageSize}
-                responseBody={itemPage}
+                itemPage={itemPage}
             />
         </>
     );

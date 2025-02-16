@@ -23,7 +23,6 @@ export function parseAccessToken(accessToken: string | undefined) {
     const isAdmin =
         isLogin && accessTokenPayload.authorities.includes("ROLE_ADMIN");
 
-
     const me: components["schemas"]["MemberDto"] | null = isLogin
         ? {
             id: accessTokenPayload.id,

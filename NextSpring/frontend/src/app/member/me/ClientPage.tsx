@@ -1,6 +1,7 @@
 "use client";
-import Link from "next/link";
+
 import { components } from "@/lib/backend/apiV1/schema";
+import Link from "next/link";
 
 export default function ClientPage({
                                        me,

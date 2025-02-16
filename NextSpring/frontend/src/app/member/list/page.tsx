@@ -20,7 +20,7 @@ export default async function Page({
         page = 1,
     } = await searchParams;
 
-    const response = await client.GET("/api/v1/members", {
+    const response = await client.GET("/api/v1/adm/members", {
         params: {
             query: {
                 searchKeyword,

@@ -249,4 +249,11 @@ public class ReqData {
 
         resp.addHeader("Set-Cookie", cookie.toString());
     }
+
+    public void refreshAccessToken(Member member) {
+        String newAccessToken = memberService.genAccessToken(member);
+
+        setHeader("Authorization", "Bearer " + member.getApiKey() + " " + newAccessToken);
+        setCookie("accessToken", newAccessToken);
+    }
 }
