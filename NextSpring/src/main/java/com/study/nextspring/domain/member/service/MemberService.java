@@ -6,6 +6,7 @@ import com.study.nextspring.domain.member.repository.MemberRepository;
 import com.study.nextspring.global.base.MemberSearchKeywordTypeV1;
 import com.study.nextspring.global.base.UtClass;
 import com.study.nextspring.global.exception.ServiceException;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -107,6 +108,10 @@ public class MemberService {
             case "username" -> memberRepository.findByUsernameLike(searchKeyword, pageRequest);
             default -> memberRepository.findByNicknameLike(searchKeyword, pageRequest);
         };
+    }
+
+    public void modify(Member member, @NotBlank String nickname) {
+        member.setNickname(nickname);
     }
 
 }

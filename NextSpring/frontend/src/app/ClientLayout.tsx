@@ -27,10 +27,12 @@ export default function ClientLayout({
     return (
         <>
             <header className="border-[2px] border-[red] p-5">
-                <div className="flex gap-2">
+                <div className="flex gap-4">
                     <Link href="/">홈</Link>
                     <Link href="/about">소개</Link>
                     <Link href="/post/list">글</Link>
+                    <Link href="/post/list">공개글</Link>
+                    {isLogin && <Link href="/post/mine">내글</Link>}
                     {isLogin && <Link href="/post/write">글 쓰기</Link>}
                     {!isLogin && <Link href="/member/join">회원가입</Link>}
                     {!isLogin && <Link href="/member/login">로그인</Link>}

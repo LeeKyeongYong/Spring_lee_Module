@@ -106,6 +106,7 @@ function parseCookie(cookieStr: string) {
 function requiresLogin(pathname: string): boolean {
     return (
         pathname.startsWith("/post/write") ||
+        pathname.startsWith("/post/mine") ||
         pathname.match(/^\/post\/\d+\/edit$/) !== null ||
         pathname.startsWith("/member/me")
     );

@@ -5,6 +5,7 @@ import com.study.nextspring.domain.auth.service.AuthTokenService;
 import com.study.nextspring.domain.member.dto.MemberDto;
 import com.study.nextspring.domain.member.dto.req.MemberJoinReqBody;
 import com.study.nextspring.domain.member.dto.req.MemberLoginReqBody;
+import com.study.nextspring.domain.member.dto.req.MemberModifyMeReqBody;
 import com.study.nextspring.domain.member.dto.res.MemberLoginResBody;
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.member.service.MemberService;
@@ -106,6 +107,23 @@ public class ApiV1MemberController {
                 "201-1",
                 "%s님 환영합니다. 회원가입이 완료되었습니다.".formatted(member.getName()),
                 new MemberDto(member)
+        );
+    }
+
+    @PutMapping("/me")
+    @Transactional
+    @Operation(summary = "내 정보 수정")
+    public RespData<MemberDto> modifyMe(
+            @RequestBody @Valid MemberModifyMeReqBody reqBody
+    ) {
+        Member actor = memberService.findByUsername(rq.getActor().getUsername()).get();
+
+        memberService.modify(actor, reqBody.nickname());
+
+        return RespData.of(
+                "200-1",
+                "회원정보가 수정되었습니다.",
+                new MemberDto(actor)
         );
     }
 

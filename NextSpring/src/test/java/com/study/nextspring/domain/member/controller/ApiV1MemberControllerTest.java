@@ -368,4 +368,32 @@ public class ApiV1MemberControllerTest {
                 });
     }
 
+    @Test
+    @DisplayName("me/edit")
+    @WithUserDetails("user1")
+    void t13() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        put("/api/v1/members/me")
+                                .content("""
+                                        {
+                                            "nickname": "새별명"
+                                        }
+                                        """.stripIndent())
+                                .contentType(
+                                        new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                                )
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("200-1"))
+                .andExpect(jsonPath("$.msg").value("회원정보가 수정되었습니다."))
+                .andExpect(jsonPath("$.data.id").value(3))
+                .andExpect(jsonPath("$.data.createDate").exists())
+                .andExpect(jsonPath("$.data.modifyDate").exists())
+                .andExpect(jsonPath("$.data.nickname").value("새별명"));
+    }
+
 }
