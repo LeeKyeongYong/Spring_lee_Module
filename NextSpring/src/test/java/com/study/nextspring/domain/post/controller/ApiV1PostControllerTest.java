@@ -4,7 +4,7 @@ import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.member.service.MemberService;
 import com.study.nextspring.domain.post.entity.Post;
 import com.study.nextspring.domain.post.service.PostService;
-import com.study.nextspring.global.base.KwTypeV1;
+import com.study.nextspring.global.base.PostSearchKeywordTypeV1;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -516,7 +516,7 @@ public class ApiV1PostControllerTest {
                 .andDo(print());
 
         Page<Post> postPage = postService
-                .findByListedPaged(true, KwTypeV1.fromString("title"), "축구", 1, 3);
+                .findByListedPaged(true, PostSearchKeywordTypeV1.fromString("title"), "축구", 1, 3);
 
         resultActions
                 .andExpect(handler().handlerType(ApiV1PostController.class))
@@ -554,7 +554,7 @@ public class ApiV1PostControllerTest {
                 .andDo(print());
 
         Page<Post> postPage = postService
-                .findByListedPaged(true, KwTypeV1.fromString("content"), "18명", 1, 3);
+                .findByListedPaged(true, PostSearchKeywordTypeV1.fromString("content"), "18명", 1, 3);
 
         resultActions
                 .andExpect(handler().handlerType(ApiV1PostController.class))
@@ -638,7 +638,7 @@ public class ApiV1PostControllerTest {
                 .andDo(print());
 
         Page<Post> postPage = postService
-                .findByAuthorPaged(actor, KwTypeV1.fromString("title"), "발야구", 1, 3);
+                .findByAuthorPaged(actor, PostSearchKeywordTypeV1.fromString("title"), "발야구", 1, 3);
 
         resultActions
                 .andExpect(handler().handlerType(ApiV1PostController.class))
@@ -680,7 +680,7 @@ public class ApiV1PostControllerTest {
                 .andDo(print());
 
         Page<Post> postPage = postService
-                .findByAuthorPaged(actor, KwTypeV1.fromString("content"), "18명", 1, 3);
+                .findByAuthorPaged(actor, PostSearchKeywordTypeV1.fromString("content"), "18명", 1, 3);
 
         resultActions
                 .andExpect(handler().handlerType(ApiV1PostController.class))

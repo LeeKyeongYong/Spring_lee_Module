@@ -3,6 +3,8 @@ package com.study.nextspring.domain.member.service;
 import com.study.nextspring.domain.auth.service.AuthTokenService;
 import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.member.repository.MemberRepository;
+import com.study.nextspring.global.base.MemberSearchKeywordTypeV1;
+import com.study.nextspring.global.base.UtClass;
 import com.study.nextspring.global.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -92,6 +94,19 @@ public class MemberService {
         PageRequest pageRequest = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Order.desc("id")));
 
         return memberRepository.findAll(pageRequest);
+    }
+
+    public Page<Member> findByPaged(MemberSearchKeywordTypeV1 searchKeywordType, String searchKeyword, int page, int pageSize) {
+        if (UtClass.str.isBlank(searchKeyword)) return findByPaged(page, pageSize);
+
+        PageRequest pageRequest = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Order.desc("id")));
+
+        searchKeyword = "%" + searchKeyword + "%";
+
+        return switch (searchKeywordType.toString()) {  // 열거형 상수 이름을 문자열로 변환
+            case "username" -> memberRepository.findByUsernameLike(searchKeyword, pageRequest);
+            default -> memberRepository.findByNicknameLike(searchKeyword, pageRequest);
+        };
     }
 
 }

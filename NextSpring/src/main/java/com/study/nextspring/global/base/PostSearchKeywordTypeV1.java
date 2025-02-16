@@ -3,7 +3,7 @@ package com.study.nextspring.global.base;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public enum KwTypeV1 {
+public enum PostSearchKeywordTypeV1 {
     all("all"),
     title("title"),
     content("content"),
@@ -11,8 +11,8 @@ public enum KwTypeV1 {
 
     private final String value;
 
-    public static KwTypeV1 fromString(String text) {
-        for (KwTypeV1 type : KwTypeV1.values()) {
+    public static PostSearchKeywordTypeV1 fromString(String text) {
+        for (PostSearchKeywordTypeV1 type : PostSearchKeywordTypeV1.values()) {
             if (type.value.equalsIgnoreCase(text)) {
                 return type;
             }

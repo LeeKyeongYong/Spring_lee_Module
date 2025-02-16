@@ -9,18 +9,18 @@ export default function ClientPage({
                                        searchKeywordType,
                                        page,
                                        pageSize,
-                                       responseBody,
+                                       itemPage,
                                    }: {
     searchKeyword: string;
     searchKeywordType: string;
     page: number;
     pageSize: number;
-    responseBody: components["schemas"]["PageDtoPostDto"];
+    itemPage: components["schemas"]["PageDtoPostDto"];
 }) {
     const router = useRouter();
 
-    const totalPages = responseBody.pageable.totalPages;
-    const currentPage = responseBody.pageable.pageNumber + 1; // 페이지는 1부터 시작
+    const totalPages = itemPage.pageable.totalPages;
+    const currentPage = itemPage.pageable.pageNumber + 1; // 페이지는 1부터 시작
     const pagesToShow = 5; // 페이지 링크에서 보여줄 페이지 수
     const pageLinks = [];
 
@@ -126,10 +126,10 @@ export default function ClientPage({
             </form>
 
             <div>
-                <div>currentPageNumber: {responseBody.pageable.pageNumber}</div>
-                <div>pageSize: {responseBody.pageable.pageSize}</div>
-                <div>totalPages: {responseBody.pageable.totalPages}</div>
-                <div>totalItems: {responseBody.pageable.totalElements}</div>
+                <div>currentPageNumber: {itemPage.pageable.pageNumber}</div>
+                <div>pageSize: {itemPage.pageable.pageSize}</div>
+                <div>totalPages: {itemPage.pageable.totalPages}</div>
+                <div>totalItems: {itemPage.pageable.totalElements}</div>
             </div>
 
             <hr />
@@ -139,10 +139,10 @@ export default function ClientPage({
             <hr />
 
             <ul>
-                {responseBody.content.length === 0 ? (
+                {itemPage.content.length === 0 ? (
                     <div>No posts available.</div>
                 ) : (
-                    responseBody.content.map((item) => (
+                    itemPage.content.map((item) => (
                         <li key={item.id} className="border-[2px] border-[red] my-3">
                             <Link className="block" href={`/post/${item.id}`}>
                                 <div>id : {item.id}</div>

@@ -7,7 +7,7 @@ import com.study.nextspring.domain.post.dto.res.PostStatisticsResBody;
 import com.study.nextspring.domain.post.entity.Post;
 import com.study.nextspring.domain.post.service.PostService;
 import com.study.nextspring.global.base.Empty;
-import com.study.nextspring.global.base.KwTypeV1;
+import com.study.nextspring.global.base.PostSearchKeywordTypeV1;
 import com.study.nextspring.global.exception.ServiceException;
 import com.study.nextspring.global.httpsdata.ReqData;
 import com.study.nextspring.global.httpsdata.RespData;
@@ -47,7 +47,7 @@ public class ApiV1PostController {
     @Transactional(readOnly = true)
     @Operation(summary = "내글 다건 조회")
     public PageDto<PostDto> mine(
-            @RequestParam(name = "searchKeywordType",defaultValue = "title") KwTypeV1 searchKeywordType,
+            @RequestParam(name = "searchKeywordType",defaultValue = "title") PostSearchKeywordTypeV1 searchKeywordType,
             @RequestParam(name = "searchKeyword",defaultValue = "") String searchKeyword,
             @RequestParam(name = "page",defaultValue = "1") int page,
             @RequestParam(name = "pageSize",defaultValue = "10") int pageSize
@@ -64,7 +64,7 @@ public class ApiV1PostController {
     @Transactional(readOnly = true)
     @Operation(summary = "공개글 다건 조회")
     public PageDto<PostDto> items(
-            @RequestParam(name = "searchKeywordType",defaultValue = "title") KwTypeV1 searchKeywordType,
+            @RequestParam(name = "searchKeywordType",defaultValue = "title") PostSearchKeywordTypeV1 searchKeywordType,
             @RequestParam(name = "searchKeyword",defaultValue = "") String searchKeyword,
             @RequestParam(name = "page",defaultValue = "1") int page,
             @RequestParam(name = "pageSize",defaultValue = "10") int pageSize
