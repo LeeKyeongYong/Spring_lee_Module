@@ -17,40 +17,30 @@ export default async function Page({
         searchKeywordType = "username",
         pageSize = 10,
         page = 1,
-    } = searchParams;
+    } = searchParams; // await 제거
 
     try {
         const response = await client.GET("/api/v1/adm/members", {
             params: {
                 query: {
-                    searchKeywordType,
                     searchKeyword,
-                    page,
+                    searchKeywordType,
                     pageSize,
+                    page,
                 },
             },
             headers: {
-                cookie: cookies().toString(),
+                cookie: (await cookies()).toString(),
             },
         });
 
-        if (!response || !response.data) {
-            throw new Error('API 응답이 올바르지 않습니다.');
+        // 에러 응답 처리
+        if (response.error) {
+            return <div>Error: {response.error.msg}</div>;
         }
 
-        // API 응답 구조에 맞게 데이터 추출
-        const itemPage = {
-            currentPageNumber: page,
-            pageSize: pageSize,
-            totalPages: response.data.totalPages,
-            totalItems: response.data.totalElements,
-            items: response.data.content.map((item: any) => ({
-                id: item.id,
-                createDate: item.createDate,
-                username: item.username,
-                nickname: item.nickname,
-            })),
-        };
+        // response.data를 직접 사용
+        const itemPage = response.data;
 
         return (
             <ClientPage

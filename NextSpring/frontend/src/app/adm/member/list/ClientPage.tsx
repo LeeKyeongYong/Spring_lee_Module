@@ -4,14 +4,6 @@ import type { components } from "@/lib/backend/apiV1/schema";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-interface PageDtoMemberWithUsernameDto {
-    currentPageNumber: number;
-    pageSize: number;
-    totalPages: number;
-    totalItems: number;
-    items: components["schemas"]["MemberWithUsernameDto"][];
-}
-
 export default function ClientPage({
                                        searchKeyword,
                                        searchKeywordType,
@@ -23,7 +15,7 @@ export default function ClientPage({
     searchKeywordType: string;
     page: number;
     pageSize: number;
-    itemPage: PageDtoMemberWithUsernameDto;
+    itemPage: components["schemas"]["PageDtoMemberWithUsernameDto"];
 }) {
     const router = useRouter();
 
@@ -46,7 +38,7 @@ export default function ClientPage({
             >
                 <input type="hidden" name="page" value="1" />
                 <select name="pageSize" defaultValue={pageSize}>
-                    <option disabled>페이지당 행 수</option>
+                    <option disabled>페이당 행 수</option>
                     <option value="10">10</option>
                     <option value="30">30</option>
                     <option value="50">50</option>
@@ -66,10 +58,13 @@ export default function ClientPage({
             </form>
 
             <div>
-                <div>현재 페이지: {itemPage.currentPageNumber}</div>
-                <div>페이지당 항목 수: {itemPage.pageSize}</div>
-                <div>전체 페이지 수: {itemPage.totalPages}</div>
-                <div>전체 항목 수: {itemPage.totalItems}</div>
+                <div>currentPageNumber: {itemPage.currentPageNumber}</div>
+
+                <div>pageSize: {itemPage.pageSize}</div>
+
+                <div>totalPages: {itemPage.totalPages}</div>
+
+                <div>totalItems: {itemPage.totalItems}</div>
             </div>
 
             <hr />
@@ -96,14 +91,32 @@ export default function ClientPage({
                 {itemPage.items.map((item) => (
                     <li key={item.id} className="border-[2px] border-[red] my-3">
                         <Link className="block" href={`${item.id}`}>
-                            <div>id: {item.id}</div>
-                            <div>가입일: {item.createDate}</div>
-                            <div>아이디: {item.username}</div>
-                            <div>별명: {item.nickname}</div>
+                            <div>id : {item.id}</div>
+                            <div>createDate : {item.createDate}</div>
+                            <div>username : {item.username}</div>
+                            <div>nickname : {item.nickname}</div>
                         </Link>
                     </li>
                 ))}
             </ul>
+
+            <hr />
+
+            <div className="flex my-2 gap-2">
+                {Array.from({ length: itemPage.totalPages }, (_, i) => i + 1).map(
+                    (pageNum) => (
+                        <Link
+                            key={pageNum}
+                            className={`px-2 py-1 border rounded ${
+                                pageNum === itemPage.currentPageNumber ? "text-red-500" : ""
+                            }`}
+                            href={`?page=${pageNum}&pageSize=${pageSize}&searchKeywordType=${searchKeywordType}&searchKeyword=${searchKeyword}`}
+                        >
+                            {pageNum}
+                        </Link>
+                    )
+                )}
+            </div>
         </div>
     );
 }
