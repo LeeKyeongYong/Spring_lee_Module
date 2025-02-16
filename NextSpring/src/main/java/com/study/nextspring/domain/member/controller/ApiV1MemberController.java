@@ -11,6 +11,7 @@ import com.study.nextspring.domain.member.entity.Member;
 import com.study.nextspring.domain.member.service.MemberService;
 import com.study.nextspring.global.base.Empty;
 import com.study.nextspring.global.base.MemberSearchKeywordTypeV1;
+import com.study.nextspring.global.base.UtClass;
 import com.study.nextspring.global.base.dto.PageDto;
 import com.study.nextspring.global.exception.ServiceException;
 import com.study.nextspring.global.httpsdata.ReqData;
@@ -101,6 +102,9 @@ public class ApiV1MemberController {
     public RespData<MemberDto> join(
             @RequestBody @Valid MemberJoinReqBody reqBody
     ) {
+
+        //UtClass
+
         Member member = memberService.join(reqBody.username(), reqBody.password(), reqBody.nickname());
 
         return RespData.of(

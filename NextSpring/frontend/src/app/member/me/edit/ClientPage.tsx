@@ -1,8 +1,8 @@
 "use client";
 
 import { components } from "@/lib/backend/apiV1/schema";
-import { useRouter } from "next/navigation";
 import client from "@/lib/backend/client";
+import { useRouter } from "next/navigation";
 
 export default function ClientPage({
                                        me,
