@@ -8,16 +8,18 @@ export default async function Page({
     searchParams: {
         searchKeywordType?: "username" | "nickname";
         searchKeyword?: string;
-        pageSize?: number;
-        page?: number;
+        pageSize?: string | number;
+        page?: string | number;
     };
 }) {
-    const {
-        searchKeyword = "",
-        searchKeywordType = "username",
-        pageSize = 10,
-        page = 1,
-    } = searchParams; // await 제거
+    // searchParams를 await로 처리
+    const params = await searchParams;
+
+    // 값 변환 및 기본값 설정
+    const searchKeyword = String(params.searchKeyword || "");
+    const searchKeywordType = (params.searchKeywordType || "username") as "username" | "nickname";
+    const pageSize = Number(params.pageSize || 10);
+    const page = Number(params.page || 1);
 
     try {
         const response = await client.GET("/api/v1/adm/members", {
@@ -34,12 +36,10 @@ export default async function Page({
             },
         });
 
-        // 에러 응답 처리
         if (response.error) {
             return <div>Error: {response.error.msg}</div>;
         }
 
-        // response.data를 직접 사용
         const itemPage = response.data;
 
         return (
