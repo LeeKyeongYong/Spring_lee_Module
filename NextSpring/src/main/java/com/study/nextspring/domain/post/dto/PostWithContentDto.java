@@ -7,20 +7,8 @@ import org.springframework.lang.NonNull;
 import java.time.LocalDateTime;
 
 @Getter
-public class PostWithContentDto {
+public class PostWithContentDto extends PostDto {
 
-    @NonNull
-    private long id;
-    @NonNull
-    private LocalDateTime createDate;
-    @NonNull
-    private LocalDateTime modifyDate;
-    @NonNull
-    private long authorId;
-    @NonNull
-    private String authorName;
-    @NonNull
-    private String title;
     @NonNull
     private String content;
     @NonNull
@@ -35,12 +23,7 @@ public class PostWithContentDto {
     private Boolean actorCanDelete;
 
     public PostWithContentDto(Post post) {
-        this.id = post.getId();
-        this.createDate = post.getCreateDate();
-        this.modifyDate = post.getModifyDate();
-        this.authorId = post.getAuthor().getId();
-        this.authorName = post.getAuthor().getName();
-        this.title = post.getTitle();
+        super(post);
         this.content = post.getContent();
         this.published = post.isPublished();
         this.listed = post.isListed();
