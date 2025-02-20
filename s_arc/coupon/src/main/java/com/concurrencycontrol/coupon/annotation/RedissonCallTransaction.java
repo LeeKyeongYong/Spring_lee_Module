@@ -20,7 +20,6 @@ public class RedissonCallTransaction {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Object proceed(final ProceedingJoinPoint joinPoint) throws Throwable {
-        // 새로운 트랜잭션에서 메서드를 실행합니다.
         return joinPoint.proceed();
     }
 }
