@@ -1,4 +1,4 @@
-package com.s_arc;
+package com.concurrencycontrol.coupon.annotation;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

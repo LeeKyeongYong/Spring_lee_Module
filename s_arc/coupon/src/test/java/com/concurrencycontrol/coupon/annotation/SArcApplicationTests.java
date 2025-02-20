@@ -1,4 +1,4 @@
-package com.s_arc;
+package com.concurrencycontrol.coupon.annotation;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
