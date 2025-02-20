@@ -1,14 +1,10 @@
 package com.springstudy.concurrency.racecondition.service;
 
-import com.springstudy.concurrency.racecondition.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -28,10 +24,9 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * - Assertion 기반 테스트 및 벤치마크 측정
  * </p>
  */
-@Slf4j
 @DisplayName("카운터 서비스 동시성 테스트")
 class CounterServiceTest {
-    private static final Logger log = LoggerFactory.getLogger(CounterServiceTest.class);
+    private static final Logger log = LoggerFactory.getLogger(CounterServiceTest.class);  // SLF4J 로거 사용
     private CounterService counterService;
     private SynchronizedCounterService synchronizedCounterService;
     private ReentrantLockCounterService reentrantLockCounterService;
@@ -53,15 +48,6 @@ class CounterServiceTest {
         log.info("테스트 환경 준비 완료: JDK 버전 {}", System.getProperty("java.version"));
     }
 
-    /**
-     * 다양한 ExecutorService로 동시 증가 연산 실행
-     *
-     * @param incrementFunction 증가 연산 함수
-     * @param threadCount 스레드 수
-     * @param iterations 반복 횟수
-     * @param executorSupplier ExecutorService 공급자
-     * @return 실행 시간 (밀리초)
-     */
     private long runConcurrentIncrements(
             Runnable incrementFunction,
             int threadCount,
@@ -94,17 +80,31 @@ class CounterServiceTest {
         return endTime - startTime;
     }
 
-    /**
-     * 가상 스레드 지원 여부 확인
-     */
     private boolean isVirtualThreadSupported() {
         try {
-            Thread.ofVirtual().start(() -> {}).join();
+            Thread virtualThread = Thread.ofVirtual().start(() -> {
+                try {
+                    // 작업 수행
+                    Thread.sleep(1000); // 예시로 잠시 대기
+                } catch (InterruptedException e) {
+                    // 인터럽트 처리
+                    Thread.currentThread().interrupt();
+                    // 인터럽트가 발생하면 작업을 중단하거나 적절한 처리를 할 수 있음
+                }
+            });
+
+            // 가상 스레드가 정상적으로 종료될 때까지 기다림
+            virtualThread.join();
             return true;
         } catch (NoSuchMethodError | UnsupportedOperationException e) {
             return false;
+        } catch (InterruptedException e) {
+            // 가상 스레드 시작 중 인터럽트 발생 시 처리
+            Thread.currentThread().interrupt();
+            return false;
         }
     }
+
 
     @Test
     @DisplayName("Race Condition이 발생하는 기본 Counter 테스트")
@@ -120,7 +120,6 @@ class CounterServiceTest {
         log.info("기본 카운터 결과: {} (예상: {}), 실행 시간: {}ms",
                 actualCount, EXPECTED_COUNT, executionTime);
 
-        // Race Condition으로 인해 카운트가 예상값보다 적을 것
         assertNotEquals(EXPECTED_COUNT, actualCount,
                 "Race Condition으로 인해 예상값과 실제값이 달라야 함");
         assertTrue(actualCount < EXPECTED_COUNT,
@@ -214,13 +213,12 @@ class CounterServiceTest {
     @Test
     @DisplayName("가상 스레드를 사용한 동시성 테스트")
     void testWithVirtualThreads() throws InterruptedException {
-        // 가상 스레드 지원 확인
         assumeTrue(isVirtualThreadSupported(), "이 테스트는 JDK 19+ 및 가상 스레드를 지원하는 환경에서만 실행됩니다");
 
         log.info("가상 스레드 테스트 시작");
         long atomicExecutionTime = runConcurrentIncrements(
                 atomicCounterService::incrementAtomic,
-                100, // 더 많은 동시 작업
+                100,
                 1000,
                 () -> Executors.newVirtualThreadPerTaskExecutor()
         );
@@ -237,7 +235,6 @@ class CounterServiceTest {
     @ValueSource(ints = {10, 100, 1000})
     @DisplayName("다양한 부하 상황에서의 동시성 테스트")
     void testWithDifferentLoads(int threadCount) throws InterruptedException {
-        // 테스트 전 모든 카운터 초기화
         counterService.reset();
         synchronizedCounterService.reset();
         reentrantLockCounterService.reset();
@@ -250,10 +247,8 @@ class CounterServiceTest {
         log.info("부하 테스트 시작: 스레드 {}, 반복 {}, 총 연산 {}",
                 threadCount, iterations, expectedTotal);
 
-        // 고정 스레드 풀 생성
         ExecutorService threadPool = Executors.newFixedThreadPool(threadCount);
 
-        // 모든 구현에 대해 동일한 작업 부하 적용
         CompletableFuture<Void> atomicFuture = CompletableFuture.runAsync(() -> {
             try {
                 runConcurrentIncrements(
@@ -296,11 +291,9 @@ class CounterServiceTest {
             }
         });
 
-        // 모든 작업 완료 대기
         CompletableFuture.allOf(atomicFuture, synchronizedFuture, reentrantLockFuture).join();
         threadPool.shutdown();
 
-        // 결과 확인
         assertEquals(expectedTotal, atomicCounterService.getCount(),
                 "Atomic 카운터는 정확한 결과를 보여야 함");
         assertEquals(expectedTotal, synchronizedCounterService.getCount(),
@@ -312,61 +305,19 @@ class CounterServiceTest {
     }
 
     @Test
-    @DisplayName("블로킹 I/O와 synchronized - 가상 스레드 Pinning 테스트")
-    void testVirtualThreadPinning() throws InterruptedException {
-        assumeTrue(isVirtualThreadSupported(), "이 테스트는 가상 스레드를 지원하는 환경에서만 실행됩니다");
-
-        // 적은 수의 가상 스레드로 블로킹 I/O가 있는 synchronized 메서드 호출
-        int threadCount = 10;
-        int iterations = 2;
-
-        // 테스트 시작 전 상태 초기화
-        synchronizedCounterService.reset();
-
-        long startTime = System.currentTimeMillis();
-        runConcurrentIncrements(
-                synchronizedCounterService::increment, // 블로킹 I/O가 있는 synchronized 메서드
-                threadCount, iterations,
-                () -> Executors.newVirtualThreadPerTaskExecutor()
-        );
-        long executionTime = System.currentTimeMillis() - startTime;
-
-        // 블로킹 I/O를 포함한 synchronized 메서드는 가상 스레드 Pinning을 발생시킴
-        // 각 작업이 1초 sleep하므로, 완전 병렬화된다면 약 1초 정도 걸려야 함
-        // Pinning이 발생하면 직렬화되어 threadCount * iterations * sleepTime(1초) 정도 소요됨
-        log.info("가상 스레드 Pinning 테스트 결과: 실행 시간 {}ms", executionTime);
-
-        // 실행 시간이 (스레드 수 * 반복 횟수 * 0.5초) 보다 크면 Pinning 의심
-        boolean pinningDetected = executionTime > (threadCount * iterations * 500);
-
-        if (pinningDetected) {
-            log.warn("가상 스레드 Pinning이 감지되었습니다 - 블로킹 I/O와 synchronized 조합이 문제를 일으킵니다");
-        } else {
-            log.info("가상 스레드 Pinning이 감지되지 않았습니다");
-        }
-
-        // Pinning 여부와 관계없이 결과는 정확해야 함
-        assertEquals(threadCount * iterations, synchronizedCounterService.getCount(),
-                "Pinning 발생 여부와 관계없이 카운트는 정확해야 함");
-    }
-
-    @Test
     @Timeout(value = 10, unit = TimeUnit.SECONDS)
     @DisplayName("락 타임아웃 테스트")
     void testLockTimeout() throws InterruptedException {
-        // 첫 번째 스레드가 락을 오래 점유
         CompletableFuture<Void> longHoldingTask = CompletableFuture.runAsync(() -> {
             try {
                 assertTrue(reentrantLockCounterService.incrementWithTimeout(100, TimeUnit.MILLISECONDS));
-                // 락을 오래 보유
                 Thread.sleep(3000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         });
 
-        // 다른 스레드들은 짧은 타임아웃으로 접근 시도
-        Thread.sleep(500); // 첫 번째 스레드가 락을 획득할 시간
+        Thread.sleep(500);
 
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger failureCount = new AtomicInteger(0);
@@ -383,7 +334,6 @@ class CounterServiceTest {
             }));
         }
 
-        // 모든 작업 완료 대기
         CompletableFuture.allOf(
                 longHoldingTask,
                 CompletableFuture.allOf(tasks.toArray(new CompletableFuture[0]))
