@@ -27,8 +27,8 @@ public class DistributedLockManager {
      */
     public Object executeWithLock(DistributedLock distributedLock, String key, LockCallback callback) {
 
-        // Redisson 클라이언트를 사용하여 락을 획득합니다.
-        RLock rLock = redissonClient.getLock(key);
+        // FairLock 으로 변경
+        RLock rLock = redissonClient.getFairLock(key);
 
         try {
             // 락을 획득하려 시도합니다. 성공하면 true, 실패하면 false를 반환합니다.

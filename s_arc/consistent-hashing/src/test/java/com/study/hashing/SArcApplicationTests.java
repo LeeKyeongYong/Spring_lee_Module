@@ -1,4 +1,4 @@
-package com.s_arc;
+package com.study.hashing;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
