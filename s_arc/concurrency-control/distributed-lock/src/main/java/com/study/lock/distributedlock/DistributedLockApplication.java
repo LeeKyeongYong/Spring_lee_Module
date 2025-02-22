@@ -1,13 +1,13 @@
-package com.s_arc;
+package com.study.lock.distributedlock;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SArcApplication {
+public class DistributedLockApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SArcApplication.class, args);
+		SpringApplication.run(DistributedLockApplication.class, args);
 	}
 
 }

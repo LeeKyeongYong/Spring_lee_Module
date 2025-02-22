@@ -1,10 +1,10 @@
-package com.s_arc;
+package com.study.lock.distributedlock;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class SArcApplicationTests {
+class DistributedLockApplicationTests {
 
 	@Test
 	void contextLoads() {
