@@ -1,3 +1,4 @@
+*.proto
 HELP.md
 .gradle
 build/
